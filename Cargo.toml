@@ -1,0 +1,6 @@
+[package]
+name = "labyru"
+version = "0.1.0"
+authors = ["Moses Palmér <mosespalmer@gmail.com>"]
+
+[dependencies]

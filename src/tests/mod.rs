@@ -21,3 +21,14 @@ fn height_correct() {
 
     assert!(maze.height() == height);
 }
+
+
+#[test]
+#[should_panic]
+fn invalid_access_fails() {
+    let width = 10;
+    let height = 5;
+    let maze = Maze::<data::TestRoom>::new(width, height);
+
+    &maze[(width, height)];
+}

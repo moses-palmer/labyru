@@ -2,9 +2,11 @@ pub mod room;
 
 extern crate ndarray;
 
+use std::ops::Index;
+
 use ndarray::{Array2, Axis};
 
-use room::Room;
+use room::{Pos, Room};
 
 
 /// A maze is a collection of rooms.
@@ -36,6 +38,21 @@ impl<R> Maze<R>
     /// The number of rooms across the maze, vertically.
     pub fn height(&self) -> usize {
         self.rooms.len_of(Axis(1))
+    }
+}
+
+
+impl<R> Index<Pos> for Maze<R>
+    where R: Room
+{
+    type Output = R;
+
+    /// Retrieves a reference to a specific room.
+    ///
+    /// # Arguments
+    /// * `index` - The position of the room to retrieve.
+    fn index(&self, index: Pos) -> &R {
+        &self.rooms[index]
     }
 }
 

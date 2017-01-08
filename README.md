@@ -1,0 +1,3 @@
+# labyru
+
+*labyru* generates mazes.

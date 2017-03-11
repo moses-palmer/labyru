@@ -4,7 +4,7 @@ use room::Room;
 pub struct TestRoom {}
 
 
-impl Room for TestRoom {}
+impl Rooms for TestRoom {}
 
 
 impl Clone for TestRoom {

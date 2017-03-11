@@ -1,61 +1,51 @@
-pub mod room;
-
 extern crate ndarray;
 
-use std::ops::Index;
-
-use ndarray::{Array2, Axis};
-
-use room::{Pos, Room};
-
-
-/// A maze is a collection of rooms.
-pub struct Maze<R>
-    where R: Room
-{
-    /// The actual room container
-    rooms: Array2<R>,
-}
-
-
-impl<R> Maze<R>
-    where R: Room
-{
-    /// Creates a new maze with all rooms closed.
-    ///
-    /// # Arguments
-    /// * `width` - The width of the maze.
-    /// * `height` - The height of the maze.
-    pub fn new(width: usize, height: usize) -> Maze<R> {
-        Maze { rooms: Array2::from_elem((width, height), R::default()) }
-    }
-
-    /// The number of rooms across the maze, horizontally.
-    pub fn width(&self) -> usize {
-        self.rooms.len_of(Axis(0))
-    }
-
-    /// The number of rooms across the maze, vertically.
-    pub fn height(&self) -> usize {
-        self.rooms.len_of(Axis(1))
-    }
-}
-
-
-impl<R> Index<Pos> for Maze<R>
-    where R: Room
-{
-    type Output = R;
-
-    /// Retrieves a reference to a specific room.
-    ///
-    /// # Arguments
-    /// * `index` - The position of the room to retrieve.
-    fn index(&self, index: Pos) -> &R {
-        &self.rooms[index]
-    }
-}
-
+pub mod room;
 
 #[cfg(test)]
 mod tests;
+
+
+/// A room position.
+///
+/// The position is not an attribute of a [room](trait.Room.html), but a room
+/// can be accessed from a [maze](../struct.Maze.html).
+pub type Pos = (isize, isize);
+
+
+trait Rooms<T>
+    where T: Clone + Default
+{
+    /// The number of rooms across the maze, horizontally.
+    fn width(&self) -> usize;
+
+    /// The number of rooms across the maze, vertically.
+    fn height(&self) -> usize;
+
+    /// Determines whether a position is inside of the maze.
+    ///
+    /// # Arguments
+    /// * `pos` - The room position.
+    fn is_inside(&self, pos: Pos) -> bool {
+        pos.0 >= 0 && pos.1 >= 0 && pos.0 < self.width() as isize &&
+        pos.1 < self.height() as isize
+    }
+
+
+    /// Retrieves a reference the room at a specific position if it exists.
+    ///
+    /// # Arguments
+    /// * `pos` - The room position.
+    fn get(&self, pos: Pos) -> Option<&room::Room<T>>;
+
+    /// Retrieves a mutable reference to the room at a specific position if it
+    /// exists.
+    ///
+    /// # Arguments
+    /// * `pos` - The room position.
+    fn get_mut(&mut self, pos: Pos) -> Option<&mut room::Room<T>>;
+}
+
+
+/// A maze contains rooms and has methods for managing paths and doors.
+trait Maze<T>: Rooms<T> where T: Clone + Default {}

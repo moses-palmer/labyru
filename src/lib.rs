@@ -16,6 +16,10 @@ mod tests;
 pub type Pos = (isize, isize);
 
 
+/// A matrix of rooms.
+///
+/// A room matrix has a width and a height, and rooms can be addressed by
+// position.
 trait Rooms<T>
     where T: Clone + Default
 {
@@ -35,7 +39,7 @@ trait Rooms<T>
     }
 
 
-    /// Retrieves a reference the room at a specific position if it exists.
+    /// Retrieves a reference to the room at a specific position if it exists.
     ///
     /// # Arguments
     /// * `pos` - The room position.
@@ -51,7 +55,7 @@ trait Rooms<T>
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-trait Maze<T>: Rooms<T>
+trait Maze<T>
     where T: Clone + Default
 {
     /// Returns whether a specified wall is open.
@@ -60,7 +64,7 @@ trait Maze<T>: Rooms<T>
     /// * `pos` - The room position.
     /// * `wall` - The wall to check.
     fn is_open(&self, pos: Pos, wall: &'static wall::Wall) -> bool {
-        match self.get(pos) {
+        match self.rooms().get(pos) {
             Some(room) => room.is_open(wall),
             None => false,
         }
@@ -74,13 +78,13 @@ trait Maze<T>: Rooms<T>
     /// * `value` - Whether to open the wall.
     fn set_open(&mut self, pos: Pos, wall: &'static wall::Wall, value: bool) {
         // First modify the requested wall...
-        if let Some(room) = self.get_mut(pos) {
+        if let Some(room) = self.rooms_mut().get_mut(pos) {
             room.set_open(wall, value);
         }
 
         // ..and then sync the value on the back
         let (other_pos, other_wall) = self.back(pos, wall);
-        if let Some(other_room) = self.get_mut(other_pos) {
+        if let Some(other_room) = self.rooms_mut().get_mut(other_pos) {
             other_room.set_open(other_wall, value);
         }
     }
@@ -136,4 +140,13 @@ trait Maze<T>: Rooms<T>
     /// # Arguments
     /// * `pos` - The room position.
     fn walls(&self, pos: Pos) -> &[&'static wall::Wall];
+
+    /// Retrieves a reference to the underlying rooms.
+    fn rooms(&self) -> &Rooms<T>;
+
+    /// Retrieves a mutable reference to the underlying rooms.
+    fn rooms_mut(&mut self) -> &mut Rooms<T>;
 }
+
+
+pub mod ndarray_rooms;

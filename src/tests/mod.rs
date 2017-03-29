@@ -1,11 +1,9 @@
 use std::collections::HashSet;
 
-use ndarray;
-
 use Maze;
 use Pos;
 use Rooms;
-use room;
+use ndarray_rooms;
 use wall;
 
 
@@ -20,41 +18,12 @@ define_walls! {
 
 
 pub struct TestMaze {
-    rooms: ndarray::Array2<room::Room<u32>>,
+    rooms: ndarray_rooms::Rooms<u32>,
 }
 
 impl TestMaze {
     pub fn new(width: usize, height: usize) -> TestMaze {
-        TestMaze {
-            rooms: ndarray::Array2::from_elem((width, height),
-                                              room::Room::default()),
-        }
-    }
-}
-
-impl ::Rooms<u32> for TestMaze {
-    fn width(&self) -> usize {
-        self.rooms.len_of(ndarray::Axis(0))
-    }
-
-    fn height(&self) -> usize {
-        self.rooms.len_of(ndarray::Axis(1))
-    }
-
-    fn get(&self, pos: ::Pos) -> Option<&room::Room<u32>> {
-        if self.is_inside(pos) {
-            self.rooms.get((pos.0 as usize, pos.1 as usize))
-        } else {
-            None
-        }
-    }
-
-    fn get_mut(&mut self, pos: ::Pos) -> Option<&mut room::Room<u32>> {
-        if self.is_inside(pos) {
-            self.rooms.get_mut((pos.0 as usize, pos.1 as usize))
-        } else {
-            None
-        }
+        TestMaze { rooms: ndarray_rooms::Rooms::new(width, height) }
     }
 }
 
@@ -72,6 +41,14 @@ impl ::Maze<u32> for TestMaze {
     fn walls(&self, pos: Pos) -> &[&'static wall::Wall] {
         &walls::ALL
     }
+
+    fn rooms(&self) -> &Rooms<u32> {
+        &self.rooms
+    }
+
+    fn rooms_mut(&mut self) -> &mut Rooms<u32> {
+        &mut self.rooms
+    }
 }
 
 
@@ -81,7 +58,7 @@ fn width_correct() {
     let height = 5;
     let maze = TestMaze::new(width, height);
 
-    assert!(maze.width() == width);
+    assert!(maze.rooms().width() == width);
 }
 
 
@@ -91,7 +68,7 @@ fn height_correct() {
     let height = 5;
     let maze = TestMaze::new(width, height);
 
-    assert!(maze.height() == height);
+    assert!(maze.rooms().height() == height);
 }
 
 
@@ -101,10 +78,10 @@ fn is_inside_correct() {
     let height = 5;
     let maze = TestMaze::new(width, height);
 
-    assert!(maze.is_inside((0, 0)));
-    assert!(maze.is_inside((width as isize - 1, height as isize - 1)));
-    assert!(!maze.is_inside((-1, -1)));
-    assert!(!maze.is_inside((width as isize, height as isize)));
+    assert!(maze.rooms().is_inside((0, 0)));
+    assert!(maze.rooms().is_inside((width as isize - 1, height as isize - 1)));
+    assert!(!maze.rooms().is_inside((-1, -1)));
+    assert!(!maze.rooms().is_inside((width as isize, height as isize)));
 }
 
 

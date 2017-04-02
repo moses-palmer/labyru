@@ -8,6 +8,8 @@ pub mod wall;
 #[cfg(test)]
 mod tests;
 
+mod open_set;
+
 
 /// A room position.
 ///

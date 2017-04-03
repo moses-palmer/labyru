@@ -1,6 +1,7 @@
 extern crate ndarray;
 
 pub mod room;
+pub mod walker;
 
 #[macro_use]
 pub mod wall;

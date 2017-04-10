@@ -120,3 +120,61 @@ fn walls_correct() {
     assert_eq!(walls.iter().cloned().collect::<HashSet<&wall::Wall>>().len(),
                walls.len());
 }
+
+
+#[test]
+fn walk_disconnected() {
+    let width = 10;
+    let height = 5;
+    let maze = TestMaze::new(width, height);
+
+    assert!(maze.walk((0, 0), (0, 1)).is_none());
+}
+
+
+#[test]
+fn walk_same() {
+    let width = 10;
+    let height = 5;
+    let maze = TestMaze::new(width, height);
+
+    let from = (0, 0);
+    let to = (0, 0);
+    let expected = vec![(0, 0)];
+    assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
+}
+
+
+#[test]
+fn walk_simple() {
+    let width = 10;
+    let height = 5;
+    let mut maze = TestMaze::new(width, height);
+
+    maze.open((0, 0), &walls::DOWN);
+
+    let from = (0, 0);
+    let to = (0, 1);
+    let expected = vec![(0, 0), (0, 1)];
+    assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
+}
+
+
+#[test]
+fn walk_shortest() {
+    let width = 10;
+    let height = 5;
+    let mut maze = TestMaze::new(width, height);
+
+    maze.open((0, 0), &walls::DOWN);
+    maze.open((0, 1), &walls::DOWN);
+    maze.open((0, 2), &walls::DOWN);
+    maze.open((0, 2), &walls::RIGHT);
+    maze.open((0, 3), &walls::RIGHT);
+    maze.open((1, 3), &walls::UP);
+
+    let from = (0, 0);
+    let to = (1, 3);
+    let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
+    assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
+}

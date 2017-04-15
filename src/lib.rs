@@ -284,71 +284,53 @@ mod tests {
     }
 
 
-    #[test]
-    fn width_correct() {
-        let width = 10;
-        let height = 5;
-        let maze = TestMaze::new(width, height);
+    /// Creates a test function that runs the tests for all known types of mazes.
+    macro_rules! maze_test {
+        ($test_function:ident, $name:ident) => {
+            #[test]
+            fn $name() {
+                let width = 10;
+                let height = 5;
 
-        assert!(maze.rooms().width() == width);
+                $test_function(&mut TestMaze::new(width, height));
+            }
+        }
     }
 
 
-    #[test]
-    fn height_correct() {
-        let width = 10;
-        let height = 5;
-        let maze = TestMaze::new(width, height);
-
-        assert!(maze.rooms().height() == height);
-    }
-
-
-    #[test]
-    fn is_inside_correct() {
-        let width = 10;
-        let height = 5;
-        let maze = TestMaze::new(width, height);
-
+    fn is_inside_correct<T: Clone + Default>(maze: &mut Maze<T>) {
         assert!(maze.rooms().is_inside((0, 0)));
         assert!(maze.rooms()
-            .is_inside((width as isize - 1, height as isize - 1)));
+            .is_inside((maze.rooms().width() as isize - 1,
+                        maze.rooms().height() as isize - 1)));
         assert!(!maze.rooms().is_inside((-1, -1)));
-        assert!(!maze.rooms().is_inside((width as isize, height as isize)));
+        assert!(!maze.rooms().is_inside((maze.rooms().width() as isize,
+                                         maze.rooms().height() as isize)));
     }
 
+    maze_test!(is_inside_correct, is_inside_correct_test);
 
-    #[test]
-    fn can_open() {
-        let width = 10;
-        let height = 5;
-        let mut maze = TestMaze::new(width, height);
 
+    fn can_open<T: Clone + Default>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
         assert!(maze.is_open((0, 0), &walls::DOWN));
         assert!(maze.is_open((0, 1), &walls::UP));
     }
 
+    maze_test!(can_open, can_open_test);
 
-    #[test]
-    fn can_close() {
-        let width = 10;
-        let height = 5;
-        let mut maze = TestMaze::new(width, height);
 
+    fn can_close<T: Clone + Default>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
         maze.close((0, 1), &walls::UP);
         assert!(!maze.is_open((0, 0), &walls::DOWN));
         assert!(!maze.is_open((0, 1), &walls::UP));
     }
 
+    maze_test!(can_close, can_close_test);
 
-    #[test]
-    fn walls_correct() {
-        let width = 10;
-        let height = 5;
-        let maze = TestMaze::new(width, height);
 
+    fn walls_correct<T: Clone + Default>(maze: &mut Maze<T>) {
         let walls = maze.walls((0, 1));
         assert_eq!(walls.iter()
                        .cloned()
@@ -357,36 +339,27 @@ mod tests {
                    walls.len());
     }
 
+    maze_test!(walls_correct, walls_correct_test);
 
-    #[test]
-    fn walk_disconnected() {
-        let width = 10;
-        let height = 5;
-        let maze = TestMaze::new(width, height);
 
+    fn walk_disconnected<T: Clone + Default>(maze: &mut Maze<T>) {
         assert!(maze.walk((0, 0), (0, 1)).is_none());
     }
 
+    maze_test!(walk_disconnected, walk_disconnected_test);
 
-    #[test]
-    fn walk_same() {
-        let width = 10;
-        let height = 5;
-        let maze = TestMaze::new(width, height);
 
+    fn walk_same<T: Clone + Default>(maze: &mut Maze<T>) {
         let from = (0, 0);
         let to = (0, 0);
         let expected = vec![(0, 0)];
         assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
     }
 
+    maze_test!(walk_same, walk_same_test);
 
-    #[test]
-    fn walk_simple() {
-        let width = 10;
-        let height = 5;
-        let mut maze = TestMaze::new(width, height);
 
+    fn walk_simple<T: Clone + Default>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
 
         let from = (0, 0);
@@ -395,13 +368,10 @@ mod tests {
         assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
     }
 
+    maze_test!(walk_simple, walk_simple_test);
 
-    #[test]
-    fn walk_shortest() {
-        let width = 10;
-        let height = 5;
-        let mut maze = TestMaze::new(width, height);
 
+    fn walk_shortest<T: Clone + Default>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
         maze.open((0, 1), &walls::DOWN);
         maze.open((0, 2), &walls::DOWN);
@@ -414,4 +384,6 @@ mod tests {
         let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
         assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
     }
+
+    maze_test!(walk_shortest, walk_shortest_test);
 }

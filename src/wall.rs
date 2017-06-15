@@ -37,7 +37,6 @@ impl Eq for Wall {}
 /// This is an internal library macro.
 macro_rules! define_walls {
     (
-            $wall_count:expr;
             $( $wall_name:ident = { $( $field:ident: $val:expr ),* } ),* ) => {
         pub mod walls {
             use $crate::wall as wall;
@@ -51,7 +50,7 @@ macro_rules! define_walls {
                 $( $field: $val ),*
             } );*;
 
-            pub static ALL: [&'static wall::Wall; $wall_count] = [
+            pub static ALL: &[&'static wall::Wall] = &[
                             $(&$wall_name),*];
         }
     }

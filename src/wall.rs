@@ -1,3 +1,6 @@
+use std;
+
+
 /// A bit mask for a wall.
 pub type Mask = u32;
 
@@ -8,7 +11,7 @@ pub type Mask = u32;
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, PartialOrd)]
 pub struct Wall {
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
@@ -30,6 +33,13 @@ impl Wall {
 
 
 impl Eq for Wall {}
+
+
+impl Ord for Wall {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.index.cmp(&other.index)
+    }
+}
 
 
 /// Defines a wall module.

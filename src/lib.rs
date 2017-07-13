@@ -20,7 +20,7 @@ pub type Pos = (isize, isize);
 ///
 /// A room matrix has a width and a height, and rooms can be addressed by
 // position.
-trait Rooms<T>
+pub trait Rooms<T>
     where T: Clone + Default
 {
     /// The number of rooms across the maze, horizontally.
@@ -55,7 +55,7 @@ trait Rooms<T>
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-trait Maze<T>
+pub trait Maze<T>
     where T: Clone + Default
 {
     /// Returns whether a specified wall is open.

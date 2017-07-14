@@ -1,3 +1,5 @@
+extern crate rand;
+
 pub mod matrix;
 pub mod room;
 
@@ -121,6 +123,8 @@ pub trait Maze: walker::Walkable {
 #[macro_use]
 mod tests;
 
+pub mod initialize;
+pub use initialize::*;
 pub mod shape;
 pub mod walker;
 pub use walker::*;

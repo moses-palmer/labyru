@@ -241,6 +241,8 @@ pub trait Maze<T: Room> {
 
 pub mod ndarray_rooms;
 
+pub mod quad;
+
 
 #[cfg(test)]
 mod tests {
@@ -248,48 +250,6 @@ mod tests {
 
     use super::*;
 
-
-    define_walls! {
-        UP = { dx: 0, dy: -1 },
-        LEFT = { dx: -1, dy: 0},
-        DOWN = { dx: 0, dy: 1},
-        RIGHT = { dx: 1, dy: 0}
-    }
-
-
-    pub struct TestMaze {
-        rooms: ndarray_rooms::Rooms<u32>,
-    }
-
-    impl TestMaze {
-        pub fn new(width: usize, height: usize) -> TestMaze {
-            TestMaze { rooms: ndarray_rooms::Rooms::new(width, height) }
-        }
-    }
-
-    impl ::Maze<u32> for TestMaze {
-        #[allow(unused_variables)]
-        fn opposite(&self,
-                    pos: Pos,
-                    wall: &'static ::wall::Wall)
-                    -> Option<&'static ::wall::Wall> {
-            Some(&walls::ALL[(wall.index + walls::ALL.len() / 2) %
-                             walls::ALL.len()])
-        }
-
-        #[allow(unused_variables)]
-        fn walls(&self, pos: Pos) -> &'static [&'static wall::Wall] {
-            &walls::ALL
-        }
-
-        fn rooms(&self) -> &Rooms<u32> {
-            &self.rooms
-        }
-
-        fn rooms_mut(&mut self) -> &mut Rooms<u32> {
-            &mut self.rooms
-        }
-    }
 
     impl Room for u32 {}
 
@@ -303,7 +263,7 @@ mod tests {
                 let width = 10;
                 let height = 5;
 
-                $test_function(&mut TestMaze::new(width, height));
+                $test_function(&mut quad::Maze::<u32>::new(width, height));
             }
         }
     }

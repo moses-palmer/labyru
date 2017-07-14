@@ -215,7 +215,7 @@ trait Maze<T>
     ///
     /// # Arguments
     /// * `pos` - The room position.
-    fn walls(&self, pos: Pos) -> &[&'static wall::Wall];
+    fn walls(&self, pos: Pos) -> &'static [&'static wall::Wall];
 
     /// Retrieves a reference to the underlying rooms.
     fn rooms(&self) -> &Rooms<T>;
@@ -240,8 +240,6 @@ mod tests {
 
 
     define_walls! {
-        4;
-
         UP = { dx: 0, dy: -1 },
         LEFT = { dx: -1, dy: 0},
         DOWN = { dx: 0, dy: 1},
@@ -270,7 +268,7 @@ mod tests {
         }
 
         #[allow(unused_variables)]
-        fn walls(&self, pos: Pos) -> &[&'static wall::Wall] {
+        fn walls(&self, pos: Pos) -> &'static [&'static wall::Wall] {
             &walls::ALL
         }
 

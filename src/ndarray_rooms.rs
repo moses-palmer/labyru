@@ -4,13 +4,13 @@ use room;
 
 
 pub struct Rooms<T>
-    where T: Clone + Default
+    where T: ::Room
 {
     rooms: ndarray::Array2<room::Room<T>>,
 }
 
 impl<T> Rooms<T>
-    where T: Clone + Default
+    where T: ::Room
 {
     pub fn new(width: usize, height: usize) -> Rooms<T> {
         Rooms {
@@ -21,7 +21,7 @@ impl<T> Rooms<T>
 }
 
 impl<T> ::Rooms<T> for Rooms<T>
-    where T: Clone + Default
+    where T: ::Room
 {
     fn width(&self) -> usize {
         self.rooms.len_of(ndarray::Axis(0))

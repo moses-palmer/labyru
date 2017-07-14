@@ -6,7 +6,7 @@ use wall;
 /// It has walls and openings connecting it with other rooms and a data content.
 #[derive(Clone, Debug, Default)]
 pub struct Room<T>
-    where T: Clone + Default
+    where T: ::Room
 {
     walls: wall::Mask,
     data: T,
@@ -14,7 +14,7 @@ pub struct Room<T>
 
 
 impl<T> Room<T>
-    where T: Clone + Default
+    where T: ::Room
 {
     /// Returns whether a specified wall is open.
     ///

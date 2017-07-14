@@ -16,13 +16,15 @@ mod open_set;
 pub type Pos = (isize, isize);
 
 
+/// The requirements for a room.
+pub trait Room: Clone + Default {}
+
+
 /// A matrix of rooms.
 ///
 /// A room matrix has a width and a height, and rooms can be addressed by
 // position.
-trait Rooms<T>
-    where T: Clone + Default
-{
+pub trait Rooms<T: Room> {
     /// The number of rooms across the maze, horizontally.
     fn width(&self) -> usize;
 
@@ -55,9 +57,21 @@ trait Rooms<T>
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-trait Maze<T>
-    where T: Clone + Default
-{
+pub trait Maze<T: Room> {
+    /// Returns the width of the maze.
+    ///
+    /// This is short hand for `self.rooms().width()`.
+    fn width(&self) -> usize {
+        self.rooms().width()
+    }
+
+    /// Returns the height of the maze.
+    ///
+    /// This is short hand for `self.rooms().height()`.
+    fn height(&self) -> usize {
+        self.rooms().height()
+    }
+
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
@@ -232,11 +246,7 @@ pub mod ndarray_rooms;
 mod tests {
     use std::collections::HashSet;
 
-    use Maze;
-    use Pos;
-    use Rooms;
-    use ndarray_rooms;
-    use wall;
+    use super::*;
 
 
     define_walls! {
@@ -281,8 +291,11 @@ mod tests {
         }
     }
 
+    impl Room for u32 {}
 
-    /// Creates a test function that runs the tests for all known types of mazes.
+
+    /// Creates a test function that runs the tests for all known types of
+    /// mazes.
     macro_rules! maze_test {
         ($test_function:ident, $name:ident) => {
             #[test]
@@ -296,20 +309,20 @@ mod tests {
     }
 
 
-    fn is_inside_correct<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn is_inside_correct<T: Room>(maze: &mut Maze<T>) {
         assert!(maze.rooms().is_inside((0, 0)));
         assert!(maze.rooms()
-            .is_inside((maze.rooms().width() as isize - 1,
-                        maze.rooms().height() as isize - 1)));
+            .is_inside((maze.width() as isize - 1,
+                        maze.height() as isize - 1)));
         assert!(!maze.rooms().is_inside((-1, -1)));
-        assert!(!maze.rooms().is_inside((maze.rooms().width() as isize,
-                                         maze.rooms().height() as isize)));
+        assert!(!maze.rooms()
+            .is_inside((maze.width() as isize, maze.height() as isize)));
     }
 
     maze_test!(is_inside_correct, is_inside_correct_test);
 
 
-    fn can_open<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn can_open<T: Room>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
         assert!(maze.is_open((0, 0), &walls::DOWN));
         assert!(maze.is_open((0, 1), &walls::UP));
@@ -318,7 +331,7 @@ mod tests {
     maze_test!(can_open, can_open_test);
 
 
-    fn can_close<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn can_close<T: Room>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
         maze.close((0, 1), &walls::UP);
         assert!(!maze.is_open((0, 0), &walls::DOWN));
@@ -328,7 +341,7 @@ mod tests {
     maze_test!(can_close, can_close_test);
 
 
-    fn walls_correct<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn walls_correct<T: Room>(maze: &mut Maze<T>) {
         let walls = maze.walls((0, 1));
         assert_eq!(walls.iter()
                        .cloned()
@@ -340,14 +353,14 @@ mod tests {
     maze_test!(walls_correct, walls_correct_test);
 
 
-    fn walk_disconnected<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn walk_disconnected<T: Room>(maze: &mut Maze<T>) {
         assert!(maze.walk((0, 0), (0, 1)).is_none());
     }
 
     maze_test!(walk_disconnected, walk_disconnected_test);
 
 
-    fn walk_same<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn walk_same<T: Room>(maze: &mut Maze<T>) {
         let from = (0, 0);
         let to = (0, 0);
         let expected = vec![(0, 0)];
@@ -357,7 +370,7 @@ mod tests {
     maze_test!(walk_same, walk_same_test);
 
 
-    fn walk_simple<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn walk_simple<T: Room>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
 
         let from = (0, 0);
@@ -369,7 +382,7 @@ mod tests {
     maze_test!(walk_simple, walk_simple_test);
 
 
-    fn walk_shortest<T: Clone + Default>(maze: &mut Maze<T>) {
+    fn walk_shortest<T: Room>(maze: &mut Maze<T>) {
         maze.open((0, 0), &walls::DOWN);
         maze.open((0, 1), &walls::DOWN);
         maze.open((0, 2), &walls::DOWN);

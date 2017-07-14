@@ -282,7 +282,8 @@ mod tests {
     }
 
 
-    /// Creates a test function that runs the tests for all known types of mazes.
+    /// Creates a test function that runs the tests for all known types of
+    /// mazes.
     macro_rules! maze_test {
         ($test_function:ident, $name:ident) => {
             #[test]

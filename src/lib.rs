@@ -58,6 +58,20 @@ pub trait Rooms<T: Room> {
 
 /// A maze contains rooms and has methods for managing paths and doors.
 pub trait Maze<T: Room> {
+    /// Returns the width of the maze.
+    ///
+    /// This is short hand for `self.rooms().width()`.
+    fn width(&self) -> usize {
+        self.rooms().width()
+    }
+
+    /// Returns the height of the maze.
+    ///
+    /// This is short hand for `self.rooms().height()`.
+    fn height(&self) -> usize {
+        self.rooms().height()
+    }
+
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
@@ -298,11 +312,11 @@ mod tests {
     fn is_inside_correct<T: Room>(maze: &mut Maze<T>) {
         assert!(maze.rooms().is_inside((0, 0)));
         assert!(maze.rooms()
-            .is_inside((maze.rooms().width() as isize - 1,
-                        maze.rooms().height() as isize - 1)));
+            .is_inside((maze.width() as isize - 1,
+                        maze.height() as isize - 1)));
         assert!(!maze.rooms().is_inside((-1, -1)));
-        assert!(!maze.rooms().is_inside((maze.rooms().width() as isize,
-                                         maze.rooms().height() as isize)));
+        assert!(!maze.rooms()
+            .is_inside((maze.width() as isize, maze.height() as isize)));
     }
 
     maze_test!(is_inside_correct, is_inside_correct_test);

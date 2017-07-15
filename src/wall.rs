@@ -11,7 +11,7 @@ pub type Mask = u32;
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, Debug, Hash, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Wall {
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
@@ -33,6 +33,17 @@ impl Wall {
 
 
 impl Eq for Wall {}
+
+
+impl std::hash::Hash for Wall {
+    fn hash<H>(&self, state: &mut H)
+        where H: std::hash::Hasher
+    {
+        self.index.hash(state);
+        self.dx.hash(state);
+        self.dy.hash(state);
+    }
+}
 
 
 impl Ord for Wall {

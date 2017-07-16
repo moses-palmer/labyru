@@ -69,8 +69,10 @@ impl Ord for Wall {
 macro_rules! define_walls {
     (
             $( $wall_name:ident = { $( $field:ident: $val:expr ),* } ),* ) => {
+        #[allow(unused_imports)]
         pub mod walls {
             use $crate::wall as wall;
+            use super::*;
 
             pub enum WallIndex {
                 $($wall_name,)*

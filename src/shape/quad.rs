@@ -1,3 +1,5 @@
+use std;
+
 use super::Shape;
 use Maze as Base;
 use WallPos;
@@ -5,6 +7,9 @@ use matrix;
 use room;
 use wall;
 
+
+/// A span step angle
+const D: f32 = std::f32::consts::PI / 4.0;
 
 define_walls! {
     UP = {
@@ -14,6 +19,7 @@ define_walls! {
             ((-1, 0), WallIndex::RIGHT as usize),
         ],
         dir: (0, -1),
+        span: (5.0 * D, 7.0 * D),
     },
     LEFT = {
         corner_wall_offsets: &[
@@ -22,6 +28,7 @@ define_walls! {
             ((0, 1), WallIndex::UP as usize),
         ],
         dir: (-1, 0),
+        span: (3.0 * D, 5.0 * D),
     },
     DOWN = {
         corner_wall_offsets: &[
@@ -30,6 +37,7 @@ define_walls! {
             ((1, 0), WallIndex::LEFT as usize),
         ],
         dir: (0, 1),
+        span: (D, 3.0 * D),
     },
     RIGHT = {
         corner_wall_offsets: &[
@@ -38,6 +46,7 @@ define_walls! {
             ((0, -1), WallIndex::DOWN as usize),
         ],
         dir: (1, 0),
+        span: (7.0 * D, 9.0 * D),
     }
 }
 

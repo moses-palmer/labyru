@@ -29,6 +29,13 @@ pub struct Wall {
     /// The horizontal and vertical offset of the room on the other side of this
     /// wall.
     pub dir: (isize, isize),
+
+    /// The span, in radians, of the wall.
+    ///
+    /// The first value is the start of the span, and the second value the end.
+    /// The second value will always be greater, event if the span wraps around
+    /// _2𝜋_.
+    pub span: (f32, f32),
 }
 
 

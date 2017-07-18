@@ -1,5 +1,6 @@
 extern crate ndarray;
 
+pub mod matrix;
 pub mod room;
 pub mod walker;
 
@@ -9,67 +10,20 @@ pub mod wall;
 mod open_set;
 
 
-/// A room position.
-///
-/// The position is not an attribute of a [room](trait.Room.html), but a room
-/// can be accessed from a [maze](../struct.Maze.html).
-pub type Pos = (isize, isize);
-
-
-/// The requirements for a room.
-pub trait Room: Clone + Default {}
-
-
-/// A matrix of rooms.
-///
-/// A room matrix has a width and a height, and rooms can be addressed by
-/// position.
-pub trait Rooms<T: Room> {
-    /// The number of rooms across the maze, horizontally.
-    fn width(&self) -> usize;
-
-    /// The number of rooms across the maze, vertically.
-    fn height(&self) -> usize;
-
-    /// Determines whether a position is inside of the maze.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    fn is_inside(&self, pos: Pos) -> bool {
-        pos.0 >= 0 && pos.1 >= 0 && pos.0 < self.width() as isize &&
-        pos.1 < self.height() as isize
-    }
-
-
-    /// Retrieves a reference to the room at a specific position if it exists.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    fn get(&self, pos: Pos) -> Option<&room::Room<T>>;
-
-    /// Retrieves a mutable reference to the room at a specific position if it
-    /// exists.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    fn get_mut(&mut self, pos: Pos) -> Option<&mut room::Room<T>>;
-}
-
-
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze<T: Room> {
+pub trait Maze {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.
     fn width(&self) -> usize {
-        self.rooms().width()
+        self.rooms().width
     }
 
     /// Returns the height of the maze.
     ///
     /// This is short hand for `self.rooms().height()`.
     fn height(&self) -> usize {
-        self.rooms().height()
+        self.rooms().height
     }
 
     /// Returns whether a specified wall is open.
@@ -77,7 +31,7 @@ pub trait Maze<T: Room> {
     /// # Arguments
     /// * `pos` - The room position.
     /// * `wall` - The wall to check.
-    fn is_open(&self, pos: Pos, wall: &'static wall::Wall) -> bool {
+    fn is_open(&self, pos: matrix::Pos, wall: &'static wall::Wall) -> bool {
         match self.rooms().get(pos) {
             Some(room) => room.is_open(wall),
             None => false,
@@ -90,7 +44,10 @@ pub trait Maze<T: Room> {
     /// * `pos` - The room position.
     /// * `wall` - The wall to modify.
     /// * `value` - Whether to open the wall.
-    fn set_open(&mut self, pos: Pos, wall: &'static wall::Wall, value: bool) {
+    fn set_open(&mut self,
+                pos: matrix::Pos,
+                wall: &'static wall::Wall,
+                value: bool) {
         // First modify the requested wall...
         if let Some(room) = self.rooms_mut().get_mut(pos) {
             room.set_open(wall, value);
@@ -108,7 +65,7 @@ pub trait Maze<T: Room> {
     /// # Arguments
     /// * `pos` - The room position.
     /// * `wall` - The wall to open.
-    fn open(&mut self, pos: Pos, wall: &'static wall::Wall) {
+    fn open(&mut self, pos: matrix::Pos, wall: &'static wall::Wall) {
         self.set_open(pos, wall, true);
     }
 
@@ -117,7 +74,7 @@ pub trait Maze<T: Room> {
     /// # Arguments
     /// * `pos` - The room position.
     /// * `wall` - The wall to close.
-    fn close(&mut self, pos: Pos, wall: &'static wall::Wall) {
+    fn close(&mut self, pos: matrix::Pos, wall: &'static wall::Wall) {
         self.set_open(pos, wall, false);
     }
 
@@ -129,9 +86,9 @@ pub trait Maze<T: Room> {
     /// * `pos` - The room position.
     /// * `wall` - The wall.
     fn back(&self,
-            pos: Pos,
+            pos: matrix::Pos,
             wall: &'static wall::Wall)
-            -> (Pos, &'static wall::Wall) {
+            -> (matrix::Pos, &'static wall::Wall) {
         let other = (pos.0 + wall.dx, pos.1 + wall.dy);
         (other, self.opposite(other, wall).unwrap())
     }
@@ -145,12 +102,16 @@ pub trait Maze<T: Room> {
     /// # Arguments
     /// * `from` - The starting position.
     /// * `to` - The desired goal.
-    fn walk(&self, from: Pos, to: Pos) -> Option<walker::Walker> {
+    fn walk(&self,
+            from: matrix::Pos,
+            to: matrix::Pos)
+            -> Option<walker::Walker> {
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
         /// The heuristic for a room position
-        let h = |pos: Pos| (pos.0 - end.0).abs() + (pos.1 - end.1).abs();
+        let h =
+            |pos: matrix::Pos| (pos.0 - end.0).abs() + (pos.1 - end.1).abs();
 
         // The room positions already evaluated
         let mut closed_set = std::collections::HashSet::new();
@@ -221,7 +182,7 @@ pub trait Maze<T: Room> {
     /// * `pos` - The room position.
     /// * `wall` - The wall.
     fn opposite(&self,
-                pos: Pos,
+                pos: matrix::Pos,
                 wall: &'static wall::Wall)
                 -> Option<&'static wall::Wall>;
 
@@ -229,17 +190,15 @@ pub trait Maze<T: Room> {
     ///
     /// # Arguments
     /// * `pos` - The room position.
-    fn walls(&self, pos: Pos) -> &'static [&'static wall::Wall];
+    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall];
 
     /// Retrieves a reference to the underlying rooms.
-    fn rooms(&self) -> &Rooms<T>;
+    fn rooms(&self) -> &room::Rooms;
 
     /// Retrieves a mutable reference to the underlying rooms.
-    fn rooms_mut(&mut self) -> &mut Rooms<T>;
+    fn rooms_mut(&mut self) -> &mut room::Rooms;
 }
 
-
-pub mod ndarray_rooms;
 
 pub mod quad;
 
@@ -251,9 +210,6 @@ mod tests {
     use super::*;
 
 
-    impl Room for u32 {}
-
-
     /// Creates a test function that runs the tests for all known types of
     /// mazes.
     macro_rules! maze_test {
@@ -263,13 +219,13 @@ mod tests {
                 let width = 10;
                 let height = 5;
 
-                $test_function(&mut quad::Maze::<u32>::new(width, height));
+                $test_function(&mut quad::Maze::new(width, height));
             }
         }
     }
 
 
-    fn is_inside_correct<T: Room>(maze: &mut Maze<T>) {
+    fn is_inside_correct(maze: &mut Maze) {
         assert!(maze.rooms().is_inside((0, 0)));
         assert!(maze.rooms()
             .is_inside((maze.width() as isize - 1,
@@ -282,7 +238,7 @@ mod tests {
     maze_test!(is_inside_correct, is_inside_correct_test);
 
 
-    fn can_open<T: Room>(maze: &mut Maze<T>) {
+    fn can_open(maze: &mut Maze) {
         let pos = (0, 0);
         let next = (0, 1);
         Navigator::new(maze)
@@ -301,7 +257,7 @@ mod tests {
     maze_test!(can_open, can_open_test);
 
 
-    fn can_close<T: Room>(maze: &mut Maze<T>) {
+    fn can_close(maze: &mut Maze) {
         let pos = (0, 0);
         let next = (0, 1);
         Navigator::new(maze)
@@ -321,7 +277,7 @@ mod tests {
     maze_test!(can_close, can_close_test);
 
 
-    fn walls_correct<T: Room>(maze: &mut Maze<T>) {
+    fn walls_correct(maze: &mut Maze) {
         let walls = maze.walls((0, 1));
         assert_eq!(walls.iter()
                        .cloned()
@@ -333,24 +289,25 @@ mod tests {
     maze_test!(walls_correct, walls_correct_test);
 
 
-    fn walk_disconnected<T: Room>(maze: &mut Maze<T>) {
+    fn walk_disconnected(maze: &mut Maze) {
         assert!(maze.walk((0, 0), (0, 1)).is_none());
     }
 
     maze_test!(walk_disconnected, walk_disconnected_test);
 
 
-    fn walk_same<T: Room>(maze: &mut Maze<T>) {
+    fn walk_same(maze: &mut Maze) {
         let from = (0, 0);
         let to = (0, 0);
         let expected = vec![(0, 0)];
-        assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
+        assert!(maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() ==
+                expected);
     }
 
     maze_test!(walk_same, walk_same_test);
 
 
-    fn walk_simple<T: Room>(maze: &mut Maze<T>) {
+    fn walk_simple(maze: &mut Maze) {
         Navigator::new(maze)
             .from((0, 0))
             .down(true);
@@ -358,13 +315,14 @@ mod tests {
         let from = (0, 0);
         let to = (0, 1);
         let expected = vec![(0, 0), (0, 1)];
-        assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
+        assert!(maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() ==
+                expected);
     }
 
     maze_test!(walk_simple, walk_simple_test);
 
 
-    fn walk_shortest<T: Room>(maze: &mut Maze<T>) {
+    fn walk_shortest(maze: &mut Maze) {
         Navigator::new(maze)
             .from((0, 0))
             .down(true)
@@ -377,30 +335,28 @@ mod tests {
         let from = (0, 0);
         let to = (1, 3);
         let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
-        assert!(maze.walk(from, to).unwrap().collect::<Vec<Pos>>() == expected);
+        assert!(maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() ==
+                expected);
     }
 
     maze_test!(walk_shortest, walk_shortest_test);
+
 
     /// A navigator through a maze.
     ///
     /// This struct provides utility methods to open and close doors based on
     /// directions.
-    struct Navigator<'a, T: Room>
-        where T: 'a
-    {
-        maze: &'a mut Maze<T>,
-        pos: Pos,
+    struct Navigator<'a> {
+        maze: &'a mut Maze,
+        pos: matrix::Pos,
     }
 
-    impl<'a, T: Room> Navigator<'a, T>
-        where T: Room
-    {
+    impl<'a> Navigator<'a> {
         /// Creates a new navigator for a specific maze.
         ///
         /// # Arguments
         /// *  `maze` - The maze to modify.
-        pub fn new(maze: &'a mut Maze<T>) -> Navigator<'a, T> {
+        pub fn new(maze: &'a mut Maze) -> Navigator<'a> {
             Navigator {
                 maze: maze,
                 pos: (0, 0),
@@ -411,7 +367,7 @@ mod tests {
         ///
         /// # Arguments
         /// *  `pos` - The new position.
-        pub fn from<'b>(&'b mut self, pos: Pos) -> &'b mut Self {
+        pub fn from<'b>(&'b mut self, pos: matrix::Pos) -> &'b mut Self {
             self.pos = pos;
             self
         }

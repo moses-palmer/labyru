@@ -1,8 +1,6 @@
 use Maze as Base;
-use Pos;
-use Room;
-use Rooms;
-use ndarray_rooms;
+use matrix;
+use room;
 use wall;
 
 
@@ -14,20 +12,20 @@ define_walls! {
 }
 
 
-pub struct Maze<T: Room> {
-    rooms: ndarray_rooms::Rooms<T>,
+pub struct Maze {
+    rooms: room::Rooms,
 }
 
-impl<T: Room> Maze<T> {
-    pub fn new(width: usize, height: usize) -> Maze<T> {
-        Maze { rooms: ndarray_rooms::Rooms::new(width, height) }
+impl Maze {
+    pub fn new(width: usize, height: usize) -> Maze {
+        Maze { rooms: room::Rooms::new(width, height) }
     }
 }
 
-impl<T: Room> Base<T> for Maze<T> {
+impl Base for Maze {
     #[allow(unused_variables)]
     fn opposite(&self,
-                pos: Pos,
+                pos: matrix::Pos,
                 wall: &'static wall::Wall)
                 -> Option<&'static wall::Wall> {
         Some(&walls::ALL[(wall.index + walls::ALL.len() / 2) %
@@ -35,15 +33,15 @@ impl<T: Room> Base<T> for Maze<T> {
     }
 
     #[allow(unused_variables)]
-    fn walls(&self, pos: Pos) -> &'static [&'static wall::Wall] {
+    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
         &walls::ALL
     }
 
-    fn rooms(&self) -> &Rooms<T> {
+    fn rooms(&self) -> &room::Rooms {
         &self.rooms
     }
 
-    fn rooms_mut(&mut self) -> &mut Rooms<T> {
+    fn rooms_mut(&mut self) -> &mut room::Rooms {
         &mut self.rooms
     }
 }

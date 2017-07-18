@@ -1,21 +1,17 @@
+use matrix;
 use wall;
 
 
 /// A room is a part of a maze.
 ///
 /// It has walls and openings connecting it with other rooms and a data content.
-#[derive(Clone, Debug, Default)]
-pub struct Room<T>
-    where T: ::Room
-{
+#[derive(Clone, Copy, Debug, Default)]
+pub struct Room {
     walls: wall::Mask,
-    data: T,
 }
 
 
-impl<T> Room<T>
-    where T: ::Room
-{
+impl Room {
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
@@ -52,14 +48,7 @@ impl<T> Room<T>
     pub fn close(&mut self, wall: &'static wall::Wall) {
         self.walls &= !wall.mask();
     }
-
-    /// Retrieves a reference to the room data.
-    pub fn data(&self) -> &T {
-        &self.data
-    }
-
-    /// Retrieves a mutable reference to the room data.
-    pub fn data_mut(&mut self) -> &mut T {
-        &mut self.data
-    }
 }
+
+
+pub type Rooms = matrix::Matrix<Room>;

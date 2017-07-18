@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ::Pos;
+use matrix;
 
 
 /// A maze walker.
@@ -12,14 +12,14 @@ use ::Pos;
 /// including `start` and the position yielding `None`, will be returned.
 pub struct Walker {
     /// The current position.
-    current: Pos,
+    current: matrix::Pos,
 
     /// Whether `next` should return the next element. This will be true only
     /// for the first call to `next`.
     increment: bool,
 
     /// The backing map.
-    map: HashMap<Pos, Pos>,
+    map: HashMap<matrix::Pos, matrix::Pos>,
 }
 
 
@@ -28,7 +28,9 @@ impl Walker {
     ///
     /// It is possible to walk indefinitely if the mapping contains circular
     /// references.
-    pub fn new(start: Pos, map: HashMap<Pos, Pos>) -> Walker {
+    pub fn new(start: matrix::Pos,
+               map: HashMap<matrix::Pos, matrix::Pos>)
+               -> Walker {
         Walker {
             current: start,
             increment: false,
@@ -39,9 +41,9 @@ impl Walker {
 
 
 impl Iterator for Walker {
-    type Item = Pos;
+    type Item = matrix::Pos;
 
-    fn next(&mut self) -> Option<Pos> {
+    fn next(&mut self) -> Option<matrix::Pos> {
         if self.increment {
             match self.map.get(&self.current) {
                 Some(next) => {
@@ -62,14 +64,13 @@ impl Iterator for Walker {
 mod tests {
     use std::collections::HashMap;
 
-    use ::Pos;
-    use walker::Walker;
+    use super::*;
 
     #[test]
     fn walk_empty() {
         let map = HashMap::new();
 
-        assert_eq!(Walker::new((0, 0), map).collect::<Vec<Pos>>(),
+        assert_eq!(Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
                    vec![(0, 0)]);
     }
 
@@ -79,7 +80,7 @@ mod tests {
         let mut map = HashMap::new();
         map.insert((1, 1), (2, 2));
 
-        assert_eq!(Walker::new((0, 0), map).collect::<Vec<Pos>>(),
+        assert_eq!(Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
                    vec![(0, 0)]);
     }
 
@@ -91,7 +92,7 @@ mod tests {
         map.insert((2, 2), (2, 3));
         map.insert((2, 3), (2, 4));
 
-        assert_eq!(Walker::new((1, 1), map).collect::<Vec<Pos>>(),
+        assert_eq!(Walker::new((1, 1), map).collect::<Vec<matrix::Pos>>(),
                    vec![(1, 1), (2, 2), (2, 3), (2, 4)]);
     }
 }

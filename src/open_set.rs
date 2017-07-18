@@ -1,10 +1,10 @@
 use std::collections::BinaryHeap;
 
-use ::Pos;
+use matrix;
 
 
 /// A room position with a priority.
-type PriorityPos = (isize, Pos);
+type PriorityPos = (isize, matrix::Pos);
 
 
 /// A set of rooms and priorities.
@@ -29,12 +29,12 @@ impl OpenSet {
     /// # Arguments
     /// `priority` - The priority of the position.
     /// `pos` - The position.
-    pub fn push(&mut self, priority: isize, pos: Pos) {
+    pub fn push(&mut self, priority: isize, pos: matrix::Pos) {
         self.heap.push((priority, pos));
     }
 
     /// Pops the room with the highest priority.
-    pub fn pop(&mut self) -> Option<Pos> {
+    pub fn pop(&mut self) -> Option<matrix::Pos> {
         match self.heap.pop() {
             Some((_, pos)) => Some(pos),
             None => None,
@@ -45,7 +45,7 @@ impl OpenSet {
     ///
     /// # Arguments
     /// `pos` - The position.
-    pub fn contains(&mut self, pos: Pos) -> bool {
+    pub fn contains(&mut self, pos: matrix::Pos) -> bool {
         // TODO: Allow constant lookup time
         self.heap
             .iter()

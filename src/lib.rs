@@ -23,7 +23,7 @@ pub trait Room: Clone + Default {}
 /// A matrix of rooms.
 ///
 /// A room matrix has a width and a height, and rooms can be addressed by
-// position.
+/// position.
 pub trait Rooms<T: Room> {
     /// The number of rooms across the maze, horizontally.
     fn width(&self) -> usize;
@@ -138,7 +138,7 @@ pub trait Maze<T: Room> {
 
     /// Walks from `from` to `to` along the sortest path.
     ///
-    /// If the rooms are connected, the returns value will iterate over the
+    /// If the rooms are connected, the return value will iterate over the
     /// minimal set of rooms required to pass through to get from start to
     /// finish, including `from` and ` to`.
     ///

@@ -45,3 +45,31 @@ impl Base for Maze {
         &mut self.rooms
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
+    #[test]
+    fn back() {
+        let maze = Maze::new(5, 5);
+
+        assert_eq!(maze.back((1, 1), &walls::LEFT), ((0, 1), &walls::RIGHT));
+        assert_eq!(maze.back((1, 1), &walls::UP), ((1, 0), &walls::DOWN));
+        assert_eq!(maze.back((1, 1), &walls::RIGHT), ((2, 1), &walls::LEFT));
+        assert_eq!(maze.back((1, 1), &walls::DOWN), ((1, 2), &walls::UP));
+    }
+
+
+    #[test]
+    fn opposite() {
+        let maze = Maze::new(5, 5);
+
+        assert_eq!(maze.opposite((1, 1), &walls::LEFT).unwrap(), &walls::RIGHT);
+        assert_eq!(maze.opposite((1, 1), &walls::UP).unwrap(), &walls::DOWN);
+        assert_eq!(maze.opposite((1, 1), &walls::RIGHT).unwrap(), &walls::LEFT);
+        assert_eq!(maze.opposite((1, 1), &walls::DOWN).unwrap(), &walls::UP);
+    }
+}

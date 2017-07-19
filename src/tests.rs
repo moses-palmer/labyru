@@ -13,7 +13,7 @@ macro_rules! maze_test {
             let width = 10;
             let height = 5;
 
-            $test_function(&mut quad::Maze::new(width, height));
+            $test_function(&mut shape::quad::Maze::new(width, height));
         }
     }
 }

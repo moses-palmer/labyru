@@ -1,5 +1,3 @@
-extern crate ndarray;
-
 pub mod matrix;
 pub mod room;
 pub mod walker;

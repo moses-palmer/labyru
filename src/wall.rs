@@ -11,8 +11,11 @@ pub type Mask = u32;
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, PartialEq, PartialOrd)]
 pub struct Wall {
+    /// The name of this wall.
+    pub name: &'static str,
+
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
 
@@ -46,6 +49,13 @@ impl std::hash::Hash for Wall {
 }
 
 
+impl std::fmt::Debug for Wall {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        f.write_str(self.name)
+    }
+}
+
+
 impl Ord for Wall {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
@@ -67,6 +77,7 @@ macro_rules! define_walls {
             }
 
             $(pub static $wall_name: wall::Wall = wall::Wall {
+                name: stringify!($wall_name),
                 index: WallIndex::$wall_name as usize,
                 $( $field: $val ),*
             } );*;

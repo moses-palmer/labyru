@@ -8,7 +8,7 @@ mod open_set;
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze {
+pub trait Maze: walker::Walkable {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.
@@ -90,86 +90,6 @@ pub trait Maze {
         (other, self.opposite(other, wall).unwrap())
     }
 
-    /// Walks from `from` to `to` along the sortest path.
-    ///
-    /// If the rooms are connected, the return value will iterate over the
-    /// minimal set of rooms required to pass through to get from start to
-    /// finish, including `from` and ` to`.
-    ///
-    /// # Arguments
-    /// * `from` - The starting position.
-    /// * `to` - The desired goal.
-    fn walk(&self,
-            from: matrix::Pos,
-            to: matrix::Pos)
-            -> Option<walker::Walker> {
-        // Reverse the positions to return the rooms in correct order
-        let (start, end) = (to, from);
-
-        /// The heuristic for a room position
-        let h =
-            |pos: matrix::Pos| (pos.0 - end.0).abs() + (pos.1 - end.1).abs();
-
-        // The room positions already evaluated
-        let mut closed_set = std::collections::HashSet::new();
-
-        // The room positions pending evaluation and their cost
-        let mut open_set = open_set::OpenSet::new();
-        open_set.push(std::isize::MAX, start);
-
-        // The cost from start to a room along the best known path
-        let mut g_score = std::collections::HashMap::new();
-        g_score.insert(start, 0isize);
-
-        // The estimated cost from start to end through a room
-        let mut f_score = std::collections::HashMap::new();
-        f_score.insert(start, h(start));
-
-        // The room from which we entered a room; when we reach the end, we use
-        // this to backtrack to the start
-        let mut came_from = std::collections::HashMap::new();
-
-        while let Some(current) = open_set.pop() {
-            // Have we reached the target?
-            if current == end {
-                return Some(walker::Walker::new(current, came_from));
-            }
-
-            closed_set.insert(current);
-            for wall in self.walls(current) {
-                // Ignore closed walls
-                if !self.is_open(current, wall) {
-                    continue;
-                }
-
-                // Find the next room, and continue if we have already evaluated
-                // it, or it is outside of the maze
-                let (next, _) = self.back(current, wall);
-                if !self.rooms().is_inside(next) || closed_set.contains(&next) {
-                    continue;
-                }
-
-                // The cost to get to this room is one more that the room from
-                // which we came
-                let g = g_score.get(&current).unwrap() + 1;
-                let f = g + h(next);
-
-                if !open_set.contains(current) ||
-                   g < *g_score.get(&current).unwrap() {
-                    came_from.insert(next, current);
-                    g_score.insert(next, g);
-                    f_score.insert(next, f);
-
-                    if !open_set.contains(current) {
-                        open_set.push(f, next);
-                    }
-                }
-            }
-        }
-
-        None
-    }
-
     /// Returns the opposite of a wall.
     ///
     /// The opposite is the wall located on the opposite side of the room. For
@@ -203,3 +123,4 @@ mod tests;
 
 pub mod quad;
 pub mod walker;
+pub use walker::*;

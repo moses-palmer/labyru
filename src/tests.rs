@@ -91,6 +91,25 @@ fn walls_correct(maze: &mut Maze) {
 maze_test!(walls_correct, walls_correct_test);
 
 
+fn walls_span(maze: &mut Maze) {
+    for x in 0..maze.width() {
+        for y in 0..maze.height() {
+            let pos = (x as isize, y as isize);
+
+            for wall in maze.walls(pos) {
+                let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
+                assert!(wall.in_span(wall.span.0 + d));
+                assert!(!wall.in_span(wall.span.0 - d));
+                assert!(wall.in_span(wall.span.1 - d));
+                assert!(!wall.in_span(wall.span.1 + d));
+            }
+        }
+    }
+}
+
+maze_test!(walls_span, walls_span_test);
+
+
 fn connected_correct(maze: &mut Maze) {
     for x in 0..maze.width() {
         for y in 0..maze.height() {

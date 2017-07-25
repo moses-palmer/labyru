@@ -4,6 +4,7 @@ use super::Shape;
 use Maze as Base;
 use WallPos;
 use matrix;
+use physical;
 use room;
 use wall;
 
@@ -84,6 +85,9 @@ impl Shape for Maze {
         )
     }
 }
+
+
+impl physical::Physical for Maze {}
 
 
 #[cfg(test)]

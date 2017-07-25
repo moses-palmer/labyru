@@ -1,6 +1,7 @@
 extern crate rand;
 
 pub mod matrix;
+pub mod physical;
 pub mod room;
 
 #[macro_use]
@@ -14,7 +15,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze: shape::Shape + walker::Walkable {
+pub trait Maze: physical::Physical + shape::Shape + walker::Walkable {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.

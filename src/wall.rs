@@ -11,8 +11,11 @@ pub type Mask = u32;
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, Debug, Hash, PartialEq, PartialOrd)]
+#[derive(Clone, PartialEq, PartialOrd)]
 pub struct Wall {
+    /// The name of this wall.
+    pub name: &'static str,
+
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
 
@@ -35,6 +38,24 @@ impl Wall {
 impl Eq for Wall {}
 
 
+impl std::hash::Hash for Wall {
+    fn hash<H>(&self, state: &mut H)
+        where H: std::hash::Hasher
+    {
+        self.index.hash(state);
+        self.dx.hash(state);
+        self.dy.hash(state);
+    }
+}
+
+
+impl std::fmt::Debug for Wall {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        f.write_str(self.name)
+    }
+}
+
+
 impl Ord for Wall {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
@@ -48,14 +69,17 @@ impl Ord for Wall {
 macro_rules! define_walls {
     (
             $( $wall_name:ident = { $( $field:ident: $val:expr ),* } ),* ) => {
+        #[allow(unused_imports)]
         pub mod walls {
             use $crate::wall as wall;
+            use super::*;
 
             pub enum WallIndex {
                 $($wall_name,)*
             }
 
             $(pub static $wall_name: wall::Wall = wall::Wall {
+                name: stringify!($wall_name),
                 index: WallIndex::$wall_name as usize,
                 $( $field: $val ),*
             } );*;

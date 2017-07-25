@@ -12,6 +12,9 @@ use wall;
 /// A span step angle
 const D: f32 = std::f32::consts::PI / 4.0;
 
+/// The scale factor when converting maze coordinates to physical coordinates
+const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;
+
 define_walls! {
     UP = {
         corner_wall_offsets: &[
@@ -87,11 +90,19 @@ impl Shape for Maze {
 }
 
 
-impl physical::Physical for Maze {}
+impl physical::Physical for Maze {
+    fn center(&self, pos: matrix::Pos) -> physical::Pos {
+        (
+            (pos.0 as f32 + 0.5) * MULTIPLICATOR,
+            (pos.1 as f32 + 0.5) * MULTIPLICATOR,
+        )
+    }
+}
 
 
 #[cfg(test)]
 mod tests {
+    use physical::*;
     use super::*;
     use tests::*;
     use walker::*;
@@ -217,5 +228,47 @@ mod tests {
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );
+    }
+
+
+    #[test]
+    fn center_and_span() {
+        let maze = Maze::new(5, 5);
+
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::UP.span.0),
+            rotate(maze.center((1, 0)), walls::DOWN.span.1),
+        ));
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::UP.span.1),
+            rotate(maze.center((1, 0)), walls::DOWN.span.0),
+        ));
+
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::LEFT.span.0),
+            rotate(maze.center((0, 1)), walls::RIGHT.span.1),
+        ));
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::LEFT.span.1),
+            rotate(maze.center((0, 1)), walls::RIGHT.span.0),
+        ));
+
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::DOWN.span.0),
+            rotate(maze.center((1, 2)), walls::UP.span.1),
+        ));
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::DOWN.span.1),
+            rotate(maze.center((1, 2)), walls::UP.span.0),
+        ));
+
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::RIGHT.span.0),
+            rotate(maze.center((2, 1)), walls::LEFT.span.1),
+        ));
+        assert!(is_close(
+            rotate(maze.center((1, 1)), walls::RIGHT.span.1),
+            rotate(maze.center((2, 1)), walls::LEFT.span.0),
+        ));
     }
 }

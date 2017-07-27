@@ -80,7 +80,9 @@ impl Shape for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tests::*;
     use walker::*;
+    use WallPos;
 
 
     #[test]
@@ -153,6 +155,54 @@ mod tests {
                 ((2, 0), &walls::LEFT),
                 ((1, 0), &walls::DOWN),
             ]
+        );
+    }
+
+
+    #[test]
+    fn follow_wall_single_room() {
+        let maze = Maze::new(5, 5);
+
+        assert_eq!(
+            vec![
+                ((0, 0), &walls::LEFT),
+                ((0, 0), &walls::UP),
+                ((0, 0), &walls::RIGHT),
+                ((0, 0), &walls::DOWN),
+            ],
+            maze.follow_wall(((0, 0), &walls::LEFT))
+                .map(|(from, _)| from)
+                .collect::<Vec<WallPos>>()
+        );
+    }
+
+
+    #[test]
+    fn follow_wall() {
+        let mut maze = Maze::new(5, 5);
+
+        Navigator::new(&mut maze)
+            .from((0, 0))
+            .down(true)
+            .right(true)
+            .up(true);
+
+        assert_eq!(
+            vec![
+                ((0, 0), &walls::LEFT),
+                ((0, 0), &walls::UP),
+                ((0, 0), &walls::RIGHT),
+                ((1, 0), &walls::LEFT),
+                ((1, 0), &walls::UP),
+                ((1, 0), &walls::RIGHT),
+                ((1, 1), &walls::RIGHT),
+                ((1, 1), &walls::DOWN),
+                ((0, 1), &walls::DOWN),
+                ((0, 1), &walls::LEFT),
+            ],
+            maze.follow_wall(((0, 0), &walls::LEFT))
+                .map(|(from, _)| from)
+                .collect::<Vec<WallPos>>()
         );
     }
 }

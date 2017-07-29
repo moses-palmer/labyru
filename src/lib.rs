@@ -1,5 +1,8 @@
 extern crate rand;
 
+#[cfg(feature = "render-svg")]
+extern crate svg;
+
 pub mod matrix;
 pub mod physical;
 pub mod room;

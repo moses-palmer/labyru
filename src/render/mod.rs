@@ -49,3 +49,7 @@ where
         (window.0, window.1, window.2 - window.0, window.3 - window.1)
     }
 }
+
+
+#[cfg(feature = "render-svg")]
+pub mod svg;

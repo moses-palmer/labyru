@@ -6,10 +6,22 @@ use wall;
 
 
 define_walls! {
-    UP = { dx: 0, dy: -1 },
-    LEFT = { dx: -1, dy: 0 },
-    DOWN = { dx: 0, dy: 1 },
-    RIGHT = { dx: 1, dy: 0 }
+    UP = {
+        dx: 0,
+        dy: -1,
+    },
+    LEFT = {
+        dx: -1,
+        dy: 0,
+    },
+    DOWN = {
+        dx: 0,
+        dy: 1,
+    },
+    RIGHT = {
+        dx: 1,
+        dy: 0,
+    }
 }
 
 

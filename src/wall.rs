@@ -69,7 +69,7 @@ impl Ord for Wall {
 /// This is an internal library macro.
 macro_rules! define_walls {
     (
-            $( $wall_name:ident = { $( $field:ident: $val:expr ),* } ),* ) => {
+            $( $wall_name:ident = { $( $field:ident: $val:expr, )* } ),* ) => {
         #[allow(unused_imports)]
         pub mod walls {
             use $crate::wall as wall;
@@ -82,7 +82,7 @@ macro_rules! define_walls {
             $(pub static $wall_name: wall::Wall = wall::Wall {
                 name: stringify!($wall_name),
                 index: WallIndex::$wall_name as usize,
-                $( $field: $val ),*
+                $( $field: $val, )*
             } );*;
 
             pub static ALL: &[&'static wall::Wall] = &[

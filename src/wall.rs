@@ -70,7 +70,7 @@ impl Ord for Wall {
 macro_rules! define_walls {
     (
             $( $wall_name:ident = { $( $field:ident: $val:expr, )* } ),* ) => {
-        #[allow(unused_imports)]
+        #[allow(unused_imports, non_camel_case_types)]
         pub mod walls {
             use $crate::wall as wall;
             use super::*;

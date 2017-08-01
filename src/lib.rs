@@ -82,7 +82,7 @@ pub trait Maze: walker::Walkable {
     /// * `wall_pos` - The wall position.
     fn back(&self, wall_pos: WallPos) -> WallPos {
         let (pos, wall) = wall_pos;
-        let other = (pos.0 + wall.dx, pos.1 + wall.dy);
+        let other = (pos.0 + wall.dir.0, pos.1 + wall.dir.1);
         (other, self.opposite((other, wall)).unwrap())
     }
 

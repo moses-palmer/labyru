@@ -7,20 +7,16 @@ use wall;
 
 define_walls! {
     UP = {
-        dx: 0,
-        dy: -1,
+        dir: (0, -1),
     },
     LEFT = {
-        dx: -1,
-        dy: 0,
+        dir: (-1, 0),
     },
     DOWN = {
-        dx: 0,
-        dy: 1,
+        dir: (0, 1),
     },
     RIGHT = {
-        dx: 1,
-        dy: 0,
+        dir: (1, 0),
     }
 }
 

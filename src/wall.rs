@@ -19,11 +19,9 @@ pub struct Wall {
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
 
-    /// The horizontal offset of the room on the other side of this wall.
-    pub dx: isize,
-
-    /// The vertical offset of the room on the other side of this wall.
-    pub dy: isize,
+    /// The horizontal and vertical offset of the room on the other side of this
+    /// wall.
+    pub dir: (isize, isize),
 }
 
 
@@ -44,8 +42,7 @@ impl std::hash::Hash for Wall {
         H: std::hash::Hasher,
     {
         self.index.hash(state);
-        self.dx.hash(state);
-        self.dy.hash(state);
+        self.dir.hash(state);
     }
 }
 

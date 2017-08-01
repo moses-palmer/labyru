@@ -186,7 +186,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading up from the current
     /// room.
     pub fn up<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dy < 0, open)
+        self.navigate(|wall| wall.dir.1 < 0, open)
     }
 
     /// Opens or closes a wall leading _down_.
@@ -200,7 +200,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading down from the current
     /// room.
     pub fn down<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dy > 0, open)
+        self.navigate(|wall| wall.dir.1 > 0, open)
     }
 
     /// Opens or closes a wall leading _left_.
@@ -214,7 +214,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading left from the current
     /// room.
     pub fn left<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dx < 0, open)
+        self.navigate(|wall| wall.dir.0 < 0, open)
     }
 
     /// Opens or closes a wall leading _right_.
@@ -228,7 +228,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading right from the
     /// current room.
     pub fn right<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dx > 0, open)
+        self.navigate(|wall| wall.dir.0 > 0, open)
     }
 
     /// Opens or closes a wall.
@@ -255,7 +255,7 @@ impl<'a> Navigator<'a> {
             .next()
             .unwrap();
         self.maze.set_open((self.pos, wall), open);
-        self.pos = (self.pos.0 + wall.dx, self.pos.1 + wall.dy);
+        self.pos = (self.pos.0 + wall.dir.0, self.pos.1 + wall.dir.1);
         self
     }
 }

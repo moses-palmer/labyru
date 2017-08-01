@@ -1,3 +1,4 @@
+use super::Shape;
 use Maze as Base;
 use WallPos;
 use matrix;
@@ -32,6 +33,17 @@ impl Maze {
 }
 
 impl Base for Maze {
+    fn rooms(&self) -> &room::Rooms {
+        &self.rooms
+    }
+
+    fn rooms_mut(&mut self) -> &mut room::Rooms {
+        &mut self.rooms
+    }
+}
+
+
+impl Shape for Maze {
     fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
         let (_, wall) = wall_pos;
         Some(
@@ -42,14 +54,6 @@ impl Base for Maze {
     #[allow(unused_variables)]
     fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
         &walls::ALL
-    }
-
-    fn rooms(&self) -> &room::Rooms {
-        &self.rooms
-    }
-
-    fn rooms_mut(&mut self) -> &mut room::Rooms {
-        &mut self.rooms
     }
 }
 

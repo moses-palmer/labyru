@@ -14,7 +14,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze: walker::Walkable {
+pub trait Maze: shape::Shape + walker::Walkable {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.
@@ -73,33 +73,6 @@ pub trait Maze: walker::Walkable {
     fn close(&mut self, wall_pos: WallPos) {
         self.set_open(wall_pos, false);
     }
-
-    /// Returns the back of a wall.
-    ///
-    /// The back is the other side of the wall, located in a neighbouring room.
-    ///
-    /// # Arguments
-    /// * `wall_pos` - The wall position.
-    fn back(&self, wall_pos: WallPos) -> WallPos {
-        let (pos, wall) = wall_pos;
-        let other = (pos.0 + wall.dir.0, pos.1 + wall.dir.1);
-        (other, self.opposite((other, wall)).unwrap())
-    }
-
-    /// Returns the opposite of a wall.
-    ///
-    /// The opposite is the wall located on the opposite side of the room. For
-    /// mazes with rooms with an odd number of walls, there is no opposite wall.
-    ///
-    /// # Arguments
-    /// * `wall_pos` - The wall position.
-    fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall>;
-
-    /// Returns all walls of a specific room.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall];
 
     /// Retrieves a reference to the underlying rooms.
     fn rooms(&self) -> &room::Rooms;

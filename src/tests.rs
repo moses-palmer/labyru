@@ -41,13 +41,13 @@ fn can_open(maze: &mut Maze) {
     assert!(
         maze.walls(pos)
             .iter()
-            .filter(|wall| maze.is_open(pos, wall))
+            .filter(|wall| maze.is_open((pos, wall)))
             .count() == 1
     );
     assert!(
         maze.walls(next)
             .iter()
-            .filter(|wall| maze.is_open(next, wall))
+            .filter(|wall| maze.is_open((next, wall)))
             .count() == 1
     );
 }
@@ -62,13 +62,13 @@ fn can_close(maze: &mut Maze) {
     assert!(
         maze.walls(pos)
             .iter()
-            .filter(|wall| maze.is_open(pos, wall))
+            .filter(|wall| maze.is_open((pos, wall)))
             .count() == 0
     );
     assert!(
         maze.walls(next)
             .iter()
-            .filter(|wall| maze.is_open(next, wall))
+            .filter(|wall| maze.is_open((next, wall)))
             .count() == 0
     );
 }
@@ -254,7 +254,7 @@ impl<'a> Navigator<'a> {
             .filter(predicate)
             .next()
             .unwrap();
-        self.maze.set_open(self.pos, wall, open);
+        self.maze.set_open((self.pos, wall), open);
         self.pos = (self.pos.0 + wall.dx, self.pos.1 + wall.dy);
         self
     }

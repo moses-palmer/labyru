@@ -1,4 +1,5 @@
 use Maze as Base;
+use WallPos;
 use matrix;
 use room;
 use wall;
@@ -23,12 +24,8 @@ impl Maze {
 }
 
 impl Base for Maze {
-    #[allow(unused_variables)]
-    fn opposite(
-        &self,
-        pos: matrix::Pos,
-        wall: &'static wall::Wall,
-    ) -> Option<&'static wall::Wall> {
+    fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
+        let (_, wall) = wall_pos;
         Some(
             &walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()],
         )
@@ -58,10 +55,10 @@ mod tests {
     fn back() {
         let maze = Maze::new(5, 5);
 
-        assert_eq!(maze.back((1, 1), &walls::LEFT), ((0, 1), &walls::RIGHT));
-        assert_eq!(maze.back((1, 1), &walls::UP), ((1, 0), &walls::DOWN));
-        assert_eq!(maze.back((1, 1), &walls::RIGHT), ((2, 1), &walls::LEFT));
-        assert_eq!(maze.back((1, 1), &walls::DOWN), ((1, 2), &walls::UP));
+        assert_eq!(maze.back(((1, 1), &walls::LEFT)), ((0, 1), &walls::RIGHT));
+        assert_eq!(maze.back(((1, 1), &walls::UP)), ((1, 0), &walls::DOWN));
+        assert_eq!(maze.back(((1, 1), &walls::RIGHT)), ((2, 1), &walls::LEFT));
+        assert_eq!(maze.back(((1, 1), &walls::DOWN)), ((1, 2), &walls::UP));
     }
 
 
@@ -69,9 +66,15 @@ mod tests {
     fn opposite() {
         let maze = Maze::new(5, 5);
 
-        assert_eq!(maze.opposite((1, 1), &walls::LEFT).unwrap(), &walls::RIGHT);
-        assert_eq!(maze.opposite((1, 1), &walls::UP).unwrap(), &walls::DOWN);
-        assert_eq!(maze.opposite((1, 1), &walls::RIGHT).unwrap(), &walls::LEFT);
-        assert_eq!(maze.opposite((1, 1), &walls::DOWN).unwrap(), &walls::UP);
+        assert_eq!(
+            maze.opposite(((1, 1), &walls::LEFT)).unwrap(),
+            &walls::RIGHT
+        );
+        assert_eq!(maze.opposite(((1, 1), &walls::UP)).unwrap(), &walls::DOWN);
+        assert_eq!(
+            maze.opposite(((1, 1), &walls::RIGHT)).unwrap(),
+            &walls::LEFT
+        );
+        assert_eq!(maze.opposite(((1, 1), &walls::DOWN)).unwrap(), &walls::UP);
     }
 }

@@ -9,6 +9,10 @@ pub mod wall;
 mod open_set;
 
 
+/// A wall of a room.
+pub type WallPos = (matrix::Pos, &'static wall::Wall);
+
+
 /// A maze contains rooms and has methods for managing paths and doors.
 pub trait Maze: walker::Walkable {
     /// Returns the width of the maze.
@@ -86,11 +90,7 @@ pub trait Maze: walker::Walkable {
     /// # Arguments
     /// * `pos` - The room position.
     /// * `wall` - The wall.
-    fn back(
-        &self,
-        pos: matrix::Pos,
-        wall: &'static wall::Wall,
-    ) -> (matrix::Pos, &'static wall::Wall) {
+    fn back(&self, pos: matrix::Pos, wall: &'static wall::Wall) -> WallPos {
         let other = (pos.0 + wall.dx, pos.1 + wall.dy);
         (other, self.opposite(other, wall).unwrap())
     }

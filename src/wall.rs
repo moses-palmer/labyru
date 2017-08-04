@@ -40,7 +40,8 @@ impl Eq for Wall {}
 
 impl std::hash::Hash for Wall {
     fn hash<H>(&self, state: &mut H)
-        where H: std::hash::Hasher
+    where
+        H: std::hash::Hasher,
     {
         self.index.hash(state);
         self.dx.hash(state);

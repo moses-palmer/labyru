@@ -31,9 +31,10 @@ impl Walker {
     ///
     /// It is possible to walk indefinitely if the mapping contains circular
     /// references.
-    pub fn new(start: matrix::Pos,
-               map: std::collections::HashMap<matrix::Pos, matrix::Pos>)
-               -> Walker {
+    pub fn new(
+        start: matrix::Pos,
+        map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
+    ) -> Walker {
         Walker {
             current: start,
             increment: false,
@@ -79,7 +80,8 @@ pub trait Walkable {
 
 
 impl<'a, M> Walkable for M
-    where M: Maze + 'a
+where
+    M: Maze + 'a,
 {
     fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Walker> {
         // Reverse the positions to return the rooms in correct order
@@ -134,7 +136,8 @@ impl<'a, M> Walkable for M
                 let f = g + h(next);
 
                 if !open_set.contains(current) ||
-                   g < *g_score.get(&current).unwrap() {
+                    g < *g_score.get(&current).unwrap()
+                {
                     came_from.insert(next, current);
                     g_score.insert(next, g);
                     f_score.insert(next, f);
@@ -155,7 +158,7 @@ impl<'a, M> Walkable for M
 mod tests {
     use std::collections::HashMap;
 
-    use ::tests as maze_tests;
+    use tests as maze_tests;
     use ::*;
     use super::*;
 
@@ -163,8 +166,10 @@ mod tests {
     fn walk_empty() {
         let map = HashMap::new();
 
-        assert_eq!(Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
-                   vec![(0, 0)]);
+        assert_eq!(
+            Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
+            vec![(0, 0)]
+        );
     }
 
 
@@ -173,8 +178,10 @@ mod tests {
         let mut map = HashMap::new();
         map.insert((1, 1), (2, 2));
 
-        assert_eq!(Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
-                   vec![(0, 0)]);
+        assert_eq!(
+            Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
+            vec![(0, 0)]
+        );
     }
 
 
@@ -185,21 +192,22 @@ mod tests {
         map.insert((2, 2), (2, 3));
         map.insert((2, 3), (2, 4));
 
-        assert_eq!(Walker::new((1, 1), map).collect::<Vec<matrix::Pos>>(),
-                   vec![(1, 1), (2, 2), (2, 3), (2, 4)]);
+        assert_eq!(
+            Walker::new((1, 1), map).collect::<Vec<matrix::Pos>>(),
+            vec![(1, 1), (2, 2), (2, 3), (2, 4)]
+        );
     }
 
 
     fn walk_simple(maze: &mut Maze) {
-        maze_tests::Navigator::new(maze)
-            .from((0, 0))
-            .down(true);
+        maze_tests::Navigator::new(maze).from((0, 0)).down(true);
 
         let from = (0, 0);
         let to = (0, 1);
         let expected = vec![(0, 0), (0, 1)];
-        assert!(maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() ==
-                expected);
+        assert!(
+            maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() == expected
+        );
     }
 
     maze_test!(walk_simple, walk_simple_test);
@@ -218,8 +226,9 @@ mod tests {
         let from = (0, 0);
         let to = (1, 3);
         let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
-        assert!(maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() ==
-                expected);
+        assert!(
+            maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() == expected
+        );
     }
 
     maze_test!(walk_shortest, walk_shortest_test);

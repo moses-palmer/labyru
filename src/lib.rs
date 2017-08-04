@@ -43,10 +43,12 @@ pub trait Maze: walker::Walkable {
     /// * `pos` - The room position.
     /// * `wall` - The wall to modify.
     /// * `value` - Whether to open the wall.
-    fn set_open(&mut self,
-                pos: matrix::Pos,
-                wall: &'static wall::Wall,
-                value: bool) {
+    fn set_open(
+        &mut self,
+        pos: matrix::Pos,
+        wall: &'static wall::Wall,
+        value: bool,
+    ) {
         // First modify the requested wall...
         if let Some(room) = self.rooms_mut().get_mut(pos) {
             room.set_open(wall, value);
@@ -84,10 +86,11 @@ pub trait Maze: walker::Walkable {
     /// # Arguments
     /// * `pos` - The room position.
     /// * `wall` - The wall.
-    fn back(&self,
-            pos: matrix::Pos,
-            wall: &'static wall::Wall)
-            -> (matrix::Pos, &'static wall::Wall) {
+    fn back(
+        &self,
+        pos: matrix::Pos,
+        wall: &'static wall::Wall,
+    ) -> (matrix::Pos, &'static wall::Wall) {
         let other = (pos.0 + wall.dx, pos.1 + wall.dy);
         (other, self.opposite(other, wall).unwrap())
     }
@@ -100,10 +103,11 @@ pub trait Maze: walker::Walkable {
     /// # Arguments
     /// * `pos` - The room position.
     /// * `wall` - The wall.
-    fn opposite(&self,
-                pos: matrix::Pos,
-                wall: &'static wall::Wall)
-                -> Option<&'static wall::Wall>;
+    fn opposite(
+        &self,
+        pos: matrix::Pos,
+        wall: &'static wall::Wall,
+    ) -> Option<&'static wall::Wall>;
 
     /// Returns all walls of a specific room.
     ///

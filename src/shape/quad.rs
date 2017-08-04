@@ -24,12 +24,14 @@ impl Maze {
 
 impl Base for Maze {
     #[allow(unused_variables)]
-    fn opposite(&self,
-                pos: matrix::Pos,
-                wall: &'static wall::Wall)
-                -> Option<&'static wall::Wall> {
-        Some(&walls::ALL[(wall.index + walls::ALL.len() / 2) %
-                         walls::ALL.len()])
+    fn opposite(
+        &self,
+        pos: matrix::Pos,
+        wall: &'static wall::Wall,
+    ) -> Option<&'static wall::Wall> {
+        Some(
+            &walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()],
+        )
     }
 
     #[allow(unused_variables)]

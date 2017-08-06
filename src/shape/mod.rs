@@ -5,7 +5,39 @@ use wall;
 
 use WallPos;
 
-pub mod quad;
+
+/// Defines the base methods for a shape.
+///
+/// This macro allows defining constants that are stored in the maze struct and
+/// initialised upon creation. This is a work-around until true constant
+/// functions are introduced.
+macro_rules! define_base {
+    ($($field:ident: $type:ident = $value:expr,)*) => {
+        pub struct Maze {
+            rooms: room::Rooms,
+            $($field: $type,)*
+        }
+
+        impl Maze {
+            pub fn new(width: usize, height: usize) -> Maze {
+                Maze {
+                    rooms: room::Rooms::new(width, height),
+                    $($field: $value,)*
+                }
+            }
+        }
+
+        impl ::Maze for Maze {
+            fn rooms(&self) -> &room::Rooms {
+                &self.rooms
+            }
+
+            fn rooms_mut(&mut self) -> &mut room::Rooms {
+                &mut self.rooms
+            }
+        }
+    }
+}
 
 
 pub trait Shape {
@@ -62,3 +94,6 @@ pub trait Shape {
             .collect()
     }
 }
+
+
+pub mod quad;

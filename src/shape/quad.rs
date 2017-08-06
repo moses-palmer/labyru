@@ -1,7 +1,6 @@
 use std;
 
 use super::Shape;
-use Maze as Base;
 use WallPos;
 use matrix;
 use physical;
@@ -55,25 +54,7 @@ define_walls! {
 }
 
 
-pub struct Maze {
-    rooms: room::Rooms,
-}
-
-impl Maze {
-    pub fn new(width: usize, height: usize) -> Maze {
-        Maze { rooms: room::Rooms::new(width, height) }
-    }
-}
-
-impl Base for Maze {
-    fn rooms(&self) -> &room::Rooms {
-        &self.rooms
-    }
-
-    fn rooms_mut(&mut self) -> &mut room::Rooms {
-        &mut self.rooms
-    }
-}
+define_base!();
 
 
 impl Shape for Maze {

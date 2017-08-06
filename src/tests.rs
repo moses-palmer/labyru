@@ -91,6 +91,26 @@ fn walls_correct(maze: &mut Maze) {
 maze_test!(walls_correct, walls_correct_test);
 
 
+fn connected_correct(maze: &mut Maze) {
+    for x in 0..maze.width() {
+        for y in 0..maze.height() {
+            let pos = (x as isize, y as isize);
+            assert!(maze.connected(pos, pos))
+        }
+    }
+
+    let pos1 = (1, 1);
+    for wall in maze.walls(pos1) {
+        let pos2 = (pos1.1 + wall.dir.0, pos1.1 + wall.dir.1);
+        assert!(!maze.connected(pos1, pos2));
+        maze.open((pos1, wall));
+        assert!(maze.connected(pos1, pos2));
+    }
+}
+
+maze_test!(connected_correct, connected_correct_test);
+
+
 fn walk_disconnected(maze: &mut Maze) {
     assert!(maze.walk((0, 0), (0, 1)).is_none());
 }

@@ -1,3 +1,5 @@
+use std;
+
 use matrix;
 use wall;
 
@@ -7,6 +9,9 @@ pub mod quad;
 
 
 pub trait Shape {
+    /// Returns all walls for a shape.
+    fn all_walls(&self) -> &'static [&'static wall::Wall];
+
     /// Returns the back of a wall.
     ///
     /// The back is the other side of the wall, located in a neighbouring room.
@@ -32,5 +37,28 @@ pub trait Shape {
     ///
     /// # Arguments
     /// * `pos` - The room position.
-    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall];
+    #[allow(unused_variables)]
+    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+        self.all_walls()
+    }
+
+    /// Returns all walls that meet in the corner where a wall has its start
+    /// span.
+    ///
+    /// The walls are listed in counter-clockwise order. Only one side of each
+    /// wall will be returned. Each consecutive wall will be in a room different
+    /// from the previous.
+    ///
+    /// # Arguments
+    /// * `wall_pos` - The wall position.
+    fn corner_walls(&self, wall_pos: WallPos) -> Vec<WallPos> {
+        let ((x, y), wall) = wall_pos;
+        let all = self.all_walls();
+        std::iter::once(wall_pos)
+            .chain(all[wall.index].corner_wall_offsets.iter().map(|&((dx, dy),
+               wall)| {
+                ((x + dx, y + dy), all[wall])
+            }))
+            .collect()
+    }
 }

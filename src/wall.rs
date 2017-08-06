@@ -5,6 +5,10 @@ use std;
 pub type Mask = u32;
 
 
+/// An offset from a wall to its corner neighbours.
+pub type Offset = ((isize, isize), usize);
+
+
 /// A wall.
 ///
 /// Walls have an index, which is used by [Room](../room/struct.Room.html) to
@@ -19,9 +23,19 @@ pub struct Wall {
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
 
+    /// Offsets to other walls in the first corner of this wall.
+    pub corner_wall_offsets: &'static [Offset],
+
     /// The horizontal and vertical offset of the room on the other side of this
     /// wall.
     pub dir: (isize, isize),
+
+    /// The span, in radians, of the wall.
+    ///
+    /// The first value is the start of the span, and the second value the end.
+    /// The second value will always be greater, event if the span wraps around
+    /// _2𝜋_.
+    pub span: (f32, f32),
 }
 
 

@@ -40,6 +40,30 @@ pub trait Maze: shape::Shape + walker::Walkable {
         }
     }
 
+    /// Returns whether two rooms are connected.
+    ///
+    /// Two rooms are connected if there is an open wall between them, or if
+    /// they are the same room.
+    ///
+    /// # Arguments
+    /// * `pos1` - The first room.
+    /// * `pos2` - The second room.
+    fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
+        if pos1 == pos2 {
+            true
+        } else if let Some(wall) = self.walls(pos1)
+                   .iter()
+                   .filter(
+            |wall| (pos1.0 + wall.dir.0, pos1.1 + wall.dir.1) == pos2,
+        )
+                   .next()
+        {
+            self.is_open((pos1, wall))
+        } else {
+            false
+        }
+    }
+
     /// Sets whether a wall is open.
     ///
     /// # Arguments

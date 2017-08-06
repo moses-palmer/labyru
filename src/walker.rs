@@ -4,6 +4,7 @@ use matrix;
 use open_set;
 
 use Maze;
+use WallPos;
 
 
 /// A maze walker.
@@ -64,6 +65,125 @@ impl Iterator for Walker {
 }
 
 
+/// Follows a wall.
+pub struct Follower<'a> {
+    /// The maze.
+    maze: &'a Maze,
+
+    /// The starting position.
+    start_pos: WallPos,
+
+    /// The current position.
+    current: Option<WallPos>,
+
+    /// Whether we have finished following walls.
+    finished: bool,
+}
+
+
+impl<'a> Follower<'a> {
+    pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
+        Self {
+            maze: maze,
+            start_pos: start_pos,
+            current: None,
+            finished: false,
+        }
+    }
+
+    /// Returns whether two rooms are "neighbours".
+    ///
+    /// Rooms are neighbours if they are connected, or if they share a connected
+    /// room.
+    ///
+    /// # Arguments
+    /// * `pos1` - The first room.
+    /// * `pos2` - The second room.
+    fn neighbors(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
+        self.maze.connected(pos1, pos2) ||
+            self.maze
+                .walls(pos1)
+                .iter()
+                .filter(|wall| self.maze.is_open((pos1, wall)))
+                .any(|wall1| {
+                    let neighbor1 =
+                        (pos1.0 + wall1.dir.0, pos1.1 + wall1.dir.1);
+                    self.maze.connected(neighbor1, pos2) ||
+                        self.maze
+                            .walls(pos2)
+                            .iter()
+                            .filter(|wall| self.maze.is_open((pos2, wall)))
+                            .any(|wall2| {
+                                let neighbor2 = (
+                                    pos2.0 + wall2.dir.0,
+                                    pos2.1 + wall2.dir.1,
+                                );
+                                self.maze.connected(neighbor1, neighbor2)
+                            })
+                })
+    }
+
+
+    /// Retrieves the next wall position.
+    ///
+    /// The next wall position will be reachable from `wall_pos` without passing
+    /// through any walls, and it will share a corner. Repeatedly calling this
+    /// method will yield walls clockwise inside a cavity in the maze.
+    ///
+    /// # Arguments
+    /// * `wall_pos`- The wall position for which to retrieve a room.
+    fn next_wall_pos(&self, wall_pos: WallPos) -> Option<WallPos> {
+        let all = self.maze.all_walls();
+        let back = self.maze.back(wall_pos);
+        let (x, y) = back.0;
+        all[back.1.index].corner_wall_offsets
+            .into_iter()
+
+            // Convert the offsets to wall positions
+            .map(|&((dx, dy), wall_index)| ((x + dx, y + dy), all[wall_index]))
+
+            // Ignore open walls
+            .filter(|&next| !self.maze.is_open(next))
+
+            // Yield the first wall we encounter, or the back of the original
+            // wall if it is reachable
+            .next()
+            .or_else(|| if self.neighbors(wall_pos.0, back.0) {
+                Some(back)
+            } else {
+                None
+            })
+    }
+}
+
+
+impl<'a> Iterator for Follower<'a> {
+    type Item = (WallPos, Option<WallPos>);
+
+    /// Iterates over all wall positions.
+    ///
+    /// Wall positions are returned in the pair _(from, to)_. The last iteration
+    /// before this iterator is exhausted will return _to_ as `None`.
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.finished {
+            None
+        } else if let Some(current) = self.current {
+            if current == self.start_pos {
+                None
+            } else {
+                self.current = self.next_wall_pos(current);
+                self.finished = self.current.is_none();
+                Some((current, self.current))
+            }
+        } else {
+            self.current = self.next_wall_pos(self.start_pos);
+            self.finished = self.current.is_none();
+            Some((self.start_pos, self.current))
+        }
+    }
+}
+
+
 /// A container that supports walking.
 pub trait Walkable {
     /// Walks from `from` to `to` along the sortest path.
@@ -76,6 +196,15 @@ pub trait Walkable {
     /// * `from` - The starting position.
     /// * `to` - The desired goal.
     fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Walker>;
+
+    /// Follows a wall.
+    ///
+    /// This method will follow a wall without passing through any walls. When
+    /// the starting wall is encountered, no more walls will be returned.
+    ///
+    /// # Arguments
+    /// * `wall_pos` - The starting wall position.
+    fn follow_wall(&self, wall_pos: WallPos) -> Follower;
 }
 
 
@@ -150,6 +279,10 @@ where
         }
 
         None
+    }
+
+    fn follow_wall(&self, wall_pos: WallPos) -> Follower {
+        Follower::new(self, wall_pos)
     }
 }
 

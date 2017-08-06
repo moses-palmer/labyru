@@ -7,6 +7,9 @@ pub mod quad;
 
 
 pub trait Shape {
+    /// Returns all walls for a shape.
+    fn all_walls(&self) -> &'static [&'static wall::Wall];
+
     /// Returns the back of a wall.
     ///
     /// The back is the other side of the wall, located in a neighbouring room.
@@ -32,5 +35,8 @@ pub trait Shape {
     ///
     /// # Arguments
     /// * `pos` - The room position.
-    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall];
+    #[allow(unused_variables)]
+    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+        self.all_walls()
+    }
 }

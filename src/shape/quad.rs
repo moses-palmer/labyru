@@ -44,16 +44,15 @@ impl Base for Maze {
 
 
 impl Shape for Maze {
+    fn all_walls(&self) -> &'static [&'static wall::Wall] {
+        &walls::ALL
+    }
+
     fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
         let (_, wall) = wall_pos;
         Some(
             &walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()],
         )
-    }
-
-    #[allow(unused_variables)]
-    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-        &walls::ALL
     }
 }
 

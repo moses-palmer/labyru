@@ -91,6 +91,25 @@ fn walls_correct(maze: &mut Maze) {
 maze_test!(walls_correct, walls_correct_test);
 
 
+fn walls_span(maze: &mut Maze) {
+    for x in 0..maze.width() {
+        for y in 0..maze.height() {
+            let pos = (x as isize, y as isize);
+
+            for wall in maze.walls(pos) {
+                let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
+                assert!(wall.in_span(wall.span.0 + d));
+                assert!(!wall.in_span(wall.span.0 - d));
+                assert!(wall.in_span(wall.span.1 - d));
+                assert!(!wall.in_span(wall.span.1 + d));
+            }
+        }
+    }
+}
+
+maze_test!(walls_span, walls_span_test);
+
+
 fn connected_correct(maze: &mut Maze) {
     for x in 0..maze.width() {
         for y in 0..maze.height() {
@@ -163,6 +182,50 @@ fn walk_shortest(maze: &mut Maze) {
 }
 
 maze_test!(walk_shortest, walk_shortest_test);
+
+
+/// Determines whether two physical locations are close enough to be
+/// considered equal.
+///
+/// # Arguments
+/// * `expected` - The expected location.
+/// * `actual` - Another location.
+pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
+    let d = (expected.0 - actual.0, expected.1 - actual.1);
+    (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001
+}
+
+
+/// Rotates a point around `origin` `angle` degrees with a radius of 1.
+///
+/// # Arguments
+/// * `origin` - The origin.
+/// * `angle` - A rotation angle.
+pub fn rotate(origin: physical::Pos, angle: f32) -> physical::Pos {
+    (origin.0 + angle.cos(), origin.1 + angle.sin())
+}
+
+
+/// Rotates a point around `origin` `angle` degrees with a radius slightly
+/// smaller than 1.
+///
+/// # Arguments
+/// * `origin` - The origin.
+/// * `angle` - A rotation angle.
+pub fn contract(origin: physical::Pos, angle: f32) -> physical::Pos {
+    (origin.0 + 0.9 * angle.cos(), origin.1 + 0.9 * angle.sin())
+}
+
+
+/// Rotates a point around `origin` `angle` degrees with a radius slightly
+/// greater than 1.
+///
+/// # Arguments
+/// * `origin` - The origin.
+/// * `angle` - A rotation angle.
+pub fn expand(origin: physical::Pos, angle: f32) -> physical::Pos {
+    (origin.0 + 1.5 * angle.cos(), origin.1 + 1.5 * angle.sin())
+}
 
 
 /// A navigator through a maze.

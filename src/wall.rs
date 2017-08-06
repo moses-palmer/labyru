@@ -1,6 +1,10 @@
 use std;
 
 
+/// The maximum nomalised value of a radian.
+const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
+
+
 /// A bit mask for a wall.
 pub type Mask = u32;
 
@@ -43,6 +47,36 @@ impl Wall {
     /// The bit mask for this wall.
     pub fn mask(&self) -> Mask {
         1 << self.index
+    }
+
+    /// Normalises an angle to be in the bound _[0, 2𝜋).
+    ///
+    /// # Arguments
+    /// * `angle` - The angle to normalise.
+    pub fn normalized_angle(angle: f32) -> f32 {
+        if angle < RADIAN_BOUND && angle >= 0.0 {
+            angle
+        } else {
+            let t = angle % RADIAN_BOUND;
+            if t >= 0.0 { t } else { t + RADIAN_BOUND }
+        }
+    }
+
+    /// Whether an angle is in the span of this wall.
+    ///
+    /// The angle will be normalised.
+    ///
+    /// # Arguments
+    /// * `angle` - The angle in radians.
+    pub fn in_span(&self, angle: f32) -> bool {
+        let normalized = Wall::normalized_angle(angle);
+
+        if (self.span.0 <= normalized) && (normalized < self.span.1) {
+            true
+        } else {
+            let overflowed = normalized + RADIAN_BOUND;
+            (self.span.0 <= overflowed) && (overflowed < self.span.1)
+        }
     }
 }
 

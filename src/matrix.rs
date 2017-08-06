@@ -10,7 +10,8 @@ pub type Pos = (isize, isize);
 /// Every cell has a value, which is addressed using a [Pos](type.Pos.html).
 #[derive(Clone, Debug, Default)]
 pub struct Matrix<T>
-    where T: Clone + Copy + Default
+where
+    T: Clone + Copy + Default,
 {
     /// The width of the matrix.
     pub width: usize,
@@ -27,7 +28,8 @@ pub struct Matrix<T>
 /// A room matrix has a width and a height, and rooms can be addressed by
 /// position.
 impl<T> Matrix<T>
-    where T: Clone + Copy + Default
+where
+    T: Clone + Copy + Default,
 {
     /// Creates a new matrix with the specified dimensions.
     ///
@@ -48,7 +50,7 @@ impl<T> Matrix<T>
     /// * `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
         pos.0 >= 0 && pos.1 >= 0 && pos.0 < self.width as isize &&
-        pos.1 < self.height as isize
+            pos.1 < self.height as isize
     }
 
 
@@ -71,7 +73,9 @@ impl<T> Matrix<T>
     /// * `pos` - The matrix position.
     pub fn get_mut(&mut self, pos: Pos) -> Option<&mut T> {
         if self.is_inside(pos) {
-            Some(&mut self.data[(pos.0 + pos.1 * self.width as isize) as usize])
+            Some(
+                &mut self.data[(pos.0 + pos.1 * self.width as isize) as usize],
+            )
         } else {
             None
         }
@@ -80,7 +84,8 @@ impl<T> Matrix<T>
 
 
 impl<T> std::ops::Index<Pos> for Matrix<T>
-    where T: Clone + Copy + Default
+where
+    T: Clone + Copy + Default,
 {
     type Output = T;
 
@@ -103,7 +108,8 @@ impl<T> std::ops::Index<Pos> for Matrix<T>
 
 
 impl<T> std::ops::IndexMut<Pos> for Matrix<T>
-    where T: Clone + Copy + Default
+where
+    T: Clone + Copy + Default,
 {
     /// Retrieves a mutable reference to the value at a specific position.
     ///

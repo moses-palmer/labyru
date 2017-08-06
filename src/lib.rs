@@ -9,8 +9,12 @@ pub mod wall;
 mod open_set;
 
 
+/// A wall of a room.
+pub type WallPos = (matrix::Pos, &'static wall::Wall);
+
+
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze: walker::Walkable {
+pub trait Maze: shape::Shape + walker::Walkable {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.
@@ -28,11 +32,10 @@ pub trait Maze: walker::Walkable {
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
-    /// * `pos` - The room position.
-    /// * `wall` - The wall to check.
-    fn is_open(&self, pos: matrix::Pos, wall: &'static wall::Wall) -> bool {
-        match self.rooms().get(pos) {
-            Some(room) => room.is_open(wall),
+    /// * `wall_pos` - The wall position.
+    fn is_open(&self, wall_pos: WallPos) -> bool {
+        match self.rooms().get(wall_pos.0) {
+            Some(room) => room.is_open(wall_pos.1),
             None => false,
         }
     }
@@ -40,76 +43,36 @@ pub trait Maze: walker::Walkable {
     /// Sets whether a wall is open.
     ///
     /// # Arguments
-    /// * `pos` - The room position.
-    /// * `wall` - The wall to modify.
+    /// * `wall_pos` - The wall position.
     /// * `value` - Whether to open the wall.
-    fn set_open(&mut self,
-                pos: matrix::Pos,
-                wall: &'static wall::Wall,
-                value: bool) {
+    fn set_open(&mut self, wall_pos: WallPos, value: bool) {
         // First modify the requested wall...
-        if let Some(room) = self.rooms_mut().get_mut(pos) {
-            room.set_open(wall, value);
+        if let Some(room) = self.rooms_mut().get_mut(wall_pos.0) {
+            room.set_open(wall_pos.1, value);
         }
 
         // ..and then sync the value on the back
-        let (other_pos, other_wall) = self.back(pos, wall);
-        if let Some(other_room) = self.rooms_mut().get_mut(other_pos) {
-            other_room.set_open(other_wall, value);
+        let other = self.back(wall_pos);
+        if let Some(other_room) = self.rooms_mut().get_mut(other.0) {
+            other_room.set_open(other.1, value);
         }
     }
 
     /// Opens a wall.
     ///
     /// # Arguments
-    /// * `pos` - The room position.
-    /// * `wall` - The wall to open.
-    fn open(&mut self, pos: matrix::Pos, wall: &'static wall::Wall) {
-        self.set_open(pos, wall, true);
+    /// * `wall_pos` - The wall position.
+    fn open(&mut self, wall_pos: WallPos) {
+        self.set_open(wall_pos, true);
     }
 
     /// Closes a wall.
     ///
     /// # Arguments
-    /// * `pos` - The room position.
-    /// * `wall` - The wall to close.
-    fn close(&mut self, pos: matrix::Pos, wall: &'static wall::Wall) {
-        self.set_open(pos, wall, false);
+    /// * `wall_pos` - The wall position.
+    fn close(&mut self, wall_pos: WallPos) {
+        self.set_open(wall_pos, false);
     }
-
-    /// Returns the back of a wall.
-    ///
-    /// The back is the other side of the wall, located in a neighbouring room.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    /// * `wall` - The wall.
-    fn back(&self,
-            pos: matrix::Pos,
-            wall: &'static wall::Wall)
-            -> (matrix::Pos, &'static wall::Wall) {
-        let other = (pos.0 + wall.dx, pos.1 + wall.dy);
-        (other, self.opposite(other, wall).unwrap())
-    }
-
-    /// Returns the opposite of a wall.
-    ///
-    /// The opposite is the wall located on the opposite side of the room. For
-    /// mazes with rooms with an odd number of walls, there is no opposite wall.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    /// * `wall` - The wall.
-    fn opposite(&self,
-                pos: matrix::Pos,
-                wall: &'static wall::Wall)
-                -> Option<&'static wall::Wall>;
-
-    /// Returns all walls of a specific room.
-    ///
-    /// # Arguments
-    /// * `pos` - The room position.
-    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall];
 
     /// Retrieves a reference to the underlying rooms.
     fn rooms(&self) -> &room::Rooms;

@@ -19,11 +19,9 @@ pub struct Wall {
     /// The index of this wall, used to generate the bit mask.
     pub index: usize,
 
-    /// The horizontal offset of the room on the other side of this wall.
-    pub dx: isize,
-
-    /// The vertical offset of the room on the other side of this wall.
-    pub dy: isize,
+    /// The horizontal and vertical offset of the room on the other side of this
+    /// wall.
+    pub dir: (isize, isize),
 }
 
 
@@ -40,11 +38,11 @@ impl Eq for Wall {}
 
 impl std::hash::Hash for Wall {
     fn hash<H>(&self, state: &mut H)
-        where H: std::hash::Hasher
+    where
+        H: std::hash::Hasher,
     {
         self.index.hash(state);
-        self.dx.hash(state);
-        self.dy.hash(state);
+        self.dir.hash(state);
     }
 }
 
@@ -68,8 +66,8 @@ impl Ord for Wall {
 /// This is an internal library macro.
 macro_rules! define_walls {
     (
-            $( $wall_name:ident = { $( $field:ident: $val:expr ),* } ),* ) => {
-        #[allow(unused_imports)]
+            $( $wall_name:ident = { $( $field:ident: $val:expr, )* } ),* ) => {
+        #[allow(unused_imports, non_camel_case_types)]
         pub mod walls {
             use $crate::wall as wall;
             use super::*;
@@ -81,7 +79,7 @@ macro_rules! define_walls {
             $(pub static $wall_name: wall::Wall = wall::Wall {
                 name: stringify!($wall_name),
                 index: WallIndex::$wall_name as usize,
-                $( $field: $val ),*
+                $( $field: $val, )*
             } );*;
 
             pub static ALL: &[&'static wall::Wall] = &[

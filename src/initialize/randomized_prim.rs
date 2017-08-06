@@ -6,7 +6,8 @@ use matrix;
 
 
 pub trait RandomizedPrim<R>
-    where R: rand::Rng + Sized
+where
+    R: rand::Rng + Sized,
 {
     /// Initialises a wall using the _Randomised Prim_ algorithm.
     ///
@@ -22,46 +23,51 @@ pub trait RandomizedPrim<R>
 
 
 impl<'a, R> RandomizedPrim<R> for Maze + 'a
-    where R: rand::Rng + Sized
+where
+    R: rand::Rng + Sized,
 {
     fn randomized_prim(&mut self, rng: &mut R) -> &mut Self {
         // All rooms that have been visited
-        let mut visited = matrix::Matrix::<bool>::new(self.width(),
-                                                      self.height());
+        let mut visited =
+            matrix::Matrix::<bool>::new(self.width(), self.height());
 
         // The starting position
-        let start = (rng.gen_range(0, self.width() as isize),
-                     rng.gen_range(0, self.height() as isize));
+        let start = (
+            rng.gen_range(0, self.width() as isize),
+            rng.gen_range(0, self.height() as isize),
+        );
 
         // Start with all walls in the start room, except for those leading out
         // of the maze
         let mut walls = self.walls(start)
             .iter()
-            .filter(|wall| self.rooms().is_inside(self.back(start, wall).0))
+            .filter(|wall| self.rooms().is_inside(self.back((start, wall)).0))
             .map(|wall| (start, *wall))
             .collect::<Vec<_>>();
 
         while !walls.is_empty() {
             // Get a random wall
             let index = rng.gen_range(0, walls.len());
-            let (pos, wall) = walls.remove(index);
+            let wall_pos = walls.remove(index);
 
             // Walk through the wall if we have not visited the room on the
             // other side before
-            let (next_pos, _) = self.back(pos, wall);
+            let (next_pos, _) = self.back(wall_pos);
             if !visited[next_pos] {
                 // Mark the rooms as visited and open the door
-                visited[pos] = true;
+                visited[wall_pos.0] = true;
                 visited[next_pos] = true;
-                self.open(pos, wall);
+                self.open(wall_pos);
 
                 // Add all walls of the next room except those already visited
                 // and those outside of the maze
-                walls.extend(self.walls(next_pos)
-                    .iter()
-                    .map(|w| self.back(next_pos, w))
-                    .filter(|&(p, _)| visited.is_inside(p) && !visited[p])
-                    .map(|(p, w)| self.back(p, w)));
+                walls.extend(
+                    self.walls(next_pos)
+                        .iter()
+                        .map(|w| self.back((next_pos, w)))
+                        .filter(|&(p, _)| visited.is_inside(p) && !visited[p])
+                        .map(|wall_pos| self.back(wall_pos)),
+                );
             }
         }
 

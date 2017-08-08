@@ -117,3 +117,4 @@ pub trait Shape {
 
 pub mod hex;
 pub mod quad;
+pub mod tri;

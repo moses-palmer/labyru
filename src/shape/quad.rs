@@ -53,14 +53,30 @@ define_walls! {
     }
 }
 
+/// The index of the back wall.
+macro_rules! back_index {
+    ($wall:expr) => {
+        $wall ^ 0b0010
+    }
+}
+
+/// The walls for a matrix position.
+macro_rules! walls {
+    ($pos:expr) => {
+        &ALL
+    }
+}
+
+/// The walls
+static ALL: &[&'static wall::Wall] =
+    &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
+
 
 define_base!();
 
 
 impl Shape for Maze {
-    fn all_walls(&self) -> &'static [&'static wall::Wall] {
-        &walls::ALL
-    }
+    implement_base_shape!();
 
     fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
         let (_, wall) = wall_pos;

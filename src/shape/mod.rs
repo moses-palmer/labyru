@@ -40,6 +40,32 @@ macro_rules! define_base {
 }
 
 
+/// Defines some base methods for the [Shape](trait.Shape.html) trait.
+///
+/// This macro requires that the macros `back_index` and `walls` are defined.
+/// `back_index` must return the index of the back of a wall, given its index,
+/// and `walls` the walls for a matrix position in clockwise order.
+macro_rules! implement_base_shape {
+    () => {
+        fn all_walls(&self) -> &'static [&'static wall::Wall] {
+            &walls::ALL
+        }
+
+        fn back(&self, wall_pos: WallPos) -> WallPos {
+            let (pos, wall) = wall_pos;
+            let other = (pos.0 + wall.dir.0, pos.1 + wall.dir.1);
+
+            (other, walls::ALL[back_index!(wall.index)])
+        }
+
+        #[allow(unused_variables)]
+        fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+            walls!(pos)
+        }
+    }
+}
+
+
 pub trait Shape {
     /// Returns all walls for a shape.
     fn all_walls(&self) -> &'static [&'static wall::Wall];
@@ -50,11 +76,7 @@ pub trait Shape {
     ///
     /// # Arguments
     /// * `wall_pos` - The wall position.
-    fn back(&self, wall_pos: WallPos) -> WallPos {
-        let (pos, wall) = wall_pos;
-        let other = (pos.0 + wall.dir.0, pos.1 + wall.dir.1);
-        (other, self.opposite((other, wall)).unwrap())
-    }
+    fn back(&self, wall_pos: WallPos) -> WallPos;
 
     /// Returns the opposite of a wall.
     ///
@@ -69,10 +91,7 @@ pub trait Shape {
     ///
     /// # Arguments
     /// * `pos` - The room position.
-    #[allow(unused_variables)]
-    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-        self.all_walls()
-    }
+    fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall];
 
     /// Returns all walls that meet in the corner where a wall has its start
     /// span.

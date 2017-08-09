@@ -66,7 +66,8 @@ where
                         .iter()
                         .map(|w| self.back((next_pos, w)))
                         .filter(|&(p, _)| visited.is_inside(p) && !visited[p])
-                        .map(|wall_pos| self.back(wall_pos)),
+                        .map(|wall_pos| self.back(wall_pos))
+                        .filter(|&(p, _)| visited.is_inside(p)),
                 );
             }
         }

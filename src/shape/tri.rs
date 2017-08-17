@@ -147,7 +147,7 @@ impl physical::Physical for Maze {
 
 #[cfg(test)]
 mod tests {
-    use ::Walkable;
+    use Walkable;
     use super::*;
     use tests::*;
     use WallPos;

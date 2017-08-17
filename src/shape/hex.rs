@@ -191,7 +191,6 @@ impl physical::Physical for Maze {
 
 #[cfg(test)]
 mod tests {
-    use physical::*;
     use super::*;
     use tests::*;
     use walker::*;

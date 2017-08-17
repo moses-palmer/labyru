@@ -3,14 +3,20 @@ extern crate rand;
 #[cfg(feature = "render-svg")]
 extern crate svg;
 
-pub mod matrix;
-pub mod physical;
-pub mod room;
+#[cfg(test)]
+#[macro_use]
+mod tests;
 
 #[macro_use]
 pub mod wall;
 
-mod open_set;
+pub mod traits;
+pub use traits::*;
+
+pub mod matrix;
+pub mod room;
+
+mod util;
 
 
 /// A wall of a room.
@@ -18,8 +24,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze
-    : physical::Physical + render::Renderable + shape::Shape + walker::Walkable {
+pub trait Maze: Physical + Renderable + shape::Shape + Walkable {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.
@@ -111,17 +116,8 @@ pub trait Maze
 }
 
 
-#[cfg(test)]
-#[macro_use]
-mod tests;
-
 pub mod initialize;
 pub use initialize::*;
-pub mod render;
-pub use render::*;
 
 #[macro_use]
 pub mod shape;
-
-pub mod walker;
-pub use walker::*;

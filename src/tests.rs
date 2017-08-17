@@ -215,38 +215,6 @@ pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
 }
 
 
-/// Rotates a point around `origin` `angle` degrees with a radius of 1.
-///
-/// # Arguments
-/// * `origin` - The origin.
-/// * `angle` - A rotation angle.
-pub fn rotate(origin: physical::Pos, angle: f32) -> physical::Pos {
-    (origin.0 + angle.cos(), origin.1 + angle.sin())
-}
-
-
-/// Rotates a point around `origin` `angle` degrees with a radius slightly
-/// smaller than 1.
-///
-/// # Arguments
-/// * `origin` - The origin.
-/// * `angle` - A rotation angle.
-pub fn contract(origin: physical::Pos, angle: f32) -> physical::Pos {
-    (origin.0 + 0.9 * angle.cos(), origin.1 + 0.9 * angle.sin())
-}
-
-
-/// Rotates a point around `origin` `angle` degrees with a radius slightly
-/// greater than 1.
-///
-/// # Arguments
-/// * `origin` - The origin.
-/// * `angle` - A rotation angle.
-pub fn expand(origin: physical::Pos, angle: f32) -> physical::Pos {
-    (origin.0 + 1.5 * angle.cos(), origin.1 + 1.5 * angle.sin())
-}
-
-
 /// A navigator through a maze.
 ///
 /// This struct provides utility methods to open and close doors based on

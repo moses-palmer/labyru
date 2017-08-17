@@ -14,6 +14,7 @@ pub mod matrix;
 pub mod physical;
 pub mod room;
 
+mod util;
 mod open_set;
 
 

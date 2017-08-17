@@ -1,7 +1,6 @@
 use std;
 
 use super::Shape;
-use Maze as Base;
 use WallPos;
 use matrix;
 use physical;
@@ -54,32 +53,30 @@ define_walls! {
     }
 }
 
-
-pub struct Maze {
-    rooms: room::Rooms,
-}
-
-impl Maze {
-    pub fn new(width: usize, height: usize) -> Maze {
-        Maze { rooms: room::Rooms::new(width, height) }
+/// The index of the back wall.
+macro_rules! back_index {
+    ($wall:expr) => {
+        $wall ^ 0b0010
     }
 }
 
-impl Base for Maze {
-    fn rooms(&self) -> &room::Rooms {
-        &self.rooms
-    }
-
-    fn rooms_mut(&mut self) -> &mut room::Rooms {
-        &mut self.rooms
+/// The walls for a matrix position.
+macro_rules! walls {
+    ($pos:expr) => {
+        &ALL
     }
 }
+
+/// The walls
+static ALL: &[&'static wall::Wall] =
+    &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
+
+
+define_base!();
 
 
 impl Shape for Maze {
-    fn all_walls(&self) -> &'static [&'static wall::Wall] {
-        &walls::ALL
-    }
+    implement_base_shape!();
 
     fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
         let (_, wall) = wall_pos;
@@ -228,47 +225,5 @@ mod tests {
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );
-    }
-
-
-    #[test]
-    fn center_and_span() {
-        let maze = Maze::new(5, 5);
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::UP.span.0),
-            rotate(maze.center((1, 0)), walls::DOWN.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::UP.span.1),
-            rotate(maze.center((1, 0)), walls::DOWN.span.0),
-        ));
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::LEFT.span.0),
-            rotate(maze.center((0, 1)), walls::RIGHT.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::LEFT.span.1),
-            rotate(maze.center((0, 1)), walls::RIGHT.span.0),
-        ));
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::DOWN.span.0),
-            rotate(maze.center((1, 2)), walls::UP.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::DOWN.span.1),
-            rotate(maze.center((1, 2)), walls::UP.span.0),
-        ));
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::RIGHT.span.0),
-            rotate(maze.center((2, 1)), walls::LEFT.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::RIGHT.span.1),
-            rotate(maze.center((2, 1)), walls::LEFT.span.0),
-        ));
     }
 }

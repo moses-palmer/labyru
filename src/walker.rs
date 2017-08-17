@@ -74,7 +74,7 @@ pub struct Follower<'a> {
     start_pos: WallPos,
 
     /// The current position.
-    current: Option<WallPos>,
+    current: WallPos,
 
     /// Whether we have finished following walls.
     finished: bool,
@@ -86,43 +86,10 @@ impl<'a> Follower<'a> {
         Self {
             maze: maze,
             start_pos: start_pos,
-            current: None,
+            current: start_pos,
             finished: false,
         }
     }
-
-    /// Returns whether two rooms are "neighbours".
-    ///
-    /// Rooms are neighbours if they are connected, or if they share a connected
-    /// room.
-    ///
-    /// # Arguments
-    /// * `pos1` - The first room.
-    /// * `pos2` - The second room.
-    fn neighbors(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
-        self.maze.connected(pos1, pos2) ||
-            self.maze
-                .walls(pos1)
-                .iter()
-                .filter(|wall| self.maze.is_open((pos1, wall)))
-                .any(|wall1| {
-                    let neighbor1 =
-                        (pos1.0 + wall1.dir.0, pos1.1 + wall1.dir.1);
-                    self.maze.connected(neighbor1, pos2) ||
-                        self.maze
-                            .walls(pos2)
-                            .iter()
-                            .filter(|wall| self.maze.is_open((pos2, wall)))
-                            .any(|wall2| {
-                                let neighbor2 = (
-                                    pos2.0 + wall2.dir.0,
-                                    pos2.1 + wall2.dir.1,
-                                );
-                                self.maze.connected(neighbor1, neighbor2)
-                            })
-                })
-    }
-
 
     /// Retrieves the next wall position.
     ///
@@ -132,7 +99,7 @@ impl<'a> Follower<'a> {
     ///
     /// # Arguments
     /// * `wall_pos`- The wall position for which to retrieve a room.
-    fn next_wall_pos(&self, wall_pos: WallPos) -> Option<WallPos> {
+    fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
         let all = self.maze.all_walls();
         let back = self.maze.back(wall_pos);
         let (x, y) = back.0;
@@ -142,17 +109,13 @@ impl<'a> Follower<'a> {
             // Convert the offsets to wall positions
             .map(|&((dx, dy), wall_index)| ((x + dx, y + dy), all[wall_index]))
 
-            // Ignore open walls
-            .filter(|&next| !self.maze.is_open(next))
+            // Find the first closed wall
+            .skip_while(|&next| self.maze.is_open(next))
 
             // Yield the first wall we encounter, or the back of the original
             // wall if it is reachable
             .next()
-            .or_else(|| if self.neighbors(wall_pos.0, back.0) {
-                Some(back)
-            } else {
-                None
-            })
+            .unwrap_or(back)
     }
 }
 
@@ -167,18 +130,18 @@ impl<'a> Iterator for Follower<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             None
-        } else if let Some(current) = self.current {
-            if current == self.start_pos {
-                None
-            } else {
-                self.current = self.next_wall_pos(current);
-                self.finished = self.current.is_none();
-                Some((current, self.current))
-            }
         } else {
-            self.current = self.next_wall_pos(self.start_pos);
-            self.finished = self.current.is_none();
-            Some((self.start_pos, self.current))
+            let previous = self.current;
+            self.current = self.next_wall_pos(self.current);
+            self.finished = self.current == self.start_pos;
+            Some((
+                previous,
+                if self.finished {
+                    None
+                } else {
+                    Some(self.current)
+                },
+            ))
         }
     }
 }

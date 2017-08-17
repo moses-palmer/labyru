@@ -119,6 +119,9 @@ pub mod initialize;
 pub use initialize::*;
 pub mod render;
 pub use render::*;
+
+#[macro_use]
 pub mod shape;
+
 pub mod walker;
 pub use walker::*;

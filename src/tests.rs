@@ -184,6 +184,25 @@ fn walk_shortest(maze: &mut Maze) {
 maze_test!(walk_shortest, walk_shortest_test);
 
 
+fn corner_walls(maze: &mut Maze) {
+    for x in 0..maze.width() {
+        for y in 0..maze.height() {
+            let pos = (x as isize, y as isize);
+            for wall in maze.walls(pos) {
+                let wall_pos = (pos, *wall);
+                let (center, _) = maze.corners(wall_pos);
+                for corner_wall in maze.corner_walls(wall_pos) {
+                    let (start, end) = maze.corners(corner_wall);
+                    assert!(is_close(start, center) || is_close(end, center));
+                }
+            }
+        }
+    }
+}
+
+maze_test!(corner_walls, corner_walls_test);
+
+
 /// Determines whether two physical locations are close enough to be
 /// considered equal.
 ///
@@ -269,7 +288,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading up from the current
     /// room.
     pub fn up<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dir.1 < 0, open)
+        self.navigate(|wall| wall.dir == (0, -1), open)
     }
 
     /// Opens or closes a wall leading _down_.
@@ -283,7 +302,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading down from the current
     /// room.
     pub fn down<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dir.1 > 0, open)
+        self.navigate(|wall| wall.dir == (0, 1), open)
     }
 
     /// Opens or closes a wall leading _left_.
@@ -297,7 +316,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading left from the current
     /// room.
     pub fn left<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dir.0 < 0, open)
+        self.navigate(|wall| wall.dir == (-1, 0), open)
     }
 
     /// Opens or closes a wall leading _right_.
@@ -311,7 +330,7 @@ impl<'a> Navigator<'a> {
     /// This method panics if there is no wall leading right from the
     /// current room.
     pub fn right<'b>(&'b mut self, open: bool) -> &'b mut Self {
-        self.navigate(|wall| wall.dir.0 > 0, open)
+        self.navigate(|wall| wall.dir == (1, 0), open)
     }
 
     /// Opens or closes a wall.

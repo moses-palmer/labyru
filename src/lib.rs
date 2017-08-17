@@ -3,12 +3,16 @@ extern crate rand;
 #[cfg(feature = "render-svg")]
 extern crate svg;
 
-pub mod matrix;
-pub mod physical;
-pub mod room;
+#[cfg(test)]
+#[macro_use]
+mod tests;
 
 #[macro_use]
 pub mod wall;
+
+pub mod matrix;
+pub mod physical;
+pub mod room;
 
 mod open_set;
 
@@ -110,10 +114,6 @@ pub trait Maze
     fn rooms_mut(&mut self) -> &mut room::Rooms;
 }
 
-
-#[cfg(test)]
-#[macro_use]
-mod tests;
 
 pub mod initialize;
 pub use initialize::*;

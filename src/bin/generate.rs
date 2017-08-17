@@ -9,7 +9,7 @@ use std::f32;
 use std::str::FromStr;
 
 use labyru::initialize::randomized_prim::*;
-use labyru::render::svg::*;
+use labyru::renderable::svg::*;
 
 
 fn run(maze: &mut labyru::Maze, scale: f32, margin: f32, output: &str) {

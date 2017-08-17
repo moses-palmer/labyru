@@ -10,6 +10,9 @@ mod tests;
 #[macro_use]
 pub mod wall;
 
+pub mod traits;
+pub use traits::*;
+
 pub mod matrix;
 pub mod physical;
 pub mod room;

@@ -14,7 +14,6 @@ pub mod traits;
 pub use traits::*;
 
 pub mod matrix;
-pub mod physical;
 pub mod room;
 
 mod util;
@@ -26,7 +25,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A maze contains rooms and has methods for managing paths and doors.
 pub trait Maze
-    : physical::Physical + render::Renderable + shape::Shape + Walkable {
+    : Physical + render::Renderable + shape::Shape + Walkable {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.

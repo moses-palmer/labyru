@@ -58,7 +58,7 @@ impl OpenSet {
 
 #[cfg(test)]
 mod tests {
-    use open_set::OpenSet;
+    use super::*;
 
     #[test]
     fn pop_empty() {

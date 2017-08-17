@@ -15,7 +15,6 @@ pub mod physical;
 pub mod room;
 
 mod util;
-mod open_set;
 
 
 /// A wall of a room.

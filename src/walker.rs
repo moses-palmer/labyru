@@ -1,7 +1,7 @@
 use std;
 
 use matrix;
-use open_set;
+use util::open_set;
 
 use Maze;
 use WallPos;

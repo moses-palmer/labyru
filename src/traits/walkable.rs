@@ -7,146 +7,6 @@ use Maze;
 use WallPos;
 
 
-/// A maze walker.
-///
-/// This struct supports walking through a map. From a starting position, it
-/// will yield all room positions by mapping a position to the next.
-///
-/// It will continue until a position maps to `None`. All positions encountered,
-/// including `start` and the position yielding `None`, will be returned.
-pub struct Walker {
-    /// The current position.
-    current: matrix::Pos,
-
-    /// Whether `next` should return the next element. This will be true only
-    /// for the first call to `next`.
-    increment: bool,
-
-    /// The backing map.
-    map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
-}
-
-
-impl Walker {
-    /// Creates a walker from a starting position and a supporting map.
-    ///
-    /// It is possible to walk indefinitely if the mapping contains circular
-    /// references.
-    pub fn new(
-        start: matrix::Pos,
-        map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
-    ) -> Walker {
-        Walker {
-            current: start,
-            increment: false,
-            map: map,
-        }
-    }
-}
-
-
-impl Iterator for Walker {
-    type Item = matrix::Pos;
-
-    fn next(&mut self) -> Option<matrix::Pos> {
-        if self.increment {
-            match self.map.get(&self.current) {
-                Some(next) => {
-                    self.current = *next;
-                    Some(*next)
-                }
-                None => None,
-            }
-        } else {
-            self.increment = true;
-            Some(self.current)
-        }
-    }
-}
-
-
-/// Follows a wall.
-pub struct Follower<'a> {
-    /// The maze.
-    maze: &'a Maze,
-
-    /// The starting position.
-    start_pos: WallPos,
-
-    /// The current position.
-    current: WallPos,
-
-    /// Whether we have finished following walls.
-    finished: bool,
-}
-
-
-impl<'a> Follower<'a> {
-    pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
-        Self {
-            maze: maze,
-            start_pos: start_pos,
-            current: start_pos,
-            finished: false,
-        }
-    }
-
-    /// Retrieves the next wall position.
-    ///
-    /// The next wall position will be reachable from `wall_pos` without passing
-    /// through any walls, and it will share a corner. Repeatedly calling this
-    /// method will yield walls clockwise inside a cavity in the maze.
-    ///
-    /// # Arguments
-    /// * `wall_pos`- The wall position for which to retrieve a room.
-    fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
-        let all = self.maze.all_walls();
-        let back = self.maze.back(wall_pos);
-        let (x, y) = back.0;
-        all[back.1.index].corner_wall_offsets
-            .into_iter()
-
-            // Convert the offsets to wall positions
-            .map(|&((dx, dy), wall_index)| ((x + dx, y + dy), all[wall_index]))
-
-            // Find the first closed wall
-            .skip_while(|&next| self.maze.is_open(next))
-
-            // Yield the first wall we encounter, or the back of the original
-            // wall if it is reachable
-            .next()
-            .unwrap_or(back)
-    }
-}
-
-
-impl<'a> Iterator for Follower<'a> {
-    type Item = (WallPos, Option<WallPos>);
-
-    /// Iterates over all wall positions.
-    ///
-    /// Wall positions are returned in the pair _(from, to)_. The last iteration
-    /// before this iterator is exhausted will return _to_ as `None`.
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.finished {
-            None
-        } else {
-            let previous = self.current;
-            self.current = self.next_wall_pos(self.current);
-            self.finished = self.current == self.start_pos;
-            Some((
-                previous,
-                if self.finished {
-                    None
-                } else {
-                    Some(self.current)
-                },
-            ))
-        }
-    }
-}
-
-
 /// A container that supports walking.
 pub trait Walkable {
     /// Walks from `from` to `to` along the sortest path.
@@ -246,6 +106,147 @@ where
 
     fn follow_wall(&self, wall_pos: WallPos) -> Follower {
         Follower::new(self, wall_pos)
+    }
+}
+
+
+/// A maze walker.
+///
+/// This struct supports walking through a map. From a starting position, it
+/// will yield all room positions by mapping a position to the next.
+///
+/// It will continue until a position maps to `None`. All positions encountered,
+/// including `start` and the position yielding `None`, will be returned.
+pub struct Walker {
+    /// The current position.
+    current: matrix::Pos,
+
+    /// Whether `next` should return the next element. This will be true only
+    /// for the first call to `next`.
+    increment: bool,
+
+    /// The backing map.
+    map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
+}
+
+
+impl Walker {
+    /// Creates a walker from a starting position and a supporting map.
+    ///
+    /// It is possible to walk indefinitely if the mapping contains circular
+    /// references.
+    pub fn new(
+        start: matrix::Pos,
+        map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
+    ) -> Walker {
+        Walker {
+            current: start,
+            increment: false,
+            map: map,
+        }
+    }
+}
+
+
+impl Iterator for Walker {
+    type Item = matrix::Pos;
+
+    /// Yields the next room position.
+    fn next(&mut self) -> Option<matrix::Pos> {
+        if self.increment {
+            match self.map.get(&self.current) {
+                Some(next) => {
+                    self.current = *next;
+                    Some(*next)
+                }
+                None => None,
+            }
+        } else {
+            self.increment = true;
+            Some(self.current)
+        }
+    }
+}
+
+
+/// Follows a wall.
+pub struct Follower<'a> {
+    /// The maze.
+    maze: &'a Maze,
+
+    /// The starting position.
+    start_pos: WallPos,
+
+    /// The current position.
+    current: WallPos,
+
+    /// Whether we have finished following walls.
+    finished: bool,
+}
+
+
+impl<'a> Follower<'a> {
+    pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
+        Self {
+            maze: maze,
+            start_pos: start_pos,
+            current: start_pos,
+            finished: false,
+        }
+    }
+
+    /// Retrieves the next wall position.
+    ///
+    /// The next wall position will be reachable from `wall_pos` without passing
+    /// through any walls, and it will share a corner. Repeatedly calling this
+    /// method will yield walls clockwise inside a cavity in the maze.
+    ///
+    /// # Arguments
+    /// * `wall_pos`- The wall position for which to retrieve a room.
+    fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
+        let all = self.maze.all_walls();
+        let back = self.maze.back(wall_pos);
+        let (x, y) = back.0;
+        all[back.1.index].corner_wall_offsets
+            .into_iter()
+
+            // Convert the offsets to wall positions
+            .map(|&((dx, dy), wall_index)| ((x + dx, y + dy), all[wall_index]))
+
+            // Find the first closed wall
+            .skip_while(|&next| self.maze.is_open(next))
+
+            // Yield the first wall we encounter, or the back of the original
+            // wall if we encounter no other wall
+            .next()
+            .unwrap_or(back)
+    }
+}
+
+
+impl<'a> Iterator for Follower<'a> {
+    type Item = (WallPos, Option<WallPos>);
+
+    /// Iterates over all wall positions.
+    ///
+    /// Wall positions are returned in the pair _(from, to)_. The last iteration
+    /// before this iterator is exhausted will return _to_ as `None`.
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.finished {
+            None
+        } else {
+            let previous = self.current;
+            self.current = self.next_wall_pos(self.current);
+            self.finished = self.current == self.start_pos;
+            Some((
+                previous,
+                if self.finished {
+                    None
+                } else {
+                    Some(self.current)
+                },
+            ))
+        }
     }
 }
 

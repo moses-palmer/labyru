@@ -229,46 +229,4 @@ mod tests {
                 .collect::<Vec<WallPos>>()
         );
     }
-
-
-    #[test]
-    fn center_and_span() {
-        let maze = Maze::new(5, 5);
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::UP.span.0),
-            rotate(maze.center((1, 0)), walls::DOWN.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::UP.span.1),
-            rotate(maze.center((1, 0)), walls::DOWN.span.0),
-        ));
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::LEFT.span.0),
-            rotate(maze.center((0, 1)), walls::RIGHT.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::LEFT.span.1),
-            rotate(maze.center((0, 1)), walls::RIGHT.span.0),
-        ));
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::DOWN.span.0),
-            rotate(maze.center((1, 2)), walls::UP.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::DOWN.span.1),
-            rotate(maze.center((1, 2)), walls::UP.span.0),
-        ));
-
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::RIGHT.span.0),
-            rotate(maze.center((2, 1)), walls::LEFT.span.1),
-        ));
-        assert!(is_close(
-            rotate(maze.center((1, 1)), walls::RIGHT.span.1),
-            rotate(maze.center((2, 1)), walls::LEFT.span.0),
-        ));
-    }
 }

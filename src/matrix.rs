@@ -8,7 +8,7 @@ pub type Pos = (isize, isize);
 /// A matrix is a two dimensional array.
 ///
 /// Every cell has a value, which is addressed using a [Pos](type.Pos.html).
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct Matrix<T>
 where
     T: Clone + Copy + Default,
@@ -194,5 +194,18 @@ mod test {
             vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)],
             Matrix::<bool>::new(3, 2).positions().collect::<Vec<_>>()
         );
+    }
+
+    #[test]
+    fn eq() {
+        let mut matrix1 = Matrix::<bool>::new(2, 2);
+        matrix1[(1, 1)] = true;
+        let mut matrix2 = Matrix::<bool>::new(2, 2);
+        matrix2[(1, 1)] = true;
+
+        assert_eq!(matrix1, matrix2);
+
+        matrix2[(0, 0)] = true;
+        assert!(matrix1 != matrix2);
     }
 }

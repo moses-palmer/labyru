@@ -80,6 +80,61 @@ where
             None
         }
     }
+
+    /// Returns an iterator over all cell positions.
+    ///
+    /// The positions are returned row by row, starting from `(0, 0)` and ending
+    /// with `(self.width - 1, self.height - 1)`.
+    pub fn positions(&self) -> PosIterator {
+        PosIterator::new(self.width, self.height)
+    }
+}
+
+
+/// An iterator over matrix positions.
+pub struct PosIterator {
+    /// The width of the matrix being iterated.
+    width: usize,
+
+    /// The height of the matrix being iterated.
+    height: usize,
+
+    /// The current position.
+    current: isize,
+}
+
+
+impl PosIterator {
+    /// Creates a new position iterator.
+    ///
+    /// # Arguments
+    /// * `width` - The width of the matrix.
+    /// * `height` - The height of the matrix.
+    pub fn new(width: usize, height: usize) -> Self {
+        Self {
+            width: width,
+            height: height,
+            current: -1,
+        }
+    }
+}
+
+
+impl Iterator for PosIterator {
+    type Item = Pos;
+
+    /// Iterates over all cell positions in a matrix, row by row.
+    fn next(&mut self) -> Option<Self::Item> {
+        self.current += 1;
+        if self.current >= (self.width * self.height) as isize {
+            None
+        } else {
+            Some((
+                self.current % self.width as isize,
+                self.current / self.width as isize,
+            ))
+        }
+    }
 }
 
 
@@ -125,5 +180,19 @@ where
         } else {
             panic!()
         }
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn iterate() {
+        assert_eq!(
+            vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)],
+            Matrix::<bool>::new(3, 2).positions().collect::<Vec<_>>()
+        );
     }
 }

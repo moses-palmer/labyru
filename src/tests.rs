@@ -92,17 +92,13 @@ maze_test!(walls_correct, walls_correct_test);
 
 
 fn walls_span(maze: &mut Maze) {
-    for x in 0..maze.width() {
-        for y in 0..maze.height() {
-            let pos = (x as isize, y as isize);
-
-            for wall in maze.walls(pos) {
-                let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
-                assert!(wall.in_span(wall.span.0 + d));
-                assert!(!wall.in_span(wall.span.0 - d));
-                assert!(wall.in_span(wall.span.1 - d));
-                assert!(!wall.in_span(wall.span.1 + d));
-            }
+    for pos in maze.rooms().positions() {
+        for wall in maze.walls(pos) {
+            let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
+            assert!(wall.in_span(wall.span.0 + d));
+            assert!(!wall.in_span(wall.span.0 - d));
+            assert!(wall.in_span(wall.span.1 - d));
+            assert!(!wall.in_span(wall.span.1 + d));
         }
     }
 }
@@ -111,11 +107,8 @@ maze_test!(walls_span, walls_span_test);
 
 
 fn connected_correct(maze: &mut Maze) {
-    for x in 0..maze.width() {
-        for y in 0..maze.height() {
-            let pos = (x as isize, y as isize);
-            assert!(maze.connected(pos, pos))
-        }
+    for pos in maze.rooms().positions() {
+        assert!(maze.connected(pos, pos))
     }
 
     let pos1 = (1, 1);
@@ -185,16 +178,13 @@ maze_test!(walk_shortest, walk_shortest_test);
 
 
 fn corner_walls(maze: &mut Maze) {
-    for x in 0..maze.width() {
-        for y in 0..maze.height() {
-            let pos = (x as isize, y as isize);
-            for wall in maze.walls(pos) {
-                let wall_pos = (pos, *wall);
-                let (center, _) = maze.corners(wall_pos);
-                for corner_wall in maze.corner_walls(wall_pos) {
-                    let (start, end) = maze.corners(corner_wall);
-                    assert!(is_close(start, center) || is_close(end, center));
-                }
+    for pos in maze.rooms().positions() {
+        for wall in maze.walls(pos) {
+            let wall_pos = (pos, *wall);
+            let (center, _) = maze.corners(wall_pos);
+            for corner_wall in maze.corner_walls(wall_pos) {
+                let (start, end) = maze.corners(corner_wall);
+                assert!(is_close(start, center) || is_close(end, center));
             }
         }
     }

@@ -12,11 +12,11 @@ use labyru::initialize::randomized_prim::*;
 use labyru::renderable::svg::*;
 
 
-fn run(maze: &mut labyru::Maze, scale: f32, margin: f32, output: &str) {
+fn run(maze: &mut Box<labyru::Maze>, scale: f32, margin: f32, output: &str) {
     svg::save(
         output,
         &svg::Document::new()
-            .set("viewBox", maze_to_viewbox(maze, scale, margin))
+            .set("viewBox", maze_to_viewbox(maze.as_mut(), scale, margin))
             .add(
                 svg::node::element::Path::new()
                     .set("fill", "none")
@@ -57,6 +57,11 @@ fn main() {
         (version: crate_version!())
         (author: crate_authors!(", "))
 
+        (@arg WALLS:
+            --("walls")
+            +takes_value
+            "The number of walls per room; 3, 4 or 6.")
+
         (@arg WIDTH:
             --("width")
             +takes_value
@@ -82,7 +87,12 @@ fn main() {
             "The output file name.")
     ).get_matches();
 
-    let mut maze = labyru::shape::hex::Maze::new(
+    let maze_type = labyru::MazeType::from_num(
+        args.value_of("WALLS")
+            .map(|s| u32::from_str_radix(s, 10).expect("invalid wall value"))
+            .unwrap_or(4),
+    ).expect("unknown number of walls");
+    let mut maze = maze_type.create(
         args.value_of("WIDTH")
             .map(|s| usize::from_str_radix(s, 10).expect("invalid width"))
             .unwrap_or(12usize),

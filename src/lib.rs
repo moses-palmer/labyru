@@ -10,8 +10,14 @@ mod tests;
 #[macro_use]
 pub mod wall;
 
+#[macro_use]
+pub mod shape;
+
 pub mod traits;
 pub use traits::*;
+
+pub mod initialize;
+pub use initialize::*;
 
 pub mod matrix;
 pub mod room;
@@ -114,10 +120,3 @@ pub trait Maze: Physical + Renderable + shape::Shape + Walkable {
     /// Retrieves a mutable reference to the underlying rooms.
     fn rooms_mut(&mut self) -> &mut room::Rooms;
 }
-
-
-pub mod initialize;
-pub use initialize::*;
-
-#[macro_use]
-pub mod shape;

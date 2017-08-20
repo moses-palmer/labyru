@@ -88,6 +88,14 @@ where
     pub fn positions(&self) -> PosIterator {
         PosIterator::new(self.width, self.height)
     }
+
+    /// Returns an iterator over all cell values.
+    ///
+    /// The values are returned row by row, starting from `(0, 0)` and ending
+    /// with `(self.width - 1, self.height - 1)`.
+    pub fn values<'a>(&'a self) -> ValueIterator<'a, T> {
+        ValueIterator::new(self)
+    }
 }
 
 
@@ -133,6 +141,54 @@ impl Iterator for PosIterator {
                 self.current % self.width as isize,
                 self.current / self.width as isize,
             ))
+        }
+    }
+}
+
+
+/// An iterator over matrix values.
+pub struct ValueIterator<'a, T>
+where
+    T: 'a + Clone + Copy + Default,
+{
+    // An iterator over positions
+    pos_iter: PosIterator,
+
+    /// The current position.
+    matrix: &'a Matrix<T>,
+}
+
+
+impl<'a, T> ValueIterator<'a, T>
+where
+    T: 'a + Clone + Copy + Default,
+{
+    /// Creates a new position iterator.
+    ///
+    /// # Arguments
+    /// * `width` - The width of the matrix.
+    /// * `height` - The height of the matrix.
+    pub fn new(matrix: &'a Matrix<T>) -> Self {
+        Self {
+            pos_iter: PosIterator::new(matrix.width, matrix.height),
+            matrix: matrix,
+        }
+    }
+}
+
+
+impl<'a, T> Iterator for ValueIterator<'a, T>
+where
+    T: 'a + Clone + Copy + Default,
+{
+    type Item = T;
+
+    /// Iterates over all cell values in a matrix, row by row.
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(pos) = self.pos_iter.next() {
+            Some(self.matrix[pos])
+        } else {
+            None
         }
     }
 }
@@ -189,11 +245,21 @@ mod test {
     use super::*;
 
     #[test]
-    fn iterate() {
+    fn iterate_positions() {
         assert_eq!(
             vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)],
             Matrix::<bool>::new(3, 2).positions().collect::<Vec<_>>()
         );
+    }
+
+    #[test]
+    fn iterate_values() {
+        let mut matrix = Matrix::<u8>::new(2, 2);
+        matrix[(0, 0)] = 1;
+        matrix[(1, 0)] = 2;
+        matrix[(0, 1)] = 3;
+        matrix[(1, 1)] = 4;
+        assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
     }
 
     #[test]

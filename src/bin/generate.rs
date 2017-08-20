@@ -8,33 +8,52 @@ extern crate labyru;
 use std::f32;
 use std::str::FromStr;
 
+use svg::Document;
+use svg::Node;
+use svg::node::element::{Group, Path};
+use svg::node::element::path::{Command, Data, Position};
+
 use labyru::initialize::randomized_prim::*;
 use labyru::renderable::svg::*;
 
 
-fn run(maze: &mut Box<labyru::Maze>, scale: f32, margin: f32, output: &str) {
-    svg::save(
-        output,
-        &svg::Document::new()
-            .set("viewBox", maze_to_viewbox(maze.as_mut(), scale, margin))
-            .add(
-                svg::node::element::Path::new()
-                    .set("fill", "none")
-                    .set("stroke", "black")
-                    .set("stroke-linecap", "round")
-                    .set("stroke-linejoin", "round")
-                    .set("stroke-width", 0.4)
-                    .set("transform", format!("scale({})", scale))
-                    .set("vector-effect", "non-scaling-stroke")
-                    .set(
-                        "d",
-                        maze.randomized_prim(&mut rand::weak_rng()).to_path_d(),
-                    ),
-            ),
-    ).expect("failed to write SVG");
+
+fn run(
+    maze: &mut labyru::Maze,
+    scale: f32,
+    margin: f32,
+    output: &str,
+) {
+    // Make sure the maze is initialised
+    maze.randomized_prim(&mut rand::weak_rng());
+
+    let document =
+        Document::new().set("viewBox", maze_to_viewbox(maze, scale, margin));
+    let mut container =
+        Group::new().set("transform", format!("scale({})", scale));
+
+    // Draw the maze
+    container.append(
+        Path::new()
+            .set("fill", "none")
+            .set("stroke", "black")
+            .set("stroke-linecap", "round")
+            .set("stroke-linejoin", "round")
+            .set("stroke-width", 0.4)
+            .set("vector-effect", "non-scaling-stroke")
+            .set("d", maze.to_path_d()),
+    );
+
+    svg::save(output, &document.add(container)).expect("failed to write SVG");
 }
 
 
+/// Calculates the view box for a maze with a margin.
+///
+/// # Arguments
+/// * `maze` - The maze for which to generate a view box.
+/// * `scale` - A scale multiplier.
+/// * `margin` - The margin to apply to all sides.
 fn maze_to_viewbox(
     maze: &labyru::Maze,
     scale: f32,
@@ -111,5 +130,10 @@ fn main() {
 
     let output = args.value_of("OUTPUT").unwrap();
 
-    run(&mut maze, scale, margin, output);
+    run(
+        maze.as_mut(),
+        scale,
+        margin,
+        output,
+    );
 }

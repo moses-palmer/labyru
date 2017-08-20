@@ -16,6 +16,7 @@ use svg::node::element::path::{Command, Data, Position};
 use labyru::initialize::randomized_prim::*;
 use labyru::renderable::svg::*;
 
+mod types;
 
 
 fn run(

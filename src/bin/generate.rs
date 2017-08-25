@@ -70,6 +70,44 @@ fn maze_to_viewbox(
 }
 
 
+/// Draws all rooms of a maze.
+///
+/// # Arguments
+/// * `maze` - The maze to draw.
+/// * `colors` - A function determining the colour of a room.
+fn draw_rooms<F>(maze: &labyru::Maze, colors: F) -> svg::node::element::Group
+where
+    F: Fn(labyru::matrix::Pos) -> types::Color,
+{
+    let mut group = svg::node::element::Group::new();
+    for pos in maze.rooms().positions() {
+        let color = colors(pos);
+        let mut commands = maze.walls(pos)
+            .iter()
+            .enumerate()
+            .map(|(i, wall)| {
+                let (coords, _) = maze.corners((pos, wall));
+                if i == 0 {
+                    Command::Move(Position::Absolute, coords.into())
+                } else {
+                    Command::Line(Position::Absolute, coords.into())
+                }
+            })
+            .collect::<Vec<_>>();
+        commands.push(Command::Close);
+
+        group.append(
+            svg::node::element::Path::new()
+                .set("fill", color.to_string())
+                .set("fill-opacity", (color.alpha as f32 / 255.0))
+                .set("d", Data::from(commands)),
+        );
+    }
+
+    group
+}
+
+
 fn main() {
     let args = clap_app!(myapp =>
         (about: "Generates mazes")

@@ -8,6 +8,8 @@ extern crate labyru;
 use std::f32;
 use std::str::FromStr;
 
+use rand::Rng;
+
 use svg::Document;
 use svg::Node;
 use svg::node::element::{Group, Path};
@@ -23,6 +25,7 @@ fn run(
     maze: &mut labyru::Maze,
     scale: f32,
     margin: f32,
+    heat_map_action: Option<types::HeatMapAction>,
     output: &str,
 ) {
     // Make sure the maze is initialised
@@ -32,6 +35,10 @@ fn run(
         Document::new().set("viewBox", maze_to_viewbox(maze, scale, margin));
     let mut container =
         Group::new().set("transform", format!("scale({})", scale));
+
+    if let Some(heat_map_action) = heat_map_action {
+        apply_heat_map(heat_map_action, maze, &mut container);
+    }
 
     // Draw the maze
     container.append(
@@ -68,6 +75,28 @@ fn maze_to_viewbox(
         viewbox.2 * scale + 2.0 * margin,
         viewbox.3 * scale + 2.0 * margin,
     )
+}
+
+
+/// Applies the heat map action.
+///
+/// This action will calculate a heat map, and use the heat of each room to
+/// interpolate between the colours in `action`.
+///
+/// # Arguments
+/// * `action` - The action parameters.
+/// * `maze` - The maze.
+/// * `group` - The group to which to add the rooms.
+fn apply_heat_map(
+    action: types::HeatMapAction,
+    maze: &mut labyru::Maze,
+    group: &mut Group,
+) {
+    let matrix = action.map_type.generate(maze);
+    let max = matrix.values().max().unwrap() as f32;
+    group.append(draw_rooms(maze, |pos| {
+        action.to.fade(&action.from, matrix[pos] as f32 / max)
+    }));
 }
 
 
@@ -140,6 +169,11 @@ fn main() {
             +takes_value
             "The margin around the maze.")
 
+        (@arg HEATMAP:
+            --("heat-map")
+            +takes_value
+            "Whether to create a heat map.")
+
         (@arg OUTPUT:
             +required
             "The output file name.")
@@ -167,12 +201,17 @@ fn main() {
         .map(|s| f32::from_str(s).expect("invalid margin"))
         .unwrap_or(10.0);
 
+    let heat_map_action = args.value_of("HEATMAP").map(|s| {
+        types::HeatMapAction::from_str(s).expect("invalid heat map")
+    });
+
     let output = args.value_of("OUTPUT").unwrap();
 
     run(
         maze.as_mut(),
         scale,
         margin,
+        heat_map_action,
         output,
     );
 }

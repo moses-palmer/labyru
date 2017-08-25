@@ -1,4 +1,12 @@
+#[cfg(feature = "parallel")]
+use rayon::current_num_threads;
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
+
 use labyru;
+
+#[cfg(feature = "parallel")]
+use labyru::matrix::AddableMatrix;
 
 
 /// A colour.
@@ -202,6 +210,7 @@ impl HeatMapType {
     /// * `maze` - The maze for which to generate a heat map.
     /// * `positions` - The positions for which to generate a heat map. These
     ///   will be generated from the heat map type.
+    #[cfg(not(feature = "parallel"))]
     fn create_heatmap<I>(
         &self,
         maze: &labyru::Maze,
@@ -211,6 +220,35 @@ impl HeatMapType {
         I: Iterator<Item = (labyru::matrix::Pos, labyru::matrix::Pos)>,
     {
         labyru::heatmap(maze, positions)
+    }
+
+    /// Generates a heat map for a maze and an iteration of positions.
+    ///
+    /// # Arguments
+    /// * `maze` - The maze for which to generate a heat map.
+    /// * `positions` - The positions for which to generate a heat map. These
+    ///   will be generated from the heat map type.
+    #[cfg(feature = "parallel")]
+    fn create_heatmap<I>(
+        &self,
+        maze: &labyru::Maze,
+        positions: I,
+    ) -> labyru::HeatMap
+    where
+        I: Iterator<Item = (labyru::matrix::Pos, labyru::matrix::Pos)>,
+    {
+        let collected = positions.collect::<Vec<_>>();
+        collected
+            .chunks(collected.len() / current_num_threads())
+            .collect::<Vec<_>>()
+            .par_iter()
+            .map(|positions| {
+                labyru::heatmap(maze, positions.iter().map(|p| *p))
+            })
+            .reduce(|| labyru::HeatMap::new(maze.width(), maze.height()), |acc,
+             o| {
+                acc.add(o)
+            })
     }
 }
 

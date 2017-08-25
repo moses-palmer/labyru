@@ -25,6 +25,7 @@ fn run(
     maze: &mut labyru::Maze,
     scale: f32,
     margin: f32,
+    break_action: Option<types::BreakAction>,
     heat_map_action: Option<types::HeatMapAction>,
     output: &str,
 ) {
@@ -35,6 +36,10 @@ fn run(
         Document::new().set("viewBox", maze_to_viewbox(maze, scale, margin));
     let mut container =
         Group::new().set("transform", format!("scale({})", scale));
+
+    if let Some(break_action) = break_action {
+        apply_break(break_action, maze, &mut container);
+    }
 
     if let Some(heat_map_action) = heat_map_action {
         apply_heat_map(heat_map_action, maze, &mut container);
@@ -75,6 +80,38 @@ fn maze_to_viewbox(
         viewbox.2 * scale + 2.0 * margin,
         viewbox.3 * scale + 2.0 * margin,
     )
+}
+
+
+/// Applies the break action.
+///
+/// This action will repeatedly calculate a heat map, and then open walls in
+/// rooms with higher probability in hot rooms.
+///
+/// # Arguments
+/// * `action` - The action parameters.
+/// * `maze` - The maze.
+fn apply_break(
+    action: types::BreakAction,
+    maze: &mut labyru::Maze,
+    _: &mut Group,
+) {
+    let mut rng = rand::weak_rng();
+
+    for _ in 0..action.count {
+        let heat_map = action.map_type.generate(maze);
+        for pos in heat_map.positions() {
+            if 1.0 / (rng.next_f32() * heat_map[pos] as f32) < 0.5 {
+                loop {
+                    let wall = rng.choose(maze.walls(pos)).unwrap();
+                    if maze.rooms().is_inside(maze.back((pos, wall)).0) {
+                        maze.open((pos, wall));
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -169,6 +206,11 @@ fn main() {
             +takes_value
             "The margin around the maze.")
 
+        (@arg BREAK:
+            --("break")
+            +takes_value
+            "Whether to break the maze.")
+
         (@arg HEATMAP:
             --("heat-map")
             +takes_value
@@ -201,6 +243,10 @@ fn main() {
         .map(|s| f32::from_str(s).expect("invalid margin"))
         .unwrap_or(10.0);
 
+    let break_action = args.value_of("BREAK").map(|s| {
+        types::BreakAction::from_str(s).expect("invalid break")
+    });
+
     let heat_map_action = args.value_of("HEATMAP").map(|s| {
         types::HeatMapAction::from_str(s).expect("invalid heat map")
     });
@@ -211,6 +257,7 @@ fn main() {
         maze.as_mut(),
         scale,
         margin,
+        break_action,
         heat_map_action,
         output,
     );

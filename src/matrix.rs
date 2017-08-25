@@ -99,6 +99,40 @@ where
 }
 
 
+pub trait AddableMatrix<T> {
+    /// Adds another matrix to this one.
+    ///
+    /// If the matrices are of different dimensions, only the overlapping parts
+    /// will be added.
+    ///
+    /// # Arguments
+    /// * `other` - The matrix to add.
+    fn add(self, other: Self) -> Self;
+}
+
+
+impl<T> AddableMatrix<T> for Matrix<T>
+where
+    T: std::ops::AddAssign
+        + Clone
+        + Copy
+        + Default,
+{
+    fn add(mut self, other: Self) -> Self {
+        let width = std::cmp::min(self.width, other.width);
+        let height = std::cmp::min(self.height, other.height);
+        for y in 0..height {
+            for x in 0..width {
+                let pos = (x as isize, y as isize);
+                self[pos] += other[pos]
+            }
+        }
+
+        self
+    }
+}
+
+
 /// An iterator over matrix positions.
 pub struct PosIterator {
     /// The width of the matrix being iterated.

@@ -6,8 +6,10 @@ authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 [dependencies]
 clap = "2.24.1"
 rand = "0.3"
+rayon = { version = "0.8.2", optional = true }
 svg = { version = "0.5", optional = true }
 
 [features]
-default = ["render-svg"]
+default = ["render-svg", "parallel"]
 render-svg = ["svg"]
+parallel = ["rayon"]

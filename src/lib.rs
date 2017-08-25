@@ -30,7 +30,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze: shape::Shape + Physical + Renderable + Walkable {
+pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     /// Returns the width of the maze.
     ///
     /// This is short hand for `self.rooms().width()`.

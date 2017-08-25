@@ -5,6 +5,9 @@ extern crate svg;
 
 extern crate labyru;
 
+#[cfg(feature = "parallel")]
+extern crate rayon;
+
 use std::f32;
 use std::str::FromStr;
 

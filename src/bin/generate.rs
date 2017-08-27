@@ -5,6 +5,9 @@ extern crate svg;
 
 extern crate labyru;
 
+#[cfg(feature = "background")]
+extern crate image;
+
 #[cfg(feature = "parallel")]
 extern crate rayon;
 

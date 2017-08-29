@@ -118,3 +118,26 @@ pub trait Shape {
 pub mod hex;
 pub mod quad;
 pub mod tri;
+
+
+#[cfg(test)]
+mod tests {
+    use test_utils::*;
+    use ::*;
+
+
+    fn corner_walls(maze: &mut Maze) {
+        for pos in maze.rooms().positions() {
+            for wall in maze.walls(pos) {
+                let wall_pos = (pos, *wall);
+                let (center, _) = maze.corners(wall_pos);
+                for corner_wall in maze.corner_walls(wall_pos) {
+                    let (start, end) = maze.corners(corner_wall);
+                    assert!(is_close(start, center) || is_close(end, center));
+                }
+            }
+        }
+    }
+
+    maze_test!(corner_walls, corner_walls_test);
+}

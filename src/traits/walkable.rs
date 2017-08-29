@@ -295,6 +295,26 @@ mod tests {
         );
     }
 
+    fn walk_disconnected(maze: &mut Maze) {
+        assert!(maze.walk((0, 0), (0, 1)).is_none());
+    }
+
+    maze_test!(walk_disconnected, walk_disconnected_test);
+
+
+    fn walk_same(maze: &mut Maze) {
+        let from = (0, 0);
+        let to = (0, 0);
+        let expected = vec![(0, 0)];
+        assert!(
+            maze.walk(from, to)
+                .unwrap()
+                .collect::<Vec<matrix::Pos>>() == expected
+        );
+    }
+
+    maze_test!(walk_same, walk_same_test);
+
 
     fn walk_simple(maze: &mut Maze) {
         Navigator::new(maze).from((0, 0)).down(true);
@@ -303,7 +323,9 @@ mod tests {
         let to = (0, 1);
         let expected = vec![(0, 0), (0, 1)];
         assert!(
-            maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() == expected
+            maze.walk(from, to)
+                .unwrap()
+                .collect::<Vec<matrix::Pos>>() == expected
         );
     }
 
@@ -324,7 +346,9 @@ mod tests {
         let to = (1, 3);
         let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
         assert!(
-            maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() == expected
+            maze.walk(from, to)
+                .unwrap()
+                .collect::<Vec<matrix::Pos>>() == expected
         );
     }
 

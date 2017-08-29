@@ -186,6 +186,10 @@ impl physical::Physical for Maze {
             (pos.1 as f32 + 0.5) * self.vertical_multiplicator,
         )
     }
+
+    fn room_at(&self, _: physical::Pos) -> matrix::Pos {
+        unimplemented!();
+    }
 }
 
 

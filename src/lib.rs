@@ -5,7 +5,7 @@ extern crate svg;
 
 #[cfg(test)]
 #[macro_use]
-mod tests;
+mod test_utils;
 
 #[macro_use]
 pub mod wall;

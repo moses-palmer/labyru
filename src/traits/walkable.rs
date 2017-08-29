@@ -255,7 +255,7 @@ impl<'a> Iterator for Follower<'a> {
 mod tests {
     use std::collections::HashMap;
 
-    use tests as maze_tests;
+    use test_utils::*;
     use ::*;
     use super::*;
 
@@ -297,7 +297,7 @@ mod tests {
 
 
     fn walk_simple(maze: &mut Maze) {
-        maze_tests::Navigator::new(maze).from((0, 0)).down(true);
+        Navigator::new(maze).from((0, 0)).down(true);
 
         let from = (0, 0);
         let to = (0, 1);
@@ -311,7 +311,7 @@ mod tests {
 
 
     fn walk_shortest(maze: &mut Maze) {
-        maze_tests::Navigator::new(maze)
+        Navigator::new(maze)
             .from((0, 0))
             .down(true)
             .down(true)

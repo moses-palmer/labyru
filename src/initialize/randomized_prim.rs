@@ -83,13 +83,11 @@ mod tests {
     use super::*;
 
 
-    fn initialize_randomized_prim(maze: &mut Maze) {
+    maze_test!(initialize_randomized_prim, fn test(maze: &mut Maze) {
         maze.randomized_prim(&mut rand::weak_rng());
 
         let from = (0, 0);
         let to = ((maze.width() - 1) as isize, (maze.height() - 1) as isize);
         assert!(maze.walk(from, to).is_some());
-    }
-
-    maze_test!(initialize_randomized_prim, initialize_randomized_prim_test);
+    });
 }

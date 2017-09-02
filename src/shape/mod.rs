@@ -126,7 +126,7 @@ mod tests {
     use ::*;
 
 
-    fn corner_walls(maze: &mut Maze) {
+    maze_test!(corner_walls, fn test(maze: &mut Maze) {
         for pos in maze.rooms().positions() {
             for wall in maze.walls(pos) {
                 let wall_pos = (pos, *wall);
@@ -137,7 +137,5 @@ mod tests {
                 }
             }
         }
-    }
-
-    maze_test!(corner_walls, corner_walls_test);
+    });
 }

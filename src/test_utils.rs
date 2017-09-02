@@ -5,15 +5,17 @@ use super::*;
 /// mazes.
 #[macro_export]
 macro_rules! maze_test {
-    ($test_function:ident, $name:ident) => {
+    ($name:ident, $code:item) => {
         #[test]
         fn $name() {
             let width = 10;
             let height = 5;
 
-            $test_function(&mut shape::hex::Maze::new(width, height));
-            $test_function(&mut shape::quad::Maze::new(width, height));
-            $test_function(&mut shape::tri::Maze::new(width, height));
+            $code
+
+            test(&mut shape::hex::Maze::new(width, height));
+            test(&mut shape::quad::Maze::new(width, height));
+            test(&mut shape::tri::Maze::new(width, height));
         }
     }
 }

@@ -201,7 +201,7 @@ mod tests {
     use test_utils::*;
     use super::*;
 
-    fn is_inside_correct(maze: &mut Maze) {
+    maze_test!(is_inside_correct, fn test(maze: &mut Maze) {
         assert!(maze.rooms().is_inside((0, 0)));
         assert!(maze.rooms().is_inside((
             maze.width() as isize - 1,
@@ -211,12 +211,9 @@ mod tests {
         assert!(!maze.rooms().is_inside(
             (maze.width() as isize, maze.height() as isize),
         ));
-    }
+    });
 
-    maze_test!(is_inside_correct, is_inside_correct_test);
-
-
-    fn can_open(maze: &mut Maze) {
+    maze_test!(can_open, fn test(maze: &mut Maze) {
         let pos = (0, 0);
         let next = (0, 1);
         Navigator::new(maze).from(pos).down(true);
@@ -232,12 +229,10 @@ mod tests {
                 .filter(|wall| maze.is_open((next, wall)))
                 .count() == 1
         );
-    }
-
-    maze_test!(can_open, can_open_test);
+    });
 
 
-    fn can_close(maze: &mut Maze) {
+    maze_test!(can_close, fn test(maze: &mut Maze) {
         let pos = (0, 0);
         let next = (0, 1);
         Navigator::new(maze).from(pos).down(true).up(false);
@@ -253,12 +248,9 @@ mod tests {
                 .filter(|wall| maze.is_open((next, wall)))
                 .count() == 0
         );
-    }
+    });
 
-    maze_test!(can_close, can_close_test);
-
-
-    fn walls_correct(maze: &mut Maze) {
+    maze_test!(walls_correct, fn test(maze: &mut Maze) {
         let walls = maze.walls((0, 1));
         assert_eq!(
             walls
@@ -268,12 +260,10 @@ mod tests {
                 .len(),
             walls.len()
         );
-    }
-
-    maze_test!(walls_correct, walls_correct_test);
+    });
 
 
-    fn walls_span(maze: &mut Maze) {
+    maze_test!(walls_span, fn test(maze: &mut Maze) {
         for pos in maze.rooms().positions() {
             for wall in maze.walls(pos) {
                 let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
@@ -283,12 +273,10 @@ mod tests {
                 assert!(!wall.in_span(wall.span.1 + d));
             }
         }
-    }
-
-    maze_test!(walls_span, walls_span_test);
+    });
 
 
-    fn connected_correct(maze: &mut Maze) {
+    maze_test!(connected_correct, fn test(maze: &mut Maze) {
         for pos in maze.rooms().positions() {
             assert!(maze.connected(pos, pos))
         }
@@ -300,7 +288,5 @@ mod tests {
             maze.open((pos1, wall));
             assert!(maze.connected(pos1, pos2));
         }
-    }
-
-    maze_test!(connected_correct, connected_correct_test);
+    });
 }

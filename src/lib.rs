@@ -214,9 +214,11 @@ mod tests {
     });
 
     maze_test!(can_open, fn test(maze: &mut Maze) {
-        let pos = (0, 0);
-        let next = (0, 1);
-        Navigator::new(maze).from(pos).down(true);
+        let log = Navigator::new(maze)
+            .down(true)
+            .stop();
+        let pos = log[0];
+        let next = log[1];
         assert!(
             maze.walls(pos)
                 .iter()
@@ -233,19 +235,22 @@ mod tests {
 
 
     maze_test!(can_close, fn test(maze: &mut Maze) {
-        let pos = (0, 0);
-        let next = (0, 1);
-        Navigator::new(maze).from(pos).down(true).up(false);
+        let log = Navigator::new(maze)
+            .down(true)
+            .up(false)
+            .stop();
+        let pos = log.first().unwrap();
+        let next = log.last().unwrap();
         assert!(
-            maze.walls(pos)
+            maze.walls(*pos)
                 .iter()
-                .filter(|wall| maze.is_open((pos, wall)))
+                .filter(|wall| maze.is_open((*pos, wall)))
                 .count() == 0
         );
         assert!(
-            maze.walls(next)
+            maze.walls(*next)
                 .iter()
-                .filter(|wall| maze.is_open((next, wall)))
+                .filter(|wall| maze.is_open((*next, wall)))
                 .count() == 0
         );
     });

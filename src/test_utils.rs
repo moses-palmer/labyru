@@ -39,7 +39,8 @@ pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
 /// directions.
 pub struct Navigator<'a> {
     maze: &'a mut Maze,
-    pos: matrix::Pos,
+    pos: Option<matrix::Pos>,
+    log: Vec<matrix::Pos>,
 }
 
 impl<'a> Navigator<'a> {
@@ -50,7 +51,8 @@ impl<'a> Navigator<'a> {
     pub fn new(maze: &'a mut Maze) -> Navigator<'a> {
         Navigator {
             maze: maze,
-            pos: (0, 0),
+            pos: None,
+            log: Vec::new(),
         }
     }
 
@@ -58,8 +60,8 @@ impl<'a> Navigator<'a> {
     ///
     /// # Arguments
     /// *  `pos` - The new position.
-    pub fn from<'b>(&'b mut self, pos: matrix::Pos) -> &'b mut Self {
-        self.pos = pos;
+    pub fn from(mut self, pos: matrix::Pos) -> Self {
+        self.pos = Some(pos);
         self
     }
 
@@ -73,7 +75,7 @@ impl<'a> Navigator<'a> {
     /// # Panics
     /// This method panics if there is no wall leading up from the current
     /// room.
-    pub fn up<'b>(&'b mut self, open: bool) -> &'b mut Self {
+    pub fn up(self, open: bool) -> Self {
         self.navigate(|wall| wall.dir == (0, -1), open)
     }
 
@@ -87,7 +89,7 @@ impl<'a> Navigator<'a> {
     /// # Panics
     /// This method panics if there is no wall leading down from the current
     /// room.
-    pub fn down<'b>(&'b mut self, open: bool) -> &'b mut Self {
+    pub fn down(self, open: bool) -> Self {
         self.navigate(|wall| wall.dir == (0, 1), open)
     }
 
@@ -101,7 +103,7 @@ impl<'a> Navigator<'a> {
     /// # Panics
     /// This method panics if there is no wall leading left from the current
     /// room.
-    pub fn left<'b>(&'b mut self, open: bool) -> &'b mut Self {
+    pub fn left(self, open: bool) -> Self {
         self.navigate(|wall| wall.dir == (-1, 0), open)
     }
 
@@ -115,8 +117,14 @@ impl<'a> Navigator<'a> {
     /// # Panics
     /// This method panics if there is no wall leading right from the
     /// current room.
-    pub fn right<'b>(&'b mut self, open: bool) -> &'b mut Self {
+    pub fn right(self, open: bool) -> Self {
         self.navigate(|wall| wall.dir == (1, 0), open)
+    }
+
+    /// Stops and freezes this navigator.
+    pub fn stop(mut self) -> Vec<matrix::Pos> {
+        self.log.push(self.pos.unwrap());
+        self.log
     }
 
     /// Opens or closes a wall.
@@ -132,18 +140,35 @@ impl<'a> Navigator<'a> {
     /// # Panics
     /// This method panics if there is no wall for which the predicate
     /// returns `true`.
-    fn navigate<'b, P>(&'b mut self, predicate: P, open: bool) -> &'b mut Self
+    pub fn navigate<P>(mut self, mut predicate: P, open: bool) -> Self
     where
         for<'r> P: FnMut(&'r &&wall::Wall) -> bool,
     {
+        if self.pos.is_none() {
+            self.pos = self.maze
+                .rooms()
+                .positions()
+                .filter(|&pos| {
+                    self.maze.walls(pos).iter().any(|wall| predicate(&wall))
+                })
+                .next();
+        }
+        let pos = self.pos.unwrap();
+        self.log.push(pos);
+
         let wall = self.maze
-            .walls(self.pos)
+            .walls(pos)
             .iter()
             .filter(predicate)
+            .filter(|wall| {
+                self.maze.rooms().is_inside(
+                    (pos.0 + wall.dir.0, pos.1 + wall.dir.1),
+                )
+            })
             .next()
             .unwrap();
-        self.maze.set_open((self.pos, wall), open);
-        self.pos = (self.pos.0 + wall.dir.0, self.pos.1 + wall.dir.1);
+        self.maze.set_open((pos, wall), open);
+        self.pos = Some((pos.0 + wall.dir.0, pos.1 + wall.dir.1));
         self
     }
 }

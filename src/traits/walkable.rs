@@ -313,13 +313,15 @@ mod tests {
 
 
     maze_test!(walk_simple, fn test(maze: &mut Maze) {
-        Navigator::new(maze).from((0, 0)).down(true);
+        let log = Navigator::new(maze)
+            .down(true)
+            .stop();
 
-        let from = (0, 0);
-        let to = (0, 1);
-        let expected = vec![(0, 0), (0, 1)];
+        let from = log.first().unwrap();
+        let to = log.last().unwrap();
+        let expected = vec![*from, *to];
         assert!(
-            maze.walk(from, to)
+            maze.walk(*from, *to)
                 .unwrap()
                 .collect::<Vec<matrix::Pos>>() == expected
         );
@@ -327,20 +329,20 @@ mod tests {
 
 
     maze_test!(walk_shortest, fn test(maze: &mut Maze) {
-        Navigator::new(maze)
-            .from((0, 0))
+        let log = Navigator::new(maze)
             .down(true)
             .down(true)
             .down(true)
             .right(true)
             .right(true)
-            .up(true);
+            .up(true)
+            .stop();
 
-        let from = (0, 0);
-        let to = (1, 3);
+        let from = log.first().unwrap();
+        let to = log.last().unwrap();
         let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
         assert!(
-            maze.walk(from, to)
+            maze.walk(*from, *to)
                 .unwrap()
                 .collect::<Vec<matrix::Pos>>() == expected
         );

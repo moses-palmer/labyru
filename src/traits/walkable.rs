@@ -255,7 +255,7 @@ impl<'a> Iterator for Follower<'a> {
 mod tests {
     use std::collections::HashMap;
 
-    use tests as maze_tests;
+    use test_utils::*;
     use ::*;
     use super::*;
 
@@ -295,38 +295,53 @@ mod tests {
         );
     }
 
+    maze_test!(walk_disconnected, fn test(maze: &mut Maze) {
+        assert!(maze.walk((0, 0), (0, 1)).is_none());
+    });
 
-    fn walk_simple(maze: &mut Maze) {
-        maze_tests::Navigator::new(maze).from((0, 0)).down(true);
 
+    maze_test!(walk_same, fn test(maze: &mut Maze) {
         let from = (0, 0);
-        let to = (0, 1);
-        let expected = vec![(0, 0), (0, 1)];
+        let to = (0, 0);
+        let expected = vec![(0, 0)];
         assert!(
-            maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() == expected
+            maze.walk(from, to)
+                .unwrap()
+                .collect::<Vec<matrix::Pos>>() == expected
         );
-    }
-
-    maze_test!(walk_simple, walk_simple_test);
+    });
 
 
-    fn walk_shortest(maze: &mut Maze) {
-        maze_tests::Navigator::new(maze)
-            .from((0, 0))
+    maze_test!(walk_simple, fn test(maze: &mut Maze) {
+        let log = Navigator::new(maze)
             .down(true)
-            .down(true)
+            .stop();
+
+        let from = log.first().unwrap();
+        let to = log.last().unwrap();
+        let expected = vec![*from, *to];
+        assert!(
+            maze.walk(*from, *to)
+                .unwrap()
+                .collect::<Vec<matrix::Pos>>() == expected
+        );
+    });
+
+
+    maze_test!(walk_shortest, fn test(maze: &mut Maze) {
+        let log = Navigator::new(maze)
             .down(true)
             .right(true)
             .right(true)
-            .up(true);
+            .up(true)
+            .stop();
 
-        let from = (0, 0);
-        let to = (1, 3);
-        let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3)];
+        let from = log.first().unwrap();
+        let to = log.last().unwrap();
         assert!(
-            maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>() == expected
+            maze.walk(*from, *to)
+                .unwrap()
+                .collect::<Vec<matrix::Pos>>().len() <= log.len()
         );
-    }
-
-    maze_test!(walk_shortest, walk_shortest_test);
+    });
 }

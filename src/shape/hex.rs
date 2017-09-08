@@ -165,6 +165,8 @@ static ALL1: &[&'static wall::Wall] = &[
 define_base!(
     horizontal_multiplicator: f32 = 2.0 * (PI / 6.0).cos(),
     vertical_multiplicator: f32 = 2.0 - (PI / 6.0).sin(),
+    top_height: f32 = 1.0 - (2.0 * PI - D).sin(),
+    gradient: f32 = (1.0 - (2.0 * PI - D).sin()) / (PI / 6.0).cos(),
 );
 
 
@@ -187,8 +189,37 @@ impl physical::Physical for Maze {
         )
     }
 
-    fn room_at(&self, _: physical::Pos) -> matrix::Pos {
-        unimplemented!();
+    fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
+        // Calculate approximations of the room position
+        let approx_row = (pos.1 / self.vertical_multiplicator).floor();
+        let row_odd = approx_row as i32 & 1 == 1;
+        let approx_col = if row_odd {
+            (pos.0 / self.horizontal_multiplicator)
+        } else {
+            (pos.0 / self.horizontal_multiplicator - 0.5)
+        };
+
+        // Calculate relative positions within the room
+        let rel_y = pos.1 - (approx_row * self.vertical_multiplicator);
+        let rel_x = if row_odd {
+            (pos.0 - ((approx_col - 0.5) * self.horizontal_multiplicator))
+        } else {
+            (pos.0 - (approx_col * self.horizontal_multiplicator))
+        };
+
+        if rel_y < (-self.gradient * rel_x) + self.top_height {
+            (
+                approx_col as isize - !row_odd as isize,
+                approx_row as isize - 1,
+            )
+        } else if rel_y < (self.gradient * rel_x) - self.top_height {
+            (
+                approx_col as isize + row_odd as isize,
+                approx_row as isize - 1,
+            )
+        } else {
+            (approx_col as isize, approx_row as isize)
+        }
     }
 }
 

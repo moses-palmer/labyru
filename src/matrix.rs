@@ -96,6 +96,27 @@ where
     pub fn values<'a>(&'a self) -> ValueIterator<'a, T> {
         ValueIterator::new(self)
     }
+
+    /// Applies a mapping to this matrix.
+    ///
+    /// The return value is a matrix with the same dimensions as this one, but
+    /// with every values mapped through the mapper.
+    ///
+    /// # Arguments
+    /// * `mapper` - The mapping function.
+    pub fn map<F, S>(&self, mapper: F) -> Matrix<S>
+    where
+        F: Fn(T) -> S,
+        S: Clone + Copy + Default,
+    {
+        self.positions().fold(
+            Matrix::new(self.width, self.height),
+            |mut matrix, pos| {
+                matrix[pos] = mapper(self[pos]);
+                matrix
+            },
+        )
+    }
 }
 
 
@@ -293,6 +314,18 @@ mod test {
         matrix[(0, 1)] = 3;
         matrix[(1, 1)] = 4;
         assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn map() {
+        let mut matrix = Matrix::<u8>::new(2, 2);
+        matrix[(0, 0)] = 1;
+        matrix[(1, 0)] = 2;
+        matrix[(0, 1)] = 3;
+        matrix[(1, 1)] = 4;
+        assert_eq!(
+            vec![2, 3, 4, 5],
+            matrix.map(|v| v + 1).values().collect::<Vec<_>>());
     }
 
     #[test]

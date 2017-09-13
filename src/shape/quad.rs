@@ -94,6 +94,13 @@ impl physical::Physical for Maze {
             (pos.1 as f32 + 0.5) * MULTIPLICATOR,
         )
     }
+
+    fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
+        (
+            (pos.0 / MULTIPLICATOR).floor() as isize,
+            (pos.1 / MULTIPLICATOR).floor() as isize,
+        )
+    }
 }
 
 

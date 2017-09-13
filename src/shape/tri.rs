@@ -142,6 +142,41 @@ impl physical::Physical for Maze {
                 },
         )
     }
+
+    fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
+        // Calculate approximations of the room position
+        let approx_row = (pos.1 / self.vertical_multiplicator).floor();
+        let row_odd = approx_row as u32 & 1 == 1;
+        let approx_col = (pos.0 / self.horizontal_multiplicator).floor();
+
+        // Calculate relative positions within the room
+        let rel_y = pos.1 - (approx_row * self.vertical_multiplicator);
+        let rel_x = pos.0 - (approx_col * self.horizontal_multiplicator);
+
+        if row_odd {
+            (
+                if rel_x < 0.5 && rel_y > rel_x {
+                    approx_col as isize - 1
+                } else if rel_x > 0.5 && rel_y > rel_x {
+                    approx_col as isize + 1
+                } else {
+                    approx_col as isize
+                },
+                approx_row as isize,
+            )
+        } else {
+            (
+                if rel_x < 0.5 && rel_y < rel_x {
+                    approx_col as isize - 1
+                } else if rel_x > 0.5 && rel_y < rel_x {
+                    approx_col as isize + 1
+                } else {
+                    approx_col as isize
+                },
+                approx_row as isize,
+            )
+        }
+    }
 }
 
 

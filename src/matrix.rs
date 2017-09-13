@@ -200,8 +200,7 @@ where
     /// Creates a new position iterator.
     ///
     /// # Arguments
-    /// * `width` - The width of the matrix.
-    /// * `height` - The height of the matrix.
+    /// * `matrix` - The matrix.
     pub fn new(matrix: &'a Matrix<T>) -> Self {
         Self {
             pos_iter: PosIterator::new(matrix.width, matrix.height),

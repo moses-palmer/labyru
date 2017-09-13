@@ -10,7 +10,7 @@ use labyru::matrix::AddableMatrix;
 
 
 /// A colour.
-#[derive(Clone)]
+#[derive(Clone, Copy, Default)]
 pub struct Color {
     // The red component.
     pub red: u8,

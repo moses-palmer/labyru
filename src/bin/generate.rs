@@ -27,12 +27,14 @@ use labyru::renderable::svg::*;
 mod types;
 
 
+#[allow(unused_variables)]
 fn run(
     maze: &mut labyru::Maze,
     scale: f32,
     margin: f32,
     break_action: Option<types::BreakAction>,
     heat_map_action: Option<types::HeatMapAction>,
+    background_action: Option<types::BackgroundAction>,
     output: &str,
 ) {
     // Make sure the maze is initialised
@@ -42,6 +44,11 @@ fn run(
         Document::new().set("viewBox", maze_to_viewbox(maze, scale, margin));
     let mut container =
         Group::new().set("transform", format!("scale({})", scale));
+
+    if let Some(background_action) = background_action {
+        #[cfg(feature = "background")]
+        apply_background(background_action, maze, &mut container);
+    }
 
     if let Some(break_action) = break_action {
         apply_break(break_action, maze, &mut container);
@@ -86,6 +93,68 @@ fn maze_to_viewbox(
         viewbox.2 * scale + 2.0 * margin,
         viewbox.3 * scale + 2.0 * margin,
     )
+}
+
+
+/// Applies the background action.
+///
+/// This action will use an image to sample the background colour of rooms.
+///
+/// # Arguments
+/// * `action` - The action parameters.
+/// * `maze` - The maze.
+/// * `group` - The group to which to add the rooms.
+#[cfg(feature = "background")]
+fn apply_background(
+    action: types::BackgroundAction,
+    maze: &mut labyru::Maze,
+    group: &mut Group,
+) {
+    let (left, top, width, height) = maze.viewbox();
+    let rgb = image::open(action.path.as_path())
+        .expect("unable to open background image")
+        .to_rgb();
+    let (cols, rows) = rgb.dimensions();
+    let data = rgb
+        .enumerate_pixels()
+
+        // Add all pixels inside a room to the cell representing the room
+        .fold(
+            labyru::matrix::Matrix::<(u32, (u32, u32, u32))>::new(
+                maze.width(), maze.height()),
+            |mut matrix, (x, y, pixel)| {
+                let physical_pos = (
+                    left + width * (x as f32 / cols as f32),
+                    top + height * (y as f32 / rows as f32),
+                );
+                let pos = maze.room_at(physical_pos);
+                if maze.rooms().is_inside(pos) {
+                    matrix[pos] = (
+                        matrix[pos].0 + 1, (
+                            (matrix[pos].1).0 + pixel[0] as u32,
+                            (matrix[pos].1).1 + pixel[1] as u32,
+                            (matrix[pos].1).2 + pixel[2] as u32,
+                        ));
+                }
+
+                matrix
+            }
+        )
+
+        // Convert the summed colour values to an actual colour
+        .map(
+            |value| {
+                let (count, pixel) = value;
+                types::Color {
+                    red: (pixel.0 / (count + 1)) as u8,
+                    green: (pixel.1 / (count + 1)) as u8,
+                    blue: (pixel.2 / (count + 1)) as u8,
+                    alpha: 255,
+                }
+            }
+        );
+
+    group.append(draw_rooms(maze, |pos| data[pos]));
 }
 
 
@@ -181,8 +250,9 @@ where
 }
 
 
+#[allow(unused_mut)]
 fn main() {
-    let args = clap_app!(myapp =>
+    let mut app = clap_app!(myapp =>
         (about: "Generates mazes")
         (version: crate_version!())
         (author: crate_authors!(", "))
@@ -225,7 +295,17 @@ fn main() {
         (@arg OUTPUT:
             +required
             "The output file name.")
-    ).get_matches();
+    );
+
+    #[cfg(feature = "background")]
+    {
+        app = app.arg(clap::Arg::with_name("BACKGROUND")
+            .long("background")
+            .help("A background image to colour rooms.")
+            .takes_value(true));
+    }
+
+    let args = app.get_matches();
 
     let maze_type = labyru::MazeType::from_num(
         args.value_of("WALLS")
@@ -257,6 +337,10 @@ fn main() {
         types::HeatMapAction::from_str(s).expect("invalid heat map")
     });
 
+    let background_action = args.value_of("BACKGROUND").map(|s| {
+        types::BackgroundAction::from_str(s).expect("invalid background")
+    });
+
     let output = args.value_of("OUTPUT").unwrap();
 
     run(
@@ -265,6 +349,7 @@ fn main() {
         margin,
         break_action,
         heat_map_action,
+        background_action,
         output,
     );
 }

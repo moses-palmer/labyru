@@ -50,6 +50,14 @@ impl<'a> ToPath for Maze + 'a {
                 let (_, pos) =
                     corners(self, from, commands.last().unwrap().pos());
                 commands.push(Operation::Line(pos));
+
+                // If the next room is outside of the maze, break
+                if to.map(|(pos, _)| !self.rooms().is_inside(pos)).unwrap_or(
+                    false,
+                )
+                {
+                    break;
+                }
             }
         }
 

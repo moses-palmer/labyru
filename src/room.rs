@@ -8,6 +8,10 @@ use wall;
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Room {
     walls: wall::Mask,
+
+    /// Whether this room has been visited. This is trie if at least one door
+    /// has at any time been opened.
+    pub visited: bool,
 }
 
 
@@ -39,6 +43,7 @@ impl Room {
     /// `wall` - The wall to open.
     pub fn open(&mut self, wall: &'static wall::Wall) {
         self.walls |= wall.mask();
+        self.visited = true;
     }
 
     /// Closes a wall.

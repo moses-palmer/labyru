@@ -116,15 +116,7 @@ impl<'a> Visitor<'a> {
 
     /// Returns the next non-visited wall.
     fn next_wall(&mut self) -> Option<WallPos> {
-        loop {
-            if self.index >= self.maze.width() * self.maze.height() {
-                return None;
-            }
-
-            let pos = (
-                (self.index % self.maze.width()) as isize,
-                (self.index / self.maze.width()) as isize,
-            );
+        while let Some(pos) = self.pos() {
             if let Some(next) = self.maze.walls(pos)
                 .iter()
 
@@ -140,6 +132,23 @@ impl<'a> Visitor<'a> {
                 self.index = self.index + 1;
             }
         }
+
+        None
+    }
+
+    /// Returns the current room.
+    ///
+    /// This function transforms the index to a room position.
+    fn pos(&self) -> Option<matrix::Pos> {
+        while self.index < self.maze.width() * self.maze.height() {
+            let pos = (
+                (self.index % self.maze.width()) as isize,
+                (self.index / self.maze.width()) as isize,
+            );
+            return Some(pos);
+        }
+
+        None
     }
 }
 

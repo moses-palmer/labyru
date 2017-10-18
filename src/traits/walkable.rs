@@ -9,7 +9,7 @@ use WallPos;
 
 /// A container that supports walking.
 pub trait Walkable {
-    /// Walks from `from` to `to` along the sortest path.
+    /// Walks from `from` to `to` along the shortest path.
     ///
     /// If the rooms are connected, the return value will iterate over the
     /// minimal set of rooms required to pass through to get from start to

@@ -139,13 +139,26 @@ impl<'a> Visitor<'a> {
     /// Returns the current room.
     ///
     /// This function transforms the index to a room position.
-    fn pos(&self) -> Option<matrix::Pos> {
+    ///
+    /// If the room corresponding to the current index has never been visited,
+    /// the next room is checked until no rooms remain.
+    fn pos(&mut self) -> Option<matrix::Pos> {
         while self.index < self.maze.width() * self.maze.height() {
             let pos = (
                 (self.index % self.maze.width()) as isize,
                 (self.index / self.maze.width()) as isize,
             );
-            return Some(pos);
+
+            if self.maze
+                .rooms()
+                .get(pos)
+                .map(|room| room.visited)
+                .unwrap_or(false)
+            {
+                return Some(pos);
+            } else {
+                self.index += 1;
+            }
         }
 
         None

@@ -222,7 +222,10 @@ where
     F: Fn(labyru::matrix::Pos) -> types::Color,
 {
     let mut group = svg::node::element::Group::new();
-    for pos in maze.rooms().positions() {
+    for pos in maze.rooms().positions().filter(
+        |pos| maze.rooms()[*pos].visited,
+    )
+    {
         let color = colors(pos);
         let mut commands = maze.walls(pos)
             .iter()

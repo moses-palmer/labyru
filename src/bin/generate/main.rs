@@ -32,9 +32,9 @@ fn run(
     maze: &mut labyru::Maze,
     scale: f32,
     margin: f32,
-    break_action: Option<types::BreakAction>,
-    heat_map_action: Option<types::HeatMapAction>,
-    background_action: Option<types::BackgroundAction>,
+    break_action: Option<types::break_action::BreakAction>,
+    heat_map_action: Option<types::heatmap_action::HeatMapAction>,
+    background_action: Option<types::background_action::BackgroundAction>,
     output: &str,
 ) {
     // Make sure the maze is initialised
@@ -106,7 +106,7 @@ fn maze_to_viewbox(
 /// * `group` - The group to which to add the rooms.
 #[cfg(feature = "background")]
 fn apply_background(
-    action: types::BackgroundAction,
+    action: types::background_action::BackgroundAction,
     maze: &mut labyru::Maze,
     group: &mut Group,
 ) {
@@ -167,7 +167,7 @@ fn apply_background(
 /// * `action` - The action parameters.
 /// * `maze` - The maze.
 fn apply_break(
-    action: types::BreakAction,
+    action: types::break_action::BreakAction,
     maze: &mut labyru::Maze,
     _: &mut Group,
 ) {
@@ -200,7 +200,7 @@ fn apply_break(
 /// * `maze` - The maze.
 /// * `group` - The group to which to add the rooms.
 fn apply_heat_map(
-    action: types::HeatMapAction,
+    action: types::heatmap_action::HeatMapAction,
     maze: &mut labyru::Maze,
     group: &mut Group,
 ) {
@@ -333,15 +333,18 @@ fn main() {
         .unwrap_or(10.0);
 
     let break_action = args.value_of("BREAK").map(|s| {
-        types::BreakAction::from_str(s).expect("invalid break")
+        types::break_action::BreakAction::from_str(s)
+            .expect("invalid break")
     });
 
     let heat_map_action = args.value_of("HEATMAP").map(|s| {
-        types::HeatMapAction::from_str(s).expect("invalid heat map")
+        types::heatmap_action::HeatMapAction::from_str(s)
+            .expect("invalid heat map")
     });
 
     let background_action = args.value_of("BACKGROUND").map(|s| {
-        types::BackgroundAction::from_str(s).expect("invalid background")
+        types::background_action::BackgroundAction::from_str(s)
+            .expect("invalid background")
     });
 
     let output = args.value_of("OUTPUT").unwrap();

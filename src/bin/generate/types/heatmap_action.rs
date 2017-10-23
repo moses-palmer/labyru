@@ -1,3 +1,6 @@
+use svg;
+use svg::Node;
+
 use types::*;
 
 
@@ -60,5 +63,26 @@ impl Action for HeatMapAction {
                 },
             })
         }
+    }
+
+    /// Applies the heat map action.
+    ///
+    /// This action will calculate a heat map, and use the heat of each room to
+    /// interpolate between the colours in `action`.
+    ///
+    /// # Arguments
+    /// * `maze` - The maze.
+    /// * `group` - The group to which to add the rooms.
+    fn apply(
+        self,
+        maze: &mut labyru::Maze,
+        group: &mut svg::node::element::Group,
+    ) {
+        let matrix = self.map_type.generate(maze);
+        let max = matrix.values().max().unwrap() as f32;
+        group.append(draw_rooms(
+            maze,
+            |pos| self.to.fade(&self.from, matrix[pos] as f32 / max),
+        ));
     }
 }

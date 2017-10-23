@@ -1,3 +1,7 @@
+use rand;
+use rand::Rng;
+use svg;
+
 use types::*;
 
 
@@ -37,6 +41,37 @@ impl Action for BreakAction {
                 map_type: map_type,
                 count: 1,
             })
+        }
+    }
+
+
+    /// Applies the break action.
+    ///
+    /// This action will repeatedly calculate a heat map, and then open walls in
+    /// rooms with higher probability in hot rooms.
+    ///
+    /// # Arguments
+    /// * `maze` - The maze.
+    fn apply(
+        self,
+        maze: &mut labyru::Maze,
+        _: &mut svg::node::element::Group
+    ) {
+        let mut rng = rand::weak_rng();
+
+        for _ in 0..self.count {
+            let heat_map = self.map_type.generate(maze);
+            for pos in heat_map.positions() {
+                if 1.0 / (rng.next_f32() * heat_map[pos] as f32) < 0.5 {
+                    loop {
+                        let wall = rng.choose(maze.walls(pos)).unwrap();
+                        if maze.rooms().is_inside(maze.back((pos, wall)).0) {
+                            maze.open((pos, wall));
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }

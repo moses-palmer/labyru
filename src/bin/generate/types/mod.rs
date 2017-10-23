@@ -5,6 +5,9 @@ use rayon::current_num_threads;
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
+use svg;
+use svg::Node;
+
 use labyru;
 
 #[cfg(feature = "parallel")]
@@ -25,6 +28,17 @@ pub trait Action {
     fn from_str(s: &str) -> Result<Self, String>
     where
         Self: std::marker::Sized;
+
+    /// Applies this action to a maze and SVG group.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze.
+    /// *  `group` - An SVG group.
+    fn apply(
+        self,
+        maze: &mut labyru::Maze,
+        group: &mut svg::node::element::Group,
+    );
 }
 
 
@@ -269,4 +283,54 @@ impl HeatMapType {
                 acc.add(o)
             })
     }
+}
+
+
+/// Draws all rooms of a maze.
+///
+/// # Arguments
+/// * `maze` - The maze to draw.
+/// * `colors` - A function determining the colour of a room.
+pub fn draw_rooms<F>(
+    maze: &labyru::Maze,
+    colors: F,
+) -> svg::node::element::Group
+where
+    F: Fn(labyru::matrix::Pos) -> Color,
+{
+    let mut group = svg::node::element::Group::new();
+    for pos in maze.rooms().positions().filter(
+        |pos| maze.rooms()[*pos].visited,
+    )
+    {
+        let color = colors(pos);
+        let mut commands = maze.walls(pos)
+            .iter()
+            .enumerate()
+            .map(|(i, wall)| {
+                let (coords, _) = maze.corners((pos, wall));
+                if i == 0 {
+                    svg::node::element::path::Command::Move(
+                        svg::node::element::path::Position::Absolute,
+                        coords.into(),
+                    )
+                } else {
+                    svg::node::element::path::Command::Line(
+                        svg::node::element::path::Position::Absolute,
+                        coords.into(),
+                    )
+                }
+            })
+            .collect::<Vec<_>>();
+        commands.push(svg::node::element::path::Command::Close);
+
+        group.append(
+            svg::node::element::Path::new()
+                .set("fill", color.to_string())
+                .set("fill-opacity", (color.alpha as f32 / 255.0))
+                .set("d", svg::node::element::path::Data::from(commands)),
+        );
+    }
+
+    group
 }

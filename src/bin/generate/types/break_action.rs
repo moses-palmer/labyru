@@ -11,7 +11,7 @@ pub struct BreakAction {
 }
 
 
-impl BreakAction {
+impl Action for BreakAction {
     /// Converts a string to a break description.
     ///
     /// The string can be on two forms:
@@ -19,7 +19,7 @@ impl BreakAction {
     ///    [HeatMapType](struct.HeatMapType.html) is passed, the `count` will be
     ///    `1`.
     /// 2. `map_type,count`: If a count is passed, it will be used as `count`.
-    pub fn from_str(s: &str) -> Result<Self, String> {
+    fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(",").map(|p| p.trim());
         let map_type = parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
 

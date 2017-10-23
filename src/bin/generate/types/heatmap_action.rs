@@ -14,7 +14,7 @@ pub struct HeatMapAction {
 }
 
 
-impl HeatMapAction {
+impl Action for HeatMapAction {
     /// Converts a string to a heat map description.
     ///
     /// The string can be on three forms:
@@ -25,7 +25,7 @@ impl HeatMapAction {
     ///    values will be `#00000000` and the colour passed.
     /// 3. `map_type,from,to`: If two colours are passed, they are used as
     ///    `from` and `to` values.
-    pub fn from_str(s: &str) -> Result<Self, String> {
+    fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(",").map(|p| p.trim());
         let map_type = parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
 

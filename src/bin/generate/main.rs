@@ -25,6 +25,7 @@ use labyru::initialize::randomized_prim::*;
 use labyru::renderable::svg::*;
 
 mod types;
+use types::Action;
 
 
 #[allow(unused_variables)]

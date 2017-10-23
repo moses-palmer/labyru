@@ -8,11 +8,11 @@ pub struct BackgroundAction {
 }
 
 
-impl BackgroundAction {
+impl Action for BackgroundAction {
     /// Converts a string to a background description.
     ///
     /// The string must be a path.
-    pub fn from_str(s: &str) -> Result<Self, String> {
+    fn from_str(s: &str) -> Result<Self, String> {
         Ok(Self { path: std::path::Path::new(s).to_path_buf() })
     }
 }

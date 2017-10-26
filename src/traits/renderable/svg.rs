@@ -50,6 +50,14 @@ impl<'a> ToPath for Maze + 'a {
                 let (_, pos) =
                     corners(self, from, commands.last().unwrap().pos());
                 commands.push(Operation::Line(pos));
+
+                // If the next room is outside of the maze, break
+                if to.map(|(pos, _)| !self.rooms().is_inside(pos)).unwrap_or(
+                    false,
+                )
+                {
+                    break;
+                }
             }
         }
 
@@ -108,15 +116,7 @@ impl<'a> Visitor<'a> {
 
     /// Returns the next non-visited wall.
     fn next_wall(&mut self) -> Option<WallPos> {
-        loop {
-            if self.index >= self.maze.width() * self.maze.height() {
-                return None;
-            }
-
-            let pos = (
-                (self.index % self.maze.width()) as isize,
-                (self.index / self.maze.width()) as isize,
-            );
+        while let Some(pos) = self.pos() {
             if let Some(next) = self.maze.walls(pos)
                 .iter()
 
@@ -132,6 +132,36 @@ impl<'a> Visitor<'a> {
                 self.index = self.index + 1;
             }
         }
+
+        None
+    }
+
+    /// Returns the current room.
+    ///
+    /// This function transforms the index to a room position.
+    ///
+    /// If the room corresponding to the current index has never been visited,
+    /// the next room is checked until no rooms remain.
+    fn pos(&mut self) -> Option<matrix::Pos> {
+        while self.index < self.maze.width() * self.maze.height() {
+            let pos = (
+                (self.index % self.maze.width()) as isize,
+                (self.index / self.maze.width()) as isize,
+            );
+
+            if self.maze
+                .rooms()
+                .get(pos)
+                .map(|room| room.visited)
+                .unwrap_or(false)
+            {
+                return Some(pos);
+            } else {
+                self.index += 1;
+            }
+        }
+
+        None
     }
 }
 

@@ -5,10 +5,41 @@ use rayon::current_num_threads;
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
+use svg;
+use svg::Node;
+
 use labyru;
 
 #[cfg(feature = "parallel")]
 use labyru::matrix::AddableMatrix;
+
+
+pub mod background_action;
+pub mod break_action;
+pub mod heatmap_action;
+
+
+/// A trait for actions passed on the command line.
+pub trait Action {
+    /// Converts a string to an action.
+    ///
+    /// # Arguments
+    /// *  `s` - The string to convert.
+    fn from_str(s: &str) -> Result<Self, String>
+    where
+        Self: std::marker::Sized;
+
+    /// Applies this action to a maze and SVG group.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze.
+    /// *  `group` - An SVG group.
+    fn apply(
+        self,
+        maze: &mut labyru::Maze,
+        group: &mut svg::node::element::Group,
+    );
+}
 
 
 /// A colour.
@@ -255,122 +286,51 @@ impl HeatMapType {
 }
 
 
-/// A full description of the heat map action.
-pub struct HeatMapAction {
-    /// The heat map type.
-    pub map_type: HeatMapType,
-
-    /// The colour of cold regioins.
-    pub from: Color,
-
-    /// The colour of hot regions.
-    pub to: Color,
-}
-
-
-impl HeatMapAction {
-    /// Converts a string to a heat map description.
-    ///
-    /// The string can be on three forms:
-    /// 1. `map_type`: If only a value that can be made into a
-    ///    [HeatMapType](struct.HeatMapType.html) is passed, the `from` and `to`
-    ///    values will be `#000000FF` and `#FFFF0000`.
-    /// 2. `map_type,colour`: If only one colour is passed, the `from` and `to`
-    ///    values will be `#00000000` and the colour passed.
-    /// 3. `map_type,from,to`: If two colours are passed, they are used as
-    ///    `from` and `to` values.
-    pub fn from_str(s: &str) -> Result<Self, String> {
-        let mut parts = s.split(",").map(|p| p.trim());
-        let map_type = parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
-
-        if let Some(part1) = parts.next() {
-            if let Some(part2) = parts.next() {
-                Ok(Self {
-                    map_type: map_type,
-                    from: Color::from_str(part1)?,
-                    to: Color::from_str(part2)?,
-                })
-            } else {
-                Ok(Self {
-                    map_type: map_type,
-                    from: Color::from_str(part1).map(|c| c.transparent())?,
-                    to: Color::from_str(part1)?,
-                })
-            }
-        } else {
-            Ok(Self {
-                map_type: map_type,
-                from: Color {
-                    red: 0,
-                    green: 0,
-                    blue: 255,
-                    alpha: 0,
-                },
-                to: Color {
-                    red: 255,
-                    green: 0,
-                    blue: 0,
-                    alpha: 255,
-                },
+/// Draws all rooms of a maze.
+///
+/// # Arguments
+/// * `maze` - The maze to draw.
+/// * `colors` - A function determining the colour of a room.
+pub fn draw_rooms<F>(
+    maze: &labyru::Maze,
+    colors: F,
+) -> svg::node::element::Group
+where
+    F: Fn(labyru::matrix::Pos) -> Color,
+{
+    let mut group = svg::node::element::Group::new();
+    for pos in maze.rooms().positions().filter(
+        |pos| maze.rooms()[*pos].visited,
+    )
+    {
+        let color = colors(pos);
+        let mut commands = maze.walls(pos)
+            .iter()
+            .enumerate()
+            .map(|(i, wall)| {
+                let (coords, _) = maze.corners((pos, wall));
+                if i == 0 {
+                    svg::node::element::path::Command::Move(
+                        svg::node::element::path::Position::Absolute,
+                        coords.into(),
+                    )
+                } else {
+                    svg::node::element::path::Command::Line(
+                        svg::node::element::path::Position::Absolute,
+                        coords.into(),
+                    )
+                }
             })
-        }
+            .collect::<Vec<_>>();
+        commands.push(svg::node::element::path::Command::Close);
+
+        group.append(
+            svg::node::element::Path::new()
+                .set("fill", color.to_string())
+                .set("fill-opacity", (color.alpha as f32 / 255.0))
+                .set("d", svg::node::element::path::Data::from(commands)),
+        );
     }
-}
 
-
-/// A full description of the break action.
-pub struct BreakAction {
-    /// The heat map type.
-    pub map_type: HeatMapType,
-
-    /// The number of times to apply the operation.
-    pub count: usize,
-}
-
-
-impl BreakAction {
-    /// Converts a string to a break description.
-    ///
-    /// The string can be on two forms:
-    /// 1. `map_type`: If only a value that can be made into a
-    ///    [HeatMapType](struct.HeatMapType.html) is passed, the `count` will be
-    ///    `1`.
-    /// 2. `map_type,count`: If a count is passed, it will be used as `count`.
-    pub fn from_str(s: &str) -> Result<Self, String> {
-        let mut parts = s.split(",").map(|p| p.trim());
-        let map_type = parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
-
-        if let Some(part1) = parts.next() {
-            if let Ok(count) = usize::from_str_radix(part1, 10) {
-                Ok(Self {
-                    map_type: map_type,
-                    count: count,
-                })
-            } else {
-                Err(format!("invalid count: {}", part1))
-            }
-        } else {
-            Ok(Self {
-                map_type: map_type,
-                count: 1,
-            })
-        }
-    }
-}
-
-
-/// A background image.
-pub struct BackgroundAction {
-    /// The path to the background image.
-    pub path: std::path::PathBuf,
-}
-
-
-impl BackgroundAction {
-    /// Converts a string to a background description.
-    ///
-    /// The string must be a path.
-    pub fn from_str(s: &str) -> Result<Self, String> {
-        Ok(Self { path: std::path::Path::new(s).to_path_buf() })
-    }
+    group
 }

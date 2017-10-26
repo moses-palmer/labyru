@@ -20,6 +20,7 @@ use labyru::matrix::AddableMatrix;
 pub mod background_action;
 pub mod break_action;
 pub mod heatmap_action;
+pub mod initialize_action;
 
 
 /// A trait for actions passed on the command line.

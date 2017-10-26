@@ -155,6 +155,7 @@ where
 
 
 /// An iterator over matrix positions.
+#[derive(Clone)]
 pub struct PosIterator {
     /// The width of the matrix being iterated.
     width: usize,

@@ -31,19 +31,25 @@ fn run(
     break_action: Option<types::break_action::BreakAction>,
     heat_map_action: Option<types::heatmap_action::HeatMapAction>,
     background_action: Option<types::background_action::BackgroundAction>,
+    initialize_action: Option<types::initialize_action::InitializeAction>,
     output: &str,
 ) {
-    // Make sure the maze is initialised
-    maze.randomized_prim(&mut rand::weak_rng());
-
     let document = svg::Document::new().set(
         "viewBox",
-        maze_to_viewbox(maze, scale, margin)
+        maze_to_viewbox(maze, scale, margin),
     );
-    let mut container = svg::node::element::Group::new().set(
-        "transform",
-        format!("scale({})", scale)
-    );
+    let mut container =
+        svg::node::element::Group::new().set(
+            "transform",
+            format!("scale({})", scale),
+        );
+
+    // Make sure the maze is initialised
+    if let Some(initialize_action) = initialize_action {
+        initialize_action.apply(maze, &mut container);
+    } else {
+        maze.randomized_prim(&mut rand::weak_rng());
+    }
 
     if let Some(background_action) = background_action {
         background_action.apply(maze, &mut container);
@@ -189,6 +195,11 @@ fn main() {
             .expect("invalid background")
     });
 
+    let mask_action = args.value_of("MASK").map(|s| {
+        types::initialize_action::InitializeAction::from_str(s)
+            .expect("invalid mask")
+    });
+
     let output = args.value_of("OUTPUT").unwrap();
 
     run(
@@ -198,6 +209,7 @@ fn main() {
         break_action,
         heat_map_action,
         background_action,
+        mask_action,
         output,
     );
 }

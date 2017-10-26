@@ -33,49 +33,36 @@ impl Action for BackgroundAction {
         maze: &mut labyru::Maze,
         group: &mut svg::node::element::Group,
     ) {
-        let (left, top, width, height) = maze.viewbox();
-        let rgb = image::open(self.path.as_path())
-            .expect("unable to open background image")
-            .to_rgb();
-        let (cols, rows) = rgb.dimensions();
-        let data = rgb
-            .enumerate_pixels()
+        let data = image_to_matrix::<_, (u32, (u32, u32, u32))>(
+            image::open(self.path.as_path())
+                .expect("unable to open background image")
+                .to_rgb(),
+            maze,
 
             // Add all pixels inside a room to the cell representing the room
-            .fold(
-                labyru::matrix::Matrix::<(u32, (u32, u32, u32))>::new(
-                    maze.width(), maze.height()),
-                |mut matrix, (x, y, pixel)| {
-                    let physical_pos = (
-                        left + width * (x as f32 / cols as f32),
-                        top + height * (y as f32 / rows as f32),
-                    );
-                    let pos = maze.room_at(physical_pos);
-                    if maze.rooms().is_inside(pos) {
-                        matrix[pos] = (
-                            matrix[pos].0 + 1, (
-                                (matrix[pos].1).0 + pixel[0] as u32,
-                                (matrix[pos].1).1 + pixel[1] as u32,
-                                (matrix[pos].1).2 + pixel[2] as u32,
-                            ));
-                    }
-
-                    matrix
+            |matrix, pos, pixel| {
+                if maze.rooms().is_inside(pos) {
+                    matrix[pos] = (
+                        matrix[pos].0 + 1, (
+                            (matrix[pos].1).0 + pixel[0] as u32,
+                            (matrix[pos].1).1 + pixel[1] as u32,
+                            (matrix[pos].1).2 + pixel[2] as u32,
+                        ));
                 }
-            )
-
-            // Convert the summed colour values to an actual colour
-            .map(
-                |value| {
-                    let (count, pixel) = value;
-                    Color {
-                        red: (pixel.0 / (count + 1)) as u8,
-                        green: (pixel.1 / (count + 1)) as u8,
-                        blue: (pixel.2 / (count + 1)) as u8,
-                        alpha: 255,
-                    }
+            }
+        )
+        // Convert the summed colour values to an actual colour
+        .map(
+            |value| {
+                let (count, pixel) = value;
+                Color {
+                    red: (pixel.0 / (count + 1)) as u8,
+                    green: (pixel.1 / (count + 1)) as u8,
+                    blue: (pixel.2 / (count + 1)) as u8,
+                    alpha: 255,
                 }
-            );
+            }
+        );
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }

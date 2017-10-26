@@ -1,5 +1,8 @@
 use std;
 
+#[cfg(feature = "background")]
+use image;
+
 #[cfg(feature = "parallel")]
 use rayon::current_num_threads;
 #[cfg(feature = "parallel")]
@@ -333,4 +336,44 @@ where
     }
 
     group
+}
+
+
+/// Converts an image to a matrix by calling an update function with a pixel
+/// and its corresponding matrix position.
+///
+/// # Arguments
+/// *  `image` - The image to convert.
+/// *  `maze` - A template maze. This is used to determine which matrix
+///    position a pixel corresponds to, and to determine the dimensions of the
+///    matrix.
+/// *  `update` - The update function.
+#[cfg(feature = "background")]
+pub fn image_to_matrix<U, T>(
+    image: image::RgbImage,
+    maze: &labyru::Maze,
+    update: U,
+) -> labyru::matrix::Matrix<T>
+where
+    U: Fn(&mut labyru::matrix::Matrix<T>,
+       labyru::matrix::Pos,
+       &image::Rgb<u8>),
+    T: Copy + Default,
+{
+    let (left, top, width, height) = maze.viewbox();
+    let (cols, rows) = image.dimensions();
+    image
+        .enumerate_pixels()
+        .fold(
+            labyru::matrix::Matrix::<T>::new(maze.width(), maze.height()),
+            |mut matrix, (x, y, pixel)| {
+                let physical_pos = (
+                    left + width * (x as f32 / cols as f32),
+                    top + height * (y as f32 / rows as f32),
+                );
+                let pos = maze.room_at(physical_pos);
+                update(&mut matrix, pos, pixel);
+                matrix
+            },
+        )
 }

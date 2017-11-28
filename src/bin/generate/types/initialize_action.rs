@@ -51,7 +51,7 @@ impl Action for InitializeAction {
     /// Applies the initialise action.
     ///
     /// This action will use the intensity of pixels to determine whether
-    // rooms should be part of the maze.
+    /// rooms should be part of the maze.
     ///
     /// # Arguments
     /// * `maze` - The maze.

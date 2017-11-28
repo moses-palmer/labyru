@@ -87,6 +87,10 @@ struct Visitor<'a> {
 
 
 impl<'a> Visitor<'a> {
+    /// Creates a new visitor for a maze.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze whose walls to visit.
     pub fn new(maze: &'a Maze) -> Self {
         Self {
             maze: maze,
@@ -95,6 +99,13 @@ impl<'a> Visitor<'a> {
         }
     }
 
+    /// Marks a wall and its back as visited.
+    ///
+    /// If the wall is outside of the maze, it is ignored. The back is likewise
+    /// ignored if it is outside of the maze.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall to mark as visited.
     fn visit(&mut self, wall_pos: WallPos) {
         if let Some(mut mask) = self.walls.get_mut(wall_pos.0) {
             *mask = *mask | (1 << wall_pos.1.index);
@@ -106,6 +117,10 @@ impl<'a> Visitor<'a> {
         }
     }
 
+    /// Determines whether a wall has been visited.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall position to check.
     fn visited(&self, wall_pos: WallPos) -> bool {
         if let Some(mask) = self.walls.get(wall_pos.0) {
             (mask & (1 << wall_pos.1.index)) != 0
@@ -166,8 +181,12 @@ impl<'a> Visitor<'a> {
 }
 
 
+/// A line drawing operation.
 enum Operation {
+    /// Move the current position without drawing a line.
     Move(physical::Pos),
+
+    /// Draw a line from the old position to this position.
     Line(physical::Pos),
 }
 
@@ -184,6 +203,7 @@ impl Operation {
         }
     }
 
+    /// Extracts the position from this operation regardless of type.
     fn pos(&self) -> physical::Pos {
         match self {
             &Operation::Move(pos) |

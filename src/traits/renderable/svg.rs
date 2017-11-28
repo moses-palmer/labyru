@@ -107,12 +107,12 @@ impl<'a> Visitor<'a> {
     /// # Arguments
     /// *  `wall_pos` - The wall to mark as visited.
     fn visit(&mut self, wall_pos: WallPos) {
-        if let Some(mut mask) = self.walls.get_mut(wall_pos.0) {
+        if let Some(mask) = self.walls.get_mut(wall_pos.0) {
             *mask = *mask | (1 << wall_pos.1.index);
         }
 
         let back = self.maze.back(wall_pos);
-        if let Some(mut back_mask) = self.walls.get_mut(back.0) {
+        if let Some(back_mask) = self.walls.get_mut(back.0) {
             *back_mask = *back_mask | (1 << back.1.index);
         }
     }

@@ -70,7 +70,7 @@ impl Action for InitializeAction {
                     matrix[pos] += pixel.data
                         .iter()
                         .map(|&p| D * p as f32)
-                        .sum();
+                        .sum::<f32>();
                 }
             }
         )

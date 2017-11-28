@@ -63,8 +63,8 @@ impl<'a> ToPath for Maze + 'a {
 
         svg::node::element::path::Data::from(
             commands
-                .iter()
-                .map(|c| c.command())
+                .into_iter()
+                .map(|c| c.into())
                 .collect::<Vec<Command>>(),
         )
     }
@@ -192,22 +192,26 @@ enum Operation {
 
 
 impl Operation {
-    fn command(&self) -> Command {
-        match *self {
-            Operation::Move(pos) => {
-                Command::Move(Position::Absolute, (pos.0, pos.1).into())
-            }
-            Operation::Line(pos) => {
-                Command::Line(Position::Absolute, (pos.0, pos.1).into())
-            }
-        }
-    }
-
     /// Extracts the position from this operation regardless of type.
     fn pos(&self) -> physical::Pos {
         match self {
             &Operation::Move(pos) |
             &Operation::Line(pos) => pos,
+        }
+    }
+}
+
+
+impl From<Operation> for Command {
+    /// Converts a line drawing operation to an actual _SVG path command_.
+    fn from(operation: Operation) -> Self {
+        match operation {
+            Operation::Move(pos) => {
+                Command::Move(Position::Absolute, pos.into())
+            }
+            Operation::Line(pos) => {
+                Command::Line(Position::Absolute, pos.into())
+            }
         }
     }
 }

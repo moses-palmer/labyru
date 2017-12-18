@@ -20,7 +20,7 @@ use labyru::initialize::randomized_prim::*;
 use labyru::renderable::svg::*;
 
 mod types;
-use types::Action;
+use types::*;
 
 
 #[allow(unused_variables)]
@@ -28,10 +28,10 @@ fn run(
     maze: &mut labyru::Maze,
     scale: f32,
     margin: f32,
-    break_action: Option<types::break_action::BreakAction>,
-    heat_map_action: Option<types::heatmap_action::HeatMapAction>,
-    background_action: Option<types::background_action::BackgroundAction>,
-    initialize_action: Option<types::initialize_action::InitializeAction>,
+    break_action: Option<BreakAction>,
+    heat_map_action: Option<HeatMapAction>,
+    background_action: Option<BackgroundAction>,
+    initialize_action: Option<InitializeAction>,
     output: &str,
 ) {
     let document = svg::Document::new().set(

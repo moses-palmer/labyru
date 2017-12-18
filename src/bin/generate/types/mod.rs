@@ -28,15 +28,7 @@ pub use self::initialize_action::*;
 
 
 /// A trait for actions passed on the command line.
-pub trait Action {
-    /// Converts a string to an action.
-    ///
-    /// # Arguments
-    /// *  `s` - The string to convert.
-    fn from_str(s: &str) -> Result<Self, String>
-    where
-        Self: std::marker::Sized;
-
+pub trait Action: std::str::FromStr<Err = String> {
     /// Applies this action to a maze and SVG group.
     ///
     /// # Arguments

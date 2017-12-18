@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use svg;
 use svg::Node;
 
@@ -17,7 +19,9 @@ pub struct HeatMapAction {
 }
 
 
-impl Action for HeatMapAction {
+impl FromStr for HeatMapAction {
+    type Err = String;
+
     /// Converts a string to a heat map description.
     ///
     /// The string can be on three forms:
@@ -64,7 +68,10 @@ impl Action for HeatMapAction {
             })
         }
     }
+}
 
+
+impl Action for HeatMapAction {
     /// Applies the heat map action.
     ///
     /// This action will calculate a heat map, and use the heat of each room to

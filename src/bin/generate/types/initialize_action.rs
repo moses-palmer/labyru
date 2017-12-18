@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use image;
 use rand;
 use svg;
@@ -22,7 +24,9 @@ pub struct InitializeAction {
 }
 
 
-impl Action for InitializeAction {
+impl FromStr for InitializeAction {
+    type Err = String;
+
     /// Converts a string to an initialise mask description.
     ///
     /// The string must be on the form `path,threshold`, where `path` is the
@@ -47,7 +51,10 @@ impl Action for InitializeAction {
             Err(format!("invalid mask: {}", s))
         }
     }
+}
 
+
+impl Action for InitializeAction {
     /// Applies the initialise action.
     ///
     /// This action will use the intensity of pixels to determine whether

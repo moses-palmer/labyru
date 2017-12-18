@@ -208,9 +208,10 @@ mod tests {
             maze.height() as isize - 1,
         )));
         assert!(!maze.rooms().is_inside((-1, -1)));
-        assert!(!maze.rooms().is_inside(
-            (maze.width() as isize, maze.height() as isize),
-        ));
+        assert!(!maze.rooms().is_inside((
+            maze.width() as isize,
+            maze.height() as isize
+        )));
     });
 
     maze_test!(can_open, fn test(maze: &mut Maze) {

@@ -56,11 +56,7 @@ impl Action for InitializeAction {
     /// # Arguments
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
-    fn apply(
-        self,
-        maze: &mut labyru::Maze,
-        _: &mut svg::node::element::Group
-    ) {
+    fn apply(self, maze: &mut labyru::Maze, _: &mut svg::node::element::Group) {
         let data = image_to_matrix::<_, f32>(
             image::open(self.path.as_path())
                 .expect("unable to open mask image")

@@ -103,7 +103,8 @@ fn maze_to_viewbox(
 
 #[allow(unused_mut)]
 fn main() {
-    let mut app = clap_app!(myapp =>
+    let mut app =
+        clap_app!(myapp =>
         (about: "Generates mazes")
         (version: crate_version!())
         (author: crate_authors!(", "))
@@ -150,10 +151,12 @@ fn main() {
 
     #[cfg(feature = "background")]
     {
-        app = app.arg(clap::Arg::with_name("BACKGROUND")
-            .long("background")
-            .help("A background image to colour rooms.")
-            .takes_value(true));
+        app = app.arg(
+            clap::Arg::with_name("BACKGROUND")
+                .long("background")
+                .help("A background image to colour rooms.")
+                .takes_value(true),
+        );
     }
 
     let args = app.get_matches();

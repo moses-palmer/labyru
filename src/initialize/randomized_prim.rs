@@ -1,5 +1,3 @@
-use rand;
-
 use Maze;
 
 use matrix;
@@ -7,7 +5,7 @@ use matrix;
 
 pub trait RandomizedPrim<R>
 where
-    R: rand::Rng + Sized,
+    R: ::Randomizer + Sized,
 {
     /// Initialises a wall using the _Randomised Prim_ algorithm.
     ///
@@ -46,7 +44,7 @@ where
 
 impl<'a, R> RandomizedPrim<R> for Maze + 'a
 where
-    R: rand::Rng + Sized,
+    R: ::Randomizer + Sized,
 {
     fn randomized_prim_filter<F>(&mut self, rng: &mut R, filter: F) -> &mut Self
     where
@@ -66,7 +64,7 @@ where
             // Pick a random room
             .positions()
             .filter(|&pos| filter(pos))
-            .skip(rng.gen_range(0, count))
+            .skip(rng.range(0, count))
             .next()
 
             // Get all walls not leading out of the maze
@@ -82,7 +80,7 @@ where
 
         while !walls.is_empty() {
             // Get a random wall
-            let index = rng.gen_range(0, walls.len());
+            let index = rng.range(0, walls.len());
             let wall_pos = walls.remove(index);
 
             // Walk through the wall if we have not visited the room on the

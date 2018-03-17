@@ -91,7 +91,7 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
             room.set_open(wall_pos.1, value);
         }
 
-        // ..and then sync the value on the back
+        // ...and then sync the value on the back
         let other = self.back(wall_pos);
         if let Some(other_room) = self.rooms_mut().get_mut(other.0) {
             other_room.set_open(other.1, value);
@@ -208,9 +208,10 @@ mod tests {
             maze.height() as isize - 1,
         )));
         assert!(!maze.rooms().is_inside((-1, -1)));
-        assert!(!maze.rooms().is_inside(
-            (maze.width() as isize, maze.height() as isize),
-        ));
+        assert!(!maze.rooms().is_inside((
+            maze.width() as isize,
+            maze.height() as isize
+        )));
     });
 
     maze_test!(can_open, fn test(maze: &mut Maze) {

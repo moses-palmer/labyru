@@ -326,7 +326,8 @@ mod test {
         matrix[(1, 1)] = 4;
         assert_eq!(
             vec![2, 3, 4, 5],
-            matrix.map(|v| v + 1).values().collect::<Vec<_>>());
+            matrix.map(|v| v + 1).values().collect::<Vec<_>>()
+        );
     }
 
     #[test]

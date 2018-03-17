@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use image;
 use rand;
 use svg;
@@ -22,7 +24,9 @@ pub struct InitializeAction {
 }
 
 
-impl Action for InitializeAction {
+impl FromStr for InitializeAction {
+    type Err = String;
+
     /// Converts a string to an initialise mask description.
     ///
     /// The string must be on the form `path,threshold`, where `path` is the
@@ -47,20 +51,19 @@ impl Action for InitializeAction {
             Err(format!("invalid mask: {}", s))
         }
     }
+}
 
+
+impl Action for InitializeAction {
     /// Applies the initialise action.
     ///
     /// This action will use the intensity of pixels to determine whether
-    // rooms should be part of the maze.
+    /// rooms should be part of the maze.
     ///
     /// # Arguments
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
-    fn apply(
-        self,
-        maze: &mut labyru::Maze,
-        _: &mut svg::node::element::Group
-    ) {
+    fn apply(self, maze: &mut labyru::Maze, _: &mut svg::node::element::Group) {
         let data = image_to_matrix::<_, f32>(
             image::open(self.path.as_path())
                 .expect("unable to open mask image")
@@ -74,7 +77,7 @@ impl Action for InitializeAction {
                     matrix[pos] += pixel.data
                         .iter()
                         .map(|&p| D * p as f32)
-                        .sum();
+                        .sum::<f32>();
                 }
             }
         )

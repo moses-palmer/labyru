@@ -39,7 +39,7 @@ where
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
-        /// The heuristic for a room position
+        // The heuristic for a room position
         let h =
             |pos: matrix::Pos| (pos.0 - end.0).abs() + (pos.1 - end.1).abs();
 

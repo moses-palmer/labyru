@@ -18,21 +18,17 @@ use labyru::matrix::AddableMatrix;
 
 
 pub mod background_action;
+pub use self::background_action::*;
 pub mod break_action;
+pub use self::break_action::*;
 pub mod heatmap_action;
+pub use self::heatmap_action::*;
 pub mod initialize_action;
+pub use self::initialize_action::*;
 
 
 /// A trait for actions passed on the command line.
-pub trait Action {
-    /// Converts a string to an action.
-    ///
-    /// # Arguments
-    /// *  `s` - The string to convert.
-    fn from_str(s: &str) -> Result<Self, String>
-    where
-        Self: std::marker::Sized;
-
+pub trait Action: std::str::FromStr<Err = String> {
     /// Applies this action to a maze and SVG group.
     ///
     /// # Arguments

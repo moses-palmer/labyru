@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use image;
 use svg;
 use svg::Node;
@@ -12,14 +14,19 @@ pub struct BackgroundAction {
 }
 
 
-impl Action for BackgroundAction {
+impl FromStr for BackgroundAction {
+    type Err = String;
+
     /// Converts a string to a background description.
     ///
     /// The string must be a path.
     fn from_str(s: &str) -> Result<Self, String> {
         Ok(Self { path: std::path::Path::new(s).to_path_buf() })
     }
+}
 
+
+impl Action for BackgroundAction {
     /// Applies the background action.
     ///
     /// This action will use an image to sample the background colour of rooms.

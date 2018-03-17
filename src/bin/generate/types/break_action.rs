@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use rand;
 use rand::Rng;
 use svg;
@@ -15,7 +17,9 @@ pub struct BreakAction {
 }
 
 
-impl Action for BreakAction {
+impl FromStr for BreakAction {
+    type Err = String;
+
     /// Converts a string to a break description.
     ///
     /// The string can be on two forms:
@@ -43,8 +47,10 @@ impl Action for BreakAction {
             })
         }
     }
+}
 
 
+impl Action for BreakAction {
     /// Applies the break action.
     ///
     /// This action will repeatedly calculate a heat map, and then open walls in
@@ -52,11 +58,7 @@ impl Action for BreakAction {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    fn apply(
-        self,
-        maze: &mut labyru::Maze,
-        _: &mut svg::node::element::Group
-    ) {
+    fn apply(self, maze: &mut labyru::Maze, _: &mut svg::node::element::Group) {
         let mut rng = rand::weak_rng();
 
         for _ in 0..self.count {

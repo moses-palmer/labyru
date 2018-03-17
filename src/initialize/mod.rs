@@ -1,3 +1,4 @@
+#[cfg(feature = "osrand")]
 use rand;
 
 pub mod randomized_prim;
@@ -17,6 +18,7 @@ pub trait Randomizer {
 }
 
 
+#[cfg(feature = "osrand")]
 impl<T> Randomizer for T
 where
     T: rand::Rng,

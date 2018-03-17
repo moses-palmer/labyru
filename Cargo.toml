@@ -6,12 +6,13 @@ authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 [dependencies]
 clap = "2.24.1"
 image = { version = "0.15", optional = true }
-rand = "0.3"
+rand = { version = "0.3", optional = true }
 rayon = { version = "0.8.2", optional = true }
 svg = { version = "0.5", optional = true }
 
 [features]
-default = ["background", "parallel", "render-svg"]
+default = ["background", "osrand", "parallel", "render-svg"]
 background = ["image"]
+osrand = ["rand"]
 parallel = ["rayon"]
 render-svg = ["svg"]

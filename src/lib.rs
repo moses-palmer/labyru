@@ -1,3 +1,4 @@
+#[cfg(feature = "osrand")]
 extern crate rand;
 
 #[cfg(feature = "render-svg")]

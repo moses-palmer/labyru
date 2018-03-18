@@ -66,43 +66,46 @@ where
             return self;
         }
 
-        // Start with all walls in a random room, except for those leading out
-        // of the maze
-        let mut walls = visited
-            // Pick a random room
-            .positions()
-            .filter(|&pos| filter(pos))
-            .skip(rng.range(0, count))
-            .next()
+        loop {
+            // Start with all walls in a random room, except for those leading out
+            // of the maze
+            let mut walls = visited
+                // Pick a random room
+                .positions()
+                .filter(|&pos| filter(pos))
+                .skip(rng.range(0, count))
+                .next()
 
-            // Get all walls not leading out of the maze
-            .map(|pos| self.walls(pos)
-                .iter()
-                .filter(|wall| self.rooms().is_inside(self.back((pos, wall)).0))
+                // Get all walls not leading out of the maze
+                .map(|pos| self.walls(pos)
+                    .iter()
+                    .filter(|wall| {
+                        self.rooms().is_inside(self.back((pos, wall)).0)
+                    })
 
-                // Create a wall position
-                .map(|wall| (pos, *wall))
-                .collect::<Vec<_>>())
+                    // Create a wall position
+                    .map(|wall| (pos, *wall))
+                    .collect::<Vec<_>>())
 
-            .unwrap_or_else(|| Vec::<_>::new());
+                .unwrap_or_else(|| Vec::<_>::new());
 
-        while !walls.is_empty() {
-            // Get a random wall
-            let index = rng.range(0, walls.len());
-            let wall_pos = walls.remove(index);
+            while !walls.is_empty() {
+                // Get a random wall
+                let index = rng.range(0, walls.len());
+                let wall_pos = walls.remove(index);
 
-            // Walk through the wall if we have not visited the room on the
-            // other side before
-            let (next_pos, _) = self.back(wall_pos);
-            if !visited[next_pos] {
-                // Mark the rooms as visited and open the door
-                visited[wall_pos.0] = true;
-                visited[next_pos] = true;
-                self.open(wall_pos);
+                // Walk through the wall if we have not visited the room on the
+                // other side before
+                let (next_pos, _) = self.back(wall_pos);
+                if !visited[next_pos] {
+                    // Mark the rooms as visited and open the door
+                    visited[wall_pos.0] = true;
+                    visited[next_pos] = true;
+                    self.open(wall_pos);
 
-                // Add all walls of the next room except those already visited
-                // and those outside of the maze
-                walls.extend(
+                    // Add all walls of the next room except those already visited
+                    // and those outside of the maze
+                    walls.extend(
                     self.walls(next_pos)
                         .iter()
                         .map(|w| self.back((next_pos, w)))
@@ -110,6 +113,11 @@ where
                         .map(|wall_pos| self.back(wall_pos))
                         .filter(|&(pos, _)| visited.is_inside(pos)),
                 );
+                }
+            }
+
+            if visited.positions().all(|pos| visited[pos]) {
+                break;
             }
         }
 

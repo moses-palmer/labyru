@@ -145,4 +145,36 @@ mod tests {
         assert!(maze.walk(from, to).is_none());
         assert!(maze.walk(other, to).is_none());
     });
+
+    maze_test!(randomized_prim_filter_picked, fn test(maze: &mut Maze) {
+        for _ in 0..1000 {
+            let filter = |(x, y)| x > y;
+            maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
+
+            for pos in maze.rooms().positions() {
+                assert_eq!(
+                    filter(pos),
+                    maze.rooms()[pos].visited,
+                );
+            }
+        }
+    });
+
+    maze_test!(randomized_prim_filter_segmented, fn test(maze: &mut Maze) {
+        for _ in 0..1000 {
+            let width = maze.width();
+            let height = maze.height();
+            let filter = |(x, y)| {
+                x as usize != width / 2 && y as usize != height / 2
+            };
+            maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
+
+            for pos in maze.rooms().positions() {
+                assert_eq!(
+                    filter(pos),
+                    maze.rooms()[pos].visited,
+                );
+            }
+        }
+    });
 }

@@ -18,18 +18,18 @@ pub trait ToPath {
 impl<'a> ToPath for Maze + 'a {
     fn to_path_d(&self) -> svg::node::element::path::Data {
         let mut commands = Vec::new();
-        let mut visited = Visitor::new(self);
+        let mut visitor = Visitor::new(self);
 
         // While a non-visited wall still exists, walk along it
-        while let Some((next_pos, next_wall)) = visited.next_wall() {
+        while let Some((next_pos, next_wall)) = visitor.next_wall() {
             for (i, (from, to)) in self.follow_wall((next_pos, next_wall))
                 .enumerate()
             {
                 // Ensure the wall has not been visited before
-                if visited.visited(from) {
+                if visitor.visited(from) {
                     break;
                 } else {
-                    visited.visit(from);
+                    visitor.visit(from);
                 }
 
                 // For the first wall, we need to move to the corner furthest

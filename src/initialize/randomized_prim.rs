@@ -50,12 +50,20 @@ where
     where
         F: Fn(matrix::Pos) -> bool,
     {
+        // Create the visited matrix by applying the filter to each room; if no
+        // rooms remain we terminate early
         let mut visited =
             matrix::Matrix::<bool>::new(self.width(), self.height());
-        let mut count = 0;
-        for pos in visited.positions() {
-            visited[pos] = !filter(pos);
-            count += 1;
+        let count = visited.positions().fold(0, |mut count, pos| {
+            if filter(pos) {
+                count += 1;
+            } else {
+                visited[pos] = true;
+            }
+            count
+        });
+        if count == 0 {
+            return self;
         }
 
         // Start with all walls in a random room, except for those leading out

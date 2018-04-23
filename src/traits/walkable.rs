@@ -6,7 +6,6 @@ use util::open_set;
 use Maze;
 use WallPos;
 
-
 /// A container that supports walking.
 pub trait Walkable {
     /// Walks from `from` to `to` along the shortest path.
@@ -29,7 +28,6 @@ pub trait Walkable {
     /// * `wall_pos` - The starting wall position.
     fn follow_wall(&self, wall_pos: WallPos) -> Follower;
 }
-
 
 impl<'a, M> Walkable for M
 where
@@ -87,8 +85,8 @@ where
                 let g = g_score.get(&current).unwrap() + 1;
                 let f = g + h(next);
 
-                if !open_set.contains(current) ||
-                    g < *g_score.get(&current).unwrap()
+                if !open_set.contains(current)
+                    || g < *g_score.get(&current).unwrap()
                 {
                     came_from.insert(next, current);
                     g_score.insert(next, g);
@@ -109,7 +107,6 @@ where
     }
 }
 
-
 /// A maze walker.
 ///
 /// This struct supports walking through a map. From a starting position, it
@@ -129,7 +126,6 @@ pub struct Walker {
     map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
 }
 
-
 impl Walker {
     /// Creates a walker from a starting position and a supporting map.
     ///
@@ -146,7 +142,6 @@ impl Walker {
         }
     }
 }
-
 
 impl Iterator for Walker {
     type Item = matrix::Pos;
@@ -168,7 +163,6 @@ impl Iterator for Walker {
     }
 }
 
-
 /// Follows a wall.
 pub struct Follower<'a> {
     /// The maze.
@@ -183,7 +177,6 @@ pub struct Follower<'a> {
     /// Whether we have finished following walls.
     finished: bool,
 }
-
 
 impl<'a> Follower<'a> {
     pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
@@ -223,7 +216,6 @@ impl<'a> Follower<'a> {
     }
 }
 
-
 impl<'a> Iterator for Follower<'a> {
     type Item = (WallPos, Option<WallPos>);
 
@@ -250,14 +242,13 @@ impl<'a> Iterator for Follower<'a> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
 
-    use test_utils::*;
-    use ::*;
     use super::*;
+    use test_utils::*;
+    use *;
 
     #[test]
     fn walk_empty() {
@@ -269,7 +260,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn walk_from_unknown() {
         let mut map = HashMap::new();
@@ -280,7 +270,6 @@ mod tests {
             vec![(0, 0)]
         );
     }
-
 
     #[test]
     fn walk_path() {
@@ -295,53 +284,61 @@ mod tests {
         );
     }
 
-    maze_test!(walk_disconnected, fn test(maze: &mut Maze) {
-        assert!(maze.walk((0, 0), (0, 1)).is_none());
-    });
+    maze_test!(
+        walk_disconnected,
+        fn test(maze: &mut Maze) {
+            assert!(maze.walk((0, 0), (0, 1)).is_none());
+        }
+    );
 
+    maze_test!(
+        walk_same,
+        fn test(maze: &mut Maze) {
+            let from = (0, 0);
+            let to = (0, 0);
+            let expected = vec![(0, 0)];
+            assert!(
+                maze.walk(from, to)
+                    .unwrap()
+                    .collect::<Vec<matrix::Pos>>() == expected
+            );
+        }
+    );
 
-    maze_test!(walk_same, fn test(maze: &mut Maze) {
-        let from = (0, 0);
-        let to = (0, 0);
-        let expected = vec![(0, 0)];
-        assert!(
-            maze.walk(from, to)
-                .unwrap()
-                .collect::<Vec<matrix::Pos>>() == expected
-        );
-    });
+    maze_test!(
+        walk_simple,
+        fn test(maze: &mut Maze) {
+            let log = Navigator::new(maze).down(true).stop();
 
+            let from = log.first().unwrap();
+            let to = log.last().unwrap();
+            let expected = vec![*from, *to];
+            assert!(
+                maze.walk(*from, *to)
+                    .unwrap()
+                    .collect::<Vec<matrix::Pos>>() == expected
+            );
+        }
+    );
 
-    maze_test!(walk_simple, fn test(maze: &mut Maze) {
-        let log = Navigator::new(maze)
-            .down(true)
-            .stop();
+    maze_test!(
+        walk_shortest,
+        fn test(maze: &mut Maze) {
+            let log = Navigator::new(maze)
+                .down(true)
+                .right(true)
+                .right(true)
+                .up(true)
+                .stop();
 
-        let from = log.first().unwrap();
-        let to = log.last().unwrap();
-        let expected = vec![*from, *to];
-        assert!(
-            maze.walk(*from, *to)
-                .unwrap()
-                .collect::<Vec<matrix::Pos>>() == expected
-        );
-    });
-
-
-    maze_test!(walk_shortest, fn test(maze: &mut Maze) {
-        let log = Navigator::new(maze)
-            .down(true)
-            .right(true)
-            .right(true)
-            .up(true)
-            .stop();
-
-        let from = log.first().unwrap();
-        let to = log.last().unwrap();
-        assert!(
-            maze.walk(*from, *to)
-                .unwrap()
-                .collect::<Vec<matrix::Pos>>().len() <= log.len()
-        );
-    });
+            let from = log.first().unwrap();
+            let to = log.last().unwrap();
+            assert!(
+                maze.walk(*from, *to)
+                    .unwrap()
+                    .collect::<Vec<matrix::Pos>>()
+                    .len() <= log.len()
+            );
+        }
+    );
 }

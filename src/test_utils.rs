@@ -1,6 +1,5 @@
 use super::*;
 
-
 /// Creates a test function that runs the tests for all known types of
 /// mazes.
 #[macro_export]
@@ -20,7 +19,6 @@ macro_rules! maze_test {
     }
 }
 
-
 /// Determines whether two physical locations are close enough to be
 /// considered equal.
 ///
@@ -31,7 +29,6 @@ pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
     let d = (expected.0 - actual.0, expected.1 - actual.1);
     (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001
 }
-
 
 /// A navigator through a maze.
 ///
@@ -149,7 +146,10 @@ impl<'a> Navigator<'a> {
                 .rooms()
                 .positions()
                 .filter(|&pos| {
-                    self.maze.walls(pos).iter().any(|wall| predicate(&wall))
+                    self.maze
+                        .walls(pos)
+                        .iter()
+                        .any(|wall| predicate(&wall))
                 })
                 .next();
         }
@@ -161,9 +161,9 @@ impl<'a> Navigator<'a> {
             .iter()
             .filter(predicate)
             .filter(|wall| {
-                self.maze.rooms().is_inside(
-                    (pos.0 + wall.dir.0, pos.1 + wall.dir.1),
-                )
+                self.maze
+                    .rooms()
+                    .is_inside((pos.0 + wall.dir.0, pos.1 + wall.dir.1))
             })
             .next()
             .unwrap();

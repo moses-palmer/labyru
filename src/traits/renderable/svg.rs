@@ -8,12 +8,10 @@ use matrix;
 use physical;
 use wall;
 
-
 pub trait ToPath {
     /// Generates an _SVG path d_ attribute value.
     fn to_path_d(&self) -> svg::node::element::path::Data;
 }
-
 
 impl<'a> ToPath for Maze + 'a {
     fn to_path_d(&self) -> svg::node::element::path::Data {
@@ -52,9 +50,8 @@ impl<'a> ToPath for Maze + 'a {
                 commands.push(Operation::Line(pos));
 
                 // If the next room is outside of the maze, break
-                if to.map(|(pos, _)| !self.rooms().is_inside(pos)).unwrap_or(
-                    false,
-                )
+                if to.map(|(pos, _)| !self.rooms().is_inside(pos))
+                    .unwrap_or(false)
                 {
                     break;
                 }
@@ -70,7 +67,6 @@ impl<'a> ToPath for Maze + 'a {
     }
 }
 
-
 /// A visitor for wall positions.
 ///
 /// This struct provides means to visit all wall positions of a maze.
@@ -84,7 +80,6 @@ struct Visitor<'a> {
     /// The current room.
     index: usize,
 }
-
 
 impl<'a> Visitor<'a> {
     /// Creates a new visitor for a maze.
@@ -180,7 +175,6 @@ impl<'a> Visitor<'a> {
     }
 }
 
-
 /// A line drawing operation.
 enum Operation {
     /// Move the current position without drawing a line.
@@ -190,17 +184,14 @@ enum Operation {
     Line(physical::Pos),
 }
 
-
 impl Operation {
     /// Extracts the position from this operation regardless of type.
     fn pos(&self) -> physical::Pos {
         match self {
-            &Operation::Move(pos) |
-            &Operation::Line(pos) => pos,
+            &Operation::Move(pos) | &Operation::Line(pos) => pos,
         }
     }
 }
-
 
 impl From<Operation> for Command {
     /// Converts a line drawing operation to an actual _SVG path command_.
@@ -216,7 +207,6 @@ impl From<Operation> for Command {
     }
 }
 
-
 /// Returns the center of a wall.
 ///
 /// The center of a wall is the point between its corners.
@@ -225,9 +215,11 @@ impl From<Operation> for Command {
 /// * `wall_pos` - The wall position.
 fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
     let (corner1, corner2) = maze.corners(wall_pos);
-    ((corner1.0 + corner2.0) / 2.0, (corner1.1 + corner2.1) / 2.0)
+    (
+        (corner1.0 + corner2.0) / 2.0,
+        (corner1.1 + corner2.1) / 2.0,
+    )
 }
-
 
 /// Returns the physical positions of the two corners of a wall ordered by
 /// distance to another wall.
@@ -244,5 +236,9 @@ fn corners(
     let d1 = (pos1.0 - origin.0).powi(2) + (pos1.1 - origin.1).powi(2);
     let d2 = (pos2.0 - origin.0).powi(2) + (pos2.1 - origin.1).powi(2);
 
-    if d1 < d2 { (pos1, pos2) } else { (pos2, pos1) }
+    if d1 < d2 {
+        (pos1, pos2)
+    } else {
+        (pos2, pos1)
+    }
 }

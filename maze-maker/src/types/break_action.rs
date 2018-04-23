@@ -6,7 +6,6 @@ use svg;
 
 use types::*;
 
-
 /// A full description of the break action.
 pub struct BreakAction {
     /// The heat map type.
@@ -15,7 +14,6 @@ pub struct BreakAction {
     /// The number of times to apply the operation.
     pub count: usize,
 }
-
 
 impl FromStr for BreakAction {
     type Err = String;
@@ -48,7 +46,6 @@ impl FromStr for BreakAction {
         }
     }
 }
-
 
 impl Action for BreakAction {
     /// Applies the break action.

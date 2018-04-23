@@ -1,12 +1,11 @@
 use std;
 
 use super::Shape;
-use WallPos;
 use matrix;
 use physical;
 use room;
 use wall;
-
+use WallPos;
 
 /// A span step angle
 const D: f32 = std::f32::consts::PI / 4.0;
@@ -57,23 +56,25 @@ define_walls! {
 macro_rules! back_index {
     ($wall:expr) => {
         $wall ^ 0b0010
-    }
+    };
 }
 
 /// The walls for a matrix position.
 macro_rules! walls {
     ($pos:expr) => {
         &ALL
-    }
+    };
 }
 
 /// The walls
-static ALL: &[&'static wall::Wall] =
-    &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
-
+static ALL: &[&'static wall::Wall] = &[
+    &walls::LEFT,
+    &walls::UP,
+    &walls::RIGHT,
+    &walls::DOWN,
+];
 
 define_base!();
-
 
 impl Shape for Maze {
     implement_base_shape!();
@@ -85,7 +86,6 @@ impl Shape for Maze {
         )
     }
 }
-
 
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
@@ -103,25 +103,34 @@ impl physical::Physical for Maze {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use Walkable;
     use super::*;
     use test_utils::*;
+    use Walkable;
     use WallPos;
-
 
     #[test]
     fn back() {
         let maze = Maze::new(5, 5);
 
-        assert_eq!(maze.back(((1, 1), &walls::LEFT)), ((0, 1), &walls::RIGHT));
-        assert_eq!(maze.back(((1, 1), &walls::UP)), ((1, 0), &walls::DOWN));
-        assert_eq!(maze.back(((1, 1), &walls::RIGHT)), ((2, 1), &walls::LEFT));
-        assert_eq!(maze.back(((1, 1), &walls::DOWN)), ((1, 2), &walls::UP));
+        assert_eq!(
+            maze.back(((1, 1), &walls::LEFT)),
+            ((0, 1), &walls::RIGHT)
+        );
+        assert_eq!(
+            maze.back(((1, 1), &walls::UP)),
+            ((1, 0), &walls::DOWN)
+        );
+        assert_eq!(
+            maze.back(((1, 1), &walls::RIGHT)),
+            ((2, 1), &walls::LEFT)
+        );
+        assert_eq!(
+            maze.back(((1, 1), &walls::DOWN)),
+            ((1, 2), &walls::UP)
+        );
     }
-
 
     #[test]
     fn opposite() {
@@ -131,14 +140,19 @@ mod tests {
             maze.opposite(((1, 1), &walls::LEFT)).unwrap(),
             &walls::RIGHT
         );
-        assert_eq!(maze.opposite(((1, 1), &walls::UP)).unwrap(), &walls::DOWN);
+        assert_eq!(
+            maze.opposite(((1, 1), &walls::UP)).unwrap(),
+            &walls::DOWN
+        );
         assert_eq!(
             maze.opposite(((1, 1), &walls::RIGHT)).unwrap(),
             &walls::LEFT
         );
-        assert_eq!(maze.opposite(((1, 1), &walls::DOWN)).unwrap(), &walls::UP);
+        assert_eq!(
+            maze.opposite(((1, 1), &walls::DOWN)).unwrap(),
+            &walls::UP
+        );
     }
-
 
     #[test]
     fn corner_walls() {
@@ -185,7 +199,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn follow_wall_single_room() {
         let maze = Maze::new(5, 5);
@@ -202,7 +215,6 @@ mod tests {
                 .collect::<Vec<WallPos>>()
         );
     }
-
 
     #[test]
     fn follow_wall() {

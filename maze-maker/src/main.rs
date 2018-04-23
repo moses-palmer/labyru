@@ -19,7 +19,6 @@ use labyru::renderable::svg::*;
 mod types;
 use types::*;
 
-
 #[allow(unused_variables)]
 fn run(
     maze: &mut labyru::Maze,
@@ -31,15 +30,10 @@ fn run(
     initialize_action: Option<InitializeAction>,
     output: &str,
 ) {
-    let document = svg::Document::new().set(
-        "viewBox",
-        maze_to_viewbox(maze, scale, margin),
-    );
-    let mut container =
-        svg::node::element::Group::new().set(
-            "transform",
-            format!("scale({})", scale),
-        );
+    let document = svg::Document::new()
+        .set("viewBox", maze_to_viewbox(maze, scale, margin));
+    let mut container = svg::node::element::Group::new()
+        .set("transform", format!("scale({})", scale));
 
     // Make sure the maze is initialised
     if let Some(initialize_action) = initialize_action {
@@ -75,7 +69,6 @@ fn run(
     svg::save(output, &document.add(container)).expect("failed to write SVG");
 }
 
-
 /// Calculates the view box for a maze with a margin.
 ///
 /// # Arguments
@@ -96,7 +89,6 @@ fn maze_to_viewbox(
         viewbox.3 * scale + 2.0 * margin,
     )
 }
-
 
 #[allow(unused_mut)]
 fn main() {
@@ -149,9 +141,11 @@ fn main() {
                 .takes_value(true)
                 .help("Whether to create a heat map."),
         )
-        .arg(Arg::with_name("OUTPUT").required(true).help(
-            "The output file name.",
-        ));
+        .arg(
+            Arg::with_name("OUTPUT")
+                .required(true)
+                .help("The output file name."),
+        );
 
     #[cfg(feature = "background")]
     {
@@ -187,18 +181,14 @@ fn main() {
         args.value_of("MARGIN")
             .map(|s| s.parse().expect("invalid margin"))
             .unwrap_or(10.0),
-        args.value_of("BREAK").map(
-            |s| s.parse().expect("invalid break"),
-        ),
-        args.value_of("HEATMAP").map(|s| {
-            s.parse().expect("invalid heat map")
-        }),
-        args.value_of("BACKGROUND").map(|s| {
-            s.parse().expect("invalid background")
-        }),
-        args.value_of("MASK").map(
-            |s| s.parse().expect("invalid mask"),
-        ),
+        args.value_of("BREAK")
+            .map(|s| s.parse().expect("invalid break")),
+        args.value_of("HEATMAP")
+            .map(|s| s.parse().expect("invalid heat map")),
+        args.value_of("BACKGROUND")
+            .map(|s| s.parse().expect("invalid background")),
+        args.value_of("MASK")
+            .map(|s| s.parse().expect("invalid mask")),
         args.value_of("OUTPUT").unwrap(),
     );
 }

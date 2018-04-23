@@ -2,10 +2,8 @@ use matrix;
 
 use WallPos;
 
-
 /// A physical position.
 pub type Pos = (f32, f32);
-
 
 /// An object that has some "physical" properties.
 pub trait Physical {
@@ -45,55 +43,55 @@ pub trait Physical {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use ::*;
+    use *;
 
-    maze_test!(room_at, fn test(maze: &mut Maze) {
-        let (left, top, width, height) = maze.viewbox();
-        let (min_x, min_y) = maze.center((0, 0));
-        let (max_x, max_y) = maze.center((
-            maze.width() as isize - 1,
-            maze.height() as isize - 1));
-        let xres = 100usize;
-        let yres = 100usize;
-        for x in 0..xres {
-            for y in 0..yres {
-                let pos = (
-                    x as f32 / (xres as f32 * width + left),
-                    y as f32 / (yres as f32 * height + top),
-                );
+    maze_test!(
+        room_at,
+        fn test(maze: &mut Maze) {
+            let (left, top, width, height) = maze.viewbox();
+            let (min_x, min_y) = maze.center((0, 0));
+            let (max_x, max_y) = maze.center((
+                maze.width() as isize - 1,
+                maze.height() as isize - 1,
+            ));
+            let xres = 100usize;
+            let yres = 100usize;
+            for x in 0..xres {
+                for y in 0..yres {
+                    let pos = (
+                        x as f32 / (xres as f32 * width + left),
+                        y as f32 / (yres as f32 * height + top),
+                    );
 
-                // Should this position be inside the maze?
-                let assume_inside = true
-                    && pos.0 >= min_x
-                    && pos.0 <= max_x
-                    && pos.1 >= min_y
-                    && pos.1 <= max_y;
+                    // Should this position be inside the maze?
+                    let assume_inside = true && pos.0 >= min_x && pos.0 <= max_x
+                        && pos.1 >= min_y
+                        && pos.1 <= max_y;
 
-                // Ignore rooms outside of the maze since we use
-                // maze.rooms().positions() below
-                let actual = maze.room_at(pos);
-                if !maze.rooms().is_inside(actual) && !assume_inside {
-                    continue;
+                    // Ignore rooms outside of the maze since we use
+                    // maze.rooms().positions() below
+                    let actual = maze.room_at(pos);
+                    if !maze.rooms().is_inside(actual) && !assume_inside {
+                        continue;
+                    }
+
+                    let mut positions = maze.rooms()
+                        .positions()
+                        .map(|matrix_pos| (maze.center(matrix_pos), matrix_pos))
+                        .map(|(physical_pos, matrix_pos)| {
+                            (distance(pos, physical_pos), matrix_pos)
+                        })
+                        .collect::<Vec<_>>();
+                    positions.sort_by_key(|&(k, _)| k);
+
+                    let (_, expected) = positions[0];
+                    assert_eq!(expected, actual);
                 }
-
-                let mut positions = maze.rooms()
-                    .positions()
-                    .map(|matrix_pos| (maze.center(matrix_pos), matrix_pos))
-                    .map(|(physical_pos, matrix_pos)| {
-                        (distance(pos, physical_pos), matrix_pos)
-                    })
-                    .collect::<Vec<_>>();
-                positions.sort_by_key(|&(k, _)| k);
-
-                let (_, expected) = positions[0];
-                assert_eq!(expected, actual);
             }
         }
-    });
-
+    );
 
     /// Calculates an integral distance value between two points.
     ///

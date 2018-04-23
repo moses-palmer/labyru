@@ -6,13 +6,11 @@ use svg::Node;
 
 use types::*;
 
-
 /// A background image.
 pub struct BackgroundAction {
     /// The path to the background image.
     pub path: std::path::PathBuf,
 }
-
 
 impl FromStr for BackgroundAction {
     type Err = String;
@@ -21,10 +19,11 @@ impl FromStr for BackgroundAction {
     ///
     /// The string must be a path.
     fn from_str(s: &str) -> Result<Self, String> {
-        Ok(Self { path: std::path::Path::new(s).to_path_buf() })
+        Ok(Self {
+            path: std::path::Path::new(s).to_path_buf(),
+        })
     }
 }
-
 
 impl Action for BackgroundAction {
     /// Applies the background action.

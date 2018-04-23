@@ -2,10 +2,8 @@ use std::collections::BinaryHeap;
 
 use matrix;
 
-
 /// A room position with a priority.
 type PriorityPos = (isize, matrix::Pos);
-
 
 /// A set of rooms and priorities.
 ///
@@ -17,11 +15,12 @@ pub struct OpenSet {
     heap: BinaryHeap<PriorityPos>,
 }
 
-
 impl OpenSet {
     /// Creates a new open set.
     pub fn new() -> OpenSet {
-        OpenSet { heap: BinaryHeap::new() }
+        OpenSet {
+            heap: BinaryHeap::new(),
+        }
     }
 
     /// Adds a position with a priority.
@@ -55,7 +54,6 @@ impl OpenSet {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -67,7 +65,6 @@ mod tests {
         assert!(os.pop().is_none());
     }
 
-
     #[test]
     fn pop_nonempty() {
         let mut os = OpenSet::new();
@@ -75,7 +72,6 @@ mod tests {
         os.push(0, (0, 0));
         assert!(os.pop().is_some());
     }
-
 
     #[test]
     fn pop_correct() {
@@ -87,7 +83,6 @@ mod tests {
         os.push(5, (5, 6));
         assert_eq!(os.pop(), Some(expected.1));
     }
-
 
     #[test]
     fn contains_same() {

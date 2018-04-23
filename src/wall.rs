@@ -1,17 +1,13 @@
 use std;
 
-
 /// The maximum nomalised value of a radian.
 const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
-
 
 /// A bit mask for a wall.
 pub type Mask = u32;
 
-
 /// An offset from a wall to its corner neighbours.
 pub type Offset = ((isize, isize), usize);
-
 
 /// A wall.
 ///
@@ -42,7 +38,6 @@ pub struct Wall {
     pub span: (f32, f32),
 }
 
-
 impl Wall {
     /// The bit mask for this wall.
     pub fn mask(&self) -> Mask {
@@ -58,7 +53,11 @@ impl Wall {
             angle
         } else {
             let t = angle % RADIAN_BOUND;
-            if t >= 0.0 { t } else { t + RADIAN_BOUND }
+            if t >= 0.0 {
+                t
+            } else {
+                t + RADIAN_BOUND
+            }
         }
     }
 
@@ -80,9 +79,7 @@ impl Wall {
     }
 }
 
-
 impl Eq for Wall {}
-
 
 impl std::hash::Hash for Wall {
     fn hash<H>(&self, state: &mut H)
@@ -94,20 +91,17 @@ impl std::hash::Hash for Wall {
     }
 }
 
-
 impl std::fmt::Debug for Wall {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         f.write_str(self.name)
     }
 }
 
-
 impl Ord for Wall {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
     }
 }
-
 
 /// Defines a wall module.
 ///

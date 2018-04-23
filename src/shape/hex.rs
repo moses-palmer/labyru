@@ -8,7 +8,6 @@ use physical;
 use room;
 use wall;
 
-
 /// A span step angle
 const D: f32 = PI / 6.0;
 
@@ -125,20 +124,24 @@ macro_rules! opposite_index {
         } else {
             $wall ^ 0b0011
         }
-    }
+    };
 }
 
 /// The index of the back wall.
 macro_rules! back_index {
     ($wall:expr) => {
         $wall ^ 0b0001
-    }
+    };
 }
 
 macro_rules! walls {
     ($pos:expr) => {
-        if $pos.1 & 1 == 1 { &ALL1 } else { &ALL0 }
-    }
+        if $pos.1 & 1 == 1 {
+            &ALL1
+        } else {
+            &ALL0
+        }
+    };
 }
 
 /// The walls for even rows
@@ -161,14 +164,12 @@ static ALL1: &[&'static wall::Wall] = &[
     &walls::DOWN_LEFT1,
 ];
 
-
 define_base!(
     horizontal_multiplicator: f32 = 2.0 * (PI / 6.0).cos(),
     vertical_multiplicator: f32 = 2.0 - (PI / 6.0).sin(),
     top_height: f32 = 1.0 - (2.0 * PI - D).sin(),
     gradient: f32 = (1.0 - (2.0 * PI - D).sin()) / (PI / 6.0).cos(),
 );
-
 
 impl Shape for Maze {
     implement_base_shape!();
@@ -179,12 +180,11 @@ impl Shape for Maze {
     }
 }
 
-
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
         (
-            (pos.0 as f32 + if pos.1 & 1 == 1 { 0.5 } else { 1.0 }) *
-                self.horizontal_multiplicator,
+            (pos.0 as f32 + if pos.1 & 1 == 1 { 0.5 } else { 1.0 })
+                * self.horizontal_multiplicator,
             (pos.1 as f32 + 0.5) * self.vertical_multiplicator,
         )
     }
@@ -223,14 +223,12 @@ impl physical::Physical for Maze {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use Walkable;
     use super::*;
     use test_utils::*;
+    use Walkable;
     use WallPos;
-
 
     #[test]
     fn back() {
@@ -244,22 +242,22 @@ mod tests {
             maze.back(((1, 1), &walls::LEFT1)),
             ((0, 1), &walls::RIGHT1)
         );
-        assert_eq!(maze.back(((1, 2), &walls::UP_LEFT0)), (
-            (1, 1),
-            &walls::DOWN_RIGHT1,
-        ));
-        assert_eq!(maze.back(((1, 1), &walls::UP_LEFT1)), (
-            (0, 0),
-            &walls::DOWN_RIGHT0,
-        ));
-        assert_eq!(maze.back(((0, 2), &walls::UP_RIGHT0)), (
-            (1, 1),
-            &walls::DOWN_LEFT1,
-        ));
-        assert_eq!(maze.back(((0, 1), &walls::UP_RIGHT1)), (
-            (0, 0),
-            &walls::DOWN_LEFT0,
-        ));
+        assert_eq!(
+            maze.back(((1, 2), &walls::UP_LEFT0)),
+            ((1, 1), &walls::DOWN_RIGHT1,)
+        );
+        assert_eq!(
+            maze.back(((1, 1), &walls::UP_LEFT1)),
+            ((0, 0), &walls::DOWN_RIGHT0,)
+        );
+        assert_eq!(
+            maze.back(((0, 2), &walls::UP_RIGHT0)),
+            ((1, 1), &walls::DOWN_LEFT1,)
+        );
+        assert_eq!(
+            maze.back(((0, 1), &walls::UP_RIGHT1)),
+            ((0, 0), &walls::DOWN_LEFT0,)
+        );
         assert_eq!(
             maze.back(((0, 0), &walls::RIGHT0)),
             ((1, 0), &walls::LEFT0)
@@ -268,24 +266,23 @@ mod tests {
             maze.back(((0, 1), &walls::RIGHT1)),
             ((1, 1), &walls::LEFT1)
         );
-        assert_eq!(maze.back(((0, 0), &walls::DOWN_RIGHT0)), (
-            (1, 1),
-            &walls::UP_LEFT1,
-        ));
-        assert_eq!(maze.back(((0, 1), &walls::DOWN_RIGHT1)), (
-            (0, 2),
-            &walls::UP_LEFT0,
-        ));
-        assert_eq!(maze.back(((1, 0), &walls::DOWN_LEFT0)), (
-            (1, 1),
-            &walls::UP_RIGHT1,
-        ));
-        assert_eq!(maze.back(((1, 1), &walls::DOWN_LEFT1)), (
-            (0, 2),
-            &walls::UP_RIGHT0,
-        ));
+        assert_eq!(
+            maze.back(((0, 0), &walls::DOWN_RIGHT0)),
+            ((1, 1), &walls::UP_LEFT1,)
+        );
+        assert_eq!(
+            maze.back(((0, 1), &walls::DOWN_RIGHT1)),
+            ((0, 2), &walls::UP_LEFT0,)
+        );
+        assert_eq!(
+            maze.back(((1, 0), &walls::DOWN_LEFT0)),
+            ((1, 1), &walls::UP_RIGHT1,)
+        );
+        assert_eq!(
+            maze.back(((1, 1), &walls::DOWN_LEFT1)),
+            ((0, 2), &walls::UP_RIGHT0,)
+        );
     }
-
 
     #[test]
     fn opposite() {
@@ -300,19 +297,23 @@ mod tests {
             &walls::RIGHT1
         );
         assert_eq!(
-            maze.opposite(((1, 2), &walls::UP_LEFT0)).unwrap(),
+            maze.opposite(((1, 2), &walls::UP_LEFT0))
+                .unwrap(),
             &walls::DOWN_RIGHT0
         );
         assert_eq!(
-            maze.opposite(((1, 1), &walls::UP_LEFT1)).unwrap(),
+            maze.opposite(((1, 1), &walls::UP_LEFT1))
+                .unwrap(),
             &walls::DOWN_RIGHT1
         );
         assert_eq!(
-            maze.opposite(((0, 2), &walls::UP_RIGHT0)).unwrap(),
+            maze.opposite(((0, 2), &walls::UP_RIGHT0))
+                .unwrap(),
             &walls::DOWN_LEFT0
         );
         assert_eq!(
-            maze.opposite(((0, 1), &walls::UP_RIGHT1)).unwrap(),
+            maze.opposite(((0, 1), &walls::UP_RIGHT1))
+                .unwrap(),
             &walls::DOWN_LEFT1
         );
         assert_eq!(
@@ -324,23 +325,26 @@ mod tests {
             &walls::LEFT1
         );
         assert_eq!(
-            maze.opposite(((0, 0), &walls::DOWN_RIGHT0)).unwrap(),
+            maze.opposite(((0, 0), &walls::DOWN_RIGHT0))
+                .unwrap(),
             &walls::UP_LEFT0
         );
         assert_eq!(
-            maze.opposite(((0, 1), &walls::DOWN_RIGHT1)).unwrap(),
+            maze.opposite(((0, 1), &walls::DOWN_RIGHT1))
+                .unwrap(),
             &walls::UP_LEFT1
         );
         assert_eq!(
-            maze.opposite(((1, 0), &walls::DOWN_LEFT0)).unwrap(),
+            maze.opposite(((1, 0), &walls::DOWN_LEFT0))
+                .unwrap(),
             &walls::UP_RIGHT0
         );
         assert_eq!(
-            maze.opposite(((1, 1), &walls::DOWN_LEFT1)).unwrap(),
+            maze.opposite(((1, 1), &walls::DOWN_LEFT1))
+                .unwrap(),
             &walls::UP_RIGHT1
         );
     }
-
 
     #[test]
     fn corner_walls() {
@@ -462,7 +466,6 @@ mod tests {
                 .collect::<Vec<WallPos>>()
         );
     }
-
 
     #[test]
     fn follow_wall() {

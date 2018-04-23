@@ -3,7 +3,6 @@ use rand;
 
 pub mod randomized_prim;
 
-
 pub trait Randomizer {
     /// Generates a random value in the range `[low, high)`, where `low` and
     /// `high` are the low and high values of `a` and `b`.
@@ -16,7 +15,6 @@ pub trait Randomizer {
     /// Generates a random value in the range `[0, 1)`.
     fn random(&mut self) -> f64;
 }
-
 
 #[cfg(feature = "osrand")]
 impl<T> Randomizer for T

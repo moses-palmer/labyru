@@ -1,0 +1,12 @@
+[package]
+name = "maze-maker"
+version = "0.1.0"
+authors = ["Moses Palmér <mosespalmer@gmail.com>"]
+
+[dependencies]
+labyru = { path = "../" }
+clap = "2.31"
+image = "0.18"
+rand = "0.4"
+rayon = "1.0"
+svg = "0.5"

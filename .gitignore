@@ -1,2 +1,6 @@
 target
 Cargo.lock
+
+# Vim swap files
+*.swo
+*.swp

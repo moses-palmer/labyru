@@ -6,7 +6,7 @@ use svg;
 
 use labyru::randomized_prim::RandomizedPrim;
 
-use types::*;
+use super::*;
 
 
 /// A constant used as multiplier for individual colour values to get an

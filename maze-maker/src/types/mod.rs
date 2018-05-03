@@ -1,19 +1,14 @@
 use std;
 
-#[cfg(feature = "background")]
 use image;
-
-#[cfg(feature = "parallel")]
-use rayon::current_num_threads;
-#[cfg(feature = "parallel")]
-use rayon::prelude::*;
-
+use rayon;
 use svg;
+
+use rayon::prelude::*;
 use svg::Node;
 
 use labyru;
 
-#[cfg(feature = "parallel")]
 use labyru::matrix::AddableMatrix;
 
 
@@ -243,25 +238,6 @@ impl HeatMapType {
     /// * `maze` - The maze for which to generate a heat map.
     /// * `positions` - The positions for which to generate a heat map. These
     ///   will be generated from the heat map type.
-    #[cfg(not(feature = "parallel"))]
-    fn create_heatmap<I>(
-        &self,
-        maze: &labyru::Maze,
-        positions: I,
-    ) -> labyru::HeatMap
-    where
-        I: Iterator<Item = (labyru::matrix::Pos, labyru::matrix::Pos)>,
-    {
-        labyru::heatmap(maze, positions)
-    }
-
-    /// Generates a heat map for a maze and an iteration of positions.
-    ///
-    /// # Arguments
-    /// * `maze` - The maze for which to generate a heat map.
-    /// * `positions` - The positions for which to generate a heat map. These
-    ///   will be generated from the heat map type.
-    #[cfg(feature = "parallel")]
     fn create_heatmap<I>(
         &self,
         maze: &labyru::Maze,
@@ -272,7 +248,7 @@ impl HeatMapType {
     {
         let collected = positions.collect::<Vec<_>>();
         collected
-            .chunks(collected.len() / current_num_threads())
+            .chunks(collected.len() / rayon::current_num_threads())
             .collect::<Vec<_>>()
             .par_iter()
             .map(|positions| {
@@ -327,7 +303,7 @@ where
         group.append(
             svg::node::element::Path::new()
                 .set("fill", color.to_string())
-                .set("fill-opacity", (color.alpha as f32 / 255.0))
+                .set("fill-opacity", color.alpha as f32 / 255.0)
                 .set("d", svg::node::element::path::Data::from(commands)),
         );
     }
@@ -345,7 +321,6 @@ where
 ///    position a pixel corresponds to, and to determine the dimensions of the
 ///    matrix.
 /// *  `update` - The update function.
-#[cfg(feature = "background")]
 pub fn image_to_matrix<U, T>(
     image: image::RgbImage,
     maze: &labyru::Maze,

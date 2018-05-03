@@ -34,7 +34,6 @@ impl Action for BackgroundAction {
     /// # Arguments
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
-    #[cfg(feature = "background")]
     fn apply(
         self,
         maze: &mut labyru::Maze,
@@ -73,8 +72,4 @@ impl Action for BackgroundAction {
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }
-
-    /// Does nothing
-    #[cfg(not(feature = "background"))]
-    fn apply(self, _: &mut labyru::Maze, _: &mut svg::node::element::Group) {}
 }

@@ -1,9 +1,7 @@
 use std;
 
-
 /// A matrix position.
 pub type Pos = (isize, isize);
-
 
 /// A matrix is a two dimensional array.
 ///
@@ -21,7 +19,6 @@ where
 
     data: Vec<T>,
 }
-
 
 /// A matrix of rooms.
 ///
@@ -49,10 +46,9 @@ where
     /// # Arguments
     /// * `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
-        pos.0 >= 0 && pos.1 >= 0 && pos.0 < self.width as isize &&
-            pos.1 < self.height as isize
+        pos.0 >= 0 && pos.1 >= 0 && pos.0 < self.width as isize
+            && pos.1 < self.height as isize
     }
-
 
     /// Retrieves a reference to the value at a specific position if it exists.
     ///
@@ -73,9 +69,7 @@ where
     /// * `pos` - The matrix position.
     pub fn get_mut(&mut self, pos: Pos) -> Option<&mut T> {
         if self.is_inside(pos) {
-            Some(
-                &mut self.data[(pos.0 + pos.1 * self.width as isize) as usize],
-            )
+            Some(&mut self.data[(pos.0 + pos.1 * self.width as isize) as usize])
         } else {
             None
         }
@@ -119,7 +113,6 @@ where
     }
 }
 
-
 pub trait AddableMatrix<T> {
     /// Adds another matrix to this one.
     ///
@@ -131,13 +124,9 @@ pub trait AddableMatrix<T> {
     fn add(self, other: Self) -> Self;
 }
 
-
 impl<T> AddableMatrix<T> for Matrix<T>
 where
-    T: std::ops::AddAssign
-        + Clone
-        + Copy
-        + Default,
+    T: std::ops::AddAssign + Clone + Copy + Default,
 {
     fn add(mut self, other: Self) -> Self {
         let width = std::cmp::min(self.width, other.width);
@@ -153,7 +142,6 @@ where
     }
 }
 
-
 /// An iterator over matrix positions.
 #[derive(Clone)]
 pub struct PosIterator {
@@ -166,7 +154,6 @@ pub struct PosIterator {
     /// The current position.
     current: isize,
 }
-
 
 impl PosIterator {
     /// Creates a new position iterator.
@@ -182,7 +169,6 @@ impl PosIterator {
         }
     }
 }
-
 
 impl Iterator for PosIterator {
     type Item = Pos;
@@ -201,7 +187,6 @@ impl Iterator for PosIterator {
     }
 }
 
-
 /// An iterator over matrix values.
 pub struct ValueIterator<'a, T>
 where
@@ -213,7 +198,6 @@ where
     /// The current position.
     matrix: &'a Matrix<T>,
 }
-
 
 impl<'a, T> ValueIterator<'a, T>
 where
@@ -231,7 +215,6 @@ where
     }
 }
 
-
 impl<'a, T> Iterator for ValueIterator<'a, T>
 where
     T: 'a + Clone + Copy + Default,
@@ -247,7 +230,6 @@ where
         }
     }
 }
-
 
 impl<T> std::ops::Index<Pos> for Matrix<T>
 where
@@ -272,7 +254,6 @@ where
     }
 }
 
-
 impl<T> std::ops::IndexMut<Pos> for Matrix<T>
 where
     T: Clone + Copy + Default,
@@ -294,7 +275,6 @@ where
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -303,7 +283,9 @@ mod test {
     fn iterate_positions() {
         assert_eq!(
             vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)],
-            Matrix::<bool>::new(3, 2).positions().collect::<Vec<_>>()
+            Matrix::<bool>::new(3, 2)
+                .positions()
+                .collect::<Vec<_>>()
         );
     }
 
@@ -314,7 +296,10 @@ mod test {
         matrix[(1, 0)] = 2;
         matrix[(0, 1)] = 3;
         matrix[(1, 1)] = 4;
-        assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
+        assert_eq!(
+            vec![1, 2, 3, 4],
+            matrix.values().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -326,7 +311,10 @@ mod test {
         matrix[(1, 1)] = 4;
         assert_eq!(
             vec![2, 3, 4, 5],
-            matrix.map(|v| v + 1).values().collect::<Vec<_>>()
+            matrix
+                .map(|v| v + 1)
+                .values()
+                .collect::<Vec<_>>()
         );
     }
 

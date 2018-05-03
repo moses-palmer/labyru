@@ -8,7 +8,6 @@ use physical;
 use room;
 use wall;
 
-
 /// A span step angle
 const D: f32 = PI / 6.0;
 
@@ -86,39 +85,39 @@ define_walls! {
 macro_rules! is_reversed {
     ($pos:expr) => {
         ($pos.0 + $pos.1) & 1 != 0
-    }
+    };
 }
 
 /// The index of the back wall.
 macro_rules! back_index {
     ($wall:expr) => {
         $wall ^ 0b0001
-    }
+    };
 }
 
 macro_rules! walls {
     ($pos:expr) => {
-        if is_reversed!($pos) { &ALL1 } else { &ALL0 }
-    }
+        if is_reversed!($pos) {
+            &ALL1
+        } else {
+            &ALL0
+        }
+    };
 }
-
 
 /// The walls for even rows
 static ALL0: &[&'static wall::Wall] =
     &[&walls::LEFT0, &walls::RIGHT0, &walls::UP];
 
-
 /// The walls for odd rows
 static ALL1: &[&'static wall::Wall] =
     &[&walls::LEFT1, &walls::DOWN, &walls::RIGHT1];
 
-
 define_base!(
-    horizontal_multiplicator:f32 = (PI / 2.0 + 2.0 * 2.0 * PI / 3.0).cos(),
+    horizontal_multiplicator: f32 = (PI / 2.0 + 2.0 * 2.0 * PI / 3.0).cos(),
     vertical_multiplicator: f32 = 2.0 + (PI / 2.0 + 2.0 * PI / 3.0).sin(),
     offset: f32 = 0.5 * (1.0 + (PI / 2.0 + 2.0 * PI / 3.0).sin()),
 );
-
 
 impl Shape for Maze {
     implement_base_shape!();
@@ -129,13 +128,12 @@ impl Shape for Maze {
     }
 }
 
-
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
         (
             (pos.0 as f32 + 0.5) * self.horizontal_multiplicator,
-            (pos.1 as f32 + 0.5) * self.vertical_multiplicator +
-                if is_reversed!(pos) {
+            (pos.1 as f32 + 0.5) * self.vertical_multiplicator
+                + if is_reversed!(pos) {
                     self.offset
                 } else {
                     -self.offset
@@ -179,14 +177,12 @@ impl physical::Physical for Maze {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use Walkable;
     use super::*;
     use test_utils::*;
+    use Walkable;
     use WallPos;
-
 
     #[test]
     fn back() {
@@ -204,14 +200,19 @@ mod tests {
             maze.back(((1, 0), &walls::LEFT1)),
             ((0, 0), &walls::RIGHT0)
         );
-        assert_eq!(maze.back(((1, 1), &walls::UP)), ((1, 0), &walls::DOWN));
+        assert_eq!(
+            maze.back(((1, 1), &walls::UP)),
+            ((1, 0), &walls::DOWN)
+        );
         assert_eq!(
             maze.back(((1, 0), &walls::RIGHT1)),
             ((2, 0), &walls::LEFT0)
         );
-        assert_eq!(maze.back(((1, 0), &walls::DOWN)), ((1, 1), &walls::UP));
+        assert_eq!(
+            maze.back(((1, 0), &walls::DOWN)),
+            ((1, 1), &walls::UP)
+        );
     }
-
 
     #[test]
     fn corner_walls() {
@@ -299,7 +300,6 @@ mod tests {
                 .collect::<Vec<WallPos>>()
         );
     }
-
 
     #[test]
     fn follow_wall() {

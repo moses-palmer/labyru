@@ -5,7 +5,6 @@ use svg::Node;
 
 use types::*;
 
-
 /// A full description of the heat map action.
 pub struct HeatMapAction {
     /// The heat map type.
@@ -17,7 +16,6 @@ pub struct HeatMapAction {
     /// The colour of hot regions.
     pub to: Color,
 }
-
 
 impl FromStr for HeatMapAction {
     type Err = String;
@@ -70,7 +68,6 @@ impl FromStr for HeatMapAction {
     }
 }
 
-
 impl Action for HeatMapAction {
     /// Applies the heat map action.
     ///
@@ -87,9 +84,8 @@ impl Action for HeatMapAction {
     ) {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;
-        group.append(draw_rooms(
-            maze,
-            |pos| self.to.fade(&self.from, matrix[pos] as f32 / max),
-        ));
+        group.append(draw_rooms(maze, |pos| {
+            self.to.fade(&self.from, matrix[pos] as f32 / max)
+        }));
     }
 }

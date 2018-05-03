@@ -8,11 +8,9 @@ use labyru::randomized_prim::RandomizedPrim;
 
 use super::*;
 
-
 /// A constant used as multiplier for individual colour values to get an
 /// intensity
 const D: f32 = 1.0 / 255.0 / 3.0;
-
 
 /// A masking image.
 pub struct InitializeAction {
@@ -22,7 +20,6 @@ pub struct InitializeAction {
     /// The intensity threshold
     pub threshold: f32,
 }
-
 
 impl FromStr for InitializeAction {
     type Err = String;
@@ -52,7 +49,6 @@ impl FromStr for InitializeAction {
         }
     }
 }
-
 
 impl Action for InitializeAction {
     /// Applies the initialise action.

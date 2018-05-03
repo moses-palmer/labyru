@@ -11,7 +11,6 @@ use labyru;
 
 use labyru::matrix::AddableMatrix;
 
-
 pub mod background_action;
 pub use self::background_action::*;
 pub mod break_action;
@@ -20,7 +19,6 @@ pub mod heatmap_action;
 pub use self::heatmap_action::*;
 pub mod initialize_action;
 pub use self::initialize_action::*;
-
 
 /// A trait for actions passed on the command line.
 pub trait Action: std::str::FromStr<Err = String> {
@@ -35,7 +33,6 @@ pub trait Action: std::str::FromStr<Err = String> {
         group: &mut svg::node::element::Group,
     );
 }
-
 
 /// A colour.
 #[derive(Clone, Copy, Default)]
@@ -52,7 +49,6 @@ pub struct Color {
     // The alpha component.
     pub alpha: u8,
 }
-
 
 impl Color {
     /// Converts a string to a colour.
@@ -148,7 +144,6 @@ impl Color {
     }
 }
 
-
 impl ToString for Color {
     /// Converts a colour to a string.
     ///
@@ -157,7 +152,6 @@ impl ToString for Color {
         format!("#{:02.X}{:02.X}{:02.X}", self.red, self.green, self.blue)
     }
 }
-
 
 /// A type of heat map.
 pub enum HeatMapType {
@@ -171,7 +165,6 @@ pub enum HeatMapType {
     /// on the opposite side.
     Full,
 }
-
 
 impl HeatMapType {
     /// Converts a string to a heat map type.
@@ -193,42 +186,33 @@ impl HeatMapType {
     /// * `maze` - The maze for which to generate a heat map.
     pub fn generate(&self, maze: &labyru::Maze) -> labyru::matrix::Matrix<u32> {
         match *self {
-            HeatMapType::Vertical => {
-                self.create_heatmap(
-                    maze,
-                    (0..maze.width()).map(|x| {
+            HeatMapType::Vertical => self.create_heatmap(
+                maze,
+                (0..maze.width()).map(|x| {
+                    ((x as isize, 0), (x as isize, maze.height() as isize - 1))
+                }),
+            ),
+            HeatMapType::Horizontal => self.create_heatmap(
+                maze,
+                (0..maze.height()).map(|y| {
+                    ((0, y as isize), (maze.width() as isize - 1, y as isize))
+                }),
+            ),
+            HeatMapType::Full => self.create_heatmap(
+                maze,
+                maze.rooms()
+                    .positions()
+                    .filter(|&(x, y)| x == 0 || y == 0)
+                    .map(|(x, y)| {
                         (
-                            (x as isize, 0),
-                            (x as isize, maze.height() as isize - 1),
-                        )
-                    }),
-                )
-            }
-            HeatMapType::Horizontal => {
-                self.create_heatmap(
-                    maze,
-                    (0..maze.height()).map(|y| {
-                        (
-                            (0, y as isize),
-                            (maze.width() as isize - 1, y as isize),
-                        )
-                    }),
-                )
-            }
-            HeatMapType::Full => {
-                self.create_heatmap(
-                    maze,
-                    maze.rooms()
-                        .positions()
-                        .filter(|&(x, y)| x == 0 || y == 0)
-                        .map(|(x, y)| {
-                            ((x, y), (
+                            (x, y),
+                            (
                                 maze.width() as isize - 1 - x,
                                 maze.height() as isize - 1 - y,
-                            ))
-                        }),
-                )
-            }
+                            ),
+                        )
+                    }),
+            ),
         }
     }
 
@@ -254,13 +238,12 @@ impl HeatMapType {
             .map(|positions| {
                 labyru::heatmap(maze, positions.iter().map(|p| *p))
             })
-            .reduce(|| labyru::HeatMap::new(maze.width(), maze.height()), |acc,
-             o| {
-                acc.add(o)
-            })
+            .reduce(
+                || labyru::HeatMap::new(maze.width(), maze.height()),
+                |acc, o| acc.add(o),
+            )
     }
 }
-
 
 /// Draws all rooms of a maze.
 ///
@@ -275,9 +258,9 @@ where
     F: Fn(labyru::matrix::Pos) -> Color,
 {
     let mut group = svg::node::element::Group::new();
-    for pos in maze.rooms().positions().filter(
-        |pos| maze.rooms()[*pos].visited,
-    )
+    for pos in maze.rooms()
+        .positions()
+        .filter(|pos| maze.rooms()[*pos].visited)
     {
         let color = colors(pos);
         let mut commands = maze.walls(pos)
@@ -311,7 +294,6 @@ where
     group
 }
 
-
 /// Converts an image to a matrix by calling an update function with a pixel
 /// and its corresponding matrix position.
 ///
@@ -327,25 +309,21 @@ pub fn image_to_matrix<U, T>(
     update: U,
 ) -> labyru::matrix::Matrix<T>
 where
-    U: Fn(&mut labyru::matrix::Matrix<T>,
-       labyru::matrix::Pos,
-       &image::Rgb<u8>),
+    U: Fn(&mut labyru::matrix::Matrix<T>, labyru::matrix::Pos, &image::Rgb<u8>),
     T: Copy + Default,
 {
     let (left, top, width, height) = maze.viewbox();
     let (cols, rows) = image.dimensions();
-    image
-        .enumerate_pixels()
-        .fold(
-            labyru::matrix::Matrix::<T>::new(maze.width(), maze.height()),
-            |mut matrix, (x, y, pixel)| {
-                let physical_pos = (
-                    left + width * (x as f32 / cols as f32),
-                    top + height * (y as f32 / rows as f32),
-                );
-                let pos = maze.room_at(physical_pos);
-                update(&mut matrix, pos, pixel);
-                matrix
-            },
-        )
+    image.enumerate_pixels().fold(
+        labyru::matrix::Matrix::<T>::new(maze.width(), maze.height()),
+        |mut matrix, (x, y, pixel)| {
+            let physical_pos = (
+                left + width * (x as f32 / cols as f32),
+                top + height * (y as f32 / rows as f32),
+            );
+            let pos = maze.room_at(physical_pos);
+            update(&mut matrix, pos, pixel);
+            matrix
+        },
+    )
 }

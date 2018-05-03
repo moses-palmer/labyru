@@ -1,7 +1,6 @@
 use matrix;
 use wall;
 
-
 /// A room is a part of a maze.
 ///
 /// It has walls and openings connecting it with other rooms.
@@ -13,7 +12,6 @@ pub struct Room {
     /// has at any time been opened.
     pub visited: bool,
 }
-
 
 impl Room {
     /// Returns whether a specified wall is open.
@@ -54,6 +52,5 @@ impl Room {
         self.walls &= !wall.mask();
     }
 }
-
 
 pub type Rooms = matrix::Matrix<Room>;

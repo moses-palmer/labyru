@@ -5,7 +5,6 @@ use wall;
 
 use WallPos;
 
-
 /// Defines the base methods for a shape.
 ///
 /// This macro allows defining constants that are stored in the maze struct and
@@ -39,7 +38,6 @@ macro_rules! define_base {
     }
 }
 
-
 /// Defines some base methods for the [Shape](trait.Shape.html) trait.
 ///
 /// This macro requires that the macros `back_index` and `walls` are defined.
@@ -64,7 +62,6 @@ macro_rules! implement_base_shape {
         }
     }
 }
-
 
 pub trait Shape {
     /// Returns all walls for a shape.
@@ -106,36 +103,40 @@ pub trait Shape {
         let ((x, y), wall) = wall_pos;
         let all = self.all_walls();
         std::iter::once(wall_pos)
-            .chain(all[wall.index].corner_wall_offsets.iter().map(|&((dx, dy),
-               wall)| {
-                ((x + dx, y + dy), all[wall])
-            }))
+            .chain(
+                all[wall.index]
+                    .corner_wall_offsets
+                    .iter()
+                    .map(|&((dx, dy), wall)| ((x + dx, y + dy), all[wall])),
+            )
             .collect()
     }
 }
-
 
 pub mod hex;
 pub mod quad;
 pub mod tri;
 
-
 #[cfg(test)]
 mod tests {
     use test_utils::*;
-    use ::*;
+    use *;
 
-
-    maze_test!(corner_walls, fn test(maze: &mut Maze) {
-        for pos in maze.rooms().positions() {
-            for wall in maze.walls(pos) {
-                let wall_pos = (pos, *wall);
-                let (center, _) = maze.corners(wall_pos);
-                for corner_wall in maze.corner_walls(wall_pos) {
-                    let (start, end) = maze.corners(corner_wall);
-                    assert!(is_close(start, center) || is_close(end, center));
+    maze_test!(
+        corner_walls,
+        fn test(maze: &mut Maze) {
+            for pos in maze.rooms().positions() {
+                for wall in maze.walls(pos) {
+                    let wall_pos = (pos, *wall);
+                    let (center, _) = maze.corners(wall_pos);
+                    for corner_wall in maze.corner_walls(wall_pos) {
+                        let (start, end) = maze.corners(corner_wall);
+                        assert!(
+                            is_close(start, center) || is_close(end, center)
+                        );
+                    }
                 }
             }
         }
-    });
+    );
 }

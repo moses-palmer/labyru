@@ -25,10 +25,8 @@ pub mod room;
 
 mod util;
 
-
 /// A wall of a room.
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
-
 
 /// A maze contains rooms and has methods for managing paths and doors.
 pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
@@ -69,11 +67,9 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
         if pos1 == pos2 {
             true
         } else if let Some(wall) = self.walls(pos1)
-                   .iter()
-                   .filter(
-            |wall| (pos1.0 + wall.dir.0, pos1.1 + wall.dir.1) == pos2,
-        )
-                   .next()
+            .iter()
+            .filter(|wall| (pos1.0 + wall.dir.0, pos1.1 + wall.dir.1) == pos2)
+            .next()
         {
             self.is_open((pos1, wall))
         } else {
@@ -122,7 +118,6 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     fn rooms_mut(&mut self) -> &mut room::Rooms;
 }
 
-
 /// The different types of mazes implemented, identified by number of walls.
 pub enum MazeType {
     /// A maze with triangular rooms.
@@ -134,7 +129,6 @@ pub enum MazeType {
     /// A maze with hexagonal rooms.
     Hex = 6,
 }
-
 
 impl MazeType {
     /// Converts a number to a maze type.
@@ -165,7 +159,6 @@ impl MazeType {
         }
     }
 }
-
 
 /// A matrix of scores for rooms.
 pub type HeatMap = matrix::Matrix<u32>;
@@ -199,101 +192,109 @@ where
 mod tests {
     use std::collections::HashSet;
 
-    use test_utils::*;
     use super::*;
+    use test_utils::*;
 
-    maze_test!(is_inside_correct, fn test(maze: &mut Maze) {
-        assert!(maze.rooms().is_inside((0, 0)));
-        assert!(maze.rooms().is_inside((
-            maze.width() as isize - 1,
-            maze.height() as isize - 1,
-        )));
-        assert!(!maze.rooms().is_inside((-1, -1)));
-        assert!(!maze.rooms().is_inside((
-            maze.width() as isize,
-            maze.height() as isize
-        )));
-    });
+    maze_test!(
+        is_inside_correct,
+        fn test(maze: &mut Maze) {
+            assert!(maze.rooms().is_inside((0, 0)));
+            assert!(maze.rooms().is_inside((
+                maze.width() as isize - 1,
+                maze.height() as isize - 1,
+            )));
+            assert!(!maze.rooms().is_inside((-1, -1)));
+            assert!(!maze.rooms()
+                .is_inside((maze.width() as isize, maze.height() as isize)));
+        }
+    );
 
-    maze_test!(can_open, fn test(maze: &mut Maze) {
-        let log = Navigator::new(maze)
-            .down(true)
-            .stop();
-        let pos = log[0];
-        let next = log[1];
-        assert!(
-            maze.walls(pos)
-                .iter()
-                .filter(|wall| maze.is_open((pos, wall)))
-                .count() == 1
-        );
-        assert!(
-            maze.walls(next)
-                .iter()
-                .filter(|wall| maze.is_open((next, wall)))
-                .count() == 1
-        );
-    });
+    maze_test!(
+        can_open,
+        fn test(maze: &mut Maze) {
+            let log = Navigator::new(maze).down(true).stop();
+            let pos = log[0];
+            let next = log[1];
+            assert!(
+                maze.walls(pos)
+                    .iter()
+                    .filter(|wall| maze.is_open((pos, wall)))
+                    .count() == 1
+            );
+            assert!(
+                maze.walls(next)
+                    .iter()
+                    .filter(|wall| maze.is_open((next, wall)))
+                    .count() == 1
+            );
+        }
+    );
 
+    maze_test!(
+        can_close,
+        fn test(maze: &mut Maze) {
+            let log = Navigator::new(maze).down(true).up(false).stop();
+            let pos = log.first().unwrap();
+            let next = log.last().unwrap();
+            assert!(
+                maze.walls(*pos)
+                    .iter()
+                    .filter(|wall| maze.is_open((*pos, wall)))
+                    .count() == 0
+            );
+            assert!(
+                maze.walls(*next)
+                    .iter()
+                    .filter(|wall| maze.is_open((*next, wall)))
+                    .count() == 0
+            );
+        }
+    );
 
-    maze_test!(can_close, fn test(maze: &mut Maze) {
-        let log = Navigator::new(maze)
-            .down(true)
-            .up(false)
-            .stop();
-        let pos = log.first().unwrap();
-        let next = log.last().unwrap();
-        assert!(
-            maze.walls(*pos)
-                .iter()
-                .filter(|wall| maze.is_open((*pos, wall)))
-                .count() == 0
-        );
-        assert!(
-            maze.walls(*next)
-                .iter()
-                .filter(|wall| maze.is_open((*next, wall)))
-                .count() == 0
-        );
-    });
+    maze_test!(
+        walls_correct,
+        fn test(maze: &mut Maze) {
+            let walls = maze.walls((0, 1));
+            assert_eq!(
+                walls
+                    .iter()
+                    .cloned()
+                    .collect::<HashSet<&wall::Wall>>()
+                    .len(),
+                walls.len()
+            );
+        }
+    );
 
-    maze_test!(walls_correct, fn test(maze: &mut Maze) {
-        let walls = maze.walls((0, 1));
-        assert_eq!(
-            walls
-                .iter()
-                .cloned()
-                .collect::<HashSet<&wall::Wall>>()
-                .len(),
-            walls.len()
-        );
-    });
-
-
-    maze_test!(walls_span, fn test(maze: &mut Maze) {
-        for pos in maze.rooms().positions() {
-            for wall in maze.walls(pos) {
-                let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
-                assert!(wall.in_span(wall.span.0 + d));
-                assert!(!wall.in_span(wall.span.0 - d));
-                assert!(wall.in_span(wall.span.1 - d));
-                assert!(!wall.in_span(wall.span.1 + d));
+    maze_test!(
+        walls_span,
+        fn test(maze: &mut Maze) {
+            for pos in maze.rooms().positions() {
+                for wall in maze.walls(pos) {
+                    let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
+                    assert!(wall.in_span(wall.span.0 + d));
+                    assert!(!wall.in_span(wall.span.0 - d));
+                    assert!(wall.in_span(wall.span.1 - d));
+                    assert!(!wall.in_span(wall.span.1 + d));
+                }
             }
         }
-    });
+    );
 
+    maze_test!(
+        connected_correct,
+        fn test(maze: &mut Maze) {
+            for pos in maze.rooms().positions() {
+                assert!(maze.connected(pos, pos))
+            }
 
-    maze_test!(connected_correct, fn test(maze: &mut Maze) {
-        for pos in maze.rooms().positions() {
-            assert!(maze.connected(pos, pos))
+            let pos1 = (1, 1);
+            for wall in maze.walls(pos1) {
+                let pos2 = (pos1.1 + wall.dir.0, pos1.1 + wall.dir.1);
+                assert!(!maze.connected(pos1, pos2));
+                maze.open((pos1, wall));
+                assert!(maze.connected(pos1, pos2));
+            }
         }
-
-        let pos1 = (1, 1);
-        for wall in maze.walls(pos1) {
-            let pos2 = (pos1.1 + wall.dir.0, pos1.1 + wall.dir.1);
-            assert!(!maze.connected(pos1, pos2));
-            maze.open((pos1, wall));
-            assert!(maze.connected(pos1, pos2));
-        }
-    });
+    );
 }

@@ -94,7 +94,7 @@ where
     /// Applies a mapping to this matrix.
     ///
     /// The return value is a matrix with the same dimensions as this one, but
-    /// with every values mapped through the mapper.
+    /// with every value mapped through the mapper.
     ///
     /// # Arguments
     /// * `mapper` - The mapping function.

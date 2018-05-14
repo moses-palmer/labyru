@@ -55,7 +55,7 @@ impl Color {
     ///
     /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,
     /// where `RR`, `GG`, `BB` and `AA` are the red, green, blue and alpha
-    // components hex encoded.
+    /// components hex encoded.
     ///
     /// # Arguments
     /// * `s` - The string to convert.

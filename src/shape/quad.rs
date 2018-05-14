@@ -1,11 +1,11 @@
 use std;
 
 use super::Shape;
+use WallPos;
 use matrix;
 use physical;
 use room;
 use wall;
-use WallPos;
 
 /// A span step angle
 const D: f32 = std::f32::consts::PI / 4.0;
@@ -106,9 +106,9 @@ impl physical::Physical for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_utils::*;
     use Walkable;
     use WallPos;
+    use test_utils::*;
 
     #[test]
     fn back() {

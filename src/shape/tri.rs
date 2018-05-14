@@ -180,9 +180,9 @@ impl physical::Physical for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_utils::*;
     use Walkable;
     use WallPos;
+    use test_utils::*;
 
     #[test]
     fn back() {

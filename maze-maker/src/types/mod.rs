@@ -55,7 +55,7 @@ impl Color {
     ///
     /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,
     /// where `RR`, `GG`, `BB` and `AA` are the red, green, blue and alpha
-    // components hex encoded.
+    /// components hex encoded.
     ///
     /// # Arguments
     /// * `s` - The string to convert.
@@ -149,7 +149,10 @@ impl ToString for Color {
     ///
     /// This method ignores the alpha component.
     fn to_string(&self) -> String {
-        format!("#{:02.X}{:02.X}{:02.X}", self.red, self.green, self.blue)
+        format!(
+            "#{:02.X}{:02.X}{:02.X}",
+            self.red, self.green, self.blue
+        )
     }
 }
 
@@ -189,13 +192,19 @@ impl HeatMapType {
             HeatMapType::Vertical => self.create_heatmap(
                 maze,
                 (0..maze.width()).map(|x| {
-                    ((x as isize, 0), (x as isize, maze.height() as isize - 1))
+                    (
+                        (x as isize, 0),
+                        (x as isize, maze.height() as isize - 1),
+                    )
                 }),
             ),
             HeatMapType::Horizontal => self.create_heatmap(
                 maze,
                 (0..maze.height()).map(|y| {
-                    ((0, y as isize), (maze.width() as isize - 1, y as isize))
+                    (
+                        (0, y as isize),
+                        (maze.width() as isize - 1, y as isize),
+                    )
                 }),
             ),
             HeatMapType::Full => self.create_heatmap(
@@ -287,7 +296,10 @@ where
             svg::node::element::Path::new()
                 .set("fill", color.to_string())
                 .set("fill-opacity", color.alpha as f32 / 255.0)
-                .set("d", svg::node::element::path::Data::from(commands)),
+                .set(
+                    "d",
+                    svg::node::element::path::Data::from(commands),
+                ),
         );
     }
 

@@ -79,7 +79,7 @@ where
     ///
     /// The positions are returned row by row, starting from `(0, 0)` and ending
     /// with `(self.width - 1, self.height - 1)`.
-    pub fn positions(&self) -> PosIterator {
+    pub fn positions(&self) -> impl Iterator<Item = Pos> {
         PosIterator::new(self.width, self.height)
     }
 
@@ -94,7 +94,7 @@ where
     /// Applies a mapping to this matrix.
     ///
     /// The return value is a matrix with the same dimensions as this one, but
-    /// with every values mapped through the mapper.
+    /// with every value mapped through the mapper.
     ///
     /// # Arguments
     /// * `mapper` - The mapping function.

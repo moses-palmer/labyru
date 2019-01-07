@@ -1,4 +1,5 @@
 use std;
+use std::str;
 
 use image;
 use rayon;
@@ -50,7 +51,7 @@ pub struct Color {
     pub alpha: u8,
 }
 
-impl Color {
+impl str::FromStr for Color {
     /// Converts a string to a colour.
     ///
     /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,

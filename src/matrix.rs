@@ -192,7 +192,7 @@ pub struct ValueIterator<'a, T>
 where
     T: 'a + Clone + Copy + Default,
 {
-    // An iterator over positions
+    /// An iterator over positions
     pos_iter: PosIterator,
 
     /// The current position.

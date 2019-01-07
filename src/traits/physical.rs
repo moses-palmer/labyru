@@ -66,7 +66,9 @@ mod tests {
                     );
 
                     // Should this position be inside the maze?
-                    let assume_inside = true && pos.0 >= min_x && pos.0 <= max_x
+                    let assume_inside = true
+                        && pos.0 >= min_x
+                        && pos.0 <= max_x
                         && pos.1 >= min_y
                         && pos.1 <= max_y;
 
@@ -77,7 +79,8 @@ mod tests {
                         continue;
                     }
 
-                    let mut positions = maze.rooms()
+                    let mut positions = maze
+                        .rooms()
                         .positions()
                         .map(|matrix_pos| (maze.center(matrix_pos), matrix_pos))
                         .map(|(physical_pos, matrix_pos)| {

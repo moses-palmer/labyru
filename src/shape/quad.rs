@@ -1,11 +1,11 @@
 use std;
 
 use super::Shape;
-use WallPos;
 use matrix;
 use physical;
 use room;
 use wall;
+use WallPos;
 
 /// A span step angle
 const D: f32 = std::f32::consts::PI / 4.0;
@@ -67,12 +67,8 @@ macro_rules! walls {
 }
 
 /// The walls
-static ALL: &[&'static wall::Wall] = &[
-    &walls::LEFT,
-    &walls::UP,
-    &walls::RIGHT,
-    &walls::DOWN,
-];
+static ALL: &[&'static wall::Wall] =
+    &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 define_base!();
 
@@ -106,30 +102,18 @@ impl physical::Physical for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_utils::*;
     use Walkable;
     use WallPos;
-    use test_utils::*;
 
     #[test]
     fn back() {
         let maze = Maze::new(5, 5);
 
-        assert_eq!(
-            maze.back(((1, 1), &walls::LEFT)),
-            ((0, 1), &walls::RIGHT)
-        );
-        assert_eq!(
-            maze.back(((1, 1), &walls::UP)),
-            ((1, 0), &walls::DOWN)
-        );
-        assert_eq!(
-            maze.back(((1, 1), &walls::RIGHT)),
-            ((2, 1), &walls::LEFT)
-        );
-        assert_eq!(
-            maze.back(((1, 1), &walls::DOWN)),
-            ((1, 2), &walls::UP)
-        );
+        assert_eq!(maze.back(((1, 1), &walls::LEFT)), ((0, 1), &walls::RIGHT));
+        assert_eq!(maze.back(((1, 1), &walls::UP)), ((1, 0), &walls::DOWN));
+        assert_eq!(maze.back(((1, 1), &walls::RIGHT)), ((2, 1), &walls::LEFT));
+        assert_eq!(maze.back(((1, 1), &walls::DOWN)), ((1, 2), &walls::UP));
     }
 
     #[test]
@@ -140,18 +124,12 @@ mod tests {
             maze.opposite(((1, 1), &walls::LEFT)).unwrap(),
             &walls::RIGHT
         );
-        assert_eq!(
-            maze.opposite(((1, 1), &walls::UP)).unwrap(),
-            &walls::DOWN
-        );
+        assert_eq!(maze.opposite(((1, 1), &walls::UP)).unwrap(), &walls::DOWN);
         assert_eq!(
             maze.opposite(((1, 1), &walls::RIGHT)).unwrap(),
             &walls::LEFT
         );
-        assert_eq!(
-            maze.opposite(((1, 1), &walls::DOWN)).unwrap(),
-            &walls::UP
-        );
+        assert_eq!(maze.opposite(((1, 1), &walls::DOWN)).unwrap(), &walls::UP);
     }
 
     #[test]

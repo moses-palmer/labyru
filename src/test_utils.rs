@@ -142,21 +142,20 @@ impl<'a> Navigator<'a> {
         for<'r> P: FnMut(&'r &&wall::Wall) -> bool,
     {
         if self.pos.is_none() {
-            self.pos = self.maze
+            self.pos = self
+                .maze
                 .rooms()
                 .positions()
                 .filter(|&pos| {
-                    self.maze
-                        .walls(pos)
-                        .iter()
-                        .any(|wall| predicate(&wall))
+                    self.maze.walls(pos).iter().any(|wall| predicate(&wall))
                 })
                 .next();
         }
         let pos = self.pos.unwrap();
         self.log.push(pos);
 
-        let wall = self.maze
+        let wall = self
+            .maze
             .walls(pos)
             .iter()
             .filter(predicate)

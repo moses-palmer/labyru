@@ -200,15 +200,13 @@ impl<'a> Follower<'a> {
         let all = self.maze.all_walls();
         let back = self.maze.back(wall_pos);
         let (x, y) = back.0;
-        all[back.1.index].corner_wall_offsets
+        all[back.1.index]
+            .corner_wall_offsets
             .into_iter()
-
             // Convert the offsets to wall positions
             .map(|&((dx, dy), wall_index)| ((x + dx, y + dy), all[wall_index]))
-
             // Find the first closed wall
             .skip_while(|&next| self.maze.is_open(next))
-
             // Yield the first wall we encounter, or the back of the original
             // wall if we encounter no other wall
             .next()
@@ -298,9 +296,8 @@ mod tests {
             let to = (0, 0);
             let expected = vec![(0, 0)];
             assert!(
-                maze.walk(from, to)
-                    .unwrap()
-                    .collect::<Vec<matrix::Pos>>() == expected
+                maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>()
+                    == expected
             );
         }
     );
@@ -314,9 +311,8 @@ mod tests {
             let to = log.last().unwrap();
             let expected = vec![*from, *to];
             assert!(
-                maze.walk(*from, *to)
-                    .unwrap()
-                    .collect::<Vec<matrix::Pos>>() == expected
+                maze.walk(*from, *to).unwrap().collect::<Vec<matrix::Pos>>()
+                    == expected
             );
         }
     );
@@ -337,7 +333,8 @@ mod tests {
                 maze.walk(*from, *to)
                     .unwrap()
                     .collect::<Vec<matrix::Pos>>()
-                    .len() <= log.len()
+                    .len()
+                    <= log.len()
             );
         }
     );

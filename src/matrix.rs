@@ -46,7 +46,9 @@ where
     /// # Arguments
     /// * `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
-        pos.0 >= 0 && pos.1 >= 0 && pos.0 < self.width as isize
+        pos.0 >= 0
+            && pos.1 >= 0
+            && pos.0 < self.width as isize
             && pos.1 < self.height as isize
     }
 
@@ -192,7 +194,7 @@ pub struct ValueIterator<'a, T>
 where
     T: 'a + Clone + Copy + Default,
 {
-    // An iterator over positions
+    /// An iterator over positions
     pos_iter: PosIterator,
 
     /// The current position.
@@ -283,9 +285,7 @@ mod test {
     fn iterate_positions() {
         assert_eq!(
             vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)],
-            Matrix::<bool>::new(3, 2)
-                .positions()
-                .collect::<Vec<_>>()
+            Matrix::<bool>::new(3, 2).positions().collect::<Vec<_>>()
         );
     }
 
@@ -296,10 +296,7 @@ mod test {
         matrix[(1, 0)] = 2;
         matrix[(0, 1)] = 3;
         matrix[(1, 1)] = 4;
-        assert_eq!(
-            vec![1, 2, 3, 4],
-            matrix.values().collect::<Vec<_>>()
-        );
+        assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
     }
 
     #[test]
@@ -311,10 +308,7 @@ mod test {
         matrix[(1, 1)] = 4;
         assert_eq!(
             vec![2, 3, 4, 5],
-            matrix
-                .map(|v| v + 1)
-                .values()
-                .collect::<Vec<_>>()
+            matrix.map(|v| v + 1).values().collect::<Vec<_>>()
         );
     }
 

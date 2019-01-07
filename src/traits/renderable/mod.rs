@@ -16,26 +16,19 @@ where
     M: Maze,
 {
     fn viewbox(&self) -> (f32, f32, f32, f32) {
-        let mut window = (
-            std::f32::MAX,
-            std::f32::MAX,
-            std::f32::MIN,
-            std::f32::MIN,
-        );
+        let mut window =
+            (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
         for y in 0..self.height() {
             let lpos = (0, y as isize);
             let lcenter = self.center(lpos);
-            let left = self.walls(lpos)
-                .iter()
-                .map(|wall| (lcenter, wall));
+            let left = self.walls(lpos).iter().map(|wall| (lcenter, wall));
 
             let rpos = (self.width() as isize - 1, y as isize);
             let rcenter = self.center(rpos);
-            let right = self.walls(rpos)
-                .iter()
-                .map(|wall| (rcenter, wall));
+            let right = self.walls(rpos).iter().map(|wall| (rcenter, wall));
 
-            window = left.chain(right)
+            window = left
+                .chain(right)
                 .map(|(center, wall)| {
                     (
                         center.0 + f32::cos(wall.span.0),
@@ -52,12 +45,7 @@ where
                 });
         }
 
-        (
-            window.0,
-            window.1,
-            window.2 - window.0,
-            window.3 - window.1,
-        )
+        (window.0, window.1, window.2 - window.0, window.3 - window.1)
     }
 }
 

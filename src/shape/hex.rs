@@ -226,9 +226,9 @@ impl physical::Physical for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_utils::*;
     use Walkable;
     use WallPos;
-    use test_utils::*;
 
     #[test]
     fn back() {
@@ -297,23 +297,19 @@ mod tests {
             &walls::RIGHT1
         );
         assert_eq!(
-            maze.opposite(((1, 2), &walls::UP_LEFT0))
-                .unwrap(),
+            maze.opposite(((1, 2), &walls::UP_LEFT0)).unwrap(),
             &walls::DOWN_RIGHT0
         );
         assert_eq!(
-            maze.opposite(((1, 1), &walls::UP_LEFT1))
-                .unwrap(),
+            maze.opposite(((1, 1), &walls::UP_LEFT1)).unwrap(),
             &walls::DOWN_RIGHT1
         );
         assert_eq!(
-            maze.opposite(((0, 2), &walls::UP_RIGHT0))
-                .unwrap(),
+            maze.opposite(((0, 2), &walls::UP_RIGHT0)).unwrap(),
             &walls::DOWN_LEFT0
         );
         assert_eq!(
-            maze.opposite(((0, 1), &walls::UP_RIGHT1))
-                .unwrap(),
+            maze.opposite(((0, 1), &walls::UP_RIGHT1)).unwrap(),
             &walls::DOWN_LEFT1
         );
         assert_eq!(
@@ -325,23 +321,19 @@ mod tests {
             &walls::LEFT1
         );
         assert_eq!(
-            maze.opposite(((0, 0), &walls::DOWN_RIGHT0))
-                .unwrap(),
+            maze.opposite(((0, 0), &walls::DOWN_RIGHT0)).unwrap(),
             &walls::UP_LEFT0
         );
         assert_eq!(
-            maze.opposite(((0, 1), &walls::DOWN_RIGHT1))
-                .unwrap(),
+            maze.opposite(((0, 1), &walls::DOWN_RIGHT1)).unwrap(),
             &walls::UP_LEFT1
         );
         assert_eq!(
-            maze.opposite(((1, 0), &walls::DOWN_LEFT0))
-                .unwrap(),
+            maze.opposite(((1, 0), &walls::DOWN_LEFT0)).unwrap(),
             &walls::UP_RIGHT0
         );
         assert_eq!(
-            maze.opposite(((1, 1), &walls::DOWN_LEFT1))
-                .unwrap(),
+            maze.opposite(((1, 1), &walls::DOWN_LEFT1)).unwrap(),
             &walls::UP_RIGHT1
         );
     }

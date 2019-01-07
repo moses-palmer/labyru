@@ -180,9 +180,9 @@ impl physical::Physical for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_utils::*;
     use Walkable;
     use WallPos;
-    use test_utils::*;
 
     #[test]
     fn back() {
@@ -200,18 +200,12 @@ mod tests {
             maze.back(((1, 0), &walls::LEFT1)),
             ((0, 0), &walls::RIGHT0)
         );
-        assert_eq!(
-            maze.back(((1, 1), &walls::UP)),
-            ((1, 0), &walls::DOWN)
-        );
+        assert_eq!(maze.back(((1, 1), &walls::UP)), ((1, 0), &walls::DOWN));
         assert_eq!(
             maze.back(((1, 0), &walls::RIGHT1)),
             ((2, 0), &walls::LEFT0)
         );
-        assert_eq!(
-            maze.back(((1, 0), &walls::DOWN)),
-            ((1, 1), &walls::UP)
-        );
+        assert_eq!(maze.back(((1, 0), &walls::DOWN)), ((1, 1), &walls::UP));
     }
 
     #[test]

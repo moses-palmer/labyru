@@ -20,8 +20,8 @@ impl<'a> ToPath for Maze + 'a {
 
         // While a non-visited wall still exists, walk along it
         while let Some((next_pos, next_wall)) = visitor.next_wall() {
-            for (i, (from, to)) in self.follow_wall((next_pos, next_wall))
-                .enumerate()
+            for (i, (from, to)) in
+                self.follow_wall((next_pos, next_wall)).enumerate()
             {
                 // Ensure the wall has not been visited before
                 if visitor.visited(from) {
@@ -50,7 +50,8 @@ impl<'a> ToPath for Maze + 'a {
                 commands.push(Operation::Line(pos));
 
                 // If the next room is outside of the maze, break
-                if to.map(|(pos, _)| !self.rooms().is_inside(pos))
+                if to
+                    .map(|(pos, _)| !self.rooms().is_inside(pos))
                     .unwrap_or(false)
                 {
                     break;
@@ -127,13 +128,13 @@ impl<'a> Visitor<'a> {
     /// Returns the next non-visited wall.
     fn next_wall(&mut self) -> Option<WallPos> {
         while let Some(pos) = self.pos() {
-            if let Some(next) = self.maze.walls(pos)
+            if let Some(next) = self
+                .maze
+                .walls(pos)
                 .iter()
-
                 // Keep only closed walls that have not yet been drawn
                 .filter(|&w| !self.maze.is_open((pos, w)))
                 .filter(|&w| !self.visited((pos, *w)))
-
                 .map(|&w| (pos, w))
                 .next()
             {
@@ -159,7 +160,8 @@ impl<'a> Visitor<'a> {
                 (self.index / self.maze.width()) as isize,
             );
 
-            if self.maze
+            if self
+                .maze
                 .rooms()
                 .get(pos)
                 .map(|room| room.visited)
@@ -215,10 +217,7 @@ impl From<Operation> for Command {
 /// * `wall_pos` - The wall position.
 fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
     let (corner1, corner2) = maze.corners(wall_pos);
-    (
-        (corner1.0 + corner2.0) / 2.0,
-        (corner1.1 + corner2.1) / 2.0,
-    )
+    ((corner1.0 + corner2.0) / 2.0, (corner1.1 + corner2.1) / 2.0)
 }
 
 /// Returns the physical positions of the two corners of a wall ordered by

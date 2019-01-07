@@ -66,7 +66,8 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
         if pos1 == pos2 {
             true
-        } else if let Some(wall) = self.walls(pos1)
+        } else if let Some(wall) = self
+            .walls(pos1)
             .iter()
             .filter(|wall| (pos1.0 + wall.dir.0, pos1.1 + wall.dir.1) == pos2)
             .next()
@@ -204,7 +205,8 @@ mod tests {
                 maze.height() as isize - 1,
             )));
             assert!(!maze.rooms().is_inside((-1, -1)));
-            assert!(!maze.rooms()
+            assert!(!maze
+                .rooms()
                 .is_inside((maze.width() as isize, maze.height() as isize)));
         }
     );
@@ -219,13 +221,15 @@ mod tests {
                 maze.walls(pos)
                     .iter()
                     .filter(|wall| maze.is_open((pos, wall)))
-                    .count() == 1
+                    .count()
+                    == 1
             );
             assert!(
                 maze.walls(next)
                     .iter()
                     .filter(|wall| maze.is_open((next, wall)))
-                    .count() == 1
+                    .count()
+                    == 1
             );
         }
     );
@@ -240,13 +244,15 @@ mod tests {
                 maze.walls(*pos)
                     .iter()
                     .filter(|wall| maze.is_open((*pos, wall)))
-                    .count() == 0
+                    .count()
+                    == 0
             );
             assert!(
                 maze.walls(*next)
                     .iter()
                     .filter(|wall| maze.is_open((*next, wall)))
-                    .count() == 0
+                    .count()
+                    == 0
             );
         }
     );

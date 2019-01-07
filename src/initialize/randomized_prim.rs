@@ -73,18 +73,17 @@ where
                 .filter(|&pos| filter(pos))
                 .skip(rng.range(0, count))
                 .next()
-
                 // Get all walls not leading out of the maze
-                .map(|pos| self.walls(pos)
-                    .iter()
-                    .filter(|wall| {
-                        self.rooms().is_inside(self.back((pos, wall)).0)
-                    })
-
-                    // Create a wall position
-                    .map(|wall| (pos, *wall))
-                    .collect::<Vec<_>>())
-
+                .map(|pos| {
+                    self.walls(pos)
+                        .iter()
+                        .filter(|wall| {
+                            self.rooms().is_inside(self.back((pos, wall)).0)
+                        })
+                        // Create a wall position
+                        .map(|wall| (pos, *wall))
+                        .collect::<Vec<_>>()
+                })
                 .unwrap_or_else(|| Vec::<_>::new());
 
             while !walls.is_empty() {
@@ -136,10 +135,8 @@ mod tests {
             maze.randomized_prim(&mut rand::weak_rng());
 
             let from = (0, 0);
-            let to = (
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
+            let to =
+                ((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             assert!(maze.walk(from, to).is_some());
         }
     );
@@ -149,10 +146,8 @@ mod tests {
         fn test(maze: &mut Maze) {
             let from = (0, 0);
             let other = (1, 0);
-            let to = (
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
+            let to =
+                ((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| {
                 pos != from
             });
@@ -167,10 +162,8 @@ mod tests {
         fn test(maze: &mut Maze) {
             let from = (0, 0);
             let other = (1, 0);
-            let to = (
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
+            let to =
+                ((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             maze.randomized_prim_filter(&mut rand::weak_rng(), |_| false);
 
             assert!(maze.walk(from, to).is_none());

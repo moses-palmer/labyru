@@ -58,6 +58,8 @@ impl OpenSet {
 mod tests {
     use super::*;
 
+    use test_utils::*;
+
     #[test]
     fn pop_empty() {
         let mut os = OpenSet::new();
@@ -69,32 +71,32 @@ mod tests {
     fn pop_nonempty() {
         let mut os = OpenSet::new();
 
-        os.push(0, (0, 0));
+        os.push(0, matrix_pos(0, 0));
         assert!(os.pop().is_some());
     }
 
     #[test]
     fn pop_correct() {
         let mut os = OpenSet::new();
-        let expected = (10, (1, 2));
+        let expected = (10, matrix_pos(1, 2));
 
-        os.push(0, (3, 4));
+        os.push(0, matrix_pos(3, 4));
         os.push(expected.0, expected.1);
-        os.push(5, (5, 6));
+        os.push(5, matrix_pos(5, 6));
         assert_eq!(os.pop(), Some(expected.1));
     }
 
     #[test]
     fn contains_same() {
         let mut os = OpenSet::new();
-        let expected = (10, (1, 2));
+        let expected = (10, matrix_pos(1, 2));
 
         assert!(!os.contains(expected.1));
-        os.push(0, (3, 4));
+        os.push(0, matrix_pos(3, 4));
         assert!(!os.contains(expected.1));
         os.push(expected.0, expected.1);
         assert!(os.contains(expected.1));
-        os.push(5, (5, 6));
+        os.push(5, matrix_pos(5, 6));
         assert!(os.contains(expected.1));
         os.pop();
         assert!(!os.contains(expected.1));

@@ -69,7 +69,10 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
         } else if let Some(wall) = self
             .walls(pos1)
             .iter()
-            .filter(|wall| (pos1.0 + wall.dir.0, pos1.1 + wall.dir.1) == pos2)
+            .filter(|wall| {
+                (pos1.col + wall.dir.0 == pos2.col)
+                    && (pos1.row + wall.dir.1 == pos2.row)
+            })
             .next()
         {
             self.is_open((pos1, wall))
@@ -199,15 +202,16 @@ mod tests {
     maze_test!(
         is_inside_correct,
         fn test(maze: &mut Maze) {
-            assert!(maze.rooms().is_inside((0, 0)));
-            assert!(maze.rooms().is_inside((
+            assert!(maze.rooms().is_inside(matrix_pos(0, 0)));
+            assert!(maze.rooms().is_inside(matrix_pos(
                 maze.width() as isize - 1,
                 maze.height() as isize - 1,
             )));
-            assert!(!maze.rooms().is_inside((-1, -1)));
-            assert!(!maze
-                .rooms()
-                .is_inside((maze.width() as isize, maze.height() as isize)));
+            assert!(!maze.rooms().is_inside(matrix_pos(-1, -1)));
+            assert!(!maze.rooms().is_inside(matrix_pos(
+                maze.width() as isize,
+                maze.height() as isize
+            )));
         }
     );
 
@@ -260,7 +264,7 @@ mod tests {
     maze_test!(
         walls_correct,
         fn test(maze: &mut Maze) {
-            let walls = maze.walls((0, 1));
+            let walls = maze.walls(matrix_pos(0, 1));
             assert_eq!(
                 walls
                     .iter()
@@ -294,9 +298,10 @@ mod tests {
                 assert!(maze.connected(pos, pos))
             }
 
-            let pos1 = (1, 1);
+            let pos1 = matrix_pos(1, 1);
             for wall in maze.walls(pos1) {
-                let pos2 = (pos1.1 + wall.dir.0, pos1.1 + wall.dir.1);
+                let pos2 =
+                    matrix_pos(pos1.col + wall.dir.0, pos1.row + wall.dir.1);
                 assert!(!maze.connected(pos1, pos2));
                 maze.open((pos1, wall));
                 assert!(maze.connected(pos1, pos2));

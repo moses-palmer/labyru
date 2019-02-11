@@ -30,6 +30,15 @@ pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
     (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001
 }
 
+/// A simple helper to create a matrix position.
+///
+/// # Arguments
+/// *  `col` - The column.
+/// *  `row` - The row.
+pub fn matrix_pos(col: isize, row: isize) -> matrix::Pos {
+    matrix::Pos { col, row }
+}
+
 /// A navigator through a maze.
 ///
 /// This struct provides utility methods to open and close doors based on
@@ -160,14 +169,15 @@ impl<'a> Navigator<'a> {
             .iter()
             .filter(predicate)
             .filter(|wall| {
-                self.maze
-                    .rooms()
-                    .is_inside((pos.0 + wall.dir.0, pos.1 + wall.dir.1))
+                self.maze.rooms().is_inside(matrix_pos(
+                    pos.col + wall.dir.0,
+                    pos.row + wall.dir.1,
+                ))
             })
             .next()
             .unwrap();
         self.maze.set_open((pos, wall), open);
-        self.pos = Some((pos.0 + wall.dir.0, pos.1 + wall.dir.1));
+        self.pos = Some(matrix_pos(pos.col + wall.dir.0, pos.row + wall.dir.1));
         self
     }
 }

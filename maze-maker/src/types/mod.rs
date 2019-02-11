@@ -195,28 +195,46 @@ impl HeatMapType {
         match *self {
             HeatMapType::Vertical => self.create_heatmap(
                 maze,
-                (0..maze.width()).map(|x| {
-                    ((x as isize, 0), (x as isize, maze.height() as isize - 1))
+                (0..maze.width()).map(|col| {
+                    (
+                        labyru::matrix::Pos {
+                            col: col as isize,
+                            row: 0,
+                        },
+                        labyru::matrix::Pos {
+                            col: col as isize,
+                            row: maze.height() as isize - 1,
+                        },
+                    )
                 }),
             ),
             HeatMapType::Horizontal => self.create_heatmap(
                 maze,
-                (0..maze.height()).map(|y| {
-                    ((0, y as isize), (maze.width() as isize - 1, y as isize))
+                (0..maze.height()).map(|row| {
+                    (
+                        labyru::matrix::Pos {
+                            col: 0,
+                            row: row as isize,
+                        },
+                        labyru::matrix::Pos {
+                            col: maze.width() as isize - 1,
+                            row: row as isize,
+                        },
+                    )
                 }),
             ),
             HeatMapType::Full => self.create_heatmap(
                 maze,
                 maze.rooms()
                     .positions()
-                    .filter(|&(x, y)| x == 0 || y == 0)
-                    .map(|(x, y)| {
+                    .filter(|&pos| pos.col == 0 || pos.row == 0)
+                    .map(|pos| {
                         (
-                            (x, y),
-                            (
-                                maze.width() as isize - 1 - x,
-                                maze.height() as isize - 1 - y,
-                            ),
+                            pos.clone(),
+                            labyru::matrix::Pos {
+                                col: maze.width() as isize - 1 - pos.col,
+                                row: maze.height() as isize - 1 - pos.row,
+                            },
                         )
                     }),
             ),

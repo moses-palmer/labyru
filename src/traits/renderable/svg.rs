@@ -155,10 +155,10 @@ impl<'a> Visitor<'a> {
     /// the next room is checked until no rooms remain.
     fn pos(&mut self) -> Option<matrix::Pos> {
         while self.index < self.maze.width() * self.maze.height() {
-            let pos = (
-                (self.index % self.maze.width()) as isize,
-                (self.index / self.maze.width()) as isize,
-            );
+            let pos = matrix::Pos {
+                col: (self.index % self.maze.width()) as isize,
+                row: (self.index / self.maze.width()) as isize,
+            };
 
             if self
                 .maze

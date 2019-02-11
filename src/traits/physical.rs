@@ -52,14 +52,15 @@ pub trait Physical {
 
 #[cfg(test)]
 mod tests {
+    use test_utils::*;
     use *;
 
     maze_test!(
         room_at,
         fn test(maze: &mut Maze) {
             let (left, top, width, height) = maze.viewbox();
-            let Pos { x: min_x, y: min_y } = maze.center((0, 0));
-            let Pos { x: max_x, y: max_y } = maze.center((
+            let Pos { x: min_x, y: min_y } = maze.center(matrix_pos(0, 0));
+            let Pos { x: max_x, y: max_y } = maze.center(matrix_pos(
                 maze.width() as isize - 1,
                 maze.height() as isize - 1,
             ));

@@ -1,5 +1,6 @@
 use std;
 
+use matrix;
 use Maze;
 
 /// A renderable object.
@@ -19,11 +20,17 @@ where
         let mut window =
             (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
         for y in 0..self.height() {
-            let lpos = (0, y as isize);
+            let lpos = matrix::Pos {
+                col: 0,
+                row: y as isize,
+            };
             let lcenter = self.center(lpos);
             let left = self.walls(lpos).iter().map(|wall| (lcenter, wall));
 
-            let rpos = (self.width() as isize - 1, y as isize);
+            let rpos = matrix::Pos {
+                col: self.width() as isize - 1,
+                row: y as isize,
+            };
             let rcenter = self.center(rpos);
             let right = self.walls(rpos).iter().map(|wall| (rcenter, wall));
 

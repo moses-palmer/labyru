@@ -1,11 +1,11 @@
 use std;
 
 use super::Shape;
-use matrix;
-use physical;
-use room;
-use wall;
-use WallPos;
+use crate::matrix;
+use crate::physical;
+use crate::room;
+use crate::wall;
+use crate::WallPos;
 
 /// A span step angle
 const D: f32 = std::f32::consts::PI / 4.0;
@@ -102,9 +102,9 @@ impl physical::Physical for Maze {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_utils::*;
-    use Walkable;
-    use WallPos;
+    use crate::test_utils::*;
+    use crate::Walkable;
+    use crate::WallPos;
 
     #[test]
     fn back() {

@@ -1,10 +1,10 @@
 use std::str::FromStr;
 
-use image;
-use svg;
-use svg::Node;
+use crate::image;
+use crate::svg;
+use crate::svg::Node;
 
-use types::*;
+use crate::types::*;
 
 /// A background image.
 pub struct BackgroundAction {

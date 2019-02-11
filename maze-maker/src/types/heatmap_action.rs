@@ -3,7 +3,7 @@ use std::str::FromStr;
 use svg;
 use svg::Node;
 
-use types::*;
+use crate::types::*;
 
 /// A full description of the heat map action.
 pub struct HeatMapAction {

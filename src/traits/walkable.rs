@@ -1,10 +1,10 @@
 use std;
 
-use matrix;
-use util::open_set;
+use crate::matrix;
+use crate::util::open_set;
 
-use Maze;
-use WallPos;
+use crate::Maze;
+use crate::WallPos;
 
 /// A container that supports walking.
 pub trait Walkable {
@@ -254,8 +254,8 @@ mod tests {
     use std::collections::HashMap;
 
     use super::*;
-    use test_utils::*;
-    use *;
+    use crate::test_utils::*;
+    use crate::*;
 
     #[test]
     fn walk_empty() {

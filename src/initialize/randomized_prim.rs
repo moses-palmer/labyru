@@ -1,10 +1,10 @@
-use Maze;
+use crate::Maze;
 
-use matrix;
+use crate::matrix;
 
 pub trait RandomizedPrim<R>
 where
-    R: ::Randomizer + Sized,
+    R: super::Randomizer + Sized,
 {
     /// Initialises a wall using the _Randomised Prim_ algorithm.
     ///
@@ -42,7 +42,7 @@ where
 
 impl<'a, R> RandomizedPrim<R> for Maze + 'a
 where
-    R: ::Randomizer + Sized,
+    R: super::Randomizer + Sized,
 {
     fn randomized_prim_filter<F>(&mut self, rng: &mut R, filter: F) -> &mut Self
     where
@@ -127,9 +127,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use *;
-
-    use test_utils::*;
+    use crate::test_utils::*;
+    use crate::*;
 
     maze_test!(
         initialize_randomized_prim,

@@ -1,5 +1,5 @@
-use matrix;
-use wall;
+use crate::matrix;
+use crate::wall;
 
 /// A room is a part of a maze.
 ///

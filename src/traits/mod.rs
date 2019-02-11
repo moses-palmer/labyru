@@ -1,8 +1,8 @@
 pub mod physical;
-pub use physical::*;
+pub use self::physical::*;
 
 pub mod renderable;
-pub use renderable::*;
+pub use self::renderable::*;
 
 pub mod walkable;
-pub use walkable::*;
+pub use self::walkable::*;

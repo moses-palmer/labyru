@@ -293,8 +293,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-
-    use test_utils::*;
+    use crate::test_utils::*;
 
     #[test]
     fn iterate_positions() {

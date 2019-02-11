@@ -1,6 +1,6 @@
-use matrix;
+use crate::matrix;
 
-use WallPos;
+use crate::WallPos;
 
 /// A physical position.
 #[derive(Clone, Copy, Debug)]
@@ -52,8 +52,8 @@ pub trait Physical {
 
 #[cfg(test)]
 mod tests {
-    use test_utils::*;
-    use *;
+    use crate::test_utils::*;
+    use crate::*;
 
     maze_test!(
         room_at,

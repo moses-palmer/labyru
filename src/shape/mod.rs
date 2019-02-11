@@ -1,9 +1,9 @@
 use std;
 
-use matrix;
-use wall;
+use crate::matrix;
+use crate::wall;
 
-use WallPos;
+use crate::WallPos;
 
 /// Defines the base methods for a shape.
 ///
@@ -26,7 +26,7 @@ macro_rules! define_base {
             }
         }
 
-        impl ::Maze for Maze {
+        impl crate::Maze for Maze {
             fn rooms(&self) -> &room::Rooms {
                 &self.rooms
             }
@@ -127,8 +127,8 @@ pub mod tri;
 
 #[cfg(test)]
 mod tests {
-    use test_utils::*;
-    use *;
+    use crate::test_utils::*;
+    use crate::*;
 
     maze_test!(
         corner_walls,

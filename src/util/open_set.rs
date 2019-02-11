@@ -1,6 +1,6 @@
 use std::collections::BinaryHeap;
 
-use matrix;
+use crate::matrix;
 
 /// A room position with a priority.
 type PriorityPos = (isize, matrix::Pos);
@@ -57,8 +57,7 @@ impl OpenSet {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use test_utils::*;
+    use crate::test_utils::*;
 
     #[test]
     fn pop_empty() {

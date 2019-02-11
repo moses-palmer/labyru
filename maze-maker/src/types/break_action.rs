@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 use rand;
 use rand::Rng;
-use svg;
 
-use types::*;
+use crate::svg;
+use crate::types::*;
 
 /// A full description of the break action.
 pub struct BreakAction {

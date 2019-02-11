@@ -1,12 +1,12 @@
 use svg;
 use svg::node::element::path::{Command, Position};
 
-use Maze;
-use WallPos;
+use crate::Maze;
+use crate::WallPos;
 
-use matrix;
-use physical;
-use wall;
+use crate::matrix;
+use crate::physical;
+use crate::wall;
 
 pub trait ToPath {
     /// Generates an _SVG path d_ attribute value.

@@ -1,7 +1,7 @@
 use std;
 
-use matrix;
-use Maze;
+use crate::matrix;
+use crate::Maze;
 
 /// A renderable object.
 pub trait Renderable {

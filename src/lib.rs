@@ -15,10 +15,10 @@ pub mod wall;
 pub mod shape;
 
 pub mod traits;
-pub use traits::*;
+pub use self::traits::*;
 
 pub mod initialize;
-pub use initialize::*;
+pub use self::initialize::*;
 
 pub mod matrix;
 pub mod room;
@@ -175,7 +175,7 @@ pub type HeatMap = matrix::Matrix<u32>;
 /// # Arguments
 /// * `positions` - The positions as the tuple `(from, to)`. These are used as
 ///   positions between which to walk.
-pub fn heatmap<I>(maze: &::Maze, positions: I) -> HeatMap
+pub fn heatmap<I>(maze: &crate::Maze, positions: I) -> HeatMap
 where
     I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
 {

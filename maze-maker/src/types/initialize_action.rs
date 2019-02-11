@@ -65,19 +65,15 @@ impl Action for InitializeAction {
                 .expect("unable to open mask image")
                 .to_rgb(),
             maze,
-
             // Add all pixel intensities inside a room to the cell representing
             // the room
             |matrix, pos, pixel| {
                 if maze.rooms().is_inside(pos) {
-                    matrix[pos] += pixel.data
-                        .iter()
-                        .map(|&p| D * p as f32)
-                        .sum::<f32>();
+                    matrix[pos] +=
+                        pixel.data.iter().map(|&p| D * p as f32).sum::<f32>();
                 }
-            }
+            },
         )
-
         // Convert the summed colour values to an actual colour
         .map(|value| value > self.threshold);
 

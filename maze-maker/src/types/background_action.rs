@@ -43,31 +43,30 @@ impl Action for BackgroundAction {
                 .expect("unable to open background image")
                 .to_rgb(),
             maze,
-
             // Add all pixels inside a room to the cell representing the room
             |matrix, pos, pixel| {
                 if maze.rooms().is_inside(pos) {
                     matrix[pos] = (
-                        matrix[pos].0 + 1, (
+                        matrix[pos].0 + 1,
+                        (
                             (matrix[pos].1).0 + pixel[0] as u32,
                             (matrix[pos].1).1 + pixel[1] as u32,
                             (matrix[pos].1).2 + pixel[2] as u32,
-                        ));
+                        ),
+                    );
                 }
-            }
+            },
         )
         // Convert the summed colour values to an actual colour
-        .map(
-            |value| {
-                let (count, pixel) = value;
-                Color {
-                    red: (pixel.0 / (count + 1)) as u8,
-                    green: (pixel.1 / (count + 1)) as u8,
-                    blue: (pixel.2 / (count + 1)) as u8,
-                    alpha: 255,
-                }
+        .map(|value| {
+            let (count, pixel) = value;
+            Color {
+                red: (pixel.0 / (count + 1)) as u8,
+                green: (pixel.1 / (count + 1)) as u8,
+                blue: (pixel.2 / (count + 1)) as u8,
+                alpha: 255,
             }
-        );
+        });
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }

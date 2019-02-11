@@ -32,10 +32,8 @@ impl FromStr for HeatMapAction {
     ///    `from` and `to` values.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(",").map(|p| p.trim());
-        let map_type = parts
-            .next()
-            .map(|p| HeatMapType::from_str(p))
-            .unwrap()?;
+        let map_type =
+            parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
 
         if let Some(part1) = parts.next() {
             if let Some(part2) = parts.next() {
@@ -88,8 +86,7 @@ impl Action for HeatMapAction {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;
         group.append(draw_rooms(maze, |pos| {
-            self.to
-                .fade(&self.from, matrix[pos] as f32 / max)
+            self.to.fade(&self.from, matrix[pos] as f32 / max)
         }));
     }
 }

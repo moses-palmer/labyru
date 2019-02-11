@@ -64,30 +64,32 @@ impl str::FromStr for Color {
         if !s.starts_with('#') || s.len() % 1 == 1 {
             Err(format!("unknown colour value: {}", s))
         } else {
-            let data = s.bytes()
+            let data = s
+                .bytes()
                 // Skip the initial '#'
                 .skip(1)
-
                 // Hex decode and create list
-                .map(|c| if c >= '0' as u8 && c <= '9' as u8 {
-                    Some(c - '0' as u8)
-                } else if c >= 'A' as u8 && c <= 'F' as u8 {
-                    Some(c - 'A' as u8 + 10)
-                } else if c >= 'a' as u8 && c <= 'f' as u8 {
-                    Some(c - 'a' as u8 + 10)
-                } else {
-                    None
+                .map(|c| {
+                    if c >= '0' as u8 && c <= '9' as u8 {
+                        Some(c - '0' as u8)
+                    } else if c >= 'A' as u8 && c <= 'F' as u8 {
+                        Some(c - 'A' as u8 + 10)
+                    } else if c >= 'a' as u8 && c <= 'f' as u8 {
+                        Some(c - 'a' as u8 + 10)
+                    } else {
+                        None
+                    }
                 })
                 .collect::<Vec<_>>()
-
                 // Join every byte
                 .chunks(2)
-                .map(|c| if let (Some(msb), Some(lsb)) = (c[0], c[1]) {
-                    Some(msb << 4 | lsb)
-                } else {
-                    None
+                .map(|c| {
+                    if let (Some(msb), Some(lsb)) = (c[0], c[1]) {
+                        Some(msb << 4 | lsb)
+                    } else {
+                        None
+                    }
                 })
-
                 // Ensure all values are valid
                 .take_while(|c| c.is_some())
                 .map(|c| c.unwrap())
@@ -150,10 +152,7 @@ impl ToString for Color {
     ///
     /// This method ignores the alpha component.
     fn to_string(&self) -> String {
-        format!(
-            "#{:02.X}{:02.X}{:02.X}",
-            self.red, self.green, self.blue
-        )
+        format!("#{:02.X}{:02.X}{:02.X}", self.red, self.green, self.blue)
     }
 }
 
@@ -193,19 +192,13 @@ impl HeatMapType {
             HeatMapType::Vertical => self.create_heatmap(
                 maze,
                 (0..maze.width()).map(|x| {
-                    (
-                        (x as isize, 0),
-                        (x as isize, maze.height() as isize - 1),
-                    )
+                    ((x as isize, 0), (x as isize, maze.height() as isize - 1))
                 }),
             ),
             HeatMapType::Horizontal => self.create_heatmap(
                 maze,
                 (0..maze.height()).map(|y| {
-                    (
-                        (0, y as isize),
-                        (maze.width() as isize - 1, y as isize),
-                    )
+                    ((0, y as isize), (maze.width() as isize - 1, y as isize))
                 }),
             ),
             HeatMapType::Full => self.create_heatmap(
@@ -268,12 +261,14 @@ where
     F: Fn(labyru::matrix::Pos) -> Color,
 {
     let mut group = svg::node::element::Group::new();
-    for pos in maze.rooms()
+    for pos in maze
+        .rooms()
         .positions()
         .filter(|pos| maze.rooms()[*pos].visited)
     {
         let color = colors(pos);
-        let mut commands = maze.walls(pos)
+        let mut commands = maze
+            .walls(pos)
             .iter()
             .enumerate()
             .map(|(i, wall)| {
@@ -297,10 +292,7 @@ where
             svg::node::element::Path::new()
                 .set("fill", color.to_string())
                 .set("fill-opacity", color.alpha as f32 / 255.0)
-                .set(
-                    "d",
-                    svg::node::element::path::Data::from(commands),
-                ),
+                .set("d", svg::node::element::path::Data::from(commands)),
         );
     }
 

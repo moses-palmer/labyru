@@ -163,15 +163,16 @@ fn main() {
         args.value_of("WALLS")
             .map(|s| s.parse().expect("invalid wall value"))
             .unwrap(),
-    ).expect("unknown number of walls")
-        .create(
-            args.value_of("WIDTH")
-                .map(|s| s.parse().expect("invalid width"))
-                .unwrap(),
-            args.value_of("HEIGHT")
-                .map(|s| s.parse().expect("invalid height"))
-                .unwrap(),
-        );
+    )
+    .expect("unknown number of walls")
+    .create(
+        args.value_of("WIDTH")
+            .map(|s| s.parse().expect("invalid width"))
+            .unwrap(),
+        args.value_of("HEIGHT")
+            .map(|s| s.parse().expect("invalid height"))
+            .unwrap(),
+    );
 
     run(
         maze.as_mut(),

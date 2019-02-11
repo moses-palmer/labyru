@@ -130,26 +130,26 @@ impl Shape for Maze {
 
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        (
-            (pos.0 as f32 + 0.5) * self.horizontal_multiplicator,
-            (pos.1 as f32 + 0.5) * self.vertical_multiplicator
+        physical::Pos {
+            x: (pos.0 as f32 + 0.5) * self.horizontal_multiplicator,
+            y: (pos.1 as f32 + 0.5) * self.vertical_multiplicator
                 + if is_reversed!(pos) {
                     self.offset
                 } else {
                     -self.offset
                 },
-        )
+        }
     }
 
     fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         // Calculate approximations of the room position
-        let approx_row = (pos.1 / self.vertical_multiplicator).floor();
+        let approx_row = (pos.y / self.vertical_multiplicator).floor();
         let row_odd = approx_row as u32 & 1 == 1;
-        let approx_col = (pos.0 / self.horizontal_multiplicator).floor();
+        let approx_col = (pos.x / self.horizontal_multiplicator).floor();
 
         // Calculate relative positions within the room
-        let rel_y = pos.1 - (approx_row * self.vertical_multiplicator);
-        let rel_x = pos.0 - (approx_col * self.horizontal_multiplicator);
+        let rel_y = pos.y - (approx_row * self.vertical_multiplicator);
+        let rel_x = pos.x - (approx_col * self.horizontal_multiplicator);
 
         if row_odd {
             (

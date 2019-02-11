@@ -26,7 +26,7 @@ macro_rules! maze_test {
 /// * `expected` - The expected location.
 /// * `actual` - Another location.
 pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
-    let d = (expected.0 - actual.0, expected.1 - actual.1);
+    let d = (expected.x - actual.x, expected.y - actual.y);
     (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001
 }
 

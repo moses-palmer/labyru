@@ -31,8 +31,8 @@ where
                 .chain(right)
                 .map(|(center, wall)| {
                     (
-                        center.0 + f32::cos(wall.span.0),
-                        center.1 + f32::sin(wall.span.0),
+                        center.x + f32::cos(wall.span.0),
+                        center.y + f32::sin(wall.span.0),
                     )
                 })
                 .fold(window, |acc, v| {

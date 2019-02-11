@@ -182,29 +182,29 @@ impl Shape for Maze {
 
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        (
-            (pos.0 as f32 + if pos.1 & 1 == 1 { 0.5 } else { 1.0 })
+        physical::Pos {
+            x: (pos.0 as f32 + if pos.1 & 1 == 1 { 0.5 } else { 1.0 })
                 * self.horizontal_multiplicator,
-            (pos.1 as f32 + 0.5) * self.vertical_multiplicator,
-        )
+            y: (pos.1 as f32 + 0.5) * self.vertical_multiplicator,
+        }
     }
 
     fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         // Calculate approximations of the room position
-        let approx_row = (pos.1 / self.vertical_multiplicator).floor();
+        let approx_row = (pos.y / self.vertical_multiplicator).floor();
         let row_odd = approx_row as i32 & 1 == 1;
         let approx_col = if row_odd {
-            (pos.0 / self.horizontal_multiplicator)
+            (pos.x / self.horizontal_multiplicator)
         } else {
-            (pos.0 / self.horizontal_multiplicator - 0.5)
+            (pos.x / self.horizontal_multiplicator - 0.5)
         };
 
         // Calculate relative positions within the room
-        let rel_y = pos.1 - (approx_row * self.vertical_multiplicator);
+        let rel_y = pos.y - (approx_row * self.vertical_multiplicator);
         let rel_x = if row_odd {
-            (pos.0 - ((approx_col - 0.5) * self.horizontal_multiplicator))
+            (pos.x - ((approx_col - 0.5) * self.horizontal_multiplicator))
         } else {
-            (pos.0 - (approx_col * self.horizontal_multiplicator))
+            (pos.x - (approx_col * self.horizontal_multiplicator))
         };
 
         if rel_y < (-self.gradient * rel_x) + self.top_height {

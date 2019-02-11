@@ -85,16 +85,16 @@ impl Shape for Maze {
 
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        (
-            (pos.0 as f32 + 0.5) * MULTIPLICATOR,
-            (pos.1 as f32 + 0.5) * MULTIPLICATOR,
-        )
+        physical::Pos {
+            x: (pos.0 as f32 + 0.5) * MULTIPLICATOR,
+            y: (pos.1 as f32 + 0.5) * MULTIPLICATOR,
+        }
     }
 
     fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         (
-            (pos.0 / MULTIPLICATOR).floor() as isize,
-            (pos.1 / MULTIPLICATOR).floor() as isize,
+            (pos.x / MULTIPLICATOR).floor() as isize,
+            (pos.y / MULTIPLICATOR).floor() as isize,
         )
     }
 }

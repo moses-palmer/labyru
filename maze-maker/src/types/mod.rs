@@ -280,12 +280,12 @@ where
                 if i == 0 {
                     svg::node::element::path::Command::Move(
                         svg::node::element::path::Position::Absolute,
-                        coords.into(),
+                        (coords.x, coords.y).into(),
                     )
                 } else {
                     svg::node::element::path::Command::Line(
                         svg::node::element::path::Position::Absolute,
-                        coords.into(),
+                        (coords.x, coords.y).into(),
                     )
                 }
             })
@@ -326,10 +326,10 @@ where
     image.enumerate_pixels().fold(
         labyru::matrix::Matrix::<T>::new(maze.width(), maze.height()),
         |mut matrix, (x, y, pixel)| {
-            let physical_pos = (
-                left + width * (x as f32 / cols as f32),
-                top + height * (y as f32 / rows as f32),
-            );
+            let physical_pos = labyru::physical::Pos {
+                x: left + width * (x as f32 / cols as f32),
+                y: top + height * (y as f32 / rows as f32),
+            };
             let pos = maze.room_at(physical_pos);
             update(&mut matrix, pos, pixel);
             matrix

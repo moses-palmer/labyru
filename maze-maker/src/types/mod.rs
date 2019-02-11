@@ -51,7 +51,44 @@ pub struct Color {
     pub alpha: u8,
 }
 
+impl Color {
+    /// Returns a fully transparent version of this colour.
+    fn transparent(&self) -> Self {
+        Self {
+            red: self.red,
+            green: self.blue,
+            blue: self.blue,
+            alpha: 0,
+        }
+    }
+
+    /// Fades one colour to another.
+    ///
+    /// # Arguments
+    /// * `other` - The other colour.
+    /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
+    ///   colour is returned; if this is 0.0 or less, `other` is returned;
+    ///   otherwise a linear interpolation between the colours is returned.
+    fn fade(&self, other: &Self, w: f32) -> Color {
+        if w >= 1.0 {
+            self.clone()
+        } else if w <= 0.0 {
+            other.clone()
+        } else {
+            let n = 1.0 - w;
+            Color {
+                red: (self.red as f32 * w + other.red as f32 * n) as u8,
+                green: (self.green as f32 * w + other.green as f32 * n) as u8,
+                blue: (self.blue as f32 * w + other.blue as f32 * n) as u8,
+                alpha: (self.alpha as f32 * w + other.alpha as f32 * n) as u8,
+            }
+        }
+    }
+}
+
 impl str::FromStr for Color {
+    type Err = String;
+
     /// Converts a string to a colour.
     ///
     /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,
@@ -60,7 +97,7 @@ impl str::FromStr for Color {
     ///
     /// # Arguments
     /// * `s` - The string to convert.
-    pub fn from_str(s: &str) -> Result<Color, String> {
+    fn from_str(s: &str) -> Result<Color, String> {
         if !s.starts_with('#') || s.len() % 1 == 1 {
             Err(format!("unknown colour value: {}", s))
         } else {
@@ -109,39 +146,6 @@ impl str::FromStr for Color {
                     alpha: data[0],
                 }),
                 _ => Err(format!("invalid colour format: {}", s)),
-            }
-        }
-    }
-
-    /// Returns a fully transparent version of this colour.
-    pub fn transparent(&self) -> Self {
-        Self {
-            red: self.red,
-            green: self.blue,
-            blue: self.blue,
-            alpha: 0,
-        }
-    }
-
-    /// Fades one colour to another.
-    ///
-    /// # Arguments
-    /// * `other` - The other colour.
-    /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
-    ///   colour is returned; if this is 0.0 or less, `other` is returned;
-    ///   otherwise a linear interpolation between the colours is returned.
-    pub fn fade(&self, other: &Self, w: f32) -> Color {
-        if w >= 1.0 {
-            self.clone()
-        } else if w <= 0.0 {
-            other.clone()
-        } else {
-            let n = 1.0 - w;
-            Color {
-                red: (self.red as f32 * w + other.red as f32 * n) as u8,
-                green: (self.green as f32 * w + other.green as f32 * n) as u8,
-                blue: (self.blue as f32 * w + other.blue as f32 * n) as u8,
-                alpha: (self.alpha as f32 * w + other.alpha as f32 * n) as u8,
             }
         }
     }

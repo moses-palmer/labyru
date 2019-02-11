@@ -2,6 +2,7 @@
 name = "labyru"
 version = "0.1.0"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 rand = { version = "0.4", optional = true }

@@ -1,7 +1,14 @@
 use std;
 
 /// A matrix position.
-pub type Pos = (isize, isize);
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Pos {
+    /// The column index.
+    pub col: isize,
+
+    /// The row index.
+    pub row: isize,
+}
 
 /// A matrix is a two dimensional array.
 ///
@@ -46,10 +53,10 @@ where
     /// # Arguments
     /// * `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
-        pos.0 >= 0
-            && pos.1 >= 0
-            && pos.0 < self.width as isize
-            && pos.1 < self.height as isize
+        pos.col >= 0
+            && pos.row >= 0
+            && pos.col < self.width as isize
+            && pos.row < self.height as isize
     }
 
     /// Retrieves a reference to the value at a specific position if it exists.
@@ -58,7 +65,7 @@ where
     /// * `pos` - The matrix position.
     pub fn get(&self, pos: Pos) -> Option<&T> {
         if self.is_inside(pos) {
-            Some(&self.data[(pos.0 + pos.1 * self.width as isize) as usize])
+            Some(&self.data[(pos.col + pos.row * self.width as isize) as usize])
         } else {
             None
         }
@@ -71,7 +78,10 @@ where
     /// * `pos` - The matrix position.
     pub fn get_mut(&mut self, pos: Pos) -> Option<&mut T> {
         if self.is_inside(pos) {
-            Some(&mut self.data[(pos.0 + pos.1 * self.width as isize) as usize])
+            Some(
+                &mut self.data
+                    [(pos.col + pos.row * self.width as isize) as usize],
+            )
         } else {
             None
         }
@@ -133,9 +143,12 @@ where
     fn add(mut self, other: Self) -> Self {
         let width = std::cmp::min(self.width, other.width);
         let height = std::cmp::min(self.height, other.height);
-        for y in 0..height {
-            for x in 0..width {
-                let pos = (x as isize, y as isize);
+        for row in 0..height {
+            for col in 0..width {
+                let pos = Pos {
+                    col: col as isize,
+                    row: row as isize,
+                };
                 self[pos] += other[pos]
             }
         }
@@ -181,10 +194,10 @@ impl Iterator for PosIterator {
         if self.current >= (self.width * self.height) as isize {
             None
         } else {
-            Some((
-                self.current % self.width as isize,
-                self.current / self.width as isize,
-            ))
+            Some(Pos {
+                col: self.current % self.width as isize,
+                row: self.current / self.width as isize,
+            })
         }
     }
 }
@@ -249,7 +262,7 @@ where
     /// will cause a panic. Use [get](#method.get) to avoid this.
     fn index(&self, pos: Pos) -> &Self::Output {
         if self.is_inside(pos) {
-            &self.data[(pos.0 + pos.1 * self.width as isize) as usize]
+            &self.data[(pos.col + pos.row * self.width as isize) as usize]
         } else {
             panic!()
         }
@@ -270,7 +283,7 @@ where
     /// will cause a panic. Use [get_mut](#method.get_mut) to avoid this.
     fn index_mut(&mut self, pos: Pos) -> &mut T {
         if self.is_inside(pos) {
-            &mut self.data[(pos.0 + pos.1 * self.width as isize) as usize]
+            &mut self.data[(pos.col + pos.row * self.width as isize) as usize]
         } else {
             panic!()
         }
@@ -281,10 +294,19 @@ where
 mod test {
     use super::*;
 
+    use test_utils::*;
+
     #[test]
     fn iterate_positions() {
         assert_eq!(
-            vec![(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)],
+            vec![
+                matrix_pos(0, 0),
+                matrix_pos(1, 0),
+                matrix_pos(2, 0),
+                matrix_pos(0, 1),
+                matrix_pos(1, 1),
+                matrix_pos(2, 1)
+            ],
             Matrix::<bool>::new(3, 2).positions().collect::<Vec<_>>()
         );
     }
@@ -292,20 +314,20 @@ mod test {
     #[test]
     fn iterate_values() {
         let mut matrix = Matrix::<u8>::new(2, 2);
-        matrix[(0, 0)] = 1;
-        matrix[(1, 0)] = 2;
-        matrix[(0, 1)] = 3;
-        matrix[(1, 1)] = 4;
+        matrix[matrix_pos(0, 0)] = 1;
+        matrix[matrix_pos(1, 0)] = 2;
+        matrix[matrix_pos(0, 1)] = 3;
+        matrix[matrix_pos(1, 1)] = 4;
         assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
     }
 
     #[test]
     fn map() {
         let mut matrix = Matrix::<u8>::new(2, 2);
-        matrix[(0, 0)] = 1;
-        matrix[(1, 0)] = 2;
-        matrix[(0, 1)] = 3;
-        matrix[(1, 1)] = 4;
+        matrix[matrix_pos(0, 0)] = 1;
+        matrix[matrix_pos(1, 0)] = 2;
+        matrix[matrix_pos(0, 1)] = 3;
+        matrix[matrix_pos(1, 1)] = 4;
         assert_eq!(
             vec![2, 3, 4, 5],
             matrix.map(|v| v + 1).values().collect::<Vec<_>>()
@@ -315,13 +337,13 @@ mod test {
     #[test]
     fn eq() {
         let mut matrix1 = Matrix::<bool>::new(2, 2);
-        matrix1[(1, 1)] = true;
+        matrix1[matrix_pos(1, 1)] = true;
         let mut matrix2 = Matrix::<bool>::new(2, 2);
-        matrix2[(1, 1)] = true;
+        matrix2[matrix_pos(1, 1)] = true;
 
         assert_eq!(matrix1, matrix2);
 
-        matrix2[(0, 0)] = true;
+        matrix2[matrix_pos(0, 0)] = true;
         assert!(matrix1 != matrix2);
     }
 }

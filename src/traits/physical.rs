@@ -3,7 +3,14 @@ use matrix;
 use WallPos;
 
 /// A physical position.
-pub type Pos = (f32, f32);
+#[derive(Clone, Copy, Debug)]
+pub struct Pos {
+    /// The X coordinate.
+    pub x: f32,
+
+    /// The Y coordinate.
+    pub y: f32,
+}
 
 /// An object that has some "physical" properties.
 pub trait Physical {
@@ -31,28 +38,29 @@ pub trait Physical {
     fn corners(&self, wall_pos: WallPos) -> (Pos, Pos) {
         let center = self.center(wall_pos.0);
         (
-            (
-                center.0 + wall_pos.1.span.0.cos(),
-                center.1 + wall_pos.1.span.0.sin(),
-            ),
-            (
-                center.0 + wall_pos.1.span.1.cos(),
-                center.1 + wall_pos.1.span.1.sin(),
-            ),
+            Pos {
+                x: center.x + wall_pos.1.span.0.cos(),
+                y: center.y + wall_pos.1.span.0.sin(),
+            },
+            Pos {
+                x: center.x + wall_pos.1.span.1.cos(),
+                y: center.y + wall_pos.1.span.1.sin(),
+            },
         )
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use test_utils::*;
     use *;
 
     maze_test!(
         room_at,
         fn test(maze: &mut Maze) {
             let (left, top, width, height) = maze.viewbox();
-            let (min_x, min_y) = maze.center((0, 0));
-            let (max_x, max_y) = maze.center((
+            let Pos { x: min_x, y: min_y } = maze.center(matrix_pos(0, 0));
+            let Pos { x: max_x, y: max_y } = maze.center(matrix_pos(
                 maze.width() as isize - 1,
                 maze.height() as isize - 1,
             ));
@@ -60,17 +68,17 @@ mod tests {
             let yres = 100usize;
             for x in 0..xres {
                 for y in 0..yres {
-                    let pos = (
-                        x as f32 / (xres as f32 * width + left),
-                        y as f32 / (yres as f32 * height + top),
-                    );
+                    let pos = Pos {
+                        x: x as f32 / (xres as f32 * width + left),
+                        y: y as f32 / (yres as f32 * height + top),
+                    };
 
                     // Should this position be inside the maze?
                     let assume_inside = true
-                        && pos.0 >= min_x
-                        && pos.0 <= max_x
-                        && pos.1 >= min_y
-                        && pos.1 <= max_y;
+                        && pos.x >= min_x
+                        && pos.x <= max_x
+                        && pos.y >= min_y
+                        && pos.y <= max_y;
 
                     // Ignore rooms outside of the maze since we use
                     // maze.rooms().positions() below
@@ -111,8 +119,8 @@ mod tests {
     /// * `pos1` - The first point.
     /// * `pos2` - The second point.
     fn true_distance(pos1: physical::Pos, pos2: physical::Pos) -> f32 {
-        let dx = pos1.0 - pos2.0;
-        let dy = pos1.1 - pos2.1;
+        let dx = pos1.x - pos2.x;
+        let dy = pos1.y - pos2.y;
         (dx * dx + dy * dy).sqrt()
     }
 }

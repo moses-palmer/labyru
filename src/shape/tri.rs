@@ -84,7 +84,7 @@ define_walls! {
 
 macro_rules! is_reversed {
     ($pos:expr) => {
-        ($pos.0 + $pos.1) & 1 != 0
+        ($pos.col + $pos.row) & 1 != 0
     };
 }
 
@@ -130,49 +130,49 @@ impl Shape for Maze {
 
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        (
-            (pos.0 as f32 + 0.5) * self.horizontal_multiplicator,
-            (pos.1 as f32 + 0.5) * self.vertical_multiplicator
+        physical::Pos {
+            x: (pos.col as f32 + 0.5) * self.horizontal_multiplicator,
+            y: (pos.row as f32 + 0.5) * self.vertical_multiplicator
                 + if is_reversed!(pos) {
                     self.offset
                 } else {
                     -self.offset
                 },
-        )
+        }
     }
 
     fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         // Calculate approximations of the room position
-        let approx_row = (pos.1 / self.vertical_multiplicator).floor();
+        let approx_row = (pos.y / self.vertical_multiplicator).floor();
         let row_odd = approx_row as u32 & 1 == 1;
-        let approx_col = (pos.0 / self.horizontal_multiplicator).floor();
+        let approx_col = (pos.x / self.horizontal_multiplicator).floor();
 
         // Calculate relative positions within the room
-        let rel_y = pos.1 - (approx_row * self.vertical_multiplicator);
-        let rel_x = pos.0 - (approx_col * self.horizontal_multiplicator);
+        let rel_y = pos.y - (approx_row * self.vertical_multiplicator);
+        let rel_x = pos.x - (approx_col * self.horizontal_multiplicator);
 
         if row_odd {
-            (
-                if rel_x < 0.5 && rel_y > rel_x {
+            matrix::Pos {
+                col: if rel_x < 0.5 && rel_y > rel_x {
                     approx_col as isize - 1
                 } else if rel_x > 0.5 && rel_y > rel_x {
                     approx_col as isize + 1
                 } else {
                     approx_col as isize
                 },
-                approx_row as isize,
-            )
+                row: approx_row as isize,
+            }
         } else {
-            (
-                if rel_x < 0.5 && rel_y < rel_x {
+            matrix::Pos {
+                col: if rel_x < 0.5 && rel_y < rel_x {
                     approx_col as isize - 1
                 } else if rel_x > 0.5 && rel_y < rel_x {
                     approx_col as isize + 1
                 } else {
                     approx_col as isize
                 },
-                approx_row as isize,
-            )
+                row: approx_row as isize,
+            }
         }
     }
 }
@@ -189,23 +189,29 @@ mod tests {
         let maze = Maze::new(5, 5);
 
         assert_eq!(
-            maze.back(((2, 0), &walls::LEFT0)),
-            ((1, 0), &walls::RIGHT1)
+            maze.back((matrix_pos(2, 0), &walls::LEFT0)),
+            (matrix_pos(1, 0), &walls::RIGHT1)
         );
         assert_eq!(
-            maze.back(((2, 0), &walls::RIGHT0)),
-            ((3, 0), &walls::LEFT1)
+            maze.back((matrix_pos(2, 0), &walls::RIGHT0)),
+            (matrix_pos(3, 0), &walls::LEFT1)
         );
         assert_eq!(
-            maze.back(((1, 0), &walls::LEFT1)),
-            ((0, 0), &walls::RIGHT0)
+            maze.back((matrix_pos(1, 0), &walls::LEFT1)),
+            (matrix_pos(0, 0), &walls::RIGHT0)
         );
-        assert_eq!(maze.back(((1, 1), &walls::UP)), ((1, 0), &walls::DOWN));
         assert_eq!(
-            maze.back(((1, 0), &walls::RIGHT1)),
-            ((2, 0), &walls::LEFT0)
+            maze.back((matrix_pos(1, 1), &walls::UP)),
+            (matrix_pos(1, 0), &walls::DOWN)
         );
-        assert_eq!(maze.back(((1, 0), &walls::DOWN)), ((1, 1), &walls::UP));
+        assert_eq!(
+            maze.back((matrix_pos(1, 0), &walls::RIGHT1)),
+            (matrix_pos(2, 0), &walls::LEFT0)
+        );
+        assert_eq!(
+            maze.back((matrix_pos(1, 0), &walls::DOWN)),
+            (matrix_pos(1, 1), &walls::UP)
+        );
     }
 
     #[test]
@@ -213,69 +219,69 @@ mod tests {
         let maze = Maze::new(5, 5);
 
         assert_eq!(
-            maze.corner_walls(((2, 0), &walls::LEFT0)),
+            maze.corner_walls((matrix_pos(2, 0), &walls::LEFT0)),
             vec![
-                ((2, 0), &walls::LEFT0),
-                ((1, 0), &walls::DOWN),
-                ((1, 1), &walls::RIGHT0),
-                ((2, 1), &walls::RIGHT1),
-                ((3, 1), &walls::UP),
-                ((3, 0), &walls::LEFT1),
+                (matrix_pos(2, 0), &walls::LEFT0),
+                (matrix_pos(1, 0), &walls::DOWN),
+                (matrix_pos(1, 1), &walls::RIGHT0),
+                (matrix_pos(2, 1), &walls::RIGHT1),
+                (matrix_pos(3, 1), &walls::UP),
+                (matrix_pos(3, 0), &walls::LEFT1),
             ]
         );
         assert_eq!(
-            maze.corner_walls(((2, 0), &walls::RIGHT0)),
+            maze.corner_walls((matrix_pos(2, 0), &walls::RIGHT0)),
             vec![
-                ((2, 0), &walls::RIGHT0),
-                ((3, 0), &walls::RIGHT1),
-                ((4, 0), &walls::UP),
-                ((4, -1), &walls::LEFT1),
-                ((3, -1), &walls::LEFT0),
-                ((2, -1), &walls::DOWN),
+                (matrix_pos(2, 0), &walls::RIGHT0),
+                (matrix_pos(3, 0), &walls::RIGHT1),
+                (matrix_pos(4, 0), &walls::UP),
+                (matrix_pos(4, -1), &walls::LEFT1),
+                (matrix_pos(3, -1), &walls::LEFT0),
+                (matrix_pos(2, -1), &walls::DOWN),
             ]
         );
         assert_eq!(
-            maze.corner_walls(((1, 0), &walls::LEFT1)),
+            maze.corner_walls((matrix_pos(1, 0), &walls::LEFT1)),
             vec![
-                ((1, 0), &walls::LEFT1),
-                ((0, 0), &walls::LEFT0),
-                ((-1, 0), &walls::DOWN),
-                ((-1, 1), &walls::RIGHT0),
-                ((0, 1), &walls::RIGHT1),
-                ((1, 1), &walls::UP),
+                (matrix_pos(1, 0), &walls::LEFT1),
+                (matrix_pos(0, 0), &walls::LEFT0),
+                (matrix_pos(-1, 0), &walls::DOWN),
+                (matrix_pos(-1, 1), &walls::RIGHT0),
+                (matrix_pos(0, 1), &walls::RIGHT1),
+                (matrix_pos(1, 1), &walls::UP),
             ]
         );
         assert_eq!(
-            maze.corner_walls(((1, 1), &walls::UP)),
+            maze.corner_walls((matrix_pos(1, 1), &walls::UP)),
             vec![
-                ((1, 1), &walls::UP),
-                ((1, 0), &walls::LEFT1),
-                ((0, 0), &walls::LEFT0),
-                ((-1, 0), &walls::DOWN),
-                ((-1, 1), &walls::RIGHT0),
-                ((0, 1), &walls::RIGHT1),
+                (matrix_pos(1, 1), &walls::UP),
+                (matrix_pos(1, 0), &walls::LEFT1),
+                (matrix_pos(0, 0), &walls::LEFT0),
+                (matrix_pos(-1, 0), &walls::DOWN),
+                (matrix_pos(-1, 1), &walls::RIGHT0),
+                (matrix_pos(0, 1), &walls::RIGHT1),
             ]
         );
         assert_eq!(
-            maze.corner_walls(((1, 0), &walls::RIGHT1)),
+            maze.corner_walls((matrix_pos(1, 0), &walls::RIGHT1)),
             vec![
-                ((1, 0), &walls::RIGHT1),
-                ((2, 0), &walls::UP),
-                ((2, -1), &walls::LEFT1),
-                ((1, -1), &walls::LEFT0),
-                ((0, -1), &walls::DOWN),
-                ((0, 0), &walls::RIGHT0),
+                (matrix_pos(1, 0), &walls::RIGHT1),
+                (matrix_pos(2, 0), &walls::UP),
+                (matrix_pos(2, -1), &walls::LEFT1),
+                (matrix_pos(1, -1), &walls::LEFT0),
+                (matrix_pos(0, -1), &walls::DOWN),
+                (matrix_pos(0, 0), &walls::RIGHT0),
             ]
         );
         assert_eq!(
-            maze.corner_walls(((1, 0), &walls::DOWN)),
+            maze.corner_walls((matrix_pos(1, 0), &walls::DOWN)),
             vec![
-                ((1, 0), &walls::DOWN),
-                ((1, 1), &walls::RIGHT0),
-                ((2, 1), &walls::RIGHT1),
-                ((3, 1), &walls::UP),
-                ((3, 0), &walls::LEFT1),
-                ((2, 0), &walls::LEFT0),
+                (matrix_pos(1, 0), &walls::DOWN),
+                (matrix_pos(1, 1), &walls::RIGHT0),
+                (matrix_pos(2, 1), &walls::RIGHT1),
+                (matrix_pos(3, 1), &walls::UP),
+                (matrix_pos(3, 0), &walls::LEFT1),
+                (matrix_pos(2, 0), &walls::LEFT0),
             ]
         );
     }
@@ -285,11 +291,11 @@ mod tests {
         let maze = Maze::new(5, 5);
         assert_eq!(
             vec![
-                ((0, 0), &walls::LEFT0),
-                ((0, 0), &walls::UP),
-                ((0, 0), &walls::RIGHT0),
+                (matrix_pos(0, 0), &walls::LEFT0),
+                (matrix_pos(0, 0), &walls::UP),
+                (matrix_pos(0, 0), &walls::RIGHT0),
             ],
-            maze.follow_wall(((0, 0), &walls::LEFT0))
+            maze.follow_wall((matrix_pos(0, 0), &walls::LEFT0))
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );
@@ -300,7 +306,7 @@ mod tests {
         let mut maze = Maze::new(5, 5);
 
         Navigator::new(&mut maze)
-            .from((1, 0))
+            .from(matrix_pos(1, 0))
             .down(true)
             .right(true)
             .right(true)
@@ -309,16 +315,16 @@ mod tests {
 
         assert_eq!(
             vec![
-                ((1, 0), &walls::RIGHT1),
-                ((2, 0), &walls::LEFT0),
-                ((2, 0), &walls::UP),
-                ((3, 0), &walls::RIGHT1),
-                ((3, 1), &walls::RIGHT0),
-                ((2, 1), &walls::DOWN),
-                ((1, 1), &walls::LEFT0),
-                ((1, 0), &walls::LEFT1),
+                (matrix_pos(1, 0), &walls::RIGHT1),
+                (matrix_pos(2, 0), &walls::LEFT0),
+                (matrix_pos(2, 0), &walls::UP),
+                (matrix_pos(3, 0), &walls::RIGHT1),
+                (matrix_pos(3, 1), &walls::RIGHT0),
+                (matrix_pos(2, 1), &walls::DOWN),
+                (matrix_pos(1, 1), &walls::LEFT0),
+                (matrix_pos(1, 0), &walls::LEFT1),
             ],
-            maze.follow_wall(((1, 0), &walls::RIGHT1))
+            maze.follow_wall((matrix_pos(1, 0), &walls::RIGHT1))
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );

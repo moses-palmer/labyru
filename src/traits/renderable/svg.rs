@@ -155,10 +155,10 @@ impl<'a> Visitor<'a> {
     /// the next room is checked until no rooms remain.
     fn pos(&mut self) -> Option<matrix::Pos> {
         while self.index < self.maze.width() * self.maze.height() {
-            let pos = (
-                (self.index % self.maze.width()) as isize,
-                (self.index / self.maze.width()) as isize,
-            );
+            let pos = matrix::Pos {
+                col: (self.index % self.maze.width()) as isize,
+                row: (self.index / self.maze.width()) as isize,
+            };
 
             if self
                 .maze
@@ -200,10 +200,10 @@ impl From<Operation> for Command {
     fn from(operation: Operation) -> Self {
         match operation {
             Operation::Move(pos) => {
-                Command::Move(Position::Absolute, pos.into())
+                Command::Move(Position::Absolute, (pos.x, pos.y).into())
             }
             Operation::Line(pos) => {
-                Command::Line(Position::Absolute, pos.into())
+                Command::Line(Position::Absolute, (pos.x, pos.y).into())
             }
         }
     }
@@ -217,7 +217,10 @@ impl From<Operation> for Command {
 /// * `wall_pos` - The wall position.
 fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
     let (corner1, corner2) = maze.corners(wall_pos);
-    ((corner1.0 + corner2.0) / 2.0, (corner1.1 + corner2.1) / 2.0)
+    physical::Pos {
+        x: (corner1.x + corner2.x) / 2.0,
+        y: (corner1.y + corner2.y) / 2.0,
+    }
 }
 
 /// Returns the physical positions of the two corners of a wall ordered by
@@ -232,8 +235,8 @@ fn corners(
     origin: physical::Pos,
 ) -> (physical::Pos, physical::Pos) {
     let (pos1, pos2) = maze.corners(from);
-    let d1 = (pos1.0 - origin.0).powi(2) + (pos1.1 - origin.1).powi(2);
-    let d2 = (pos2.0 - origin.0).powi(2) + (pos2.1 - origin.1).powi(2);
+    let d1 = (pos1.x - origin.x).powi(2) + (pos1.y - origin.y).powi(2);
+    let d2 = (pos2.x - origin.x).powi(2) + (pos2.y - origin.y).powi(2);
 
     if d1 < d2 {
         (pos1, pos2)

@@ -38,8 +38,9 @@ where
         let (start, end) = (to, from);
 
         // The heuristic for a room position
-        let h =
-            |pos: matrix::Pos| (pos.0 - end.0).abs() + (pos.1 - end.1).abs();
+        let h = |pos: matrix::Pos| {
+            (pos.col - end.col).abs() + (pos.row - end.row).abs()
+        };
 
         // The room positions already evaluated
         let mut closed_set = std::collections::HashSet::new();
@@ -199,12 +200,20 @@ impl<'a> Follower<'a> {
     fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
         let all = self.maze.all_walls();
         let back = self.maze.back(wall_pos);
-        let (x, y) = back.0;
+        let matrix::Pos { col, row } = back.0;
         all[back.1.index]
             .corner_wall_offsets
             .into_iter()
             // Convert the offsets to wall positions
-            .map(|&((dx, dy), wall_index)| ((x + dx, y + dy), all[wall_index]))
+            .map(|&((dx, dy), wall_index)| {
+                (
+                    matrix::Pos {
+                        col: col + dx,
+                        row: row + dy,
+                    },
+                    all[wall_index],
+                )
+            })
             // Find the first closed wall
             .skip_while(|&next| self.maze.is_open(next))
             // Yield the first wall we encounter, or the back of the original
@@ -253,48 +262,53 @@ mod tests {
         let map = HashMap::new();
 
         assert_eq!(
-            Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
-            vec![(0, 0)]
+            Walker::new(matrix_pos(0, 0), map).collect::<Vec<matrix::Pos>>(),
+            vec![matrix_pos(0, 0)]
         );
     }
 
     #[test]
     fn walk_from_unknown() {
         let mut map = HashMap::new();
-        map.insert((1, 1), (2, 2));
+        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
         assert_eq!(
-            Walker::new((0, 0), map).collect::<Vec<matrix::Pos>>(),
-            vec![(0, 0)]
+            Walker::new(matrix_pos(0, 0), map).collect::<Vec<matrix::Pos>>(),
+            vec![matrix_pos(0, 0)]
         );
     }
 
     #[test]
     fn walk_path() {
         let mut map = HashMap::new();
-        map.insert((1, 1), (2, 2));
-        map.insert((2, 2), (2, 3));
-        map.insert((2, 3), (2, 4));
+        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
+        map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
+        map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
 
         assert_eq!(
-            Walker::new((1, 1), map).collect::<Vec<matrix::Pos>>(),
-            vec![(1, 1), (2, 2), (2, 3), (2, 4)]
+            Walker::new(matrix_pos(1, 1), map).collect::<Vec<matrix::Pos>>(),
+            vec![
+                matrix_pos(1, 1),
+                matrix_pos(2, 2),
+                matrix_pos(2, 3),
+                matrix_pos(2, 4)
+            ]
         );
     }
 
     maze_test!(
         walk_disconnected,
         fn test(maze: &mut Maze) {
-            assert!(maze.walk((0, 0), (0, 1)).is_none());
+            assert!(maze.walk(matrix_pos(0, 0), matrix_pos(0, 1)).is_none());
         }
     );
 
     maze_test!(
         walk_same,
         fn test(maze: &mut Maze) {
-            let from = (0, 0);
-            let to = (0, 0);
-            let expected = vec![(0, 0)];
+            let from = matrix_pos(0, 0);
+            let to = matrix_pos(0, 0);
+            let expected = vec![matrix_pos(0, 0)];
             assert!(
                 maze.walk(from, to).unwrap().collect::<Vec<matrix::Pos>>()
                     == expected

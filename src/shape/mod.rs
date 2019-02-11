@@ -51,7 +51,10 @@ macro_rules! implement_base_shape {
 
         fn back(&self, wall_pos: WallPos) -> WallPos {
             let (pos, wall) = wall_pos;
-            let other = (pos.0 + wall.dir.0, pos.1 + wall.dir.1);
+            let other = matrix::Pos {
+                col: pos.col + wall.dir.0,
+                row: pos.row + wall.dir.1,
+            };
 
             (other, walls::ALL[back_index!(wall.index)])
         }
@@ -100,15 +103,20 @@ pub trait Shape {
     /// # Arguments
     /// * `wall_pos` - The wall position.
     fn corner_walls(&self, wall_pos: WallPos) -> Vec<WallPos> {
-        let ((x, y), wall) = wall_pos;
+        let (matrix::Pos { col, row }, wall) = wall_pos;
         let all = self.all_walls();
         std::iter::once(wall_pos)
-            .chain(
-                all[wall.index]
-                    .corner_wall_offsets
-                    .iter()
-                    .map(|&((dx, dy), wall)| ((x + dx, y + dy), all[wall])),
-            )
+            .chain(all[wall.index].corner_wall_offsets.iter().map(
+                |&((dx, dy), wall)| {
+                    (
+                        matrix::Pos {
+                            col: col + dx,
+                            row: row + dy,
+                        },
+                        all[wall],
+                    )
+                },
+            ))
             .collect()
     }
 }

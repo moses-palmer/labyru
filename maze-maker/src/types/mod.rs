@@ -51,7 +51,44 @@ pub struct Color {
     pub alpha: u8,
 }
 
+impl Color {
+    /// Returns a fully transparent version of this colour.
+    fn transparent(&self) -> Self {
+        Self {
+            red: self.red,
+            green: self.blue,
+            blue: self.blue,
+            alpha: 0,
+        }
+    }
+
+    /// Fades one colour to another.
+    ///
+    /// # Arguments
+    /// * `other` - The other colour.
+    /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
+    ///   colour is returned; if this is 0.0 or less, `other` is returned;
+    ///   otherwise a linear interpolation between the colours is returned.
+    fn fade(&self, other: &Self, w: f32) -> Color {
+        if w >= 1.0 {
+            self.clone()
+        } else if w <= 0.0 {
+            other.clone()
+        } else {
+            let n = 1.0 - w;
+            Color {
+                red: (self.red as f32 * w + other.red as f32 * n) as u8,
+                green: (self.green as f32 * w + other.green as f32 * n) as u8,
+                blue: (self.blue as f32 * w + other.blue as f32 * n) as u8,
+                alpha: (self.alpha as f32 * w + other.alpha as f32 * n) as u8,
+            }
+        }
+    }
+}
+
 impl str::FromStr for Color {
+    type Err = String;
+
     /// Converts a string to a colour.
     ///
     /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,
@@ -60,34 +97,36 @@ impl str::FromStr for Color {
     ///
     /// # Arguments
     /// * `s` - The string to convert.
-    pub fn from_str(s: &str) -> Result<Color, String> {
+    fn from_str(s: &str) -> Result<Color, String> {
         if !s.starts_with('#') || s.len() % 1 == 1 {
             Err(format!("unknown colour value: {}", s))
         } else {
-            let data = s.bytes()
+            let data = s
+                .bytes()
                 // Skip the initial '#'
                 .skip(1)
-
                 // Hex decode and create list
-                .map(|c| if c >= '0' as u8 && c <= '9' as u8 {
-                    Some(c - '0' as u8)
-                } else if c >= 'A' as u8 && c <= 'F' as u8 {
-                    Some(c - 'A' as u8 + 10)
-                } else if c >= 'a' as u8 && c <= 'f' as u8 {
-                    Some(c - 'a' as u8 + 10)
-                } else {
-                    None
+                .map(|c| {
+                    if c >= '0' as u8 && c <= '9' as u8 {
+                        Some(c - '0' as u8)
+                    } else if c >= 'A' as u8 && c <= 'F' as u8 {
+                        Some(c - 'A' as u8 + 10)
+                    } else if c >= 'a' as u8 && c <= 'f' as u8 {
+                        Some(c - 'a' as u8 + 10)
+                    } else {
+                        None
+                    }
                 })
                 .collect::<Vec<_>>()
-
                 // Join every byte
                 .chunks(2)
-                .map(|c| if let (Some(msb), Some(lsb)) = (c[0], c[1]) {
-                    Some(msb << 4 | lsb)
-                } else {
-                    None
+                .map(|c| {
+                    if let (Some(msb), Some(lsb)) = (c[0], c[1]) {
+                        Some(msb << 4 | lsb)
+                    } else {
+                        None
+                    }
                 })
-
                 // Ensure all values are valid
                 .take_while(|c| c.is_some())
                 .map(|c| c.unwrap())
@@ -110,39 +149,6 @@ impl str::FromStr for Color {
             }
         }
     }
-
-    /// Returns a fully transparent version of this colour.
-    pub fn transparent(&self) -> Self {
-        Self {
-            red: self.red,
-            green: self.blue,
-            blue: self.blue,
-            alpha: 0,
-        }
-    }
-
-    /// Fades one colour to another.
-    ///
-    /// # Arguments
-    /// * `other` - The other colour.
-    /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
-    ///   colour is returned; if this is 0.0 or less, `other` is returned;
-    ///   otherwise a linear interpolation between the colours is returned.
-    pub fn fade(&self, other: &Self, w: f32) -> Color {
-        if w >= 1.0 {
-            self.clone()
-        } else if w <= 0.0 {
-            other.clone()
-        } else {
-            let n = 1.0 - w;
-            Color {
-                red: (self.red as f32 * w + other.red as f32 * n) as u8,
-                green: (self.green as f32 * w + other.green as f32 * n) as u8,
-                blue: (self.blue as f32 * w + other.blue as f32 * n) as u8,
-                alpha: (self.alpha as f32 * w + other.alpha as f32 * n) as u8,
-            }
-        }
-    }
 }
 
 impl ToString for Color {
@@ -150,10 +156,7 @@ impl ToString for Color {
     ///
     /// This method ignores the alpha component.
     fn to_string(&self) -> String {
-        format!(
-            "#{:02.X}{:02.X}{:02.X}",
-            self.red, self.green, self.blue
-        )
+        format!("#{:02.X}{:02.X}{:02.X}", self.red, self.green, self.blue)
     }
 }
 
@@ -192,19 +195,31 @@ impl HeatMapType {
         match *self {
             HeatMapType::Vertical => self.create_heatmap(
                 maze,
-                (0..maze.width()).map(|x| {
+                (0..maze.width()).map(|col| {
                     (
-                        (x as isize, 0),
-                        (x as isize, maze.height() as isize - 1),
+                        labyru::matrix::Pos {
+                            col: col as isize,
+                            row: 0,
+                        },
+                        labyru::matrix::Pos {
+                            col: col as isize,
+                            row: maze.height() as isize - 1,
+                        },
                     )
                 }),
             ),
             HeatMapType::Horizontal => self.create_heatmap(
                 maze,
-                (0..maze.height()).map(|y| {
+                (0..maze.height()).map(|row| {
                     (
-                        (0, y as isize),
-                        (maze.width() as isize - 1, y as isize),
+                        labyru::matrix::Pos {
+                            col: 0,
+                            row: row as isize,
+                        },
+                        labyru::matrix::Pos {
+                            col: maze.width() as isize - 1,
+                            row: row as isize,
+                        },
                     )
                 }),
             ),
@@ -212,14 +227,14 @@ impl HeatMapType {
                 maze,
                 maze.rooms()
                     .positions()
-                    .filter(|&(x, y)| x == 0 || y == 0)
-                    .map(|(x, y)| {
+                    .filter(|&pos| pos.col == 0 || pos.row == 0)
+                    .map(|pos| {
                         (
-                            (x, y),
-                            (
-                                maze.width() as isize - 1 - x,
-                                maze.height() as isize - 1 - y,
-                            ),
+                            pos.clone(),
+                            labyru::matrix::Pos {
+                                col: maze.width() as isize - 1 - pos.col,
+                                row: maze.height() as isize - 1 - pos.row,
+                            },
                         )
                     }),
             ),
@@ -268,12 +283,14 @@ where
     F: Fn(labyru::matrix::Pos) -> Color,
 {
     let mut group = svg::node::element::Group::new();
-    for pos in maze.rooms()
+    for pos in maze
+        .rooms()
         .positions()
         .filter(|pos| maze.rooms()[*pos].visited)
     {
         let color = colors(pos);
-        let mut commands = maze.walls(pos)
+        let mut commands = maze
+            .walls(pos)
             .iter()
             .enumerate()
             .map(|(i, wall)| {
@@ -281,12 +298,12 @@ where
                 if i == 0 {
                     svg::node::element::path::Command::Move(
                         svg::node::element::path::Position::Absolute,
-                        coords.into(),
+                        (coords.x, coords.y).into(),
                     )
                 } else {
                     svg::node::element::path::Command::Line(
                         svg::node::element::path::Position::Absolute,
-                        coords.into(),
+                        (coords.x, coords.y).into(),
                     )
                 }
             })
@@ -297,10 +314,7 @@ where
             svg::node::element::Path::new()
                 .set("fill", color.to_string())
                 .set("fill-opacity", color.alpha as f32 / 255.0)
-                .set(
-                    "d",
-                    svg::node::element::path::Data::from(commands),
-                ),
+                .set("d", svg::node::element::path::Data::from(commands)),
         );
     }
 
@@ -330,10 +344,10 @@ where
     image.enumerate_pixels().fold(
         labyru::matrix::Matrix::<T>::new(maze.width(), maze.height()),
         |mut matrix, (x, y, pixel)| {
-            let physical_pos = (
-                left + width * (x as f32 / cols as f32),
-                top + height * (y as f32 / rows as f32),
-            );
+            let physical_pos = labyru::physical::Pos {
+                x: left + width * (x as f32 / cols as f32),
+                y: top + height * (y as f32 / rows as f32),
+            };
             let pos = maze.room_at(physical_pos);
             update(&mut matrix, pos, pixel);
             matrix

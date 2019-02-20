@@ -83,12 +83,10 @@ where
 
                 // The cost to get to this room is one more that the room from
                 // which we came
-                let g = g_score.get(&current).unwrap() + 1;
+                let g = g_score[&current] + 1;
                 let f = g + h(next);
 
-                if !open_set.contains(current)
-                    || g < *g_score.get(&current).unwrap()
-                {
+                if !open_set.contains(current) || g < g_score[&current] {
                     came_from.insert(next, current);
                     g_score.insert(next, g);
                     f_score.insert(next, f);

@@ -84,7 +84,7 @@ where
                         .map(|wall| (pos, *wall))
                         .collect::<Vec<_>>()
                 })
-                .unwrap_or_else(|| Vec::<_>::new());
+                .unwrap_or_else(Vec::<_>::new);
 
             while !walls.is_empty() {
                 // Get a random wall

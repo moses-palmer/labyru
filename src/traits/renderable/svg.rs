@@ -189,8 +189,8 @@ enum Operation {
 impl Operation {
     /// Extracts the position from this operation regardless of type.
     fn pos(&self) -> physical::Pos {
-        match self {
-            &Operation::Move(pos) | &Operation::Line(pos) => pos,
+        match *self {
+            Operation::Move(pos) | Operation::Line(pos) => pos,
         }
     }
 }

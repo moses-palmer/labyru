@@ -71,8 +71,7 @@ where
                 // Pick a random room
                 .positions()
                 .filter(|&pos| filter(pos))
-                .skip(rng.range(0, count))
-                .next()
+                .nth(rng.range(0, count))
                 // Get all walls not leading out of the maze
                 .map(|pos| {
                     self.walls(pos)

@@ -54,7 +54,7 @@ impl LFSR {
 
     /// Advances this shift register by one `u64` and returns the bit mask.
     fn advance(&mut self) -> u64 {
-        self.skip(63).next().unwrap();
+        self.nth(63).unwrap();
 
         self.bits
     }

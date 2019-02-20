@@ -99,7 +99,7 @@ where
     ///
     /// The values are returned row by row, starting from `(0, 0)` and ending
     /// with `(self.width - 1, self.height - 1)`.
-    pub fn values<'a>(&'a self) -> ValueIterator<'a, T> {
+    pub fn values(&self) -> ValueIterator<'_, T> {
         ValueIterator::new(self)
     }
 

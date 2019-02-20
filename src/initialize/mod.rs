@@ -65,7 +65,7 @@ impl iter::Iterator for LFSR {
 
     /// Returns the next bit.
     fn next(&mut self) -> Option<Self::Item> {
-        let bit = ((self.bits >> 0)
+        let bit = (self.bits
             ^ (self.bits >> 2)
             ^ (self.bits >> 3)
             ^ (self.bits >> 5))

@@ -42,8 +42,8 @@ where
     /// * `height` - The height of the matrix.
     pub fn new(width: usize, height: usize) -> Self {
         Self {
-            width: width,
-            height: height,
+            width,
+            height,
             data: vec![T::default(); width * height],
         }
     }
@@ -178,8 +178,8 @@ impl PosIterator {
     /// * `height` - The height of the matrix.
     pub fn new(width: usize, height: usize) -> Self {
         Self {
-            width: width,
-            height: height,
+            width,
+            height,
             current: -1,
         }
     }
@@ -224,8 +224,8 @@ where
     /// * `matrix` - The matrix.
     pub fn new(matrix: &'a Matrix<T>) -> Self {
         Self {
+            matrix,
             pos_iter: PosIterator::new(matrix.width, matrix.height),
-            matrix: matrix,
         }
     }
 }

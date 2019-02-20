@@ -139,7 +139,7 @@ impl Walker {
         Walker {
             current: start,
             increment: false,
-            map: map,
+            map,
         }
     }
 }
@@ -182,8 +182,8 @@ pub struct Follower<'a> {
 impl<'a> Follower<'a> {
     pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
         Self {
-            maze: maze,
-            start_pos: start_pos,
+            maze,
+            start_pos,
             current: start_pos,
             finished: false,
         }

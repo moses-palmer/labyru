@@ -89,7 +89,7 @@ impl<'a> Visitor<'a> {
     /// *  `maze` - The maze whose walls to visit.
     pub fn new(maze: &'a Maze) -> Self {
         Self {
-            maze: maze,
+            maze,
             walls: matrix::Matrix::new(maze.width(), maze.height()),
             index: 0,
         }

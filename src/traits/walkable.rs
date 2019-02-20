@@ -201,7 +201,7 @@ impl<'a> Follower<'a> {
         let matrix::Pos { col, row } = back.0;
         all[back.1.index]
             .corner_wall_offsets
-            .into_iter()
+            .iter()
             // Convert the offsets to wall positions
             .map(|&((dx, dy), wall_index)| {
                 (

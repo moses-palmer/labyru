@@ -83,12 +83,10 @@ where
 
                 // The cost to get to this room is one more that the room from
                 // which we came
-                let g = g_score.get(&current).unwrap() + 1;
+                let g = g_score[&current] + 1;
                 let f = g + h(next);
 
-                if !open_set.contains(current)
-                    || g < *g_score.get(&current).unwrap()
-                {
+                if !open_set.contains(current) || g < g_score[&current] {
                     came_from.insert(next, current);
                     g_score.insert(next, g);
                     f_score.insert(next, f);
@@ -139,7 +137,7 @@ impl Walker {
         Walker {
             current: start,
             increment: false,
-            map: map,
+            map,
         }
     }
 }
@@ -182,8 +180,8 @@ pub struct Follower<'a> {
 impl<'a> Follower<'a> {
     pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
         Self {
-            maze: maze,
-            start_pos: start_pos,
+            maze,
+            start_pos,
             current: start_pos,
             finished: false,
         }
@@ -203,7 +201,7 @@ impl<'a> Follower<'a> {
         let matrix::Pos { col, row } = back.0;
         all[back.1.index]
             .corner_wall_offsets
-            .into_iter()
+            .iter()
             // Convert the offsets to wall positions
             .map(|&((dx, dy), wall_index)| {
                 (

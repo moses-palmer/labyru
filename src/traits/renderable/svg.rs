@@ -89,7 +89,7 @@ impl<'a> Visitor<'a> {
     /// *  `maze` - The maze whose walls to visit.
     pub fn new(maze: &'a Maze) -> Self {
         Self {
-            maze: maze,
+            maze,
             walls: matrix::Matrix::new(maze.width(), maze.height()),
             index: 0,
         }
@@ -104,12 +104,12 @@ impl<'a> Visitor<'a> {
     /// *  `wall_pos` - The wall to mark as visited.
     fn visit(&mut self, wall_pos: WallPos) {
         if let Some(mask) = self.walls.get_mut(wall_pos.0) {
-            *mask = *mask | (1 << wall_pos.1.index);
+            *mask |= 1 << wall_pos.1.index;
         }
 
         let back = self.maze.back(wall_pos);
         if let Some(back_mask) = self.walls.get_mut(back.0) {
-            *back_mask = *back_mask | (1 << back.1.index);
+            *back_mask |= 1 << back.1.index;
         }
     }
 
@@ -140,7 +140,7 @@ impl<'a> Visitor<'a> {
             {
                 return Some(next);
             } else {
-                self.index = self.index + 1;
+                self.index += 1;
             }
         }
 
@@ -189,8 +189,8 @@ enum Operation {
 impl Operation {
     /// Extracts the position from this operation regardless of type.
     fn pos(&self) -> physical::Pos {
-        match self {
-            &Operation::Move(pos) | &Operation::Line(pos) => pos,
+        match *self {
+            Operation::Move(pos) | Operation::Line(pos) => pos,
         }
     }
 }

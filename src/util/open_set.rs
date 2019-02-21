@@ -46,11 +46,7 @@ impl OpenSet {
     /// `pos` - The position.
     pub fn contains(&mut self, pos: matrix::Pos) -> bool {
         // TODO: Allow constant lookup time
-        self.heap
-            .iter()
-            .filter(|&priority_pos| pos == priority_pos.1)
-            .next()
-            .is_some()
+        self.heap.iter().any(|&priority_pos| pos == priority_pos.1)
     }
 }
 

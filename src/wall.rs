@@ -15,7 +15,7 @@ pub type Offset = ((isize, isize), usize);
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, PartialEq, PartialOrd)]
+#[derive(Clone, PartialOrd)]
 pub struct Wall {
     /// The name of this wall.
     pub name: &'static str,
@@ -76,6 +76,12 @@ impl Wall {
             let overflowed = normalized + RADIAN_BOUND;
             (self.span.0 <= overflowed) && (overflowed < self.span.1)
         }
+    }
+}
+
+impl PartialEq for Wall {
+    fn eq(&self, other: &Self) -> bool {
+        self.index == other.index && self.dir == other.dir
     }
 }
 

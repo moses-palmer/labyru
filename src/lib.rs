@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
+
 #[cfg(feature = "osrand")]
 extern crate rand;
 

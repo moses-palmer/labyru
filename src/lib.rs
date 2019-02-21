@@ -66,15 +66,10 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
         if pos1 == pos2 {
             true
-        } else if let Some(wall) = self
-            .walls(pos1)
-            .iter()
-            .filter(|wall| {
-                (pos1.col + wall.dir.0 == pos2.col)
-                    && (pos1.row + wall.dir.1 == pos2.row)
-            })
-            .next()
-        {
+        } else if let Some(wall) = self.walls(pos1).iter().find(|wall| {
+            (pos1.col + wall.dir.0 == pos2.col)
+                && (pos1.row + wall.dir.1 == pos2.row)
+        }) {
             self.is_open((pos1, wall))
         } else {
             false

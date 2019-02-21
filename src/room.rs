@@ -18,7 +18,7 @@ impl Room {
     ///
     /// # Arguments
     /// `wall` - The wall to check.
-    pub fn is_open(&self, wall: &'static wall::Wall) -> bool {
+    pub fn is_open(self, wall: &'static wall::Wall) -> bool {
         self.walls & wall.mask() != 0
     }
 

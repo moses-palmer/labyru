@@ -71,9 +71,9 @@ impl Color {
     ///   otherwise a linear interpolation between the colours is returned.
     fn fade(self, other: Self, w: f32) -> Color {
         if w >= 1.0 {
-            self.clone()
+            self
         } else if w <= 0.0 {
-            other.clone()
+            other
         } else {
             let n = 1.0 - w;
             Color {
@@ -233,7 +233,7 @@ impl HeatMapType {
                     .filter(|&pos| pos.col == 0 || pos.row == 0)
                     .map(|pos| {
                         (
-                            pos.clone(),
+                            pos,
                             maze::matrix::Pos {
                                 col: maze.width() as isize - 1 - pos.col,
                                 row: maze.height() as isize - 1 - pos.row,

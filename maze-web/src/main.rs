@@ -71,7 +71,6 @@ fn maze_svg(
         dimensions,
         seed,
     }
-    .into()
 }
 
 fn main() {

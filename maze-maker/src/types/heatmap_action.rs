@@ -86,7 +86,7 @@ impl Action for HeatMapAction {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;
         group.append(draw_rooms(maze, |pos| {
-            self.to.fade(&self.from, matrix[pos] as f32 / max)
+            self.to.fade(self.from, matrix[pos] as f32 / max)
         }));
     }
 }

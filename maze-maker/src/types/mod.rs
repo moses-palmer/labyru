@@ -53,7 +53,7 @@ pub struct Color {
 
 impl Color {
     /// Returns a fully transparent version of this colour.
-    fn transparent(&self) -> Self {
+    fn transparent(self) -> Self {
         Self {
             red: self.red,
             green: self.blue,
@@ -69,7 +69,7 @@ impl Color {
     /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
     ///   colour is returned; if this is 0.0 or less, `other` is returned;
     ///   otherwise a linear interpolation between the colours is returned.
-    fn fade(&self, other: &Self, w: f32) -> Color {
+    fn fade(self, other: Self, w: f32) -> Color {
         if w >= 1.0 {
             self.clone()
         } else if w <= 0.0 {

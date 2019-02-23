@@ -26,7 +26,7 @@ impl FromStr for BreakAction {
     ///    `1`.
     /// 2. `map_type,count`: If a count is passed, it will be used as `count`.
     fn from_str(s: &str) -> Result<Self, String> {
-        let mut parts = s.split(",").map(|p| p.trim());
+        let mut parts = s.split(',').map(|p| p.trim());
         let map_type =
             parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
 

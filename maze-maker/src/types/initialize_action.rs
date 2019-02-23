@@ -29,7 +29,7 @@ impl FromStr for InitializeAction {
     /// The string must be on the form `path,threshold`, where `path` is the
     /// path to an image and `threshold` is a value between 0 and 1.
     fn from_str(s: &str) -> Result<Self, String> {
-        let mut parts = s.split(",").map(|p| p.trim());
+        let mut parts = s.split(',').map(|p| p.trim());
         let path = parts
             .next()
             .map(|p| std::path::Path::new(p).to_path_buf())

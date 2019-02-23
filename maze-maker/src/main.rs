@@ -13,7 +13,7 @@ use clap::{App, Arg};
 
 use svg::Node;
 
-use maze::initialize::randomized_prim::*;
+use maze::prelude::*;
 use maze::renderable::svg::*;
 
 mod types;

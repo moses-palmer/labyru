@@ -4,7 +4,7 @@ use image;
 use rand;
 use svg;
 
-use maze::randomized_prim::RandomizedPrim;
+use maze::prelude::*;
 
 use super::*;
 

@@ -13,8 +13,9 @@ use rocket::http;
 use rocket::response;
 use svg::Node;
 
-use maze::initialize::randomized_prim::*;
 use maze::traits::svg::*;
+
+use maze::prelude::*;
 
 mod types;
 

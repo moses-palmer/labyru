@@ -20,8 +20,6 @@ pub mod traits;
 pub use self::traits::*;
 
 pub mod initialize;
-pub use self::initialize::*;
-
 pub mod matrix;
 pub mod room;
 

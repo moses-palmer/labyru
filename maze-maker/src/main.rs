@@ -13,11 +13,10 @@ use clap::{App, Arg};
 
 use svg::Node;
 
-use maze::initialize::randomized_prim::*;
-use maze::renderable::svg::*;
+use maze::prelude::*;
 
 mod types;
-use types::*;
+use self::types::*;
 
 #[allow(unused_variables)]
 fn run(

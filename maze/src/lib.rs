@@ -20,10 +20,11 @@ pub mod traits;
 pub use self::traits::*;
 
 pub mod initialize;
-pub use self::initialize::*;
-
 pub mod matrix;
 pub mod room;
+
+pub mod prelude;
+pub use self::prelude::*;
 
 mod util;
 
@@ -193,8 +194,8 @@ where
 mod tests {
     use std::collections::HashSet;
 
+    use super::test_utils::*;
     use super::*;
-    use test_utils::*;
 
     maze_test!(
         is_inside_correct,

@@ -66,8 +66,11 @@ impl Action for InitializeAction {
             // the room
             |matrix, pos, pixel| {
                 if maze.rooms().is_inside(pos) {
-                    matrix[pos] +=
-                        pixel.data.iter().map(|&p| D * p as f32).sum::<f32>();
+                    matrix[pos] += pixel
+                        .data
+                        .iter()
+                        .map(|&p| D * f32::from(p))
+                        .sum::<f32>();
                 }
             },
         )

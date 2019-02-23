@@ -77,10 +77,13 @@ impl Color {
         } else {
             let n = 1.0 - w;
             Color {
-                red: (self.red as f32 * w + other.red as f32 * n) as u8,
-                green: (self.green as f32 * w + other.green as f32 * n) as u8,
-                blue: (self.blue as f32 * w + other.blue as f32 * n) as u8,
-                alpha: (self.alpha as f32 * w + other.alpha as f32 * n) as u8,
+                red: (f32::from(self.red) * w + f32::from(other.red) * n) as u8,
+                green: (f32::from(self.green) * w + f32::from(other.green) * n)
+                    as u8,
+                blue: (f32::from(self.blue) * w + f32::from(other.blue) * n)
+                    as u8,
+                alpha: (f32::from(self.alpha) * w + f32::from(other.alpha) * n)
+                    as u8,
             }
         }
     }
@@ -308,7 +311,7 @@ where
         group.append(
             svg::node::element::Path::new()
                 .set("fill", color.to_string())
-                .set("fill-opacity", color.alpha as f32 / 255.0)
+                .set("fill-opacity", f32::from(color.alpha) / 255.0)
                 .set("d", svg::node::element::path::Data::from(commands)),
         );
     }

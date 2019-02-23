@@ -5,7 +5,7 @@ extern crate rand;
 extern crate rocket;
 extern crate svg;
 
-extern crate labyru;
+extern crate maze;
 
 use std::io;
 
@@ -13,8 +13,8 @@ use rocket::http;
 use rocket::response;
 use svg::Node;
 
-use labyru::initialize::randomized_prim::*;
-use labyru::traits::svg::*;
+use maze::initialize::randomized_prim::*;
+use maze::traits::svg::*;
 
 mod types;
 
@@ -43,7 +43,7 @@ impl<'a> response::Responder<'a> for Maze {
 
 impl<'a> From<Maze> for response::Result<'a> {
     fn from(mut source: Maze) -> Self {
-        let mut maze: Box<labyru::Maze> =
+        let mut maze: Box<maze::Maze> =
             source.maze_type.create(source.dimensions);
         maze.randomized_prim(&mut source.seed);
 

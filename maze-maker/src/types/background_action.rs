@@ -35,7 +35,7 @@ impl Action for BackgroundAction {
     /// * `group` - The group to which to add the rooms.
     fn apply(
         self,
-        maze: &mut labyru::Maze,
+        maze: &mut maze::Maze,
         group: &mut svg::node::element::Group,
     ) {
         let data = image_to_matrix::<_, (u32, (u32, u32, u32))>(

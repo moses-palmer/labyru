@@ -5,7 +5,7 @@ extern crate rand;
 extern crate rayon;
 extern crate svg;
 
-extern crate labyru;
+extern crate maze;
 
 use std::f32;
 
@@ -13,15 +13,15 @@ use clap::{App, Arg};
 
 use svg::Node;
 
-use labyru::initialize::randomized_prim::*;
-use labyru::renderable::svg::*;
+use maze::initialize::randomized_prim::*;
+use maze::renderable::svg::*;
 
 mod types;
 use types::*;
 
 #[allow(unused_variables)]
 fn run(
-    maze: &mut labyru::Maze,
+    maze: &mut maze::Maze,
     scale: f32,
     margin: f32,
     break_action: Option<BreakAction>,
@@ -76,7 +76,7 @@ fn run(
 /// * `scale` - A scale multiplier.
 /// * `margin` - The margin to apply to all sides.
 fn maze_to_viewbox(
-    maze: &labyru::Maze,
+    maze: &maze::Maze,
     scale: f32,
     margin: f32,
 ) -> (f32, f32, f32, f32) {
@@ -159,7 +159,7 @@ fn main() {
 
     let args = app.get_matches();
 
-    let mut maze = labyru::MazeType::from_num(
+    let mut maze = maze::MazeType::from_num(
         args.value_of("WALLS")
             .map(|s| s.parse().expect("invalid wall value"))
             .unwrap(),

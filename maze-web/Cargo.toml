@@ -1,11 +1,11 @@
 [package]
-name = "labyru-web"
+name = "maze-web"
 version = "0.1.0"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-labyru = { path = "../" }
+maze = { path = "../maze" }
 rand = { version = "0.4" }
 rocket = "0.4.0"
 svg = { version = "0.5" }

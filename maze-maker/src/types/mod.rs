@@ -110,12 +110,12 @@ impl str::FromStr for Color {
                 .skip(1)
                 // Hex decode and create list
                 .map(|c| {
-                    if c >= '0' as u8 && c <= '9' as u8 {
-                        Some(c - '0' as u8)
-                    } else if c >= 'A' as u8 && c <= 'F' as u8 {
-                        Some(c - 'A' as u8 + 10)
-                    } else if c >= 'a' as u8 && c <= 'f' as u8 {
-                        Some(c - 'a' as u8 + 10)
+                    if c >= b'0' && c <= b'9' {
+                        Some(c - b'0')
+                    } else if c >= b'A' && c <= b'F' {
+                        Some(c - b'A' + 10)
+                    } else if c >= b'a' && c <= b'f' {
+                        Some(c - b'a' + 10)
                     } else {
                         None
                     }

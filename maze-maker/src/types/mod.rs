@@ -101,7 +101,7 @@ impl str::FromStr for Color {
     /// # Arguments
     /// * `s` - The string to convert.
     fn from_str(s: &str) -> Result<Color, String> {
-        if !s.starts_with('#') || s.len() % 1 == 1 {
+        if !s.starts_with('#') || s.len() % 2 == 0 {
             Err(format!("unknown colour value: {}", s))
         } else {
             let data = s

@@ -14,7 +14,6 @@ use clap::{App, Arg};
 use svg::Node;
 
 use maze::prelude::*;
-use maze::renderable::svg::*;
 
 mod types;
 use self::types::*;

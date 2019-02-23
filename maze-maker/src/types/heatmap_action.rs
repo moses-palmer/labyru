@@ -31,27 +31,27 @@ impl FromStr for HeatMapAction {
     /// 3. `map_type,from,to`: If two colours are passed, they are used as
     ///    `from` and `to` values.
     fn from_str(s: &str) -> Result<Self, String> {
-        let mut parts = s.split(",").map(|p| p.trim());
+        let mut parts = s.split(',').map(|p| p.trim());
         let map_type =
             parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
 
         if let Some(part1) = parts.next() {
             if let Some(part2) = parts.next() {
                 Ok(Self {
-                    map_type: map_type,
+                    map_type,
                     from: Color::from_str(part1)?,
                     to: Color::from_str(part2)?,
                 })
             } else {
                 Ok(Self {
-                    map_type: map_type,
+                    map_type,
                     from: Color::from_str(part1).map(|c| c.transparent())?,
                     to: Color::from_str(part1)?,
                 })
             }
         } else {
             Ok(Self {
-                map_type: map_type,
+                map_type,
                 from: Color {
                     red: 0,
                     green: 0,
@@ -86,7 +86,7 @@ impl Action for HeatMapAction {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;
         group.append(draw_rooms(maze, |pos| {
-            self.to.fade(&self.from, matrix[pos] as f32 / max)
+            self.to.fade(self.from, matrix[pos] as f32 / max)
         }));
     }
 }

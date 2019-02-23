@@ -49,9 +49,9 @@ impl Action for BackgroundAction {
                     matrix[pos] = (
                         matrix[pos].0 + 1,
                         (
-                            (matrix[pos].1).0 + pixel[0] as u32,
-                            (matrix[pos].1).1 + pixel[1] as u32,
-                            (matrix[pos].1).2 + pixel[2] as u32,
+                            (matrix[pos].1).0 + u32::from(pixel[0]),
+                            (matrix[pos].1).1 + u32::from(pixel[1]),
+                            (matrix[pos].1).2 + u32::from(pixel[2]),
                         ),
                     );
                 }

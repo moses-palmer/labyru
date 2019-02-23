@@ -61,7 +61,7 @@ impl<'a> From<Maze> for response::Result<'a> {
 }
 
 #[get("/<maze_type>/<dimensions>/image.svg?<seed>")]
-fn maze_svg<'a>(
+fn maze_svg(
     maze_type: types::MazeType,
     dimensions: types::Dimensions,
     seed: types::Seed,
@@ -71,7 +71,6 @@ fn maze_svg<'a>(
         dimensions,
         seed,
     }
-    .into()
 }
 
 fn main() {

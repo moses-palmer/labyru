@@ -53,7 +53,7 @@ pub struct Color {
 
 impl Color {
     /// Returns a fully transparent version of this colour.
-    fn transparent(&self) -> Self {
+    fn transparent(self) -> Self {
         Self {
             red: self.red,
             green: self.blue,
@@ -69,18 +69,21 @@ impl Color {
     /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
     ///   colour is returned; if this is 0.0 or less, `other` is returned;
     ///   otherwise a linear interpolation between the colours is returned.
-    fn fade(&self, other: &Self, w: f32) -> Color {
+    fn fade(self, other: Self, w: f32) -> Color {
         if w >= 1.0 {
-            self.clone()
+            self
         } else if w <= 0.0 {
-            other.clone()
+            other
         } else {
             let n = 1.0 - w;
             Color {
-                red: (self.red as f32 * w + other.red as f32 * n) as u8,
-                green: (self.green as f32 * w + other.green as f32 * n) as u8,
-                blue: (self.blue as f32 * w + other.blue as f32 * n) as u8,
-                alpha: (self.alpha as f32 * w + other.alpha as f32 * n) as u8,
+                red: (f32::from(self.red) * w + f32::from(other.red) * n) as u8,
+                green: (f32::from(self.green) * w + f32::from(other.green) * n)
+                    as u8,
+                blue: (f32::from(self.blue) * w + f32::from(other.blue) * n)
+                    as u8,
+                alpha: (f32::from(self.alpha) * w + f32::from(other.alpha) * n)
+                    as u8,
             }
         }
     }
@@ -98,7 +101,7 @@ impl str::FromStr for Color {
     /// # Arguments
     /// * `s` - The string to convert.
     fn from_str(s: &str) -> Result<Color, String> {
-        if !s.starts_with('#') || s.len() % 1 == 1 {
+        if !s.starts_with('#') || s.len() % 2 == 0 {
             Err(format!("unknown colour value: {}", s))
         } else {
             let data = s
@@ -107,12 +110,12 @@ impl str::FromStr for Color {
                 .skip(1)
                 // Hex decode and create list
                 .map(|c| {
-                    if c >= '0' as u8 && c <= '9' as u8 {
-                        Some(c - '0' as u8)
-                    } else if c >= 'A' as u8 && c <= 'F' as u8 {
-                        Some(c - 'A' as u8 + 10)
-                    } else if c >= 'a' as u8 && c <= 'f' as u8 {
-                        Some(c - 'a' as u8 + 10)
+                    if c >= b'0' && c <= b'9' {
+                        Some(c - b'0')
+                    } else if c >= b'A' && c <= b'F' {
+                        Some(c - b'A' + 10)
+                    } else if c >= b'a' && c <= b'f' {
+                        Some(c - b'a' + 10)
                     } else {
                         None
                     }
@@ -230,7 +233,7 @@ impl HeatMapType {
                     .filter(|&pos| pos.col == 0 || pos.row == 0)
                     .map(|pos| {
                         (
-                            pos.clone(),
+                            pos,
                             maze::matrix::Pos {
                                 col: maze.width() as isize - 1 - pos.col,
                                 row: maze.height() as isize - 1 - pos.row,
@@ -260,7 +263,7 @@ impl HeatMapType {
             .chunks(collected.len() / rayon::current_num_threads())
             .collect::<Vec<_>>()
             .par_iter()
-            .map(|positions| maze::heatmap(maze, positions.iter().map(|p| *p)))
+            .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
             .reduce(
                 || maze::HeatMap::new(maze.width(), maze.height()),
                 |acc, o| acc.add(o),
@@ -308,7 +311,7 @@ where
         group.append(
             svg::node::element::Path::new()
                 .set("fill", color.to_string())
-                .set("fill-opacity", color.alpha as f32 / 255.0)
+                .set("fill-opacity", f32::from(color.alpha) / 255.0)
                 .set("d", svg::node::element::path::Data::from(commands)),
         );
     }

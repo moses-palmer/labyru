@@ -5,7 +5,7 @@ authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-labyru = { path = "../" }
+labyru = { path = "../labyru" }
 clap = "2.31"
 image = "0.18"
 rand = "0.4"

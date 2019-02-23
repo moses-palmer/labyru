@@ -18,7 +18,7 @@ use maze::prelude::*;
 mod types;
 use self::types::*;
 
-#[allow(unused_variables)]
+#[allow(unused_variables, clippy::too_many_arguments)]
 fn run(
     maze: &mut maze::Maze,
     scale: f32,

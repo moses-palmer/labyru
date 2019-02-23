@@ -1,5 +1,5 @@
 [package]
-name = "labyru"
+name = "maze"
 version = "0.1.0"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 edition = "2018"

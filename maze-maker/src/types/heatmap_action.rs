@@ -80,7 +80,7 @@ impl Action for HeatMapAction {
     /// * `group` - The group to which to add the rooms.
     fn apply(
         self,
-        maze: &mut labyru::Maze,
+        maze: &mut maze::Maze,
         group: &mut svg::node::element::Group,
     ) {
         let matrix = self.map_type.generate(maze);

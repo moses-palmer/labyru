@@ -56,7 +56,7 @@ impl Action for BreakAction {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    fn apply(self, maze: &mut labyru::Maze, _: &mut svg::node::element::Group) {
+    fn apply(self, maze: &mut maze::Maze, _: &mut svg::node::element::Group) {
         let mut rng = rand::weak_rng();
 
         for _ in 0..self.count {

@@ -1,7 +1,7 @@
 use rocket::http;
 use rocket::request;
 
-use labyru::initialize;
+use maze::initialize;
 
 /// A random seed.
 pub struct Seed {

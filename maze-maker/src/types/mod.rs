@@ -8,9 +8,9 @@ use svg;
 use rayon::prelude::*;
 use svg::Node;
 
-use labyru;
+use maze;
 
-use labyru::matrix::AddableMatrix;
+use maze::matrix::AddableMatrix;
 
 pub mod background_action;
 pub use self::background_action::*;
@@ -30,7 +30,7 @@ pub trait Action: std::str::FromStr<Err = String> {
     /// *  `group` - An SVG group.
     fn apply(
         self,
-        maze: &mut labyru::Maze,
+        maze: &mut maze::Maze,
         group: &mut svg::node::element::Group,
     );
 }
@@ -191,17 +191,17 @@ impl HeatMapType {
     ///
     /// # Arguments
     /// * `maze` - The maze for which to generate a heat map.
-    pub fn generate(&self, maze: &labyru::Maze) -> labyru::matrix::Matrix<u32> {
+    pub fn generate(&self, maze: &maze::Maze) -> maze::matrix::Matrix<u32> {
         match *self {
             HeatMapType::Vertical => self.create_heatmap(
                 maze,
                 (0..maze.width()).map(|col| {
                     (
-                        labyru::matrix::Pos {
+                        maze::matrix::Pos {
                             col: col as isize,
                             row: 0,
                         },
-                        labyru::matrix::Pos {
+                        maze::matrix::Pos {
                             col: col as isize,
                             row: maze.height() as isize - 1,
                         },
@@ -212,11 +212,11 @@ impl HeatMapType {
                 maze,
                 (0..maze.height()).map(|row| {
                     (
-                        labyru::matrix::Pos {
+                        maze::matrix::Pos {
                             col: 0,
                             row: row as isize,
                         },
-                        labyru::matrix::Pos {
+                        maze::matrix::Pos {
                             col: maze.width() as isize - 1,
                             row: row as isize,
                         },
@@ -231,7 +231,7 @@ impl HeatMapType {
                     .map(|pos| {
                         (
                             pos.clone(),
-                            labyru::matrix::Pos {
+                            maze::matrix::Pos {
                                 col: maze.width() as isize - 1 - pos.col,
                                 row: maze.height() as isize - 1 - pos.row,
                             },
@@ -249,22 +249,20 @@ impl HeatMapType {
     ///   will be generated from the heat map type.
     fn create_heatmap<I>(
         &self,
-        maze: &labyru::Maze,
+        maze: &maze::Maze,
         positions: I,
-    ) -> labyru::HeatMap
+    ) -> maze::HeatMap
     where
-        I: Iterator<Item = (labyru::matrix::Pos, labyru::matrix::Pos)>,
+        I: Iterator<Item = (maze::matrix::Pos, maze::matrix::Pos)>,
     {
         let collected = positions.collect::<Vec<_>>();
         collected
             .chunks(collected.len() / rayon::current_num_threads())
             .collect::<Vec<_>>()
             .par_iter()
-            .map(|positions| {
-                labyru::heatmap(maze, positions.iter().map(|p| *p))
-            })
+            .map(|positions| maze::heatmap(maze, positions.iter().map(|p| *p)))
             .reduce(
-                || labyru::HeatMap::new(maze.width(), maze.height()),
+                || maze::HeatMap::new(maze.width(), maze.height()),
                 |acc, o| acc.add(o),
             )
     }
@@ -275,12 +273,9 @@ impl HeatMapType {
 /// # Arguments
 /// * `maze` - The maze to draw.
 /// * `colors` - A function determining the colour of a room.
-pub fn draw_rooms<F>(
-    maze: &labyru::Maze,
-    colors: F,
-) -> svg::node::element::Group
+pub fn draw_rooms<F>(maze: &maze::Maze, colors: F) -> svg::node::element::Group
 where
-    F: Fn(labyru::matrix::Pos) -> Color,
+    F: Fn(maze::matrix::Pos) -> Color,
 {
     let mut group = svg::node::element::Group::new();
     for pos in maze
@@ -332,19 +327,19 @@ where
 /// *  `update` - The update function.
 pub fn image_to_matrix<U, T>(
     image: image::RgbImage,
-    maze: &labyru::Maze,
+    maze: &maze::Maze,
     update: U,
-) -> labyru::matrix::Matrix<T>
+) -> maze::matrix::Matrix<T>
 where
-    U: Fn(&mut labyru::matrix::Matrix<T>, labyru::matrix::Pos, &image::Rgb<u8>),
+    U: Fn(&mut maze::matrix::Matrix<T>, maze::matrix::Pos, &image::Rgb<u8>),
     T: Copy + Default,
 {
     let (left, top, width, height) = maze.viewbox();
     let (cols, rows) = image.dimensions();
     image.enumerate_pixels().fold(
-        labyru::matrix::Matrix::<T>::new(maze.width(), maze.height()),
+        maze::matrix::Matrix::<T>::new(maze.width(), maze.height()),
         |mut matrix, (x, y, pixel)| {
-            let physical_pos = labyru::physical::Pos {
+            let physical_pos = maze::physical::Pos {
                 x: left + width * (x as f32 / cols as f32),
                 y: top + height * (y as f32 / rows as f32),
             };

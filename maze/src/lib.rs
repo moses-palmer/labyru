@@ -25,6 +25,9 @@ pub use self::initialize::*;
 pub mod matrix;
 pub mod room;
 
+pub mod prelude;
+pub use self::prelude::*;
+
 mod util;
 
 /// A wall of a room.

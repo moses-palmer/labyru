@@ -37,10 +37,7 @@ impl FromStr for InitializeAction {
 
         if let Some(part1) = parts.next() {
             if let Ok(threshold) = part1.parse() {
-                Ok(Self {
-                    path: path,
-                    threshold: threshold,
-                })
+                Ok(Self { path, threshold })
             } else {
                 Err(format!("invalid threshold: {}", part1))
             }

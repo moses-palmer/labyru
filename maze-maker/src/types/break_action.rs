@@ -32,18 +32,12 @@ impl FromStr for BreakAction {
 
         if let Some(part1) = parts.next() {
             if let Ok(count) = usize::from_str_radix(part1, 10) {
-                Ok(Self {
-                    map_type: map_type,
-                    count: count,
-                })
+                Ok(Self { map_type, count })
             } else {
                 Err(format!("invalid count: {}", part1))
             }
         } else {
-            Ok(Self {
-                map_type: map_type,
-                count: 1,
-            })
+            Ok(Self { map_type, count: 1 })
         }
     }
 }

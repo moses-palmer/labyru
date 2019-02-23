@@ -38,20 +38,20 @@ impl FromStr for HeatMapAction {
         if let Some(part1) = parts.next() {
             if let Some(part2) = parts.next() {
                 Ok(Self {
-                    map_type: map_type,
+                    map_type,
                     from: Color::from_str(part1)?,
                     to: Color::from_str(part2)?,
                 })
             } else {
                 Ok(Self {
-                    map_type: map_type,
+                    map_type,
                     from: Color::from_str(part1).map(|c| c.transparent())?,
                     to: Color::from_str(part1)?,
                 })
             }
         } else {
             Ok(Self {
-                map_type: map_type,
+                map_type,
                 from: Color {
                     red: 0,
                     green: 0,

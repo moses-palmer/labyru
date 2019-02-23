@@ -263,7 +263,7 @@ impl HeatMapType {
             .chunks(collected.len() / rayon::current_num_threads())
             .collect::<Vec<_>>()
             .par_iter()
-            .map(|positions| maze::heatmap(maze, positions.iter().map(|p| *p)))
+            .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
             .reduce(
                 || maze::HeatMap::new(maze.width(), maze.height()),
                 |acc, o| acc.add(o),

@@ -1,5 +1,4 @@
 use maze;
-use maze::matrix;
 use maze::physical;
 
 use super::*;
@@ -18,12 +17,38 @@ where
         let maze: &maze::Maze = self.maze.as_ref();
         let room_pos = maze.room_at(pos);
         let room_center = maze.center(room_pos);
-        let offset = (pos.x - room_center.x, pos.y - room_center.y);
+        let _offset = (pos.x - room_center.x, pos.y - room_center.y);
         let viewport = viewport(gl, pos, zoom);
 
-        for room_position in viewport.room_positions(maze) {
+        let vert_shader = compile_shader(
+            &gl,
+            GL::VERTEX_SHADER,
+            r#"
+                attribute vec4 position;
+                void main() {
+                    gl_Position = position;
+                }
+            "#,
+        )
+        .unwrap();
+        let frag_shader = compile_shader(
+            &gl,
+            GL::FRAGMENT_SHADER,
+            r#"
+                void main() {
+                    gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
+                }
+            "#,
+        )
+        .unwrap();
+        let program =
+            link_program(&gl, [vert_shader, frag_shader].iter()).unwrap();
+        gl.use_program(Some(&program));
+
+        let room_positions = viewport.room_positions(maze);
+        for room_position in room_positions {
             // TODO: Translate
-            self.render_room(gl, room_pos);
+            self.render_room(gl, room_position);
         }
     }
 }

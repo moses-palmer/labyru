@@ -2,6 +2,7 @@
 
 extern crate js_sys;
 extern crate maze;
+extern crate nalgebra;
 extern crate wasm_bindgen;
 extern crate web_sys;
 
@@ -11,7 +12,6 @@ use maze::initialize;
 use maze::initialize::randomized_prim::*;
 use maze::matrix;
 
-mod context;
 mod state;
 mod view;
 
@@ -54,7 +54,7 @@ impl App {
 
         let view = View::FromAbove {
             pos: maze.center(matrix::Pos { col: 0, row: 0 }),
-            zoom: 2.0,
+            zoom: 200.0,
         };
 
         let state = State { maze };

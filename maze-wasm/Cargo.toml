@@ -10,6 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 maze = { path = "../maze" }
 js-sys = "*"
+nalgebra = "0.17.2"
 rand = "0.4"
 wasm-bindgen = "=0.2.34"
 

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+##
+# The target to build.
+TARGET="wasm32-unknown-unknown"
+
+##
+# The temporary build directory.
+TARGETDIR="target/$TARGET/build"
+mkdir -p "$TARGETDIR"
+
+##
+# The output directory.
+TMPDIR="$(mktemp -d)"
+trap "rm -rf $TMPDIR" EXIT
+
+##
+# The final output directory.
+OUTDIR="dist"
+
+cargo +nightly build -Z unstable-options --target="$TARGET" --out-dir="$TMPDIR"
+wasm-bindgen --browser --out-dir="pkg" "$TMPDIR/"*.wasm

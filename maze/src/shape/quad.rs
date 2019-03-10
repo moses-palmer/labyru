@@ -67,7 +67,7 @@ macro_rules! walls {
 }
 
 /// The walls
-static ALL: &[&'static wall::Wall] =
+static ALL: &[&wall::Wall] =
     &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 define_base!();

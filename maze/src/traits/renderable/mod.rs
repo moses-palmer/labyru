@@ -12,7 +12,7 @@ pub trait Renderable {
     fn viewbox(&self) -> (f32, f32, f32, f32);
 }
 
-impl<'a, M> Renderable for M
+impl<M> Renderable for M
 where
     M: Maze,
 {

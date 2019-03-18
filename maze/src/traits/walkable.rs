@@ -29,9 +29,9 @@ pub trait Walkable {
     fn follow_wall(&self, wall_pos: WallPos) -> Follower;
 }
 
-impl<'a, M> Walkable for M
+impl<M> Walkable for M
 where
-    M: Maze + 'a,
+    M: Maze,
 {
     fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Walker> {
         // Reverse the positions to return the rooms in correct order

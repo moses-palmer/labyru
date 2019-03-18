@@ -106,12 +106,10 @@ macro_rules! walls {
 }
 
 /// The walls for even rows
-static ALL0: &[&'static wall::Wall] =
-    &[&walls::LEFT0, &walls::RIGHT0, &walls::UP];
+static ALL0: &[&wall::Wall] = &[&walls::LEFT0, &walls::RIGHT0, &walls::UP];
 
 /// The walls for odd rows
-static ALL1: &[&'static wall::Wall] =
-    &[&walls::LEFT1, &walls::DOWN, &walls::RIGHT1];
+static ALL1: &[&wall::Wall] = &[&walls::LEFT1, &walls::DOWN, &walls::RIGHT1];
 
 define_base!(
     horizontal_multiplicator: f32 = (PI / 2.0 + 2.0 * 2.0 * PI / 3.0).cos(),

@@ -6,6 +6,7 @@ use crate::WallPos;
 
 use crate::matrix;
 use crate::physical;
+use crate::traits::walkable;
 use crate::wall;
 
 pub trait ToPath {
@@ -62,6 +63,25 @@ impl<'a> ToPath for Maze + 'a {
         svg::node::element::path::Data::from(
             commands
                 .into_iter()
+                .map(|c| c.into())
+                .collect::<Vec<Command>>(),
+        )
+    }
+}
+
+impl<'a> ToPath for walkable::Path<'a> {
+    fn to_path_d(&self) -> svg::node::element::path::Data {
+        svg::node::element::path::Data::from(
+            self.into_iter()
+                .map(|pos| self.maze.center(pos))
+                .enumerate()
+                .map(|(i, pos)| {
+                    if i == 0 {
+                        Operation::Move(pos)
+                    } else {
+                        Operation::Line(pos)
+                    }
+                })
                 .map(|c| c.into())
                 .collect::<Vec<Command>>(),
         )

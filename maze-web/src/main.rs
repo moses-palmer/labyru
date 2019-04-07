@@ -25,6 +25,7 @@ struct Maze {
     maze_type: types::MazeType,
     dimensions: types::Dimensions,
     seed: types::Seed,
+    solve: bool,
 }
 
 impl<'a> response::Responder<'a> for Maze {
@@ -47,8 +48,27 @@ impl<'a> From<Maze> for response::Result<'a> {
         maze.randomized_prim(&mut source.seed);
 
         let mut container = svg::node::element::Group::new();
-        container
-            .append(svg::node::element::Path::new().set("d", maze.to_path_d()));
+        container.append(
+            svg::node::element::Path::new()
+                .set("class", "walls")
+                .set("d", maze.to_path_d()),
+        );
+        if source.solve {
+            container.append(
+                svg::node::element::Path::new().set("class", "path").set(
+                    "d",
+                    maze.walk(
+                        maze::matrix::Pos { col: 0, row: 0 },
+                        maze::matrix::Pos {
+                            col: maze.width() as isize - 1,
+                            row: maze.height() as isize - 1,
+                        },
+                    )
+                    .unwrap()
+                    .to_path_d(),
+                ),
+            );
+        }
         let data = svg::Document::new()
             .set("viewBox", maze.viewbox())
             .add(container)
@@ -60,16 +80,18 @@ impl<'a> From<Maze> for response::Result<'a> {
     }
 }
 
-#[get("/<maze_type>/<dimensions>/image.svg?<seed>")]
+#[get("/<maze_type>/<dimensions>/image.svg?<seed>&<solve>")]
 fn maze_svg(
     maze_type: types::MazeType,
     dimensions: types::Dimensions,
     seed: types::Seed,
+    solve: bool,
 ) -> Maze {
     Maze {
         maze_type,
         dimensions,
         seed,
+        solve,
     }
 }
 

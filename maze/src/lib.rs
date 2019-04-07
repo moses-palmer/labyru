@@ -181,7 +181,7 @@ where
 
     for (from, to) in positions {
         if let Some(path) = maze.walk(from, to) {
-            for pos in path {
+            for pos in path.into_iter() {
                 result[pos] += 1;
             }
         }

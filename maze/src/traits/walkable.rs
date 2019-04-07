@@ -3,6 +3,7 @@ use std;
 use crate::matrix;
 use crate::util::open_set;
 
+use crate::traits::physical;
 use crate::Maze;
 use crate::WallPos;
 
@@ -64,7 +65,7 @@ where
         while let Some(current) = open_set.pop() {
             // Have we reached the target?
             if current == end {
-                return Some(Path::new(current, came_from));
+                return Some(Path::new(self, current, came_from));
             }
 
             closed_set.insert(current);
@@ -110,7 +111,10 @@ where
 ///
 /// This struct describes the path through a maze by maintaining a mapping from
 /// a room position to the next room.
-pub struct Path {
+pub struct Path<'a> {
+    /// The maze being walked.
+    pub(crate) maze: &'a physical::Physical,
+
     /// The starting position.
     start: matrix::Pos,
 
@@ -118,20 +122,21 @@ pub struct Path {
     map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
 }
 
-impl Path {
+impl<'a> Path<'a> {
     /// Stores the path from a starting position and a supporting map.
     ///
     /// It is possible to walk indefinitely if the mapping contains circular
     /// references.
     pub fn new(
+        maze: &'a physical::Physical,
         start: matrix::Pos,
         map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
     ) -> Self {
-        Path { start, map }
+        Path { maze, start, map }
     }
 }
 
-impl<'a> IntoIterator for &'a Path {
+impl<'a> IntoIterator for &'a Path<'a> {
     type Item = matrix::Pos;
     type IntoIter = Walker<'a>;
 
@@ -146,7 +151,7 @@ impl<'a> IntoIterator for &'a Path {
 
 pub struct Walker<'a> {
     /// The actual path to walk.
-    path: &'a Path,
+    path: &'a Path<'a>,
 
     /// The current position.
     current: matrix::Pos,
@@ -271,10 +276,11 @@ mod tests {
 
     #[test]
     fn walk_empty() {
+        let physical_resolver = MockResolver;
         let map = HashMap::new();
 
         assert_eq!(
-            Path::new(matrix_pos(0, 0), map)
+            Path::new(&physical_resolver, matrix_pos(0, 0), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![matrix_pos(0, 0)]
@@ -283,11 +289,12 @@ mod tests {
 
     #[test]
     fn walk_from_unknown() {
+        let physical_resolver = MockResolver;
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
         assert_eq!(
-            Path::new(matrix_pos(0, 0), map)
+            Path::new(&physical_resolver, matrix_pos(0, 0), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![matrix_pos(0, 0)]
@@ -296,13 +303,14 @@ mod tests {
 
     #[test]
     fn walk_path() {
+        let physical_resolver = MockResolver;
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
         map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
         map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
 
         assert_eq!(
-            Path::new(matrix_pos(1, 1), map)
+            Path::new(&physical_resolver, matrix_pos(1, 1), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![
@@ -377,4 +385,16 @@ mod tests {
             );
         }
     );
+
+    struct MockResolver;
+
+    impl physical::Physical for MockResolver {
+        fn center(&self, _pos: matrix::Pos) -> physical::Pos {
+            physical::Pos { x: 0.0, y: 0.0 }
+        }
+
+        fn room_at(&self, _pos: Pos) -> matrix::Pos {
+            matrix::Pos { col: 0, row: 0 }
+        }
+    }
 }

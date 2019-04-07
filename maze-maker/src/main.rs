@@ -23,6 +23,7 @@ fn run(
     maze: &mut maze::Maze,
     scale: f32,
     margin: f32,
+    solve: bool,
     break_action: Option<BreakAction>,
     heat_map_action: Option<HeatMapAction>,
     background_action: Option<BackgroundAction>,
@@ -64,6 +65,31 @@ fn run(
             .set("vector-effect", "non-scaling-stroke")
             .set("d", maze.to_path_d()),
     );
+
+    // Draw the solution
+    if solve {
+        container.append(
+            svg::node::element::Path::new()
+                .set("fill", "none")
+                .set("stroke", "black")
+                .set("stroke-linecap", "round")
+                .set("stroke-linejoin", "round")
+                .set("stroke-width", 0.4)
+                .set("vector-effect", "non-scaling-stroke")
+                .set(
+                    "d",
+                    maze.walk(
+                        maze::matrix::Pos { col: 0, row: 0 },
+                        maze::matrix::Pos {
+                            col: maze.width() as isize - 1,
+                            row: maze.height() as isize - 1,
+                        },
+                    )
+                    .unwrap()
+                    .to_path_d(),
+                ),
+        );
+    }
 
     svg::save(output, &document.add(container)).expect("failed to write SVG");
 }
@@ -129,6 +155,12 @@ fn main() {
                 .help("The margin around the maze."),
         )
         .arg(
+            Arg::with_name("SOLVE")
+                .long("--solve")
+                .takes_value(false)
+                .help("Whether to solve the maze."),
+        )
+        .arg(
             Arg::with_name("BREAK")
                 .long("--break")
                 .takes_value(true)
@@ -181,6 +213,7 @@ fn main() {
         args.value_of("MARGIN")
             .map(|s| s.parse().expect("invalid margin"))
             .unwrap_or(10.0),
+        args.is_present("SOLVE"),
         args.value_of("BREAK")
             .map(|s| s.parse().expect("invalid break")),
         args.value_of("HEATMAP")

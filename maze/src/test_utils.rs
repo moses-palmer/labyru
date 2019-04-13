@@ -12,9 +12,9 @@ macro_rules! maze_test {
 
             $code
 
-            test(&mut shape::hex::Maze::new(width, height));
-            test(&mut shape::quad::Maze::new(width, height));
-            test(&mut shape::tri::Maze::new(width, height));
+            test(Box::leak(Shape::Hex.create(width, height)));
+            test(Box::leak(Shape::Quad.create(width, height)));
+            test(Box::leak(Shape::Tri.create(width, height)));
         }
     }
 }

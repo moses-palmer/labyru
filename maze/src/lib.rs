@@ -31,6 +31,48 @@ mod util;
 /// A wall of a room.
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
+/// The different types of mazes implemented, identified by number of walls.
+pub enum Shape {
+    /// A maze with triangular rooms.
+    Tri = 3,
+
+    /// A maze with quadratic rooms.
+    Quad = 4,
+
+    /// A maze with hexagonal rooms.
+    Hex = 6,
+}
+
+impl Shape {
+    /// Converts a number to a maze type.
+    ///
+    /// The number must be one of the known number of walls per room.
+    ///
+    /// # Arguments
+    /// * `num ` - The number to convert.
+    pub fn from_num(num: u32) -> Option<Self> {
+        match num {
+            x if x == Shape::Tri as u32 => Some(Shape::Tri),
+            x if x == Shape::Quad as u32 => Some(Shape::Quad),
+            x if x == Shape::Hex as u32 => Some(Shape::Hex),
+            _ => None,
+        }
+    }
+
+    /// Creates a maze of this type.
+    ///
+    /// # Arguments
+    /// * `width` - The width, in rooms, of the maze.
+    /// * `height` - The height, in rooms, of the maze.
+    pub fn create(self, width: usize, height: usize) -> Box<Maze> {
+        match self {
+            Shape::Tri => Box::new(shape::tri::Maze::new(width, height)),
+            Shape::Quad => Box::new(shape::quad::Maze::new(width, height)),
+            Shape::Hex => Box::new(shape::hex::Maze::new(width, height)),
+        }
+    }
+}
+
 /// A maze contains rooms and has methods for managing paths and doors.
 pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     /// Returns the width of the maze.
@@ -118,48 +160,6 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
 
     /// Retrieves a mutable reference to the underlying rooms.
     fn rooms_mut(&mut self) -> &mut room::Rooms;
-}
-
-/// The different types of mazes implemented, identified by number of walls.
-pub enum MazeType {
-    /// A maze with triangular rooms.
-    Tri = 3,
-
-    /// A maze with quadratic rooms.
-    Quad = 4,
-
-    /// A maze with hexagonal rooms.
-    Hex = 6,
-}
-
-impl MazeType {
-    /// Converts a number to a maze type.
-    ///
-    /// The number must be one of the known number of walls per room.
-    ///
-    /// # Arguments
-    /// * `num ` - The number to convert.
-    pub fn from_num(num: u32) -> Option<Self> {
-        match num {
-            x if x == MazeType::Tri as u32 => Some(MazeType::Tri),
-            x if x == MazeType::Quad as u32 => Some(MazeType::Quad),
-            x if x == MazeType::Hex as u32 => Some(MazeType::Hex),
-            _ => None,
-        }
-    }
-
-    /// Creates a maze of this type.
-    ///
-    /// # Arguments
-    /// * `width` - The width, in rooms, of the maze.
-    /// * `height` - The height, in rooms, of the maze.
-    pub fn create(self, width: usize, height: usize) -> Box<Maze> {
-        match self {
-            MazeType::Tri => Box::new(shape::tri::Maze::new(width, height)),
-            MazeType::Quad => Box::new(shape::quad::Maze::new(width, height)),
-            MazeType::Hex => Box::new(shape::hex::Maze::new(width, height)),
-        }
-    }
 }
 
 /// A matrix of scores for rooms.

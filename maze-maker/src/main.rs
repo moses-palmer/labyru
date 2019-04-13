@@ -190,7 +190,7 @@ fn main() {
 
     let args = app.get_matches();
 
-    let mut maze = maze::MazeType::from_num(
+    let mut maze = maze::Shape::from_num(
         args.value_of("WALLS")
             .map(|s| s.parse().expect("invalid wall value"))
             .unwrap(),

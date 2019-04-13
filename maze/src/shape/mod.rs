@@ -11,17 +11,15 @@ use crate::WallPos;
 /// initialised upon creation. This is a work-around until true constant
 /// functions are introduced.
 macro_rules! define_base {
-    ($($field:ident: $type:ident = $value:expr,)*) => {
+    () => {
         pub struct Maze {
             rooms: room::Rooms,
-            $($field: $type,)*
         }
 
         impl Maze {
             pub fn new(width: usize, height: usize) -> Maze {
                 Maze {
                     rooms: room::Rooms::new(width, height),
-                    $($field: $value,)*
                 }
             }
         }
@@ -35,7 +33,7 @@ macro_rules! define_base {
                 &mut self.rooms
             }
         }
-    }
+    };
 }
 
 /// Defines some base methods for the [Shape](trait.Shape.html) trait.

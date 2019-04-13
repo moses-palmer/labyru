@@ -11,6 +11,20 @@ use crate::wall;
 /// A span step angle
 const D: f32 = PI / 6.0;
 
+/// D.cos()
+const D_COS: f32 = 0.866_025_4f32;
+
+/// The distance between the centre of a room and the centre of a room on the
+/// next row.
+const HORIZONTAL_MULTIPLICATOR: f32 = D_COS;
+
+/// The distance between the centre of a room and the centre of a room on the
+/// next column.
+const VERTICAL_MULTIPLICATOR: f32 = 2.0 - 1.0f32 / 2.0f32;
+
+/// The vertical offset for the centre of rooms.
+const OFFSET: f32 = 1.0f32 / 4.0f32;
+
 define_walls! {
     LEFT0 = {
         corner_wall_offsets: &[
@@ -111,11 +125,7 @@ static ALL0: &[&wall::Wall] = &[&walls::LEFT0, &walls::RIGHT0, &walls::UP];
 /// The walls for odd rows
 static ALL1: &[&wall::Wall] = &[&walls::LEFT1, &walls::DOWN, &walls::RIGHT1];
 
-define_base!(
-    horizontal_multiplicator: f32 = (PI / 2.0 + 2.0 * 2.0 * PI / 3.0).cos(),
-    vertical_multiplicator: f32 = 2.0 + (PI / 2.0 + 2.0 * PI / 3.0).sin(),
-    offset: f32 = 0.5 * (1.0 + (PI / 2.0 + 2.0 * PI / 3.0).sin()),
-);
+define_base!();
 
 impl Shape for Maze {
     implement_base_shape!();
@@ -129,25 +139,21 @@ impl Shape for Maze {
 impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
         physical::Pos {
-            x: (pos.col as f32 + 0.5) * self.horizontal_multiplicator,
-            y: (pos.row as f32 + 0.5) * self.vertical_multiplicator
-                + if is_reversed!(pos) {
-                    self.offset
-                } else {
-                    -self.offset
-                },
+            x: (pos.col as f32 + 0.5) * HORIZONTAL_MULTIPLICATOR,
+            y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR
+                + if is_reversed!(pos) { OFFSET } else { -OFFSET },
         }
     }
 
     fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         // Calculate approximations of the room position
-        let approx_row = (pos.y / self.vertical_multiplicator).floor();
+        let approx_row = (pos.y / VERTICAL_MULTIPLICATOR).floor();
         let row_odd = approx_row as u32 & 1 == 1;
-        let approx_col = (pos.x / self.horizontal_multiplicator).floor();
+        let approx_col = (pos.x / HORIZONTAL_MULTIPLICATOR).floor();
 
         // Calculate relative positions within the room
-        let rel_y = pos.y - (approx_row * self.vertical_multiplicator);
-        let rel_x = pos.x - (approx_col * self.horizontal_multiplicator);
+        let rel_y = pos.y - (approx_row * VERTICAL_MULTIPLICATOR);
+        let rel_x = pos.x - (approx_col * HORIZONTAL_MULTIPLICATOR);
 
         if row_odd {
             matrix::Pos {

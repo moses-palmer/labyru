@@ -11,6 +11,23 @@ use crate::wall;
 /// A span step angle
 const D: f32 = PI / 6.0;
 
+/// D.cos()
+const D_COS: f32 = 0.866_025_4f32;
+
+/// D.sin()
+const D_SIN: f32 = 1.0 / 2.0;
+
+/// The distance between the centre of a room and the centre of a room on the
+/// next row.
+const HORIZONTAL_MULTIPLICATOR: f32 = 2.0 * D_COS;
+
+/// The distance between the centre of a room and the centre of a room on the
+/// next column.
+const VERTICAL_MULTIPLICATOR: f32 = 2.0 - D_SIN;
+
+const TOP_HEIGHT: f32 = 1.0 + D_SIN;
+const GRADIENT: f32 = (1.0 + D_SIN) / D_COS;
+
 // The walls are arranged in back-to-back pairs
 define_walls! {
     LEFT0 = {
@@ -164,12 +181,7 @@ static ALL1: &[&wall::Wall] = &[
     &walls::DOWN_LEFT1,
 ];
 
-define_base!(
-    horizontal_multiplicator: f32 = 2.0 * (PI / 6.0).cos(),
-    vertical_multiplicator: f32 = 2.0 - (PI / 6.0).sin(),
-    top_height: f32 = 1.0 - (2.0 * PI - D).sin(),
-    gradient: f32 = (1.0 - (2.0 * PI - D).sin()) / (PI / 6.0).cos(),
-);
+define_base!();
 
 impl Shape for Maze {
     implement_base_shape!();
@@ -184,35 +196,35 @@ impl physical::Physical for Maze {
     fn center(&self, pos: matrix::Pos) -> physical::Pos {
         physical::Pos {
             x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
-                * self.horizontal_multiplicator,
-            y: (pos.row as f32 + 0.5) * self.vertical_multiplicator,
+                * HORIZONTAL_MULTIPLICATOR,
+            y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR,
         }
     }
 
     fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         // Calculate approximations of the room position
-        let approx_row = (pos.y / self.vertical_multiplicator).floor();
+        let approx_row = (pos.y / VERTICAL_MULTIPLICATOR).floor();
         let row_odd = approx_row as i32 & 1 == 1;
         let approx_col = if row_odd {
-            (pos.x / self.horizontal_multiplicator)
+            (pos.x / HORIZONTAL_MULTIPLICATOR)
         } else {
-            (pos.x / self.horizontal_multiplicator - 0.5)
+            (pos.x / HORIZONTAL_MULTIPLICATOR - 0.5)
         };
 
         // Calculate relative positions within the room
-        let rel_y = pos.y - (approx_row * self.vertical_multiplicator);
+        let rel_y = pos.y - (approx_row * VERTICAL_MULTIPLICATOR);
         let rel_x = if row_odd {
-            (pos.x - ((approx_col - 0.5) * self.horizontal_multiplicator))
+            (pos.x - ((approx_col - 0.5) * HORIZONTAL_MULTIPLICATOR))
         } else {
-            (pos.x - (approx_col * self.horizontal_multiplicator))
+            (pos.x - (approx_col * HORIZONTAL_MULTIPLICATOR))
         };
 
-        if rel_y < (-self.gradient * rel_x) + self.top_height {
+        if rel_y < (-GRADIENT * rel_x) + TOP_HEIGHT {
             matrix::Pos {
                 col: approx_col as isize - !row_odd as isize,
                 row: approx_row as isize - 1,
             }
-        } else if rel_y < (self.gradient * rel_x) - self.top_height {
+        } else if rel_y < (GRADIENT * rel_x) - TOP_HEIGHT {
             matrix::Pos {
                 col: approx_col as isize + row_odd as isize,
                 row: approx_row as isize - 1,

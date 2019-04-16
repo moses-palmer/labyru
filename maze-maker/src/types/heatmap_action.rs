@@ -31,7 +31,7 @@ impl FromStr for HeatMapAction {
     /// 3. `map_type,from,to`: If two colours are passed, they are used as
     ///    `from` and `to` values.
     fn from_str(s: &str) -> Result<Self, String> {
-        let mut parts = s.split(',').map(|p| p.trim());
+        let mut parts = s.split(',').map(str::trim);
         let map_type =
             parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
 
@@ -45,7 +45,7 @@ impl FromStr for HeatMapAction {
             } else {
                 Ok(Self {
                     map_type,
-                    from: Color::from_str(part1).map(|c| c.transparent())?,
+                    from: Color::from_str(part1).map(Color::transparent)?,
                     to: Color::from_str(part1)?,
                 })
             }

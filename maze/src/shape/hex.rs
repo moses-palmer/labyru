@@ -1,11 +1,9 @@
 use std::f32::consts::PI;
 
-use super::Shape;
 use crate::WallPos;
 
 use crate::matrix;
 use crate::physical;
-use crate::room;
 use crate::wall;
 
 /// A span step angle
@@ -29,7 +27,7 @@ const TOP_HEIGHT: f32 = 1.0 + D_SIN;
 const GRADIENT: f32 = (1.0 + D_SIN) / D_COS;
 
 // The walls are arranged in back-to-back pairs
-define_walls! {
+define_shape! {
     LEFT0 = {
         corner_wall_offsets: &[
             ((-1, 0), WallIndex::DOWN_RIGHT0 as usize),
@@ -133,34 +131,6 @@ define_walls! {
     }
 }
 
-/// The index of the opposite wall.
-macro_rules! opposite_index {
-    ($wall:expr) => {
-        if ($wall & !0b0011) == 0 {
-            $wall ^ 0b0001
-        } else {
-            $wall ^ 0b0011
-        }
-    };
-}
-
-/// The index of the back wall.
-macro_rules! back_index {
-    ($wall:expr) => {
-        $wall ^ 0b0001
-    };
-}
-
-macro_rules! walls {
-    ($pos:expr) => {
-        if $pos.row & 1 == 1 {
-            &ALL1
-        } else {
-            &ALL0
-        }
-    };
-}
-
 /// The walls for even rows
 static ALL0: &[&wall::Wall] = &[
     &walls::LEFT0,
@@ -181,73 +151,85 @@ static ALL1: &[&wall::Wall] = &[
     &walls::DOWN_LEFT1,
 ];
 
-define_base!();
+pub fn back_index(wall: usize) -> usize {
+    wall ^ 0b0001
+}
 
-impl Shape for Maze {
-    implement_base_shape!();
+pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
+    let (_, wall) = wall_pos;
 
-    fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
-        // The left and right walls are back-to-back
-        Some(walls::ALL[opposite_index!(wall_pos.1.index)])
+    // The left and right walls are back-to-back
+    Some(
+        walls::ALL[if (wall.index & !0b0011) == 0 {
+            wall.index ^ 0b0001
+        } else {
+            wall.index ^ 0b0011
+        }],
+    )
+}
+
+pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+    if pos.row & 1 == 1 {
+        &ALL1
+    } else {
+        &ALL0
     }
 }
 
-impl physical::Physical for Maze {
-    fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        physical::Pos {
-            x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
-                * HORIZONTAL_MULTIPLICATOR,
-            y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR,
-        }
+pub fn center(pos: matrix::Pos) -> physical::Pos {
+    physical::Pos {
+        x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
+            * HORIZONTAL_MULTIPLICATOR,
+        y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR,
     }
+}
 
-    fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
-        // Calculate approximations of the room position
-        let approx_row = (pos.y / VERTICAL_MULTIPLICATOR).floor();
-        let row_odd = approx_row as i32 & 1 == 1;
-        let approx_col = if row_odd {
-            (pos.x / HORIZONTAL_MULTIPLICATOR)
-        } else {
-            (pos.x / HORIZONTAL_MULTIPLICATOR - 0.5)
-        };
+pub fn room_at(pos: physical::Pos) -> matrix::Pos {
+    // Calculate approximations of the room position
+    let approx_row = (pos.y / VERTICAL_MULTIPLICATOR).floor();
+    let row_odd = approx_row as i32 & 1 == 1;
+    let approx_col = if row_odd {
+        (pos.x / HORIZONTAL_MULTIPLICATOR)
+    } else {
+        (pos.x / HORIZONTAL_MULTIPLICATOR - 0.5)
+    };
 
-        // Calculate relative positions within the room
-        let rel_y = pos.y - (approx_row * VERTICAL_MULTIPLICATOR);
-        let rel_x = if row_odd {
-            (pos.x - ((approx_col - 0.5) * HORIZONTAL_MULTIPLICATOR))
-        } else {
-            (pos.x - (approx_col * HORIZONTAL_MULTIPLICATOR))
-        };
+    // Calculate relative positions within the room
+    let rel_y = pos.y - (approx_row * VERTICAL_MULTIPLICATOR);
+    let rel_x = if row_odd {
+        (pos.x - ((approx_col - 0.5) * HORIZONTAL_MULTIPLICATOR))
+    } else {
+        (pos.x - (approx_col * HORIZONTAL_MULTIPLICATOR))
+    };
 
-        if rel_y < (-GRADIENT * rel_x) + TOP_HEIGHT {
-            matrix::Pos {
-                col: approx_col as isize - !row_odd as isize,
-                row: approx_row as isize - 1,
-            }
-        } else if rel_y < (GRADIENT * rel_x) - TOP_HEIGHT {
-            matrix::Pos {
-                col: approx_col as isize + row_odd as isize,
-                row: approx_row as isize - 1,
-            }
-        } else {
-            matrix::Pos {
-                col: approx_col as isize,
-                row: approx_row as isize,
-            }
+    if rel_y < (-GRADIENT * rel_x) + TOP_HEIGHT {
+        matrix::Pos {
+            col: approx_col as isize - !row_odd as isize,
+            row: approx_row as isize - 1,
+        }
+    } else if rel_y < (GRADIENT * rel_x) - TOP_HEIGHT {
+        matrix::Pos {
+            col: approx_col as isize + row_odd as isize,
+            row: approx_row as isize - 1,
+        }
+    } else {
+        matrix::Pos {
+            col: approx_col as isize,
+            row: approx_row as isize,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::walls;
     use crate::test_utils::*;
-    use crate::Walkable;
+    use crate::Shape;
     use crate::WallPos;
 
     #[test]
     fn back() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             maze.back((matrix_pos(1, 0), &walls::LEFT0)),
@@ -301,7 +283,7 @@ mod tests {
 
     #[test]
     fn opposite() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             maze.opposite((matrix_pos(1, 0), &walls::LEFT0)).unwrap(),
@@ -361,7 +343,7 @@ mod tests {
 
     #[test]
     fn corner_walls() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             maze.corner_walls((matrix_pos(1, 2), &walls::LEFT0)),
@@ -463,7 +445,7 @@ mod tests {
 
     #[test]
     fn follow_wall_single_room() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             vec![
@@ -482,7 +464,7 @@ mod tests {
 
     #[test]
     fn follow_wall() {
-        let mut maze = Maze::new(5, 5);
+        let mut maze = maze(5, 5);
 
         Navigator::new(&mut maze)
             .from(matrix_pos(0, 0))
@@ -515,5 +497,14 @@ mod tests {
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );
+    }
+
+    /// Creates a maze.
+    ///
+    /// # Arguments
+    /// *  `width` - The width.
+    /// *  `height` - The height.
+    fn maze(width: usize, height: usize) -> crate::Maze {
+        crate::Maze::new(Shape::Hex, width, height)
     }
 }

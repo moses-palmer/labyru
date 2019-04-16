@@ -7,7 +7,7 @@ use maze;
 pub struct MazeType(maze::Shape);
 
 impl MazeType {
-    pub fn create(self, dimensions: super::Dimensions) -> Box<maze::Maze> {
+    pub fn create(self, dimensions: super::Dimensions) -> maze::Maze {
         self.0.create(dimensions.width, dimensions.height)
     }
 }

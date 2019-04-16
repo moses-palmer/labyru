@@ -12,9 +12,9 @@ macro_rules! maze_test {
 
             $code
 
-            test(Box::leak(Shape::Hex.create(width, height)));
-            test(Box::leak(Shape::Quad.create(width, height)));
-            test(Box::leak(Shape::Tri.create(width, height)));
+            test(&mut Shape::Hex.create(width, height));
+            test(&mut Shape::Quad.create(width, height));
+            test(&mut Shape::Tri.create(width, height));
         }
     }
 }
@@ -153,7 +153,7 @@ impl<'a> Navigator<'a> {
         if self.pos.is_none() {
             self.pos = self
                 .maze
-                .rooms()
+                .rooms
                 .positions()
                 .filter(|&pos| {
                     self.maze.walls(pos).iter().any(|wall| predicate(&wall))
@@ -169,7 +169,7 @@ impl<'a> Navigator<'a> {
             .iter()
             .filter(predicate)
             .filter(|wall| {
-                self.maze.rooms().is_inside(matrix_pos(
+                self.maze.rooms.is_inside(matrix_pos(
                     pos.col + wall.dir.0,
                     pos.row + wall.dir.1,
                 ))

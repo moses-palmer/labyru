@@ -1,9 +1,7 @@
 use std;
 
-use super::Shape;
 use crate::matrix;
 use crate::physical;
-use crate::room;
 use crate::wall;
 use crate::WallPos;
 
@@ -13,7 +11,7 @@ const D: f32 = std::f32::consts::PI / 4.0;
 /// The scale factor when converting maze coordinates to physical coordinates
 const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;
 
-define_walls! {
+define_shape! {
     UP = {
         corner_wall_offsets: &[
             ((0, -1), WallIndex::LEFT as usize),
@@ -52,50 +50,34 @@ define_walls! {
     }
 }
 
-/// The index of the back wall.
-macro_rules! back_index {
-    ($wall:expr) => {
-        $wall ^ 0b0010
-    };
-}
-
-/// The walls for a matrix position.
-macro_rules! walls {
-    ($pos:expr) => {
-        &ALL
-    };
-}
-
 /// The walls
 static ALL: &[&wall::Wall] =
     &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
-define_base!();
+pub fn back_index(wall: usize) -> usize {
+    wall ^ 0b0010
+}
 
-impl Shape for Maze {
-    implement_base_shape!();
+pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
+    let (_, wall) = wall_pos;
+    Some(&walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()])
+}
 
-    fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
-        let (_, wall) = wall_pos;
-        Some(
-            &walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()],
-        )
+pub fn walls(_pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+    &ALL
+}
+
+pub fn center(pos: matrix::Pos) -> physical::Pos {
+    physical::Pos {
+        x: (pos.col as f32 + 0.5) * MULTIPLICATOR,
+        y: (pos.row as f32 + 0.5) * MULTIPLICATOR,
     }
 }
 
-impl physical::Physical for Maze {
-    fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        physical::Pos {
-            x: (pos.col as f32 + 0.5) * MULTIPLICATOR,
-            y: (pos.row as f32 + 0.5) * MULTIPLICATOR,
-        }
-    }
-
-    fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
-        matrix::Pos {
-            col: (pos.x / MULTIPLICATOR).floor() as isize,
-            row: (pos.y / MULTIPLICATOR).floor() as isize,
-        }
+pub fn room_at(pos: physical::Pos) -> matrix::Pos {
+    matrix::Pos {
+        col: (pos.x / MULTIPLICATOR).floor() as isize,
+        row: (pos.y / MULTIPLICATOR).floor() as isize,
     }
 }
 
@@ -103,12 +85,12 @@ impl physical::Physical for Maze {
 mod tests {
     use super::*;
     use crate::test_utils::*;
-    use crate::Walkable;
+    use crate::Shape;
     use crate::WallPos;
 
     #[test]
     fn back() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             maze.back((matrix_pos(1, 1), &walls::LEFT)),
@@ -130,7 +112,7 @@ mod tests {
 
     #[test]
     fn opposite() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             maze.opposite((matrix_pos(1, 1), &walls::LEFT)).unwrap(),
@@ -152,7 +134,7 @@ mod tests {
 
     #[test]
     fn corner_walls() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             maze.corner_walls((matrix_pos(1, 1), &walls::UP)),
@@ -197,7 +179,7 @@ mod tests {
 
     #[test]
     fn follow_wall_single_room() {
-        let maze = Maze::new(5, 5);
+        let maze = maze(5, 5);
 
         assert_eq!(
             vec![
@@ -214,7 +196,7 @@ mod tests {
 
     #[test]
     fn follow_wall() {
-        let mut maze = Maze::new(5, 5);
+        let mut maze = maze(5, 5);
 
         Navigator::new(&mut maze)
             .from(matrix_pos(0, 0))
@@ -239,5 +221,14 @@ mod tests {
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );
+    }
+
+    /// Creates a maze.
+    ///
+    /// # Arguments
+    /// *  `width` - The width.
+    /// *  `height` - The height.
+    fn maze(width: usize, height: usize) -> crate::Maze {
+        crate::Maze::new(Shape::Quad, width, height)
     }
 }

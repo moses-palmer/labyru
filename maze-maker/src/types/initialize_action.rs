@@ -4,8 +4,6 @@ use image;
 use rand;
 use svg;
 
-use maze::prelude::*;
-
 use super::*;
 
 /// A constant used as multiplier for individual colour values to get an

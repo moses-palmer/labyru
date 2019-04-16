@@ -16,12 +16,12 @@ pub mod wall;
 #[macro_use]
 pub mod shape;
 
-pub mod traits;
-pub use self::traits::*;
-
 pub mod initialize;
 pub mod matrix;
+pub mod physical;
+pub mod render;
 pub mod room;
+pub mod walk;
 
 pub mod prelude;
 pub use self::prelude::*;
@@ -31,70 +31,47 @@ mod util;
 /// A wall of a room.
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
-/// The different types of mazes implemented, identified by number of walls.
-pub enum Shape {
-    /// A maze with triangular rooms.
-    Tri = 3,
-
-    /// A maze with quadratic rooms.
-    Quad = 4,
-
-    /// A maze with hexagonal rooms.
-    Hex = 6,
-}
-
-impl Shape {
-    /// Converts a number to a maze type.
-    ///
-    /// The number must be one of the known number of walls per room.
-    ///
-    /// # Arguments
-    /// * `num ` - The number to convert.
-    pub fn from_num(num: u32) -> Option<Self> {
-        match num {
-            x if x == Shape::Tri as u32 => Some(Shape::Tri),
-            x if x == Shape::Quad as u32 => Some(Shape::Quad),
-            x if x == Shape::Hex as u32 => Some(Shape::Hex),
-            _ => None,
-        }
-    }
-
-    /// Creates a maze of this type.
-    ///
-    /// # Arguments
-    /// * `width` - The width, in rooms, of the maze.
-    /// * `height` - The height, in rooms, of the maze.
-    pub fn create(self, width: usize, height: usize) -> Box<Maze> {
-        match self {
-            Shape::Tri => Box::new(shape::tri::Maze::new(width, height)),
-            Shape::Quad => Box::new(shape::quad::Maze::new(width, height)),
-            Shape::Hex => Box::new(shape::hex::Maze::new(width, height)),
-        }
-    }
-}
-
 /// A maze contains rooms and has methods for managing paths and doors.
-pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
+pub struct Maze {
+    /// The shape of the rooms.
+    shape: Shape,
+
+    /// The actual rooms.
+    rooms: room::Rooms,
+}
+
+impl Maze {
+    /// Creates an uninitialised maze.
+    ///
+    /// # Arguments
+    /// *  `shape` - The shape of the rooms.
+    /// *  `width` - The width, in rooms, of the maze.
+    /// *  `height` - The height, in rooms, of the maze.
+    pub fn new(shape: Shape, width: usize, height: usize) -> Self {
+        let rooms = room::Rooms::new(width, height);
+        Maze { shape, rooms }
+    }
+
     /// Returns the width of the maze.
     ///
-    /// This is short hand for `self.rooms().width()`.
-    fn width(&self) -> usize {
-        self.rooms().width
+    /// This is short hand for `self.rooms.width()`.
+    pub fn width(&self) -> usize {
+        self.rooms.width
     }
 
     /// Returns the height of the maze.
     ///
-    /// This is short hand for `self.rooms().height()`.
-    fn height(&self) -> usize {
-        self.rooms().height
+    /// This is short hand for `self.rooms.height()`.
+    pub fn height(&self) -> usize {
+        self.rooms.height
     }
 
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
     /// * `wall_pos` - The wall position.
-    fn is_open(&self, wall_pos: WallPos) -> bool {
-        match self.rooms().get(wall_pos.0) {
+    pub fn is_open(&self, wall_pos: WallPos) -> bool {
+        match self.rooms.get(wall_pos.0) {
             Some(room) => room.is_open(wall_pos.1),
             None => false,
         }
@@ -108,7 +85,7 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     /// # Arguments
     /// * `pos1` - The first room.
     /// * `pos2` - The second room.
-    fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
+    pub fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
         if pos1 == pos2 {
             true
         } else if let Some(wall) = self.walls(pos1).iter().find(|wall| {
@@ -126,15 +103,15 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     /// # Arguments
     /// * `wall_pos` - The wall position.
     /// * `value` - Whether to open the wall.
-    fn set_open(&mut self, wall_pos: WallPos, value: bool) {
+    pub fn set_open(&mut self, wall_pos: WallPos, value: bool) {
         // First modify the requested wall...
-        if let Some(room) = self.rooms_mut().get_mut(wall_pos.0) {
+        if let Some(room) = self.rooms.get_mut(wall_pos.0) {
             room.set_open(wall_pos.1, value);
         }
 
         // ...and then sync the value on the back
         let other = self.back(wall_pos);
-        if let Some(other_room) = self.rooms_mut().get_mut(other.0) {
+        if let Some(other_room) = self.rooms.get_mut(other.0) {
             other_room.set_open(other.1, value);
         }
     }
@@ -143,7 +120,7 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     ///
     /// # Arguments
     /// * `wall_pos` - The wall position.
-    fn open(&mut self, wall_pos: WallPos) {
+    pub fn open(&mut self, wall_pos: WallPos) {
         self.set_open(wall_pos, true);
     }
 
@@ -151,15 +128,14 @@ pub trait Maze: shape::Shape + Physical + Renderable + Walkable + Sync {
     ///
     /// # Arguments
     /// * `wall_pos` - The wall position.
-    fn close(&mut self, wall_pos: WallPos) {
+    pub fn close(&mut self, wall_pos: WallPos) {
         self.set_open(wall_pos, false);
     }
 
     /// Retrieves a reference to the underlying rooms.
-    fn rooms(&self) -> &room::Rooms;
-
-    /// Retrieves a mutable reference to the underlying rooms.
-    fn rooms_mut(&mut self) -> &mut room::Rooms;
+    pub fn rooms(&self) -> &room::Rooms {
+        &self.rooms
+    }
 }
 
 /// A matrix of scores for rooms.
@@ -200,13 +176,13 @@ mod tests {
     maze_test!(
         is_inside_correct,
         fn test(maze: &mut Maze) {
-            assert!(maze.rooms().is_inside(matrix_pos(0, 0)));
-            assert!(maze.rooms().is_inside(matrix_pos(
+            assert!(maze.rooms.is_inside(matrix_pos(0, 0)));
+            assert!(maze.rooms.is_inside(matrix_pos(
                 maze.width() as isize - 1,
                 maze.height() as isize - 1,
             )));
-            assert!(!maze.rooms().is_inside(matrix_pos(-1, -1)));
-            assert!(!maze.rooms().is_inside(matrix_pos(
+            assert!(!maze.rooms.is_inside(matrix_pos(-1, -1)));
+            assert!(!maze.rooms.is_inside(matrix_pos(
                 maze.width() as isize,
                 maze.height() as isize
             )));
@@ -277,7 +253,7 @@ mod tests {
     maze_test!(
         walls_span,
         fn test(maze: &mut Maze) {
-            for pos in maze.rooms().positions() {
+            for pos in maze.rooms.positions() {
                 for wall in maze.walls(pos) {
                     let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
                     assert!(wall.in_span(wall.span.0 + d));
@@ -292,7 +268,7 @@ mod tests {
     maze_test!(
         connected_correct,
         fn test(maze: &mut Maze) {
-            for pos in maze.rooms().positions() {
+            for pos in maze.rooms.positions() {
                 assert!(maze.connected(pos, pos))
             }
 

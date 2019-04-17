@@ -63,7 +63,7 @@ impl<'a> ToPath for Maze + 'a {
         svg::node::element::path::Data::from(
             commands
                 .into_iter()
-                .map(|c| c.into())
+                .map(Into::into)
                 .collect::<Vec<Command>>(),
         )
     }
@@ -82,7 +82,7 @@ impl<'a> ToPath for walkable::Path<'a> {
                         Operation::Line(pos)
                     }
                 })
-                .map(|c| c.into())
+                .map(Into::into)
                 .collect::<Vec<Command>>(),
         )
     }

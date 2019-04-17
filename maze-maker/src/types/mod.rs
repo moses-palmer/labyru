@@ -131,8 +131,8 @@ impl str::FromStr for Color {
                     }
                 })
                 // Ensure all values are valid
-                .take_while(|c| c.is_some())
-                .map(|c| c.unwrap())
+                .take_while(Option::is_some)
+                .map(Option::unwrap)
                 .collect::<Vec<_>>();
 
             match data.len() {
@@ -266,7 +266,7 @@ impl HeatMapType {
             .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
             .reduce(
                 || maze::HeatMap::new(maze.width(), maze.height()),
-                |acc, o| acc.add(o),
+                AddableMatrix::add,
             )
     }
 }

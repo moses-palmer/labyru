@@ -91,7 +91,10 @@ impl Maze {
     ///
     /// # Arguments
     /// * `wall_pos` - The starting wall position.
-    pub fn follow_wall(&self, wall_pos: WallPos) -> Follower {
+    pub fn follow_wall<'a>(
+        &'a self,
+        wall_pos: WallPos,
+    ) -> impl Iterator<Item = (WallPos, Option<WallPos>)> + 'a {
         Follower::new(self, wall_pos)
     }
 }
@@ -171,7 +174,7 @@ impl<'a> Iterator for Walker<'a> {
 }
 
 /// Follows a wall.
-pub struct Follower<'a> {
+struct Follower<'a> {
     /// The maze.
     maze: &'a Maze,
 
@@ -186,7 +189,7 @@ pub struct Follower<'a> {
 }
 
 impl<'a> Follower<'a> {
-    pub fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
+    pub(self) fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
         Self {
             maze,
             start_pos,

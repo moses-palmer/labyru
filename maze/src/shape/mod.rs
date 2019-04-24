@@ -8,8 +8,8 @@ use crate::{Maze, WallPos};
 
 /// Dispatches a function call for the current maze to a shape defined module.
 macro_rules! dispatch {
-    ($on:ident: $func:ident ( $($args:ident $(,)?)* ) ) => {
-        match $on.shape {
+    ($on:expr => $func:ident ( $($args:ident $(,)?)* ) ) => {
+        match $on {
             crate::Shape::Hex => hex::$func($($args,)*),
             crate::Shape::Quad => quad::$func($($args,)*),
             crate::Shape::Tri => tri::$func($($args,)*),
@@ -127,7 +127,7 @@ impl std::str::FromStr for Shape {
 impl Maze {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
-        dispatch!(self: all_walls())
+        dispatch!(self.shape => all_walls())
     }
 
     /// Returns the back of a wall.
@@ -137,7 +137,7 @@ impl Maze {
     /// # Arguments
     /// * `wall_pos` - The wall position.
     pub fn back(&self, wall_pos: WallPos) -> WallPos {
-        dispatch!(self: back(wall_pos))
+        dispatch!(self.shape => back(wall_pos))
     }
 
     /// Returns the opposite of a wall.
@@ -148,7 +148,7 @@ impl Maze {
     /// # Arguments
     /// * `wall_pos` - The wall position.
     pub fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
-        dispatch!(self: opposite(wall_pos))
+        dispatch!(self.shape => opposite(wall_pos))
     }
 
     /// Returns all walls of a specific room.
@@ -156,7 +156,7 @@ impl Maze {
     /// # Arguments
     /// * `pos` - The room position.
     pub fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-        dispatch!(self: walls(pos))
+        dispatch!(self.shape => walls(pos))
     }
 
     /// Returns the physical centre of a matrix position.
@@ -164,7 +164,7 @@ impl Maze {
     /// # Arguments
     /// * `pos` - The matrix position.
     pub fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        dispatch!(self: center(pos))
+        dispatch!(self.shape => center(pos))
     }
 
     /// Returns the matrix position whose centre is closest to a physical
@@ -176,7 +176,7 @@ impl Maze {
     /// # Arguments
     /// * `pos` - The physical position.
     pub fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
-        dispatch!(self: room_at(pos))
+        dispatch!(self.shape => room_at(pos))
     }
 
     /// Returns the physical positions of the two corners of a wall.

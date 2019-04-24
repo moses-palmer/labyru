@@ -6,15 +6,16 @@ use crate::WallPos;
 
 use crate::matrix;
 use crate::physical;
-use crate::traits::walkable;
 use crate::wall;
+
+use crate::walk::*;
 
 pub trait ToPath {
     /// Generates an _SVG path d_ attribute value.
     fn to_path_d(&self) -> svg::node::element::path::Data;
 }
 
-impl<'a> ToPath for Maze + 'a {
+impl ToPath for Maze {
     fn to_path_d(&self) -> svg::node::element::path::Data {
         let mut commands = Vec::new();
         let mut visitor = Visitor::new(self);
@@ -52,7 +53,7 @@ impl<'a> ToPath for Maze + 'a {
 
                 // If the next room is outside of the maze, break
                 if to
-                    .map(|(pos, _)| !self.rooms().is_inside(pos))
+                    .map(|(pos, _)| !self.rooms.is_inside(pos))
                     .unwrap_or(false)
                 {
                     break;
@@ -69,7 +70,7 @@ impl<'a> ToPath for Maze + 'a {
     }
 }
 
-impl<'a> ToPath for walkable::Path<'a> {
+impl<'a> ToPath for Path<'a> {
     fn to_path_d(&self) -> svg::node::element::path::Data {
         svg::node::element::path::Data::from(
             self.into_iter()
@@ -182,7 +183,7 @@ impl<'a> Visitor<'a> {
 
             if self
                 .maze
-                .rooms()
+                .rooms
                 .get(pos)
                 .map(|room| room.visited)
                 .unwrap_or(false)

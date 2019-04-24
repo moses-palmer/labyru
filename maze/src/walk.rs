@@ -3,12 +3,10 @@ use std;
 use crate::matrix;
 use crate::util::open_set;
 
-use crate::traits::physical;
 use crate::Maze;
 use crate::WallPos;
 
-/// A container that supports walking.
-pub trait Walkable {
+impl Maze {
     /// Walks from `from` to `to` along the shortest path.
     ///
     /// If the rooms are connected, the return value will iterate over the
@@ -18,23 +16,7 @@ pub trait Walkable {
     /// # Arguments
     /// * `from` - The starting position.
     /// * `to` - The desired goal.
-    fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path>;
-
-    /// Follows a wall.
-    ///
-    /// This method will follow a wall without passing through any walls. When
-    /// the starting wall is encountered, no more walls will be returned.
-    ///
-    /// # Arguments
-    /// * `wall_pos` - The starting wall position.
-    fn follow_wall(&self, wall_pos: WallPos) -> Follower;
-}
-
-impl<M> Walkable for M
-where
-    M: Maze,
-{
-    fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path> {
+    pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path> {
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
@@ -78,7 +60,7 @@ where
                 // Find the next room, and continue if we have already evaluated
                 // it, or it is outside of the maze
                 let (next, _) = self.back((current, wall));
-                if !self.rooms().is_inside(next) || closed_set.contains(&next) {
+                if !self.rooms.is_inside(next) || closed_set.contains(&next) {
                     continue;
                 }
 
@@ -102,7 +84,14 @@ where
         None
     }
 
-    fn follow_wall(&self, wall_pos: WallPos) -> Follower {
+    /// Follows a wall.
+    ///
+    /// This method will follow a wall without passing through any walls. When
+    /// the starting wall is encountered, no more walls will be returned.
+    ///
+    /// # Arguments
+    /// * `wall_pos` - The starting wall position.
+    pub fn follow_wall(&self, wall_pos: WallPos) -> Follower {
         Follower::new(self, wall_pos)
     }
 }
@@ -113,7 +102,7 @@ where
 /// a room position to the next room.
 pub struct Path<'a> {
     /// The maze being walked.
-    pub(crate) maze: &'a physical::Physical,
+    pub(crate) maze: &'a Maze,
 
     /// The starting position.
     start: matrix::Pos,
@@ -128,7 +117,7 @@ impl<'a> Path<'a> {
     /// It is possible to walk indefinitely if the mapping contains circular
     /// references.
     pub fn new(
-        maze: &'a physical::Physical,
+        maze: &'a Maze,
         start: matrix::Pos,
         map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
     ) -> Self {
@@ -274,53 +263,56 @@ mod tests {
     use crate::test_utils::*;
     use crate::*;
 
-    #[test]
-    fn walk_empty() {
-        let physical_resolver = MockResolver;
-        let map = HashMap::new();
+    maze_test!(
+        walk_empty,
+        fn test(maze: &Maze) {
+            let map = HashMap::new();
 
-        assert_eq!(
-            Path::new(&physical_resolver, matrix_pos(0, 0), map)
-                .into_iter()
-                .collect::<Vec<matrix::Pos>>(),
-            vec![matrix_pos(0, 0)]
-        );
-    }
+            assert_eq!(
+                Path::new(maze, matrix_pos(0, 0), map)
+                    .into_iter()
+                    .collect::<Vec<matrix::Pos>>(),
+                vec![matrix_pos(0, 0)]
+            );
+        }
+    );
 
-    #[test]
-    fn walk_from_unknown() {
-        let physical_resolver = MockResolver;
-        let mut map = HashMap::new();
-        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
+    maze_test!(
+        walk_from_unknown,
+        fn test(maze: &Maze) {
+            let mut map = HashMap::new();
+            map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
-        assert_eq!(
-            Path::new(&physical_resolver, matrix_pos(0, 0), map)
-                .into_iter()
-                .collect::<Vec<matrix::Pos>>(),
-            vec![matrix_pos(0, 0)]
-        );
-    }
+            assert_eq!(
+                Path::new(maze, matrix_pos(0, 0), map)
+                    .into_iter()
+                    .collect::<Vec<matrix::Pos>>(),
+                vec![matrix_pos(0, 0)]
+            );
+        }
+    );
 
-    #[test]
-    fn walk_path() {
-        let physical_resolver = MockResolver;
-        let mut map = HashMap::new();
-        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
-        map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
-        map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
+    maze_test!(
+        walk_path,
+        fn test(maze: &Maze) {
+            let mut map = HashMap::new();
+            map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
+            map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
+            map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
 
-        assert_eq!(
-            Path::new(&physical_resolver, matrix_pos(1, 1), map)
-                .into_iter()
-                .collect::<Vec<matrix::Pos>>(),
-            vec![
-                matrix_pos(1, 1),
-                matrix_pos(2, 2),
-                matrix_pos(2, 3),
-                matrix_pos(2, 4)
-            ]
-        );
-    }
+            assert_eq!(
+                Path::new(maze, matrix_pos(1, 1), map)
+                    .into_iter()
+                    .collect::<Vec<matrix::Pos>>(),
+                vec![
+                    matrix_pos(1, 1),
+                    matrix_pos(2, 2),
+                    matrix_pos(2, 3),
+                    matrix_pos(2, 4)
+                ]
+            );
+        }
+    );
 
     maze_test!(
         walk_disconnected,
@@ -385,16 +377,4 @@ mod tests {
             );
         }
     );
-
-    struct MockResolver;
-
-    impl physical::Physical for MockResolver {
-        fn center(&self, _pos: matrix::Pos) -> physical::Pos {
-            physical::Pos { x: 0.0, y: 0.0 }
-        }
-
-        fn room_at(&self, _pos: Pos) -> matrix::Pos {
-            matrix::Pos { col: 0, row: 0 }
-        }
-    }
 }

@@ -2,10 +2,7 @@ use crate::Maze;
 
 use crate::matrix;
 
-pub trait RandomizedPrim<R>
-where
-    R: super::Randomizer + Sized,
-{
+impl Maze {
     /// Initialises a wall using the _Randomised Prim_ algorithm.
     ///
     /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
@@ -15,7 +12,10 @@ where
     /// *  `maze` - The maze to initialise. This should be a fully closed maze;
     ///    any already open walls will be ignored and kept.
     /// *  `rng` - A random number generator.
-    fn randomized_prim(&mut self, rng: &mut R) -> &mut Self {
+    pub fn randomized_prim<R>(&mut self, rng: &mut R) -> &mut Self
+    where
+        R: super::Randomizer + Sized,
+    {
         self.randomized_prim_filter(rng, |_| true)
     }
 
@@ -31,22 +31,14 @@ where
     ///    any already open walls will be ignored and kept.
     /// *  `rng` - A random number generator.
     /// *  `filter` - A predicate filtering rooms to consider.
-    fn randomized_prim_filter<F>(
+    pub fn randomized_prim_filter<F, R>(
         &mut self,
         rng: &mut R,
         filter: F,
     ) -> &mut Self
     where
-        F: Fn(matrix::Pos) -> bool;
-}
-
-impl<'a, R> RandomizedPrim<R> for Maze + 'a
-where
-    R: super::Randomizer + Sized,
-{
-    fn randomized_prim_filter<F>(&mut self, rng: &mut R, filter: F) -> &mut Self
-    where
         F: Fn(matrix::Pos) -> bool,
+        R: super::Randomizer + Sized,
     {
         // Create the visited matrix by applying the filter to each room; if no
         // rooms remain we terminate early
@@ -77,7 +69,7 @@ where
                     self.walls(pos)
                         .iter()
                         .filter(|wall| {
-                            self.rooms().is_inside(self.back((pos, wall)).0)
+                            self.rooms.is_inside(self.back((pos, wall)).0)
                         })
                         // Create a wall position
                         .map(|wall| (pos, *wall))
@@ -184,8 +176,8 @@ mod tests {
                 let filter = |matrix::Pos { col, row }| col > row;
                 maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
 
-                for pos in maze.rooms().positions() {
-                    assert_eq!(filter(pos), maze.rooms()[pos].visited,);
+                for pos in maze.rooms.positions() {
+                    assert_eq!(filter(pos), maze.rooms[pos].visited,);
                 }
             }
         }
@@ -202,8 +194,8 @@ mod tests {
                 };
                 maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
 
-                for pos in maze.rooms().positions() {
-                    assert_eq!(filter(pos), maze.rooms()[pos].visited,);
+                for pos in maze.rooms.positions() {
+                    assert_eq!(filter(pos), maze.rooms[pos].visited,);
                 }
             }
         }

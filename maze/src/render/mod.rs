@@ -3,20 +3,12 @@ use std;
 use crate::matrix;
 use crate::Maze;
 
-/// A renderable object.
-pub trait Renderable {
+impl Maze {
     /// Calculates the _view box_ for an object when rendered.
     ///
     /// The returned tuple _(left, top, width, height)_ is the minimal rectangle
     /// that will contain the walls of the maze.
-    fn viewbox(&self) -> (f32, f32, f32, f32);
-}
-
-impl<M> Renderable for M
-where
-    M: Maze,
-{
-    fn viewbox(&self) -> (f32, f32, f32, f32) {
+    pub fn viewbox(&self) -> (f32, f32, f32, f32) {
         let mut window =
             (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
         for y in 0..self.height() {

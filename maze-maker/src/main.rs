@@ -20,7 +20,7 @@ use self::types::*;
 
 #[allow(unused_variables, clippy::too_many_arguments)]
 fn run(
-    maze: &mut maze::Maze,
+    mut maze: maze::Maze,
     scale: f32,
     margin: f32,
     solve: bool,
@@ -31,27 +31,27 @@ fn run(
     output: &str,
 ) {
     let document = svg::Document::new()
-        .set("viewBox", maze_to_viewbox(maze, scale, margin));
+        .set("viewBox", maze_to_viewbox(&maze, scale, margin));
     let mut container = svg::node::element::Group::new()
         .set("transform", format!("scale({})", scale));
 
     // Make sure the maze is initialised
     if let Some(initialize_action) = initialize_action {
-        initialize_action.apply(maze, &mut container);
+        initialize_action.apply(&mut maze, &mut container);
     } else {
         maze.randomized_prim(&mut rand::weak_rng());
     }
 
     if let Some(background_action) = background_action {
-        background_action.apply(maze, &mut container);
+        background_action.apply(&mut maze, &mut container);
     }
 
     if let Some(break_action) = break_action {
-        break_action.apply(maze, &mut container);
+        break_action.apply(&mut maze, &mut container);
     }
 
     if let Some(heat_map_action) = heat_map_action {
-        heat_map_action.apply(maze, &mut container);
+        heat_map_action.apply(&mut maze, &mut container);
     }
 
     // Draw the maze
@@ -190,7 +190,7 @@ fn main() {
 
     let args = app.get_matches();
 
-    let mut maze = maze::MazeType::from_num(
+    let mut maze = maze::Shape::from_num(
         args.value_of("WALLS")
             .map(|s| s.parse().expect("invalid wall value"))
             .unwrap(),
@@ -206,7 +206,7 @@ fn main() {
     );
 
     run(
-        maze.as_mut(),
+        maze,
         args.value_of("SCALE")
             .map(|s| s.parse().expect("invalid scale"))
             .unwrap_or(10.0),

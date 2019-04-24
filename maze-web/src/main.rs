@@ -43,8 +43,7 @@ impl<'a> response::Responder<'a> for Maze {
 
 impl<'a> From<Maze> for response::Result<'a> {
     fn from(mut source: Maze) -> Self {
-        let mut maze: Box<maze::Maze> =
-            source.maze_type.create(source.dimensions);
+        let mut maze = source.maze_type.create(source.dimensions);
         maze.randomized_prim(&mut source.seed);
 
         let mut container = svg::node::element::Group::new();

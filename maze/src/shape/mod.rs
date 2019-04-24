@@ -63,7 +63,7 @@ macro_rules! define_shape {
 }
 
 /// The different types of mazes implemented, identified by number of walls.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Shape {
     /// A maze with triangular rooms.
     Tri = 3,

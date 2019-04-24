@@ -84,6 +84,17 @@ impl Shape {
     pub fn create(self, width: usize, height: usize) -> Maze {
         Maze::new(self, width, height)
     }
+
+    /// Calculates the minimal dimensions for a maze to let the distance
+    /// between the leftmost and rightmost corners be `width` and the distance
+    /// between the top and bottom be `height`.
+    ///
+    /// # Arguments
+    /// *  `width` - The required physical width.
+    /// *  `height` - The required physical height.
+    pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
+        dispatch!(self => minimal_dimensions(width, height))
+    }
 }
 
 impl std::convert::TryFrom<u32> for Shape {
@@ -266,6 +277,29 @@ mod tests {
         assert_eq!(index, -2);
         assert!((rel - 0.8).abs() < 0.0001);
     }
+
+    maze_test!(
+        minimal_dimensions,
+        fn test(maze: &mut Maze) {
+            for i in 1..20 {
+                let width = i as f32 * 0.5;
+                let height = width;
+                let (w, h) = maze.shape.minimal_dimensions(width, height);
+
+                let m = maze.shape.create(w, h);
+                let (_, _, actual_width, actual_height) = m.viewbox();
+                assert!(actual_width >= width);
+                assert!(actual_height >= height);
+
+                if w > 1 && h > 1 {
+                    let m = maze.shape.create(w - 1, h - 1);
+                    let (_, _, actual_width, actual_height) = m.viewbox();
+                    assert!(actual_width <= width);
+                    assert!(actual_height <= height);
+                }
+            }
+        }
+    );
 
     maze_test!(
         corner_walls,

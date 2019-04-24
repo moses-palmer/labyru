@@ -54,6 +54,10 @@ define_shape! {
 static ALL: &[&wall::Wall] =
     &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
+pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
+    unimplemented!()
+}
+
 pub fn back_index(wall: usize) -> usize {
     wall ^ 0b0010
 }

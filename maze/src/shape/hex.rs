@@ -151,6 +151,10 @@ static ALL1: &[&wall::Wall] = &[
     &walls::DOWN_LEFT1,
 ];
 
+pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
+    unimplemented!()
+}
+
 pub fn back_index(wall: usize) -> usize {
     wall ^ 0b0001
 }

@@ -108,6 +108,10 @@ fn is_reversed(pos: matrix::Pos) -> bool {
     (pos.col + pos.row) & 1 != 0
 }
 
+pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
+    unimplemented!()
+}
+
 pub fn back_index(wall: usize) -> usize {
     wall ^ 0b0001
 }

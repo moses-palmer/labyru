@@ -8,7 +8,7 @@ use crate::wall;
 pub struct Room {
     walls: wall::Mask,
 
-    /// Whether this room has been visited. This is trie if at least one door
+    /// Whether this room has been visited. This is true if at least one door
     /// has at any time been opened.
     pub visited: bool,
 }

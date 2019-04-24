@@ -75,21 +75,6 @@ pub enum Shape {
 }
 
 impl Shape {
-    /// Converts a number to a maze type.
-    ///
-    /// The number must be one of the known number of walls per room.
-    ///
-    /// # Arguments
-    /// * `num ` - The number to convert.
-    pub fn from_num(num: u32) -> Option<Self> {
-        match num {
-            x if x == Shape::Tri as u32 => Some(Shape::Tri),
-            x if x == Shape::Quad as u32 => Some(Shape::Quad),
-            x if x == Shape::Hex as u32 => Some(Shape::Hex),
-            _ => None,
-        }
-    }
-
     /// Creates a maze of this type.
     ///
     /// # Arguments
@@ -97,6 +82,25 @@ impl Shape {
     /// * `height` - The height, in rooms, of the maze.
     pub fn create(self, width: usize, height: usize) -> Maze {
         Maze::new(self, width, height)
+    }
+}
+
+impl std::convert::TryFrom<u32> for Shape {
+    type Error = u32;
+
+    /// Attempts to convert a number to a shape.
+    ///
+    /// The number should indicate the number of walls for the shape.
+    ///
+    /// # Arguments
+    /// *  `source` - The number of walls.
+    fn try_from(source: u32) -> Result<Self, Self::Error> {
+        match source {
+            x if x == Shape::Tri as u32 => Ok(Shape::Tri),
+            x if x == Shape::Quad as u32 => Ok(Shape::Quad),
+            x if x == Shape::Hex as u32 => Ok(Shape::Hex),
+            _ => Err(source),
+        }
     }
 }
 

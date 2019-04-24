@@ -7,6 +7,7 @@ extern crate svg;
 
 extern crate maze;
 
+use std::convert::TryInto;
 use std::f32;
 
 use clap::{App, Arg};
@@ -190,13 +191,13 @@ fn main() {
 
     let args = app.get_matches();
 
-    let mut maze = maze::Shape::from_num(
-        args.value_of("WALLS")
-            .map(|s| s.parse().expect("invalid wall value"))
-            .unwrap(),
-    )
-    .expect("unknown number of walls")
-    .create(
+    let shape: maze::Shape = args
+        .value_of("WALLS")
+        .map(|s| s.parse::<u32>().expect("invalid wall value"))
+        .unwrap()
+        .try_into()
+        .expect("unknown number of walls");
+    let mut maze = shape.create(
         args.value_of("WIDTH")
             .map(|s| s.parse().expect("invalid width"))
             .unwrap(),

@@ -264,70 +264,16 @@ mod tests {
     maze_test!(
         room_at,
         fn test(maze: &mut Maze) {
-            let (left, top, width, height) = maze.viewbox();
-            let physical::Pos { x: min_x, y: min_y } =
-                maze.center(matrix_pos(0, 0));
-            let physical::Pos { x: max_x, y: max_y } = maze.center(matrix_pos(
-                maze.width() as isize - 1,
-                maze.height() as isize - 1,
-            ));
-            let xres = 100usize;
-            let yres = 100usize;
-            for x in 0..xres {
-                for y in 0..yres {
-                    let pos = physical::Pos {
-                        x: x as f32 / (xres as f32 * width + left),
-                        y: y as f32 / (yres as f32 * height + top),
-                    };
-
-                    // Should this position be inside the maze?
-                    let assume_inside = true
-                        && pos.x >= min_x
-                        && pos.x <= max_x
-                        && pos.y >= min_y
-                        && pos.y <= max_y;
-
-                    // Ignore rooms outside of the maze since we use
-                    // maze.rooms.positions() below
-                    let actual = maze.room_at(pos);
-                    if !maze.rooms.is_inside(actual) && !assume_inside {
-                        continue;
-                    }
-
-                    let mut positions = maze
-                        .rooms
-                        .positions()
-                        .map(|matrix_pos| (maze.center(matrix_pos), matrix_pos))
-                        .map(|(physical_pos, matrix_pos)| {
-                            (distance(pos, physical_pos), matrix_pos)
-                        })
-                        .collect::<Vec<_>>();
-                    positions.sort_by_key(|&(k, _)| k);
-
-                    let (_, expected) = positions[0];
-                    assert_eq!(expected, actual);
+            let d = 0.95;
+            for pos in maze.rooms.positions() {
+                let center = maze.center(pos);
+                for wall in maze.walls(pos) {
+                    let a = wall.span.0;
+                    let x = center.x + d * a.cos();
+                    let y = center.y + d * a.sin();
+                    assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
                 }
             }
         }
     );
-
-    /// Calculates an integral distance value between two points.
-    ///
-    /// # Arguments
-    /// * `pos1` - The first point.
-    /// * `pos2` - The second point.
-    fn distance(pos1: physical::Pos, pos2: physical::Pos) -> u64 {
-        (10000000000.0 * true_distance(pos1, pos2)) as u64
-    }
-
-    /// Calculates the actual distance value between two points.
-    ///
-    /// # Arguments
-    /// * `pos1` - The first point.
-    /// * `pos2` - The second point.
-    fn true_distance(pos1: physical::Pos, pos2: physical::Pos) -> f32 {
-        let dx = pos1.x - pos2.x;
-        let dy = pos1.y - pos2.y;
-        (dx * dx + dy * dy).sqrt()
-    }
 }

@@ -63,6 +63,7 @@ macro_rules! define_shape {
 }
 
 /// The different types of mazes implemented, identified by number of walls.
+#[derive(Debug, PartialEq)]
 pub enum Shape {
     /// A maze with triangular rooms.
     Tri = 3,
@@ -100,6 +101,25 @@ impl std::convert::TryFrom<u32> for Shape {
             x if x == Shape::Quad as u32 => Ok(Shape::Quad),
             x if x == Shape::Hex as u32 => Ok(Shape::Hex),
             _ => Err(source),
+        }
+    }
+}
+
+impl std::str::FromStr for Shape {
+    type Err = String;
+
+    /// Converts a string to a maze type.
+    ///
+    /// The string must be one of the supported names, lower-cased.
+    ///
+    /// # Arguments
+    /// *  `source` - The source string.
+    fn from_str(source: &str) -> Result<Self, Self::Err> {
+        match source {
+            "tri" => Ok(Shape::Tri),
+            "quad" => Ok(Shape::Quad),
+            "hex" => Ok(Shape::Hex),
+            e => Err(e.to_owned()),
         }
     }
 }
@@ -214,6 +234,14 @@ pub mod tri;
 mod tests {
     use crate::test_utils::*;
     use crate::*;
+
+    #[test]
+    fn shape_from_str() {
+        assert_eq!("tri".parse(), Ok(Shape::Tri),);
+        assert_eq!("quad".parse(), Ok(Shape::Quad),);
+        assert_eq!("hex".parse(), Ok(Shape::Hex),);
+        assert_eq!("invalid".parse::<Shape>(), Err("invalid".to_owned()));
+    }
 
     maze_test!(
         corner_walls,

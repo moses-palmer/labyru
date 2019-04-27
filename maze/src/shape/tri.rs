@@ -127,7 +127,7 @@ pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
 
 pub fn center(pos: matrix::Pos) -> physical::Pos {
     physical::Pos {
-        x: (pos.col as f32 + 0.5) * HORIZONTAL_MULTIPLICATOR,
+        x: (pos.col as f32 + 1.0) * HORIZONTAL_MULTIPLICATOR,
         y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR
             + if is_reversed(pos) { OFFSET } else { -OFFSET },
     }

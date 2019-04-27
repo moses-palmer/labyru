@@ -180,7 +180,7 @@ pub fn center(pos: matrix::Pos) -> physical::Pos {
     physical::Pos {
         x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
             * HORIZONTAL_MULTIPLICATOR,
-        y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR,
+        y: (pos.row as f32) * VERTICAL_MULTIPLICATOR + 1.0,
     }
 }
 

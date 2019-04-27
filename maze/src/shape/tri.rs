@@ -135,36 +135,32 @@ pub fn center(pos: matrix::Pos) -> physical::Pos {
 
 pub fn room_at(pos: physical::Pos) -> matrix::Pos {
     // Calculate approximations of the room position
-    let approx_row = (pos.y / VERTICAL_MULTIPLICATOR).floor();
-    let row_odd = approx_row as u32 & 1 == 1;
-    let approx_col = (pos.x / HORIZONTAL_MULTIPLICATOR).floor();
+    let (i, f) = super::partition(pos.y / VERTICAL_MULTIPLICATOR);
+    let odd_row = i & 1 == 1;
+    let approx_row = i;
+    let rel_y = if odd_row { 1.0 - f } else { f };
+    let (i, f) = super::partition(pos.x / (2.0 * HORIZONTAL_MULTIPLICATOR));
+    let approx_col = i * 2;
+    let rel_x = f;
 
-    // Calculate relative positions within the room
-    let rel_y = pos.y - (approx_row * VERTICAL_MULTIPLICATOR);
-    let rel_x = pos.x - (approx_col * HORIZONTAL_MULTIPLICATOR);
+    let past_center = rel_x > 0.5;
 
-    if row_odd {
-        matrix::Pos {
-            col: if rel_x < 0.5 && rel_y > rel_x {
-                approx_col as isize - 1
-            } else if rel_x > 0.5 && rel_y > rel_x {
-                approx_col as isize + 1
+    matrix::Pos {
+        col: approx_col
+            + if past_center {
+                if 2.0 * (1.0 - rel_x) < rel_y {
+                    1
+                } else {
+                    0
+                }
             } else {
-                approx_col as isize
+                if 2.0 * rel_x >= rel_y {
+                    0
+                } else {
+                    -1
+                }
             },
-            row: approx_row as isize,
-        }
-    } else {
-        matrix::Pos {
-            col: if rel_x < 0.5 && rel_y < rel_x {
-                approx_col as isize - 1
-            } else if rel_x > 0.5 && rel_y < rel_x {
-                approx_col as isize + 1
-            } else {
-                approx_col as isize
-            },
-            row: approx_row as isize,
-        }
+        row: approx_row,
     }
 }
 

@@ -63,6 +63,7 @@ macro_rules! define_shape {
 }
 
 /// The different types of mazes implemented, identified by number of walls.
+#[derive(Debug, PartialEq)]
 pub enum Shape {
     /// A maze with triangular rooms.
     Tri = 3,
@@ -75,21 +76,6 @@ pub enum Shape {
 }
 
 impl Shape {
-    /// Converts a number to a maze type.
-    ///
-    /// The number must be one of the known number of walls per room.
-    ///
-    /// # Arguments
-    /// * `num ` - The number to convert.
-    pub fn from_num(num: u32) -> Option<Self> {
-        match num {
-            x if x == Shape::Tri as u32 => Some(Shape::Tri),
-            x if x == Shape::Quad as u32 => Some(Shape::Quad),
-            x if x == Shape::Hex as u32 => Some(Shape::Hex),
-            _ => None,
-        }
-    }
-
     /// Creates a maze of this type.
     ///
     /// # Arguments
@@ -97,6 +83,44 @@ impl Shape {
     /// * `height` - The height, in rooms, of the maze.
     pub fn create(self, width: usize, height: usize) -> Maze {
         Maze::new(self, width, height)
+    }
+}
+
+impl std::convert::TryFrom<u32> for Shape {
+    type Error = u32;
+
+    /// Attempts to convert a number to a shape.
+    ///
+    /// The number should indicate the number of walls for the shape.
+    ///
+    /// # Arguments
+    /// *  `source` - The number of walls.
+    fn try_from(source: u32) -> Result<Self, Self::Error> {
+        match source {
+            x if x == Shape::Tri as u32 => Ok(Shape::Tri),
+            x if x == Shape::Quad as u32 => Ok(Shape::Quad),
+            x if x == Shape::Hex as u32 => Ok(Shape::Hex),
+            _ => Err(source),
+        }
+    }
+}
+
+impl std::str::FromStr for Shape {
+    type Err = String;
+
+    /// Converts a string to a maze type.
+    ///
+    /// The string must be one of the supported names, lower-cased.
+    ///
+    /// # Arguments
+    /// *  `source` - The source string.
+    fn from_str(source: &str) -> Result<Self, Self::Err> {
+        match source {
+            "tri" => Ok(Shape::Tri),
+            "quad" => Ok(Shape::Quad),
+            "hex" => Ok(Shape::Hex),
+            e => Err(e.to_owned()),
+        }
     }
 }
 
@@ -210,6 +234,14 @@ pub mod tri;
 mod tests {
     use crate::test_utils::*;
     use crate::*;
+
+    #[test]
+    fn shape_from_str() {
+        assert_eq!("tri".parse(), Ok(Shape::Tri),);
+        assert_eq!("quad".parse(), Ok(Shape::Quad),);
+        assert_eq!("hex".parse(), Ok(Shape::Hex),);
+        assert_eq!("invalid".parse::<Shape>(), Err("invalid".to_owned()));
+    }
 
     maze_test!(
         corner_walls,

@@ -13,14 +13,9 @@ impl MazeType {
 }
 
 impl<'a> request::FromParam<'a> for MazeType {
-    type Error = &'a http::RawStr;
+    type Error = String;
 
     fn from_param(form_value: &'a http::RawStr) -> Result<Self, Self::Error> {
-        match form_value.as_str() {
-            "tri" => Ok(Self(maze::Shape::Tri)),
-            "quad" => Ok(Self(maze::Shape::Quad)),
-            "hex" => Ok(Self(maze::Shape::Hex)),
-            _ => Err(form_value),
-        }
+        form_value.as_str().parse().map(MazeType)
     }
 }

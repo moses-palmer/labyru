@@ -3,11 +3,14 @@ use std;
 /// The maximum nomalised value of a radian.
 const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
 
+/// A wall index.
+pub type Index = usize;
+
 /// A bit mask for a wall.
 pub type Mask = u32;
 
 /// An offset from a wall to its corner neighbours.
-pub type Offset = ((isize, isize), usize);
+pub type Offset = ((isize, isize), Index);
 
 /// A wall.
 ///
@@ -21,7 +24,7 @@ pub struct Wall {
     pub name: &'static str,
 
     /// The index of this wall, used to generate the bit mask.
-    pub index: usize,
+    pub index: Index,
 
     /// Offsets to other walls in the first corner of this wall.
     pub corner_wall_offsets: &'static [Offset],
@@ -33,7 +36,7 @@ pub struct Wall {
     /// The span, in radians, of the wall.
     ///
     /// The first value is the start of the span, and the second value the end.
-    /// The second value will always be greater, event if the span wraps around
+    /// The second value will always be greater, even if the span wraps around
     /// _2𝜋_.
     pub span: (f32, f32),
 }
@@ -44,7 +47,7 @@ impl Wall {
         1 << self.index
     }
 
-    /// Normalises an angle to be in the bound _[0, 2𝜋).
+    /// Normalises an angle to be in the bound _[0, 2𝜋)_.
     ///
     /// # Arguments
     /// * `angle` - The angle to normalise.

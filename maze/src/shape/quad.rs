@@ -55,7 +55,11 @@ static ALL: &[&wall::Wall] =
     &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    unimplemented!()
+    let height = (height.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;
+
+    let width = (width.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;
+
+    (width, height)
 }
 
 pub fn back_index(wall: usize) -> usize {

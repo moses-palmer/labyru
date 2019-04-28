@@ -109,7 +109,13 @@ fn is_reversed(pos: matrix::Pos) -> bool {
 }
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    unimplemented!()
+    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR)
+        .ceil() as usize;
+
+    let width = (width.max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR)
+        .floor() as usize;
+
+    (width, height)
 }
 
 pub fn back_index(wall: usize) -> usize {

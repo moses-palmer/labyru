@@ -177,17 +177,13 @@ fn main() {
             Arg::with_name("OUTPUT")
                 .required(true)
                 .help("The output file name."),
-        );
-
-    #[cfg(feature = "background")]
-    {
-        app = app.arg(
+        )
+        .arg(
             Arg::with_name("BACKGROUND")
                 .long("background")
                 .help("A background image to colour rooms.")
                 .takes_value(true),
         );
-    }
 
     let args = app.get_matches();
 

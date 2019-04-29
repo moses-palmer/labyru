@@ -23,8 +23,8 @@ const HORIZONTAL_MULTIPLICATOR: f32 = 2.0 * D_COS;
 /// next column.
 const VERTICAL_MULTIPLICATOR: f32 = 2.0 - D_SIN;
 
+/// The height of the top corner.
 const TOP_HEIGHT: f32 = 1.0 + D_SIN;
-const GRADIENT: f32 = (1.0 + D_SIN) / D_COS;
 
 // The walls are arranged in back-to-back pairs
 define_shape! {
@@ -180,43 +180,58 @@ pub fn center(pos: matrix::Pos) -> physical::Pos {
     physical::Pos {
         x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
             * HORIZONTAL_MULTIPLICATOR,
-        y: (pos.row as f32 + 0.5) * VERTICAL_MULTIPLICATOR,
+        y: (pos.row as f32) * VERTICAL_MULTIPLICATOR + 1.0,
     }
 }
 
 pub fn room_at(pos: physical::Pos) -> matrix::Pos {
     // Calculate approximations of the room position
-    let approx_row = (pos.y / VERTICAL_MULTIPLICATOR).floor();
-    let row_odd = approx_row as i32 & 1 == 1;
-    let approx_col = if row_odd {
-        (pos.x / HORIZONTAL_MULTIPLICATOR)
-    } else {
-        (pos.x / HORIZONTAL_MULTIPLICATOR - 0.5)
-    };
+    let (i, f) = super::partition(pos.y / VERTICAL_MULTIPLICATOR);
+    let odd_row = i & 1 == 1;
+    let approx_row = i;
+    let rel_y = f;
+    let (i, f) = super::partition(
+        pos.x / (HORIZONTAL_MULTIPLICATOR) - if odd_row { 0.0 } else { 0.5 },
+    );
+    let approx_col = i;
+    let rel_x = f;
 
-    // Calculate relative positions within the room
-    let rel_y = pos.y - (approx_row * VERTICAL_MULTIPLICATOR);
-    let rel_x = if row_odd {
-        (pos.x - ((approx_col - 0.5) * HORIZONTAL_MULTIPLICATOR))
+    let past_center_x = rel_x > 0.5;
+    let corner = if past_center_x {
+        rel_x - 0.5
     } else {
-        (pos.x - (approx_col * HORIZONTAL_MULTIPLICATOR))
-    };
+        0.5 - rel_x
+    } / TOP_HEIGHT
+        > rel_y;
+    let past_center_y = rel_y > 0.5;
 
-    if rel_y < (-GRADIENT * rel_x) + TOP_HEIGHT {
-        matrix::Pos {
-            col: approx_col as isize - !row_odd as isize,
-            row: approx_row as isize - 1,
-        }
-    } else if rel_y < (GRADIENT * rel_x) - TOP_HEIGHT {
-        matrix::Pos {
-            col: approx_col as isize + row_odd as isize,
-            row: approx_row as isize - 1,
-        }
-    } else {
-        matrix::Pos {
-            col: approx_col as isize,
-            row: approx_row as isize,
-        }
+    matrix::Pos {
+        col: approx_col
+            + if !corner {
+                0
+            } else if odd_row {
+                if past_center_x {
+                    0
+                } else {
+                    -1
+                }
+            } else {
+                if past_center_x {
+                    1
+                } else {
+                    0
+                }
+            },
+        row: approx_row
+            + if !corner {
+                0
+            } else {
+                if past_center_y {
+                    1
+                } else {
+                    -1
+                }
+            },
     }
 }
 

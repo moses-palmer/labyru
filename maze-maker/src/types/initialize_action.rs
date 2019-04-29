@@ -12,8 +12,8 @@ const D: f32 = 1.0 / 255.0 / 3.0;
 
 /// A masking image.
 pub struct InitializeAction {
-    /// The path to the background image.
-    pub path: std::path::PathBuf,
+    /// The mask image.
+    pub image: image::RgbImage,
 
     /// The intensity threshold
     pub threshold: f32,
@@ -35,7 +35,12 @@ impl FromStr for InitializeAction {
 
         if let Some(part1) = parts.next() {
             if let Ok(threshold) = part1.parse() {
-                Ok(Self { path, threshold })
+                Ok(Self {
+                    image: image::open(path)
+                        .map_err(|_| format!("failed to open {}", s))?
+                        .to_rgb(),
+                    threshold,
+                })
             } else {
                 Err(format!("invalid threshold: {}", part1))
             }
@@ -56,9 +61,7 @@ impl Action for InitializeAction {
     /// * `group` - The group to which to add the rooms.
     fn apply(self, maze: &mut maze::Maze, _: &mut svg::node::element::Group) {
         let data = image_to_matrix::<_, f32>(
-            image::open(self.path.as_path())
-                .expect("unable to open mask image")
-                .to_rgb(),
+            &self.image,
             maze,
             // Add all pixel intensities inside a room to the cell representing
             // the room

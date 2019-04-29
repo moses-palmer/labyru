@@ -193,6 +193,28 @@ fn main() {
         .unwrap()
         .try_into()
         .expect("unknown number of walls");
+    let scale = args
+        .value_of("SCALE")
+        .map(|s| s.parse().expect("invalid scale"))
+        .unwrap_or(10.0);
+    let margin = args
+        .value_of("MARGIN")
+        .map(|s| s.parse().expect("invalid margin"))
+        .unwrap_or(10.0);
+    let solve = args.is_present("SOLVE");
+    let break_action: Option<BreakAction> = args
+        .value_of("BREAK")
+        .map(|s| s.parse().expect("invalid break"));
+    let heatmap_action: Option<HeatMapAction> = args
+        .value_of("HEATMAP")
+        .map(|s| s.parse().expect("invalid heat map"));
+    let background_action: Option<BackgroundAction> = args
+        .value_of("BACKGROUND")
+        .map(|s| s.parse().expect("invalid background"));
+    let initialize_action: Option<InitializeAction> = args
+        .value_of("MASK")
+        .map(|s| s.parse().expect("invalid mask"));
+    let output = args.value_of("OUTPUT").unwrap();
     let mut maze = shape.create(
         args.value_of("WIDTH")
             .map(|s| s.parse().expect("invalid width"))
@@ -204,21 +226,13 @@ fn main() {
 
     run(
         maze,
-        args.value_of("SCALE")
-            .map(|s| s.parse().expect("invalid scale"))
-            .unwrap_or(10.0),
-        args.value_of("MARGIN")
-            .map(|s| s.parse().expect("invalid margin"))
-            .unwrap_or(10.0),
-        args.is_present("SOLVE"),
-        args.value_of("BREAK")
-            .map(|s| s.parse().expect("invalid break")),
-        args.value_of("HEATMAP")
-            .map(|s| s.parse().expect("invalid heat map")),
-        args.value_of("BACKGROUND")
-            .map(|s| s.parse().expect("invalid background")),
-        args.value_of("MASK")
-            .map(|s| s.parse().expect("invalid mask")),
-        args.value_of("OUTPUT").unwrap(),
+        scale,
+        margin,
+        solve,
+        break_action,
+        heatmap_action,
+        background_action,
+        initialize_action,
+        output,
     );
 }

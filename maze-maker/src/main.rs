@@ -133,14 +133,14 @@ fn main() {
             Arg::with_name("WIDTH")
                 .long("--width")
                 .takes_value(true)
-                .default_value("12")
+                .required_unless_all(&["BACKGROUND", "RATIO"])
                 .help("The width of the maze, in rooms."),
         )
         .arg(
             Arg::with_name("HEIGHT")
                 .long("--height")
                 .takes_value(true)
-                .default_value("9")
+                .required_unless_all(&["BACKGROUND", "RATIO"])
                 .help("The height of the maze, in rooms."),
         )
         .arg(
@@ -189,6 +189,14 @@ fn main() {
                 .long("mask")
                 .help("A background image to colour rooms.")
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("RATIO")
+                .long("ratio")
+                .help("A ratio for pixels per room when using a background.")
+                .conflicts_with_all(&["WIDTH", "HEIGHT"])
+                .requires("BACKGROUND")
+                .takes_value(true),
         );
 
     let args = app.get_matches();
@@ -221,14 +229,28 @@ fn main() {
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
     let output = args.value_of("OUTPUT").unwrap();
-    let mut maze = shape.create(
-        args.value_of("WIDTH")
-            .map(|s| s.parse().expect("invalid width"))
-            .unwrap(),
-        args.value_of("HEIGHT")
-            .map(|s| s.parse().expect("invalid height"))
-            .unwrap(),
-    );
+    let (width, height) = args
+        .value_of("RATIO")
+        .map(|s| s.parse::<f32>().expect("invalid ratio"))
+        .and_then(|ratio| {
+            background_action.as_ref().map(|background_action| {
+                shape.minimal_dimensions(
+                    background_action.image.width() as f32 / ratio,
+                    background_action.image.height() as f32 / ratio,
+                )
+            })
+        })
+        .unwrap_or_else(|| {
+            (
+                args.value_of("WIDTH")
+                    .map(|s| s.parse().expect("invalid width"))
+                    .unwrap(),
+                args.value_of("HEIGHT")
+                    .map(|s| s.parse().expect("invalid height"))
+                    .unwrap(),
+            )
+        });
+    let mut maze = shape.create(width, height);
 
     run(
         maze,

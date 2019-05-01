@@ -219,30 +219,20 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
 
     matrix::Pos {
         col: approx_col
-            + if !corner {
-                0
-            } else if odd_row {
-                if past_center_x {
-                    0
-                } else {
-                    -1
-                }
+            + if corner && odd_row && !past_center_x {
+                -1
+            } else if corner && !odd_row && past_center_x {
+                1
             } else {
-                if past_center_x {
-                    1
-                } else {
-                    0
-                }
+                0
             },
         row: approx_row
-            + if !corner {
-                0
+            + if corner && !past_center_y {
+                -1
+            } else if corner && past_center_y {
+                1
             } else {
-                if past_center_y {
-                    1
-                } else {
-                    -1
-                }
+                0
             },
     }
 }

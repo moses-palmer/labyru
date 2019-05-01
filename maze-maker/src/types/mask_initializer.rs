@@ -58,23 +58,28 @@ impl Initializer for MaskInitializer {
     /// # Arguments
     /// * `maze` - The maze.
     fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
-        let data = image_to_matrix::<_, f32>(
+        let data = image_to_matrix::<_, (f32, usize)>(
             &self.image,
             &maze,
             // Add all pixel intensities inside a room to the cell representing
             // the room
             |matrix, pos, pixel| {
                 if maze.rooms().is_inside(pos) {
-                    matrix[pos] += pixel
-                        .data
-                        .iter()
-                        .map(|&p| D * f32::from(p))
-                        .sum::<f32>();
+                    let (previous, count) = matrix[pos];
+                    matrix[pos] = (
+                        previous
+                            + pixel
+                                .data
+                                .iter()
+                                .map(|&p| f32::from(p))
+                                .sum::<f32>(),
+                        count + 1,
+                    );
                 }
             },
         )
         // Convert the summed colour values to an actual colour
-        .map(|value| value > self.threshold);
+        .map(|(value, count)| D * (value / count as f32) > self.threshold);
 
         maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos]);
         maze

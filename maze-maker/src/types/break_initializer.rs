@@ -3,11 +3,10 @@ use std::str::FromStr;
 use rand;
 use rand::Rng;
 
-use crate::svg;
 use crate::types::*;
 
 /// A full description of the break action.
-pub struct BreakAction {
+pub struct BreakInitializer {
     /// The heat map type.
     pub map_type: HeatMapType,
 
@@ -15,7 +14,7 @@ pub struct BreakAction {
     pub count: usize,
 }
 
-impl FromStr for BreakAction {
+impl FromStr for BreakInitializer {
     type Err = String;
 
     /// Converts a string to a break description.
@@ -42,7 +41,7 @@ impl FromStr for BreakAction {
     }
 }
 
-impl Action for BreakAction {
+impl Initializer for BreakInitializer {
     /// Applies the break action.
     ///
     /// This action will repeatedly calculate a heat map, and then open walls in
@@ -50,15 +49,11 @@ impl Action for BreakAction {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    fn apply(
-        &self,
-        maze: &mut maze::Maze,
-        _group: &mut svg::node::element::Group,
-    ) {
+    fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
         let mut rng = rand::weak_rng();
 
         for _ in 0..self.count {
-            let heat_map = self.map_type.generate(maze);
+            let heat_map = self.map_type.generate(&maze);
             for pos in heat_map.positions() {
                 if 1.0 / (rng.next_f32() * heat_map[pos] as f32) < 0.5 {
                     loop {
@@ -71,5 +66,7 @@ impl Action for BreakAction {
                 }
             }
         }
+
+        maze
     }
 }

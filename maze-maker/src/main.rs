@@ -21,14 +21,10 @@ use self::types::*;
 
 #[allow(unused_variables, clippy::too_many_arguments)]
 fn run(
-    mut maze: maze::Maze,
+    maze: maze::Maze,
     scale: f32,
     margin: f32,
-    solve: bool,
-    break_action: Option<BreakAction>,
-    heat_map_action: Option<HeatMapAction>,
-    background_action: Option<BackgroundAction>,
-    initialize_action: Option<InitializeAction>,
+    renderers: &[&Renderer],
     output: &str,
 ) {
     let document = svg::Document::new()
@@ -36,23 +32,8 @@ fn run(
     let mut container = svg::node::element::Group::new()
         .set("transform", format!("scale({})", scale));
 
-    // Make sure the maze is initialised
-    if let Some(initialize_action) = initialize_action {
-        initialize_action.apply(&mut maze, &mut container);
-    } else {
-        maze.randomized_prim(&mut rand::weak_rng());
-    }
-
-    if let Some(background_action) = background_action {
-        background_action.apply(&mut maze, &mut container);
-    }
-
-    if let Some(break_action) = break_action {
-        break_action.apply(&mut maze, &mut container);
-    }
-
-    if let Some(heat_map_action) = heat_map_action {
-        heat_map_action.apply(&mut maze, &mut container);
+    for renderer in renderers {
+        renderer.render(&maze, &mut container);
     }
 
     // Draw the maze
@@ -66,31 +47,6 @@ fn run(
             .set("vector-effect", "non-scaling-stroke")
             .set("d", maze.to_path_d()),
     );
-
-    // Draw the solution
-    if solve {
-        container.append(
-            svg::node::element::Path::new()
-                .set("fill", "none")
-                .set("stroke", "black")
-                .set("stroke-linecap", "round")
-                .set("stroke-linejoin", "round")
-                .set("stroke-width", 0.4)
-                .set("vector-effect", "non-scaling-stroke")
-                .set(
-                    "d",
-                    maze.walk(
-                        maze::matrix::Pos { col: 0, row: 0 },
-                        maze::matrix::Pos {
-                            col: maze.width() as isize - 1,
-                            row: maze.height() as isize - 1,
-                        },
-                    )
-                    .unwrap()
-                    .to_path_d(),
-                ),
-        );
-    }
 
     svg::save(output, &document.add(container)).expect("failed to write SVG");
 }
@@ -201,12 +157,7 @@ fn main() {
 
     let args = app.get_matches();
 
-    let shape: maze::Shape = args
-        .value_of("WALLS")
-        .map(|s| s.parse::<u32>().expect("invalid wall value"))
-        .unwrap()
-        .try_into()
-        .expect("unknown number of walls");
+    // Parse general rendering options
     let scale = args
         .value_of("SCALE")
         .map(|s| s.parse().expect("invalid scale"))
@@ -215,28 +166,43 @@ fn main() {
         .value_of("MARGIN")
         .map(|s| s.parse().expect("invalid margin"))
         .unwrap_or(10.0);
-    let solve = args.is_present("SOLVE");
-    let break_action: Option<BreakAction> = args
-        .value_of("BREAK")
-        .map(|s| s.parse().expect("invalid break"));
-    let heatmap_action: Option<HeatMapAction> = args
-        .value_of("HEATMAP")
-        .map(|s| s.parse().expect("invalid heat map"));
-    let background_action: Option<BackgroundAction> = args
-        .value_of("BACKGROUND")
-        .map(|s| s.parse().expect("invalid background"));
-    let initialize_action: Option<InitializeAction> = args
+
+    // Parse initialisers
+    let mask_initializer: Option<MaskInitializer> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
-    let output = args.value_of("OUTPUT").unwrap();
+    let break_initializer: Option<BreakInitializer> = args
+        .value_of("BREAK")
+        .map(|s| s.parse().expect("invalid break"));
+
+    // Parse renderers
+    let heatmap_renderer: Option<HeatMapRenderer> = args
+        .value_of("HEATMAP")
+        .map(|s| s.parse().expect("invalid heat map"));
+    let background_renderer: Option<BackgroundRenderer> = args
+        .value_of("BACKGROUND")
+        .map(|s| s.parse().expect("invalid background"));
+    let solve_renderer = if args.is_present("SOLVE") {
+        Some(SolveRenderer)
+    } else {
+        None
+    };
+
+    // Parse maze information
+    let shape: maze::Shape = args
+        .value_of("WALLS")
+        .map(|s| s.parse::<u32>().expect("invalid wall value"))
+        .unwrap()
+        .try_into()
+        .expect("unknown number of walls");
     let (width, height) = args
         .value_of("RATIO")
         .map(|s| s.parse::<f32>().expect("invalid ratio"))
         .and_then(|ratio| {
-            background_action.as_ref().map(|background_action| {
+            background_renderer.as_ref().map(|background_renderer| {
                 shape.minimal_dimensions(
-                    background_action.image.width() as f32 / ratio,
-                    background_action.image.height() as f32 / ratio,
+                    background_renderer.image.width() as f32 / ratio,
+                    background_renderer.image.height() as f32 / ratio,
                 )
             })
         })
@@ -250,17 +216,29 @@ fn main() {
                     .unwrap(),
             )
         });
-    let mut maze = shape.create(width, height);
+
+    let output = args.value_of("OUTPUT").unwrap();
+
+    // Make sure the maze is initialised
+    let maze = {
+        let mut maze = mask_initializer
+            .map(|a| a.initialize(shape.create(width, height)))
+            .unwrap_or_else(|| {
+                let mut maze = shape.create(width, height);
+                maze.randomized_prim(&mut rand::weak_rng());
+                maze
+            });
+
+        [&break_initializer as &Initializer]
+            .iter()
+            .fold(maze, |maze, a| a.initialize(maze))
+    };
 
     run(
         maze,
         scale,
         margin,
-        solve,
-        break_action,
-        heatmap_action,
-        background_action,
-        initialize_action,
+        &[&background_renderer, &heatmap_renderer, &solve_renderer],
         output,
     );
 }

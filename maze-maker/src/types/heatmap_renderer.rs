@@ -6,7 +6,7 @@ use svg::Node;
 use crate::types::*;
 
 /// A full description of the heat map action.
-pub struct HeatMapAction {
+pub struct HeatMapRenderer {
     /// The heat map type.
     pub map_type: HeatMapType,
 
@@ -17,7 +17,7 @@ pub struct HeatMapAction {
     pub to: Color,
 }
 
-impl FromStr for HeatMapAction {
+impl FromStr for HeatMapRenderer {
     type Err = String;
 
     /// Converts a string to a heat map description.
@@ -69,7 +69,7 @@ impl FromStr for HeatMapAction {
     }
 }
 
-impl Action for HeatMapAction {
+impl Renderer for HeatMapRenderer {
     /// Applies the heat map action.
     ///
     /// This action will calculate a heat map, and use the heat of each room to
@@ -78,11 +78,7 @@ impl Action for HeatMapAction {
     /// # Arguments
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
-    fn apply(
-        &self,
-        maze: &mut maze::Maze,
-        group: &mut svg::node::element::Group,
-    ) {
+    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;
         group.append(draw_rooms(maze, |pos| {

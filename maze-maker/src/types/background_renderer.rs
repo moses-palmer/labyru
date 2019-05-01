@@ -7,12 +7,12 @@ use crate::svg::Node;
 use crate::types::*;
 
 /// A background image.
-pub struct BackgroundAction {
+pub struct BackgroundRenderer {
     /// The background image.
     pub image: image::RgbImage,
 }
 
-impl FromStr for BackgroundAction {
+impl FromStr for BackgroundRenderer {
     type Err = String;
 
     /// Converts a string to a background description.
@@ -27,7 +27,7 @@ impl FromStr for BackgroundAction {
     }
 }
 
-impl Action for BackgroundAction {
+impl Renderer for BackgroundRenderer {
     /// Applies the background action.
     ///
     /// This action will use an image to sample the background colour of rooms.
@@ -35,11 +35,7 @@ impl Action for BackgroundAction {
     /// # Arguments
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
-    fn apply(
-        &self,
-        maze: &mut maze::Maze,
-        group: &mut svg::node::element::Group,
-    ) {
+    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
         let data = image_to_matrix::<_, (u32, (u32, u32, u32))>(
             &self.image,
             maze,

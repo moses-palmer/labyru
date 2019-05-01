@@ -2,7 +2,6 @@ use std::str::FromStr;
 
 use image;
 use rand;
-use svg;
 
 use super::*;
 
@@ -11,7 +10,7 @@ use super::*;
 const D: f32 = 1.0 / 255.0 / 3.0;
 
 /// A masking image.
-pub struct InitializeAction {
+pub struct MaskInitializer {
     /// The mask image.
     pub image: image::RgbImage,
 
@@ -19,7 +18,7 @@ pub struct InitializeAction {
     pub threshold: f32,
 }
 
-impl FromStr for InitializeAction {
+impl FromStr for MaskInitializer {
     type Err = String;
 
     /// Converts a string to an initialise mask description.
@@ -50,7 +49,7 @@ impl FromStr for InitializeAction {
     }
 }
 
-impl Action for InitializeAction {
+impl Initializer for MaskInitializer {
     /// Applies the initialise action.
     ///
     /// This action will use the intensity of pixels to determine whether
@@ -58,14 +57,10 @@ impl Action for InitializeAction {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    fn apply(
-        &self,
-        maze: &mut maze::Maze,
-        _group: &mut svg::node::element::Group,
-    ) {
+    fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
         let data = image_to_matrix::<_, f32>(
             &self.image,
-            maze,
+            &maze,
             // Add all pixel intensities inside a room to the cell representing
             // the room
             |matrix, pos, pixel| {
@@ -82,5 +77,6 @@ impl Action for InitializeAction {
         .map(|value| value > self.threshold);
 
         maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos]);
+        maze
     }
 }

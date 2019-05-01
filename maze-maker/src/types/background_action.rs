@@ -36,7 +36,7 @@ impl Action for BackgroundAction {
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
     fn apply(
-        self,
+        &self,
         maze: &mut maze::Maze,
         group: &mut svg::node::element::Group,
     ) {

@@ -58,8 +58,11 @@ impl Action for InitializeAction {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    /// * `group` - The group to which to add the rooms.
-    fn apply(self, maze: &mut maze::Maze, _: &mut svg::node::element::Group) {
+    fn apply(
+        &self,
+        maze: &mut maze::Maze,
+        _group: &mut svg::node::element::Group,
+    ) {
         let data = image_to_matrix::<_, f32>(
             &self.image,
             maze,

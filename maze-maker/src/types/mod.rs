@@ -29,7 +29,7 @@ pub trait Action: std::str::FromStr<Err = String> {
     /// *  `maze` - The maze.
     /// *  `group` - An SVG group.
     fn apply(
-        self,
+        &self,
         maze: &mut maze::Maze,
         group: &mut svg::node::element::Group,
     );

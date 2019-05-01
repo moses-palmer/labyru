@@ -157,18 +157,12 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
 
     matrix::Pos {
         col: approx_col
-            + if past_center {
-                if 2.0 * (1.0 - rel_x) < rel_y {
-                    1
-                } else {
-                    0
-                }
+            + if past_center && 2.0 * (1.0 - rel_x) < rel_y {
+                1
+            } else if !past_center && 2.0 * rel_x < rel_y {
+                -1
             } else {
-                if 2.0 * rel_x >= rel_y {
-                    0
-                } else {
-                    -1
-                }
+                0
             },
         row: approx_row,
     }

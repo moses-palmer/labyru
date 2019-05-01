@@ -183,6 +183,12 @@ fn main() {
                 .long("background")
                 .help("A background image to colour rooms.")
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("MASK")
+                .long("mask")
+                .help("A background image to colour rooms.")
+                .takes_value(true),
         );
 
     let args = app.get_matches();

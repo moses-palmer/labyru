@@ -151,6 +151,18 @@ static ALL1: &[&wall::Wall] = &[
     &walls::DOWN_LEFT1,
 ];
 
+pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
+    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR)
+        .ceil() as usize;
+
+    let hoffset = if height > 1 { 1.0 } else { 0.5 };
+    let width = ((width - hoffset).max(HORIZONTAL_MULTIPLICATOR)
+        / HORIZONTAL_MULTIPLICATOR)
+        .ceil() as usize;
+
+    (width, height)
+}
+
 pub fn back_index(wall: usize) -> usize {
     wall ^ 0b0001
 }

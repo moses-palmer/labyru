@@ -133,14 +133,14 @@ fn main() {
             Arg::with_name("WIDTH")
                 .long("--width")
                 .takes_value(true)
-                .default_value("12")
+                .required_unless_all(&["BACKGROUND", "RATIO"])
                 .help("The width of the maze, in rooms."),
         )
         .arg(
             Arg::with_name("HEIGHT")
                 .long("--height")
                 .takes_value(true)
-                .default_value("9")
+                .required_unless_all(&["BACKGROUND", "RATIO"])
                 .help("The height of the maze, in rooms."),
         )
         .arg(
@@ -177,17 +177,27 @@ fn main() {
             Arg::with_name("OUTPUT")
                 .required(true)
                 .help("The output file name."),
-        );
-
-    #[cfg(feature = "background")]
-    {
-        app = app.arg(
+        )
+        .arg(
             Arg::with_name("BACKGROUND")
                 .long("background")
                 .help("A background image to colour rooms.")
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("MASK")
+                .long("mask")
+                .help("A background image to colour rooms.")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("RATIO")
+                .long("ratio")
+                .help("A ratio for pixels per room when using a background.")
+                .conflicts_with_all(&["WIDTH", "HEIGHT"])
+                .requires("BACKGROUND")
+                .takes_value(true),
         );
-    }
 
     let args = app.get_matches();
 
@@ -197,32 +207,60 @@ fn main() {
         .unwrap()
         .try_into()
         .expect("unknown number of walls");
-    let mut maze = shape.create(
-        args.value_of("WIDTH")
-            .map(|s| s.parse().expect("invalid width"))
-            .unwrap(),
-        args.value_of("HEIGHT")
-            .map(|s| s.parse().expect("invalid height"))
-            .unwrap(),
-    );
+    let scale = args
+        .value_of("SCALE")
+        .map(|s| s.parse().expect("invalid scale"))
+        .unwrap_or(10.0);
+    let margin = args
+        .value_of("MARGIN")
+        .map(|s| s.parse().expect("invalid margin"))
+        .unwrap_or(10.0);
+    let solve = args.is_present("SOLVE");
+    let break_action: Option<BreakAction> = args
+        .value_of("BREAK")
+        .map(|s| s.parse().expect("invalid break"));
+    let heatmap_action: Option<HeatMapAction> = args
+        .value_of("HEATMAP")
+        .map(|s| s.parse().expect("invalid heat map"));
+    let background_action: Option<BackgroundAction> = args
+        .value_of("BACKGROUND")
+        .map(|s| s.parse().expect("invalid background"));
+    let initialize_action: Option<InitializeAction> = args
+        .value_of("MASK")
+        .map(|s| s.parse().expect("invalid mask"));
+    let output = args.value_of("OUTPUT").unwrap();
+    let (width, height) = args
+        .value_of("RATIO")
+        .map(|s| s.parse::<f32>().expect("invalid ratio"))
+        .and_then(|ratio| {
+            background_action.as_ref().map(|background_action| {
+                shape.minimal_dimensions(
+                    background_action.image.width() as f32 / ratio,
+                    background_action.image.height() as f32 / ratio,
+                )
+            })
+        })
+        .unwrap_or_else(|| {
+            (
+                args.value_of("WIDTH")
+                    .map(|s| s.parse().expect("invalid width"))
+                    .unwrap(),
+                args.value_of("HEIGHT")
+                    .map(|s| s.parse().expect("invalid height"))
+                    .unwrap(),
+            )
+        });
+    let mut maze = shape.create(width, height);
 
     run(
         maze,
-        args.value_of("SCALE")
-            .map(|s| s.parse().expect("invalid scale"))
-            .unwrap_or(10.0),
-        args.value_of("MARGIN")
-            .map(|s| s.parse().expect("invalid margin"))
-            .unwrap_or(10.0),
-        args.is_present("SOLVE"),
-        args.value_of("BREAK")
-            .map(|s| s.parse().expect("invalid break")),
-        args.value_of("HEATMAP")
-            .map(|s| s.parse().expect("invalid heat map")),
-        args.value_of("BACKGROUND")
-            .map(|s| s.parse().expect("invalid background")),
-        args.value_of("MASK")
-            .map(|s| s.parse().expect("invalid mask")),
-        args.value_of("OUTPUT").unwrap(),
+        scale,
+        margin,
+        solve,
+        break_action,
+        heatmap_action,
+        background_action,
+        initialize_action,
+        output,
     );
 }

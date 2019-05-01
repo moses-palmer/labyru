@@ -8,8 +8,8 @@ use crate::types::*;
 
 /// A background image.
 pub struct BackgroundAction {
-    /// The path to the background image.
-    pub path: std::path::PathBuf,
+    /// The background image.
+    pub image: image::RgbImage,
 }
 
 impl FromStr for BackgroundAction {
@@ -20,7 +20,9 @@ impl FromStr for BackgroundAction {
     /// The string must be a path.
     fn from_str(s: &str) -> Result<Self, String> {
         Ok(Self {
-            path: std::path::Path::new(s).to_path_buf(),
+            image: image::open(s)
+                .map_err(|_| format!("failed to open {}", s))?
+                .to_rgb(),
         })
     }
 }
@@ -39,9 +41,7 @@ impl Action for BackgroundAction {
         group: &mut svg::node::element::Group,
     ) {
         let data = image_to_matrix::<_, (u32, (u32, u32, u32))>(
-            image::open(self.path.as_path())
-                .expect("unable to open background image")
-                .to_rgb(),
+            &self.image,
             maze,
             // Add all pixels inside a room to the cell representing the room
             |matrix, pos, pixel| {

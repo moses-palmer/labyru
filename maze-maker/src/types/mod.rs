@@ -329,7 +329,7 @@ where
 ///    matrix.
 /// *  `update` - The update function.
 pub fn image_to_matrix<U, T>(
-    image: image::RgbImage,
+    image: &image::RgbImage,
     maze: &maze::Maze,
     update: U,
 ) -> maze::matrix::Matrix<T>

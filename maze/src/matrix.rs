@@ -290,6 +290,19 @@ where
     }
 }
 
+/// Partitions a number into its integral part and a fraction.
+///
+/// The fraction indicates the distance through the integral to the next
+/// greater number.
+///
+/// # Arguments
+/// *  `x` - a number.
+pub fn partition(x: f32) -> (isize, f32) {
+    let index = x.floor() as isize;
+    let rel = x.fract();
+    (index, if x >= 0.0 { rel } else { rel + 1.0 })
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -345,4 +358,16 @@ mod test {
         matrix2[matrix_pos(0, 0)] = true;
         assert!(matrix1 != matrix2);
     }
+
+    #[test]
+    fn partition() {
+        let (index, rel) = super::partition(1.2);
+        assert_eq!(index, 1);
+        assert!((rel - 0.2).abs() < 0.0001);
+
+        let (index, rel) = super::partition(-1.2);
+        assert_eq!(index, -2);
+        assert!((rel - 0.8).abs() < 0.0001);
+    }
+
 }

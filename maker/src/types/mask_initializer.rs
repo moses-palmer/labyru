@@ -2,16 +2,17 @@ use std::str::FromStr;
 
 use image;
 use rand;
-use svg;
 
 use super::*;
+
+use maze_tools::bitmap;
 
 /// A constant used as multiplier for individual colour values to get an
 /// intensity
 const D: f32 = 1.0 / 255.0 / 3.0;
 
 /// A masking image.
-pub struct InitializeAction {
+pub struct MaskInitializer {
     /// The mask image.
     pub image: image::RgbImage,
 
@@ -19,7 +20,7 @@ pub struct InitializeAction {
     pub threshold: f32,
 }
 
-impl FromStr for InitializeAction {
+impl FromStr for MaskInitializer {
     type Err = String;
 
     /// Converts a string to an initialise mask description.
@@ -50,7 +51,7 @@ impl FromStr for InitializeAction {
     }
 }
 
-impl Action for InitializeAction {
+impl Initializer for MaskInitializer {
     /// Applies the initialise action.
     ///
     /// This action will use the intensity of pixels to determine whether
@@ -58,26 +59,31 @@ impl Action for InitializeAction {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    /// * `group` - The group to which to add the rooms.
-    fn apply(self, maze: &mut maze::Maze, _: &mut svg::node::element::Group) {
-        let data = image_to_matrix::<_, f32>(
+    fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
+        let data = bitmap::image_to_matrix::<_, (f32, usize)>(
             &self.image,
-            maze,
+            &maze,
             // Add all pixel intensities inside a room to the cell representing
             // the room
             |matrix, pos, pixel| {
                 if maze.rooms().is_inside(pos) {
-                    matrix[pos] += pixel
-                        .data
-                        .iter()
-                        .map(|&p| D * f32::from(p))
-                        .sum::<f32>();
+                    let (previous, count) = matrix[pos];
+                    matrix[pos] = (
+                        previous
+                            + pixel
+                                .data
+                                .iter()
+                                .map(|&p| f32::from(p))
+                                .sum::<f32>(),
+                        count + 1,
+                    );
                 }
             },
         )
         // Convert the summed colour values to an actual colour
-        .map(|value| value > self.threshold);
+        .map(|(value, count)| D * (value / count as f32) > self.threshold);
 
         maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos]);
+        maze
     }
 }

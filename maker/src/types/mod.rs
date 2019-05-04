@@ -12,27 +12,58 @@ use maze;
 
 use maze::matrix::AddableMatrix;
 
-pub mod background_action;
-pub use self::background_action::*;
-pub mod break_action;
-pub use self::break_action::*;
-pub mod heatmap_action;
-pub use self::heatmap_action::*;
-pub mod initialize_action;
-pub use self::initialize_action::*;
+pub mod background_renderer;
+pub use self::background_renderer::*;
+pub mod break_initializer;
+pub use self::break_initializer::*;
+pub mod heatmap_renderer;
+pub use self::heatmap_renderer::*;
+pub mod mask_initializer;
+pub use self::mask_initializer::*;
+pub mod solve_renderer;
+pub use solve_renderer::*;
 
-/// A trait for actions passed on the command line.
-pub trait Action: std::str::FromStr<Err = String> {
+/// A trait to initialise a maze.
+pub trait Initializer {
+    /// Initialises a maze.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze to initialise.
+    fn initialize(&self, maze: maze::Maze) -> maze::Maze;
+}
+
+impl<T> Initializer for Option<T>
+where
+    T: Initializer,
+{
+    fn initialize(&self, maze: maze::Maze) -> maze::Maze {
+        if let Some(action) = self {
+            action.initialize(maze)
+        } else {
+            maze
+        }
+    }
+}
+
+/// A trait for rendering a maze.
+pub trait Renderer {
     /// Applies this action to a maze and SVG group.
     ///
     /// # Arguments
     /// *  `maze` - The maze.
     /// *  `group` - An SVG group.
-    fn apply(
-        self,
-        maze: &mut maze::Maze,
-        group: &mut svg::node::element::Group,
-    );
+    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group);
+}
+
+impl<T> Renderer for Option<T>
+where
+    T: Renderer,
+{
+    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
+        if let Some(action) = self {
+            action.render(maze, group);
+        }
+    }
 }
 
 /// A colour.
@@ -317,38 +348,4 @@ where
     }
 
     group
-}
-
-/// Converts an image to a matrix by calling an update function with a pixel
-/// and its corresponding matrix position.
-///
-/// # Arguments
-/// *  `image` - The image to convert.
-/// *  `maze` - A template maze. This is used to determine which matrix
-///    position a pixel corresponds to, and to determine the dimensions of the
-///    matrix.
-/// *  `update` - The update function.
-pub fn image_to_matrix<U, T>(
-    image: &image::RgbImage,
-    maze: &maze::Maze,
-    update: U,
-) -> maze::matrix::Matrix<T>
-where
-    U: Fn(&mut maze::matrix::Matrix<T>, maze::matrix::Pos, &image::Rgb<u8>),
-    T: Copy + Default,
-{
-    let (left, top, width, height) = maze.viewbox();
-    let (cols, rows) = image.dimensions();
-    image.enumerate_pixels().fold(
-        maze::matrix::Matrix::<T>::new(maze.width(), maze.height()),
-        |mut matrix, (x, y, pixel)| {
-            let physical_pos = maze::physical::Pos {
-                x: left + width * (x as f32 / cols as f32),
-                y: top + height * (y as f32 / rows as f32),
-            };
-            let pos = maze.room_at(physical_pos);
-            update(&mut matrix, pos, pixel);
-            matrix
-        },
-    )
 }

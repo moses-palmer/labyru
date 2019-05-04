@@ -2,6 +2,7 @@
 
 members = [
     "maze",
-    "maze-maker",
-    "maze-web",
+    "maker",
+    "tools",
+    "web",
 ]

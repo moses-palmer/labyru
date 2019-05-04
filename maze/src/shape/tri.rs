@@ -145,11 +145,11 @@ pub fn center(pos: matrix::Pos) -> physical::Pos {
 
 pub fn room_at(pos: physical::Pos) -> matrix::Pos {
     // Calculate approximations of the room position
-    let (i, f) = super::partition(pos.y / VERTICAL_MULTIPLICATOR);
+    let (i, f) = matrix::partition(pos.y / VERTICAL_MULTIPLICATOR);
     let odd_row = i & 1 == 1;
     let approx_row = i;
     let rel_y = if odd_row { 1.0 - f } else { f };
-    let (i, f) = super::partition(pos.x / (2.0 * HORIZONTAL_MULTIPLICATOR));
+    let (i, f) = matrix::partition(pos.x / (2.0 * HORIZONTAL_MULTIPLICATOR));
     let approx_col = i * 2;
     let rel_x = f;
 

@@ -241,19 +241,6 @@ pub mod hex;
 pub mod quad;
 pub mod tri;
 
-/// Partitions a number into its integral part and a fraction.
-///
-/// The fraction indicates the distance through the integral to the next
-/// greater number.
-///
-/// # Arguments
-/// *  `x` - a number.
-fn partition(x: f32) -> (isize, f32) {
-    let index = x.floor() as isize;
-    let rel = x.fract();
-    (index, if x >= 0.0 { rel } else { rel + 1.0 })
-}
-
 #[cfg(test)]
 mod tests {
     use crate::test_utils::*;
@@ -265,17 +252,6 @@ mod tests {
         assert_eq!("quad".parse(), Ok(Shape::Quad),);
         assert_eq!("hex".parse(), Ok(Shape::Hex),);
         assert_eq!("invalid".parse::<Shape>(), Err("invalid".to_owned()));
-    }
-
-    #[test]
-    fn partition() {
-        let (index, rel) = super::partition(1.2);
-        assert_eq!(index, 1);
-        assert!((rel - 0.2).abs() < 0.0001);
-
-        let (index, rel) = super::partition(-1.2);
-        assert_eq!(index, -2);
-        assert!((rel - 0.8).abs() < 0.0001);
     }
 
     maze_test!(

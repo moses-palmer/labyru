@@ -3,5 +3,5 @@
 members = [
     "maze",
     "maker",
-    "maze-web",
+    "web",
 ]

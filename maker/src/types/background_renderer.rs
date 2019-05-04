@@ -6,6 +6,8 @@ use crate::svg::Node;
 
 use crate::types::*;
 
+use maze_tools::bitmap;
+
 /// A background image.
 pub struct BackgroundRenderer {
     /// The background image.
@@ -36,7 +38,7 @@ impl Renderer for BackgroundRenderer {
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
     fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
-        let data = image_to_matrix::<_, (u32, (u32, u32, u32))>(
+        let data = bitmap::image_to_matrix::<_, (u32, (u32, u32, u32))>(
             &self.image,
             maze,
             // Add all pixels inside a room to the cell representing the room

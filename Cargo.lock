@@ -332,9 +332,18 @@ dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "image 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "maze 0.1.0",
+ "maze-tools 0.1.0",
  "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rayon 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "maze-tools"
+version = "0.1.0"
+dependencies = [
+ "image 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "maze 0.1.0",
 ]
 
 [[package]]

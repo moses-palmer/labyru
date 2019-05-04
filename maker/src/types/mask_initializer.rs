@@ -5,6 +5,8 @@ use rand;
 
 use super::*;
 
+use maze_tools::bitmap;
+
 /// A constant used as multiplier for individual colour values to get an
 /// intensity
 const D: f32 = 1.0 / 255.0 / 3.0;
@@ -58,7 +60,7 @@ impl Initializer for MaskInitializer {
     /// # Arguments
     /// * `maze` - The maze.
     fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
-        let data = image_to_matrix::<_, (f32, usize)>(
+        let data = bitmap::image_to_matrix::<_, (f32, usize)>(
             &self.image,
             &maze,
             // Add all pixel intensities inside a room to the cell representing

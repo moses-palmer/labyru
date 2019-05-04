@@ -6,6 +6,7 @@ extern crate rayon;
 extern crate svg;
 
 extern crate maze;
+extern crate maze_tools;
 
 use std::convert::TryInto;
 use std::f32;

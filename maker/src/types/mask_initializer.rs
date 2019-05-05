@@ -1,3 +1,4 @@
+use std::ops;
 use std::str::FromStr;
 
 use image;
@@ -5,7 +6,8 @@ use rand;
 
 use super::*;
 
-use maze_tools::bitmap;
+use maze::physical;
+use maze_tools::focus::*;
 
 /// A constant used as multiplier for individual colour values to get an
 /// intensity
@@ -60,30 +62,52 @@ impl Initializer for MaskInitializer {
     /// # Arguments
     /// * `maze` - The maze.
     fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
-        let data = bitmap::image_to_matrix::<_, (f32, usize)>(
-            &self.image,
-            &maze,
-            // Add all pixel intensities inside a room to the cell representing
-            // the room
-            |matrix, pos, pixel| {
-                if maze.rooms().is_inside(pos) {
-                    let (previous, count) = matrix[pos];
-                    matrix[pos] = (
-                        previous
-                            + pixel
-                                .data
-                                .iter()
-                                .map(|&p| f32::from(p))
-                                .sum::<f32>(),
-                        count + 1,
-                    );
-                }
-            },
-        )
-        // Convert the summed colour values to an actual colour
-        .map(|(value, count)| D * (value / count as f32) > self.threshold);
+        let (_, _, width, height) = maze.viewbox();
+        let (cols, rows) = self.image.dimensions();
+        let data = self
+            .image
+            .enumerate_pixels()
+            .map(|(x, y, pixel)| {
+                (
+                    physical::Pos {
+                        x: width * (x as f32 / cols as f32),
+                        y: height * (y as f32 / rows as f32),
+                    },
+                    Intermediate::from(pixel),
+                )
+            })
+            .focus(&maze)
+            .map(|v| v > self.threshold);
 
         maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos]);
         maze
+    }
+}
+
+#[derive(Clone, Copy, Default)]
+struct Intermediate(f32);
+
+impl<'a, P> From<&'a P> for Intermediate
+where
+    P: image::Pixel<Subpixel = u8>,
+{
+    fn from(source: &'a P) -> Self {
+        Intermediate(source.channels().iter().map(|&b| f32::from(b)).sum())
+    }
+}
+
+impl ops::Add<Intermediate> for Intermediate {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Intermediate(self.0 + other.0)
+    }
+}
+
+impl ops::Div<usize> for Intermediate {
+    type Output = f32;
+
+    fn div(self, divisor: usize) -> Self::Output {
+        D * self.0 / divisor as f32
     }
 }

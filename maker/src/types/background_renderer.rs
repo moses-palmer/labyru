@@ -1,3 +1,4 @@
+use std::ops;
 use std::str::FromStr;
 
 use crate::image;
@@ -6,7 +7,8 @@ use crate::svg::Node;
 
 use crate::types::*;
 
-use maze_tools::bitmap;
+use maze::physical;
+use maze_tools::focus::*;
 
 /// A background image.
 pub struct BackgroundRenderer {
@@ -38,34 +40,56 @@ impl Renderer for BackgroundRenderer {
     /// * `maze` - The maze.
     /// * `group` - The group to which to add the rooms.
     fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
-        let data = bitmap::image_to_matrix::<_, (u32, (u32, u32, u32))>(
-            &self.image,
-            maze,
-            // Add all pixels inside a room to the cell representing the room
-            |matrix, pos, pixel| {
-                if maze.rooms().is_inside(pos) {
-                    matrix[pos] = (
-                        matrix[pos].0 + 1,
-                        (
-                            (matrix[pos].1).0 + u32::from(pixel[0]),
-                            (matrix[pos].1).1 + u32::from(pixel[1]),
-                            (matrix[pos].1).2 + u32::from(pixel[2]),
-                        ),
-                    );
-                }
-            },
-        )
-        // Convert the summed colour values to an actual colour
-        .map(|value| {
-            let (count, pixel) = value;
-            Color {
-                red: (pixel.0 / (count + 1)) as u8,
-                green: (pixel.1 / (count + 1)) as u8,
-                blue: (pixel.2 / (count + 1)) as u8,
-                alpha: 255,
-            }
-        });
+        let (_, _, width, height) = maze.viewbox();
+        let (cols, rows) = self.image.dimensions();
+        let data = self
+            .image
+            .enumerate_pixels()
+            .map(|(x, y, pixel)| {
+                (
+                    physical::Pos {
+                        x: width * (x as f32 / cols as f32),
+                        y: height * (y as f32 / rows as f32),
+                    },
+                    Intermediate::from(pixel),
+                )
+            })
+            .focus(maze);
 
         group.append(draw_rooms(maze, |pos| data[pos]));
+    }
+}
+
+#[derive(Clone, Copy, Default)]
+struct Intermediate(u32, u32, u32);
+
+impl<'a, P> From<&'a P> for Intermediate
+where
+    P: image::Pixel<Subpixel = u8>,
+{
+    fn from(source: &'a P) -> Self {
+        let channels = source.channels();
+        Intermediate(channels[0] as u32, channels[1] as u32, channels[2] as u32)
+    }
+}
+
+impl ops::Add<Intermediate> for Intermediate {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Intermediate(self.0 + other.0, self.1 + other.1, self.2 + other.2)
+    }
+}
+
+impl ops::Div<usize> for Intermediate {
+    type Output = Color;
+
+    fn div(self, divisor: usize) -> Self::Output {
+        Color {
+            red: (self.0 / divisor as u32) as u8,
+            green: (self.1 / divisor as u32) as u8,
+            blue: (self.2 / divisor as u32) as u8,
+            alpha: 255,
+        }
     }
 }

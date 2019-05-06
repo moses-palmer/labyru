@@ -1,11 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-extern crate rand;
 #[macro_use]
 extern crate rocket;
-extern crate svg;
-
-extern crate maze;
 
 use std::io;
 

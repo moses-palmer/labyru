@@ -79,6 +79,127 @@ impl Character {
     }
 }
 
+/// The bitmaps of an alphabet.
+pub struct Alphabet {
+    /// The default character used when a string contains unknown characters.
+    pub(self) default: Character,
+
+    /// A mapping from character to bitmap.
+    pub(self) map: HashMap<char, Character>,
+}
+
+impl Alphabet {
+    /// Generates an iterator over the pixels of a string rendered by this
+    /// alphabet.
+    ///
+    /// # Arguments
+    /// *  `text` - The text to render.
+    /// *  `columns` - The number of columns. This determines the horisontal
+    ///    size of the image. When reached, a line break will be added.
+    /// *  `resolution` - The number of samples to generate horisontally.
+    pub fn render<'a, 'b>(
+        &'a self,
+        text: &'b str,
+        columns: usize,
+        horizontal_resolution: usize,
+    ) -> AlphabetRenderer<'a> {
+        let rows = (text.len() as f32 / columns as f32).ceil() as usize;
+        let text = text.chars().collect();
+        let resolution = horizontal_resolution / columns;
+        let current = 0;
+        let limit = columns * rows * resolution * resolution;
+        AlphabetRenderer {
+            alphabet: self,
+            text,
+            columns,
+            resolution,
+            current,
+            limit,
+        }
+    }
+}
+
+/// An iterator over bit samples for a rendered text.
+pub struct AlphabetRenderer<'a> {
+    /// The alphabet to use.
+    alphabet: &'a Alphabet,
+
+    /// The characters of the text.
+    text: Vec<char>,
+
+    /// The number of columns.
+    columns: usize,
+
+    /// The number of samples per character in each direction.
+    resolution: usize,
+
+    /// The current index.
+    current: usize,
+
+    /// The maximum number of samples.
+    limit: usize,
+}
+
+impl<'a> AlphabetRenderer<'a> {
+    /// Returns the current position.
+    ///
+    /// The position is represented as the tuple
+    /// `(column * resolution, row * resolution)`.
+    fn position(&self) -> (usize, usize) {
+        let x = self.current % (self.columns * self.resolution);
+        let y = self.current / (self.columns * self.resolution);
+        (x, y)
+    }
+}
+
+impl<'a> Iterator for AlphabetRenderer<'a> {
+    type Item = (physical::Pos, f32);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.limit {
+            // Get the position
+            let (ix, iy) = AlphabetRenderer::position(self);
+            self.current += 1;
+
+            // Calculate the character index
+            let col = ix / self.resolution;
+            let row = iy / self.resolution;
+            let i = row * self.columns + col;
+
+            // Calculate the physical position
+            let x = ix as f32 / self.resolution as f32;
+            let y = iy as f32 / self.resolution as f32;
+
+            // Calculate the relative position within the character cell
+            let rx = WIDTH as f32 * (ix - col * self.resolution) as f32
+                / self.resolution as f32;
+            let ry = HEIGHT as f32 * (iy - row * self.resolution) as f32
+                / self.resolution as f32;
+
+            Some((
+                physical::Pos { x, y },
+                self.text
+                    .get(i)
+                    .map(|&c| self.alphabet.get(c))
+                    .map(|c| c.interpolated(physical::Pos { x: rx, y: ry }))
+                    .unwrap_or(0.0),
+            ))
+        } else {
+            None
+        }
+    }
+}
+
+impl Alphabet {
+    /// Retrieves the bitmap for a character, or the default one if none exists.
+    ///
+    /// # Arguments
+    /// *  `character` - The character for which to retrieve a bitmap.
+    fn get(&self, character: char) -> &Character {
+        self.map.get(&character).unwrap_or(&self.default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

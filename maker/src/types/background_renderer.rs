@@ -9,6 +9,7 @@ use crate::types::*;
 
 use maze::physical;
 use maze_tools::focus::*;
+use maze_tools::image::Color;
 
 /// A background image.
 pub struct BackgroundRenderer {

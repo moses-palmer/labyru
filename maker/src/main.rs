@@ -1,18 +1,7 @@
-#[macro_use]
-extern crate clap;
-extern crate image;
-extern crate rand;
-extern crate rayon;
-extern crate svg;
-
-extern crate maze;
-extern crate maze_tools;
-
 use std::convert::TryInto;
 use std::f32;
 
-use clap::{App, Arg};
-
+use clap::{crate_authors, crate_version, App, Arg};
 use svg::Node;
 
 use maze::prelude::*;

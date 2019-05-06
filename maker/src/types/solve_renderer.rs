@@ -1,7 +1,7 @@
 use maze::ToPath;
 
-use crate::svg;
-use crate::svg::Node;
+use svg;
+use svg::Node;
 
 use crate::types::*;
 

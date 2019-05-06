@@ -9,9 +9,8 @@ use rayon::prelude::*;
 use svg::Node;
 
 use maze;
-use maze_tools::image::Color;
-
 use maze::matrix::AddableMatrix;
+use maze_tools::image::Color;
 
 pub mod background_renderer;
 pub use self::background_renderer::*;

@@ -1,8 +1,9 @@
 use std::str::FromStr;
 
-use maze_tools::image::Color;
 use svg;
 use svg::Node;
+
+use maze_tools::image::Color;
 
 use crate::types::*;
 

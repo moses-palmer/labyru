@@ -1,13 +1,13 @@
 use std::ops;
 use std::str::FromStr;
 
+use svg;
+use svg::Node;
+
 use maze::physical;
 use maze_tools::alphabet;
 use maze_tools::focus::*;
 use maze_tools::image::Color;
-
-use crate::svg;
-use crate::svg::Node;
 
 use crate::types::*;
 

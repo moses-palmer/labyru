@@ -4,10 +4,10 @@ use std::str::FromStr;
 use image;
 use rand;
 
-use super::*;
-
 use maze::physical;
 use maze_tools::focus::*;
+
+use super::*;
 
 /// A constant used as multiplier for individual colour values to get an
 /// intensity

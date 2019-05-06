@@ -1,15 +1,15 @@
 use std::ops;
 use std::str::FromStr;
 
-use crate::image;
-use crate::svg;
-use crate::svg::Node;
-
-use crate::types::*;
+use image;
+use svg;
+use svg::Node;
 
 use maze::physical;
 use maze_tools::focus::*;
 use maze_tools::image::Color;
+
+use crate::types::*;
 
 /// A background image.
 pub struct BackgroundRenderer {

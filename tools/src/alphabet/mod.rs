@@ -6,6 +6,7 @@ use maze::{matrix, physical};
 
 #[macro_use]
 mod macros;
+pub mod default;
 
 /// The width of a character bitmap.
 const WIDTH: usize = 8;

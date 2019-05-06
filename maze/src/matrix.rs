@@ -10,6 +10,18 @@ pub struct Pos {
     pub row: isize,
 }
 
+impl<T> From<(T, T)> for Pos
+where
+    T: Into<isize>,
+{
+    fn from((col, row): (T, T)) -> Self {
+        Pos {
+            col: col.into(),
+            row: row.into(),
+        }
+    }
+}
+
 /// A matrix is a two dimensional array.
 ///
 /// Every cell has a value, which is addressed using a [Pos](type.Pos.html).
@@ -307,6 +319,13 @@ pub fn partition(x: f32) -> (isize, f32) {
 mod test {
     use super::*;
     use crate::test_utils::*;
+
+    #[test]
+    fn pos_into() {
+        let expected = Pos { col: 1, row: 2 };
+        let actual: Pos = (1isize, 2isize).into();
+        assert_eq!(expected, actual);
+    }
 
     #[test]
     fn iterate_positions() {

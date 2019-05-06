@@ -6,4 +6,3 @@ edition = "2018"
 
 [dependencies]
 maze = { path = "../maze" }
-image = "0.18"

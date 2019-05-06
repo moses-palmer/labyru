@@ -1,11 +1,5 @@
 #![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 
-#[cfg(feature = "osrand")]
-extern crate rand;
-
-#[cfg(feature = "render-svg")]
-extern crate svg;
-
 #[cfg(test)]
 #[macro_use]
 mod test_utils;

@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 maze = { path = "../maze" }
+lazy_static = "1.3"

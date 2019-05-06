@@ -23,6 +23,8 @@ pub mod mask_initializer;
 pub use self::mask_initializer::*;
 pub mod solve_renderer;
 pub use solve_renderer::*;
+pub mod text_renderer;
+pub use self::text_renderer::*;
 
 /// A trait to initialise a maze.
 pub trait Initializer {

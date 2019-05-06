@@ -142,6 +142,12 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("TEXT")
+                .long("text")
+                .help("A text to draw on the maze.")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("MASK")
                 .long("mask")
                 .help("A background image to colour rooms.")
@@ -183,6 +189,9 @@ fn main() {
     let background_renderer: Option<BackgroundRenderer> = args
         .value_of("BACKGROUND")
         .map(|s| s.parse().expect("invalid background"));
+    let text_renderer: Option<TextRenderer> = args
+        .value_of("TEXT")
+        .map(|s| s.parse().expect("invalid text"));
     let solve_renderer = if args.is_present("SOLVE") {
         Some(SolveRenderer)
     } else {
@@ -239,7 +248,12 @@ fn main() {
         maze,
         scale,
         margin,
-        &[&background_renderer, &heatmap_renderer, &solve_renderer],
+        &[
+            &background_renderer,
+            &text_renderer,
+            &heatmap_renderer,
+            &solve_renderer,
+        ],
         output,
     );
 }

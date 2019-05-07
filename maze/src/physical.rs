@@ -1,5 +1,5 @@
 /// A physical position.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Pos {
     /// The X coordinate.
     pub x: f32,

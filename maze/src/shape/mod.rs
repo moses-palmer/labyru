@@ -224,7 +224,7 @@ impl Maze {
         let all = self.all_walls();
         std::iter::once(wall_pos)
             .chain(all[wall.index].corner_wall_offsets.iter().map(
-                |&((dx, dy), wall)| {
+                |&wall::Offset { dx, dy, wall }| {
                     (
                         matrix::Pos {
                             col: col + dx,

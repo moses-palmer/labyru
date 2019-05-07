@@ -3,6 +3,8 @@ use std;
 use crate::matrix;
 use crate::physical;
 use crate::wall;
+
+use crate::wall::{Index, Offset};
 use crate::WallPos;
 
 /// A span step angle
@@ -14,36 +16,36 @@ const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;
 define_shape! {
     UP = {
         corner_wall_offsets: &[
-            ((0, -1), WallIndex::LEFT as usize),
-            ((-1, -1), WallIndex::DOWN as usize),
-            ((-1, 0), WallIndex::RIGHT as usize),
+            Offset { dx: 0, dy: -1, wall: WallIndex::LEFT as Index },
+            Offset { dx: -1, dy: -1, wall: WallIndex::DOWN as Index },
+            Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT as Index },
         ],
         dir: (0, -1),
         span: (5.0 * D, 7.0 * D),
     },
     LEFT = {
         corner_wall_offsets: &[
-            ((-1, 0), WallIndex::DOWN as usize),
-            ((-1, 1), WallIndex::RIGHT as usize),
-            ((0, 1), WallIndex::UP as usize),
+            Offset { dx: -1, dy: 0, wall: WallIndex::DOWN as Index },
+            Offset { dx: -1, dy: 1, wall: WallIndex::RIGHT as Index },
+            Offset { dx: 0, dy: 1, wall: WallIndex::UP as Index },
         ],
         dir: (-1, 0),
         span: (3.0 * D, 5.0 * D),
     },
     DOWN = {
         corner_wall_offsets: &[
-            ((0, 1), WallIndex::RIGHT as usize),
-            ((1, 1), WallIndex::UP as usize),
-            ((1, 0), WallIndex::LEFT as usize),
+            Offset { dx: 0, dy: 1, wall: WallIndex::RIGHT as Index },
+            Offset { dx: 1, dy: 1, wall: WallIndex::UP as Index },
+            Offset { dx: 1, dy: 0, wall: WallIndex::LEFT as Index },
         ],
         dir: (0, 1),
         span: (D, 3.0 * D),
     },
     RIGHT = {
         corner_wall_offsets: &[
-            ((1, 0), WallIndex::UP as usize),
-            ((1, -1), WallIndex::LEFT as usize),
-            ((0, -1), WallIndex::DOWN as usize),
+            Offset { dx: 1, dy: 0, wall: WallIndex::UP as Index },
+            Offset { dx: 1, dy: -1, wall: WallIndex::LEFT as Index },
+            Offset { dx: 0, dy: -1, wall: WallIndex::DOWN as Index },
         ],
         dir: (1, 0),
         span: (7.0 * D, 9.0 * D),

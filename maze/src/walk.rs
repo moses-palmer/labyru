@@ -2,6 +2,7 @@ use std;
 
 use crate::matrix;
 use crate::util::open_set;
+use crate::wall;
 
 use crate::Maze;
 use crate::WallPos;
@@ -214,13 +215,13 @@ impl<'a> Follower<'a> {
             .corner_wall_offsets
             .iter()
             // Convert the offsets to wall positions
-            .map(|&((dx, dy), wall_index)| {
+            .map(|&wall::Offset { dx, dy, wall }| {
                 (
                     matrix::Pos {
                         col: col + dx,
                         row: row + dy,
                     },
-                    all[wall_index],
+                    all[wall],
                 )
             })
             // Find the first closed wall

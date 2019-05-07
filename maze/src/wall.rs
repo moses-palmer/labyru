@@ -10,7 +10,17 @@ pub type Index = usize;
 pub type Mask = u32;
 
 /// An offset from a wall to its corner neighbours.
-pub type Offset = ((isize, isize), Index);
+#[derive(Clone, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+pub struct Offset {
+    /// The horisontal offset.
+    pub dx: isize,
+
+    /// The vertical offset.
+    pub dy: isize,
+
+    /// The neighbour index.
+    pub wall: Index,
+}
 
 /// A wall.
 ///
@@ -18,7 +28,7 @@ pub type Offset = ((isize, isize), Index);
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, PartialOrd)]
+#[derive(Clone, PartialOrd, Serialize)]
 pub struct Wall {
     /// The name of this wall.
     pub name: &'static str,

@@ -38,10 +38,8 @@ where
 }
 
 /// A linear feedback shift register.
-pub struct LFSR {
-    /// The current bit mask.
-    bits: u64,
-}
+#[derive(Deserialize, Serialize)]
+pub struct LFSR(u64);
 
 impl LFSR {
     /// Creates a new linear shift register.
@@ -49,14 +47,14 @@ impl LFSR {
     /// # Arguments
     /// *  `seed` - The seed. This value will not be yielded.
     pub fn new(seed: u64) -> Self {
-        Self { bits: seed }
+        Self(seed)
     }
 
     /// Advances this shift register by one `u64` and returns the bit mask.
-    fn advance(&mut self) -> u64 {
+    pub fn advance(&mut self) -> u64 {
         self.nth(63).unwrap();
 
-        self.bits
+        self.0
     }
 }
 
@@ -65,13 +63,9 @@ impl iter::Iterator for LFSR {
 
     /// Returns the next bit.
     fn next(&mut self) -> Option<Self::Item> {
-        let bit = (self.bits
-            ^ (self.bits >> 2)
-            ^ (self.bits >> 3)
-            ^ (self.bits >> 5))
-            & 1;
+        let bit = (self.0 ^ (self.0 >> 2) ^ (self.0 >> 3) ^ (self.0 >> 5)) & 1;
 
-        self.bits = (self.bits >> 1) | (bit << 63);
+        self.0 = (self.0 >> 1) | (bit << 63);
 
         Some(bit != 0)
     }

@@ -4,7 +4,7 @@ use crate::wall;
 /// A room is a part of a maze.
 ///
 /// It has walls and openings connecting it with other rooms.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
 pub struct Room {
     walls: wall::Mask,
 

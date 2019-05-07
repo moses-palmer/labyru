@@ -1,7 +1,18 @@
 use std;
 
 /// A matrix position.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Deserialize,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Serialize,
+)]
 pub struct Pos {
     /// The column index.
     pub col: isize,
@@ -25,7 +36,7 @@ where
 /// A matrix is a two dimensional array.
 ///
 /// Every cell has a value, which is addressed using a [Pos](type.Pos.html).
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Matrix<T>
 where
     T: Clone + Copy + Default,

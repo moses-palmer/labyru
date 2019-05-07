@@ -63,7 +63,8 @@ macro_rules! define_shape {
 }
 
 /// The different types of mazes implemented, identified by number of walls.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Shape {
     /// A maze with triangular rooms.
     Tri = 3,
@@ -223,7 +224,7 @@ impl Maze {
         let all = self.all_walls();
         std::iter::once(wall_pos)
             .chain(all[wall.index].corner_wall_offsets.iter().map(
-                |&((dx, dy), wall)| {
+                |&wall::Offset { dx, dy, wall }| {
                     (
                         matrix::Pos {
                             col: col + dx,

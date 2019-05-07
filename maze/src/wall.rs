@@ -28,7 +28,7 @@ pub struct Offset {
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, PartialOrd)]
+#[derive(Clone, PartialOrd, Serialize)]
 pub struct Wall {
     /// The name of this wall.
     pub name: &'static str,

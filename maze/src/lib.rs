@@ -1,5 +1,8 @@
 #![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 
+#[macro_use]
+extern crate serde;
+
 #[cfg(test)]
 #[macro_use]
 mod test_utils;

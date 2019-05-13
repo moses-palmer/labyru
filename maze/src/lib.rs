@@ -183,6 +183,20 @@ impl Maze {
             ),
         )
     }
+
+    /// Iterates over all open walls of a room.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn doors<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = &'static wall::Wall> + 'a {
+        self.walls(pos)
+            .iter()
+            .filter(move |&wall| self.is_open((pos, wall)))
+            .map(|&wall| wall)
+    }
 }
 
 /// A matrix of scores for rooms.
@@ -345,6 +359,25 @@ mod tests {
                     }
                 }
             }
+        }
+    );
+
+    maze_test!(
+        doors,
+        fn test(maze: &mut Maze) {
+            let pos = matrix::Pos { col: 0, row: 0 };
+            assert_eq!(
+                maze.doors(pos).collect::<Vec<&'static wall::Wall>>(),
+                Vec::<&'static wall::Wall>::new(),
+            );
+            let walls = maze
+                .walls(pos)
+                .iter()
+                .filter(|wall| maze.rooms().is_inside(maze.back((pos, wall)).0))
+                .map(|&wall| wall)
+                .collect::<Vec<_>>();
+            walls.iter().for_each(|wall| maze.open((pos, wall)));
+            assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
         }
     );
 }

@@ -163,12 +163,15 @@ impl Maze {
     ///
     /// # Arguments
     /// * `wall_pos` - The wall position.
-    pub fn corner_walls(&self, wall_pos: WallPos) -> Vec<WallPos> {
+    pub fn corner_walls(
+        &self,
+        wall_pos: WallPos,
+    ) -> impl Iterator<Item = WallPos> {
         let (matrix::Pos { col, row }, wall) = wall_pos;
         let all = self.all_walls();
-        std::iter::once(wall_pos)
-            .chain(all[wall.index].corner_wall_offsets.iter().map(
-                |&wall::Offset { dx, dy, wall }| {
+        std::iter::once(wall_pos).chain(
+            all[wall.index].corner_wall_offsets.iter().map(
+                move |&wall::Offset { dx, dy, wall }| {
                     (
                         matrix::Pos {
                             col: col + dx,
@@ -177,8 +180,8 @@ impl Maze {
                         all[wall],
                     )
                 },
-            ))
-            .collect()
+            ),
+        )
     }
 }
 
@@ -344,5 +347,4 @@ mod tests {
             }
         }
     );
-
 }

@@ -197,6 +197,20 @@ impl Maze {
             .filter(move |&wall| self.is_open((pos, wall)))
             .map(|&wall| wall)
     }
+
+    /// Iterates over all reachble neighbours of a room.
+    ///
+    /// This method may list rooms outside of the maze of an opening outside
+    /// exists.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn neighbors<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = matrix::Pos> + 'a {
+        self.doors(pos).map(move |wall| self.back((pos, wall)).0)
+    }
 }
 
 /// A matrix of scores for rooms.
@@ -378,6 +392,27 @@ mod tests {
                 .collect::<Vec<_>>();
             walls.iter().for_each(|wall| maze.open((pos, wall)));
             assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
+        }
+    );
+
+    maze_test!(
+        neighbors,
+        fn test(maze: &mut Maze) {
+            let pos = matrix::Pos { col: 0, row: 0 };
+            assert_eq!(maze.neighbors(pos).collect::<Vec<_>>(), vec![]);
+            maze.walls(pos)
+                .iter()
+                .for_each(|wall| maze.open((pos, wall)));
+            assert_eq!(
+                maze.neighbors(pos).collect::<Vec<_>>(),
+                maze.walls(pos)
+                    .iter()
+                    .map(|wall| matrix::Pos {
+                        col: pos.col + wall.dir.0,
+                        row: pos.row + wall.dir.1
+                    })
+                    .collect::<Vec<_>>(),
+            );
         }
     );
 }

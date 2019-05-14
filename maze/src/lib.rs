@@ -134,6 +134,52 @@ impl Maze {
     pub fn rooms(&self) -> &room::Rooms {
         &self.rooms
     }
+
+    /// Returns the physical positions of the two corners of a wall.
+    ///
+    /// # Arguments
+    /// * `pos` - The matrix position.
+    /// * `wall` - The wall.
+    pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
+        let center = self.center(wall_pos.0);
+        (
+            physical::Pos {
+                x: center.x + wall_pos.1.span.0.cos(),
+                y: center.y + wall_pos.1.span.0.sin(),
+            },
+            physical::Pos {
+                x: center.x + wall_pos.1.span.1.cos(),
+                y: center.y + wall_pos.1.span.1.sin(),
+            },
+        )
+    }
+
+    /// Returns all walls that meet in the corner where a wall has its start
+    /// span.
+    ///
+    /// The walls are listed in counter-clockwise order. Only one side of each
+    /// wall will be returned. Each consecutive wall will be in a room different
+    /// from the previous.
+    ///
+    /// # Arguments
+    /// * `wall_pos` - The wall position.
+    pub fn corner_walls(&self, wall_pos: WallPos) -> Vec<WallPos> {
+        let (matrix::Pos { col, row }, wall) = wall_pos;
+        let all = self.all_walls();
+        std::iter::once(wall_pos)
+            .chain(all[wall.index].corner_wall_offsets.iter().map(
+                |&wall::Offset { dx, dy, wall }| {
+                    (
+                        matrix::Pos {
+                            col: col + dx,
+                            row: row + dy,
+                        },
+                        all[wall],
+                    )
+                },
+            ))
+            .collect()
+    }
 }
 
 /// A matrix of scores for rooms.
@@ -280,4 +326,23 @@ mod tests {
             }
         }
     );
+
+    maze_test!(
+        corner_walls,
+        fn test(maze: &mut Maze) {
+            for pos in maze.rooms.positions() {
+                for wall in maze.walls(pos) {
+                    let wall_pos = (pos, *wall);
+                    let (center, _) = maze.corners(wall_pos);
+                    for corner_wall in maze.corner_walls(wall_pos) {
+                        let (start, end) = maze.corners(corner_wall);
+                        assert!(
+                            is_close(start, center) || is_close(end, center)
+                        );
+                    }
+                }
+            }
+        }
+    );
+
 }

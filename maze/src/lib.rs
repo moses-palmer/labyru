@@ -163,12 +163,15 @@ impl Maze {
     ///
     /// # Arguments
     /// * `wall_pos` - The wall position.
-    pub fn corner_walls(&self, wall_pos: WallPos) -> Vec<WallPos> {
+    pub fn corner_walls(
+        &self,
+        wall_pos: WallPos,
+    ) -> impl Iterator<Item = WallPos> {
         let (matrix::Pos { col, row }, wall) = wall_pos;
         let all = self.all_walls();
-        std::iter::once(wall_pos)
-            .chain(all[wall.index].corner_wall_offsets.iter().map(
-                |&wall::Offset { dx, dy, wall }| {
+        std::iter::once(wall_pos).chain(
+            all[wall.index].corner_wall_offsets.iter().map(
+                move |&wall::Offset { dx, dy, wall }| {
                     (
                         matrix::Pos {
                             col: col + dx,
@@ -177,8 +180,36 @@ impl Maze {
                         all[wall],
                     )
                 },
-            ))
-            .collect()
+            ),
+        )
+    }
+
+    /// Iterates over all open walls of a room.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn doors<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = &'static wall::Wall> + 'a {
+        self.walls(pos)
+            .iter()
+            .filter(move |&wall| self.is_open((pos, wall)))
+            .map(|&wall| wall)
+    }
+
+    /// Iterates over all reachble neighbours of a room.
+    ///
+    /// This method may list rooms outside of the maze of an opening outside
+    /// exists.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn neighbors<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = matrix::Pos> + 'a {
+        self.doors(pos).map(move |wall| self.back((pos, wall)).0)
     }
 }
 
@@ -345,4 +376,43 @@ mod tests {
         }
     );
 
+    maze_test!(
+        doors,
+        fn test(maze: &mut Maze) {
+            let pos = matrix::Pos { col: 0, row: 0 };
+            assert_eq!(
+                maze.doors(pos).collect::<Vec<&'static wall::Wall>>(),
+                Vec::<&'static wall::Wall>::new(),
+            );
+            let walls = maze
+                .walls(pos)
+                .iter()
+                .filter(|wall| maze.rooms().is_inside(maze.back((pos, wall)).0))
+                .map(|&wall| wall)
+                .collect::<Vec<_>>();
+            walls.iter().for_each(|wall| maze.open((pos, wall)));
+            assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
+        }
+    );
+
+    maze_test!(
+        neighbors,
+        fn test(maze: &mut Maze) {
+            let pos = matrix::Pos { col: 0, row: 0 };
+            assert_eq!(maze.neighbors(pos).collect::<Vec<_>>(), vec![]);
+            maze.walls(pos)
+                .iter()
+                .for_each(|wall| maze.open((pos, wall)));
+            assert_eq!(
+                maze.neighbors(pos).collect::<Vec<_>>(),
+                maze.walls(pos)
+                    .iter()
+                    .map(|wall| matrix::Pos {
+                        col: pos.col + wall.dir.0,
+                        row: pos.row + wall.dir.1
+                    })
+                    .collect::<Vec<_>>(),
+            );
+        }
+    );
 }

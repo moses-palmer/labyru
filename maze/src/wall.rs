@@ -1,5 +1,7 @@
 use std;
 
+use serde::{Deserialize, Serialize};
+
 /// The maximum nomalised value of a radian.
 const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
 

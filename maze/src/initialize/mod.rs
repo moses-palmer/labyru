@@ -1,6 +1,8 @@
 use std::iter;
 use std::u64;
 
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "osrand")]
 use rand;
 

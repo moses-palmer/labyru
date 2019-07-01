@@ -1,5 +1,7 @@
 use std;
 
+use serde::{Deserialize, Serialize};
+
 use crate::matrix;
 use crate::physical;
 use crate::wall;

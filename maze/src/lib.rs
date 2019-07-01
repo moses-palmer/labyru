@@ -1,7 +1,6 @@
 #![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 
-#[macro_use]
-extern crate serde;
+use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
 #[macro_use]

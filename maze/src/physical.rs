@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 /// A physical position.
 #[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Pos {

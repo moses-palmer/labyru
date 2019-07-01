@@ -1,5 +1,7 @@
 use std;
 
+use serde::{Deserialize, Serialize};
+
 /// A matrix position.
 #[derive(
     Clone,

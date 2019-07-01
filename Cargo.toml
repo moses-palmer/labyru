@@ -3,6 +3,7 @@
 members = [
     "maze",
     "maker",
+    "test",
     "tools",
     "web",
 ]

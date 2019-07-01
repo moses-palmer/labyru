@@ -321,6 +321,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "maze"
 version = "0.1.0"
 dependencies = [
+ "maze-test 0.1.0",
  "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.91 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -338,6 +339,10 @@ dependencies = [
  "rayon 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "maze-test"
+version = "0.1.0"
 
 [[package]]
 name = "maze-tools"

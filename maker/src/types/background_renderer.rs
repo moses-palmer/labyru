@@ -70,7 +70,11 @@ where
 {
     fn from(source: &'a P) -> Self {
         let channels = source.channels();
-        Intermediate(channels[0] as u32, channels[1] as u32, channels[2] as u32)
+        Intermediate(
+            u32::from(channels[0]),
+            u32::from(channels[1]),
+            u32::from(channels[2]),
+        )
     }
 }
 

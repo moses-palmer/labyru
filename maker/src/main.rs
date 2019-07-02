@@ -223,9 +223,9 @@ fn main() {
         let mut maze = mask_initializer
             .map(|a| a.initialize(shape.create(width, height)))
             .unwrap_or_else(|| {
-                let mut maze = shape.create(width, height);
-                maze.randomized_prim(&mut rand::weak_rng());
-                maze
+                shape
+                    .create(width, height)
+                    .randomized_prim(&mut rand::weak_rng())
             });
 
         [&break_initializer as &Initializer]

@@ -263,122 +263,110 @@ impl<'a> Iterator for Follower<'a> {
 mod tests {
     use std::collections::HashMap;
 
+    use maze_test::maze_test;
+
     use super::*;
     use crate::test_utils::*;
     use crate::*;
 
-    maze_test!(
-        walk_empty,
-        fn test(maze: &Maze) {
-            let map = HashMap::new();
+    #[maze_test]
+    fn walk_empty(maze: &Maze) {
+        let map = HashMap::new();
 
-            assert_eq!(
-                Path::new(maze, matrix_pos(0, 0), map)
-                    .into_iter()
-                    .collect::<Vec<matrix::Pos>>(),
-                vec![matrix_pos(0, 0)]
-            );
-        }
-    );
+        assert_eq!(
+            Path::new(maze, matrix_pos(0, 0), map)
+                .into_iter()
+                .collect::<Vec<matrix::Pos>>(),
+            vec![matrix_pos(0, 0)]
+        );
+    }
 
-    maze_test!(
-        walk_from_unknown,
-        fn test(maze: &Maze) {
-            let mut map = HashMap::new();
-            map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
+    #[maze_test]
+    fn walk_from_unknown(maze: &Maze) {
+        let mut map = HashMap::new();
+        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
-            assert_eq!(
-                Path::new(maze, matrix_pos(0, 0), map)
-                    .into_iter()
-                    .collect::<Vec<matrix::Pos>>(),
-                vec![matrix_pos(0, 0)]
-            );
-        }
-    );
+        assert_eq!(
+            Path::new(maze, matrix_pos(0, 0), map)
+                .into_iter()
+                .collect::<Vec<matrix::Pos>>(),
+            vec![matrix_pos(0, 0)]
+        );
+    }
 
-    maze_test!(
-        walk_path,
-        fn test(maze: &Maze) {
-            let mut map = HashMap::new();
-            map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
-            map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
-            map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
+    #[maze_test]
+    fn walk_path(maze: &Maze) {
+        let mut map = HashMap::new();
+        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
+        map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
+        map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
 
-            assert_eq!(
-                Path::new(maze, matrix_pos(1, 1), map)
-                    .into_iter()
-                    .collect::<Vec<matrix::Pos>>(),
-                vec![
-                    matrix_pos(1, 1),
-                    matrix_pos(2, 2),
-                    matrix_pos(2, 3),
-                    matrix_pos(2, 4)
-                ]
-            );
-        }
-    );
+        assert_eq!(
+            Path::new(maze, matrix_pos(1, 1), map)
+                .into_iter()
+                .collect::<Vec<matrix::Pos>>(),
+            vec![
+                matrix_pos(1, 1),
+                matrix_pos(2, 2),
+                matrix_pos(2, 3),
+                matrix_pos(2, 4)
+            ]
+        );
+    }
 
-    maze_test!(
-        walk_disconnected,
-        fn test(maze: &mut Maze) {
-            assert!(maze.walk(matrix_pos(0, 0), matrix_pos(0, 1)).is_none());
-        }
-    );
+    #[maze_test]
+    fn walk_disconnected(maze: &mut Maze) {
+        assert!(maze.walk(matrix_pos(0, 0), matrix_pos(0, 1)).is_none());
+    }
 
-    maze_test!(
-        walk_same,
-        fn test(maze: &mut Maze) {
-            let from = matrix_pos(0, 0);
-            let to = matrix_pos(0, 0);
-            let expected = vec![matrix_pos(0, 0)];
-            assert!(
-                maze.walk(from, to)
-                    .unwrap()
-                    .into_iter()
-                    .collect::<Vec<matrix::Pos>>()
-                    == expected
-            );
-        }
-    );
+    #[maze_test]
+    fn walk_same(maze: &mut Maze) {
+        let from = matrix_pos(0, 0);
+        let to = matrix_pos(0, 0);
+        let expected = vec![matrix_pos(0, 0)];
+        assert!(
+            maze.walk(from, to)
+                .unwrap()
+                .into_iter()
+                .collect::<Vec<matrix::Pos>>()
+                == expected
+        );
+    }
 
-    maze_test!(
-        walk_simple,
-        fn test(maze: &mut Maze) {
-            let log = Navigator::new(maze).down(true).stop();
+    #[maze_test]
+    fn walk_simple(maze: &mut Maze) {
+        let log = Navigator::new(maze).down(true).stop();
 
-            let from = log.first().unwrap();
-            let to = log.last().unwrap();
-            let expected = vec![*from, *to];
-            assert!(
-                maze.walk(*from, *to)
-                    .unwrap()
-                    .into_iter()
-                    .collect::<Vec<matrix::Pos>>()
-                    == expected
-            );
-        }
-    );
+        let from = log.first().unwrap();
+        let to = log.last().unwrap();
+        let expected = vec![*from, *to];
+        assert!(
+            maze.walk(*from, *to)
+                .unwrap()
+                .into_iter()
+                .collect::<Vec<matrix::Pos>>()
+                == expected
+        );
+    }
 
-    maze_test!(
-        walk_shortest,
-        fn test(maze: &mut Maze) {
-            let log = Navigator::new(maze)
-                .down(true)
-                .right(true)
-                .right(true)
-                .up(true)
-                .stop();
+    #[maze_test]
+    fn walk_shortest(maze: &mut Maze) {
+        let log = Navigator::new(maze)
+            .down(true)
+            .right(true)
+            .right(true)
+            .up(true)
+            .stop();
 
-            let from = log.first().unwrap();
-            let to = log.last().unwrap();
-            assert!(
-                maze.walk(*from, *to)
-                    .unwrap()
-                    .into_iter()
-                    .collect::<Vec<matrix::Pos>>()
-                    .len()
-                    <= log.len()
-            );
-        }
-    );
+        let from = log.first().unwrap();
+        let to = log.last().unwrap();
+        assert!(
+            maze.walk(*from, *to)
+                .unwrap()
+                .into_iter()
+                .collect::<Vec<matrix::Pos>>()
+                .len()
+                <= log.len()
+        );
+    }
 }

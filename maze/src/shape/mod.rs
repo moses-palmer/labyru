@@ -200,6 +200,8 @@ pub mod tri;
 
 #[cfg(test)]
 mod tests {
+    use maze_test::maze_test;
+
     use crate::*;
 
     #[test]
@@ -210,42 +212,38 @@ mod tests {
         assert_eq!("invalid".parse::<Shape>(), Err("invalid".to_owned()));
     }
 
-    maze_test!(
-        minimal_dimensions,
-        fn test(maze: &mut Maze) {
-            for i in 1..20 {
-                let width = i as f32 * 0.5;
-                let height = width;
-                let (w, h) = maze.shape.minimal_dimensions(width, height);
+    #[maze_test]
+    fn minimal_dimensions(maze: &mut Maze) {
+        for i in 1..20 {
+            let width = i as f32 * 0.5;
+            let height = width;
+            let (w, h) = maze.shape.minimal_dimensions(width, height);
 
-                let m = maze.shape.create(w, h);
+            let m = maze.shape.create(w, h);
+            let (_, _, actual_width, actual_height) = m.viewbox();
+            assert!(actual_width >= width);
+            assert!(actual_height >= height);
+
+            if w > 1 && h > 1 {
+                let m = maze.shape.create(w - 1, h - 1);
                 let (_, _, actual_width, actual_height) = m.viewbox();
-                assert!(actual_width >= width);
-                assert!(actual_height >= height);
-
-                if w > 1 && h > 1 {
-                    let m = maze.shape.create(w - 1, h - 1);
-                    let (_, _, actual_width, actual_height) = m.viewbox();
-                    assert!(actual_width <= width);
-                    assert!(actual_height <= height);
-                }
+                assert!(actual_width <= width);
+                assert!(actual_height <= height);
             }
         }
-    );
+    }
 
-    maze_test!(
-        room_at,
-        fn test(maze: &mut Maze) {
-            let d = 0.95;
-            for pos in maze.rooms.positions() {
-                let center = maze.center(pos);
-                for wall in maze.walls(pos) {
-                    let a = wall.span.0;
-                    let x = center.x + d * a.cos();
-                    let y = center.y + d * a.sin();
-                    assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
-                }
+    #[maze_test]
+    fn room_at(maze: &mut Maze) {
+        let d = 0.95;
+        for pos in maze.rooms.positions() {
+            let center = maze.center(pos);
+            for wall in maze.walls(pos) {
+                let a = wall.span.0;
+                let x = center.x + d * a.cos();
+                let y = center.y + d * a.sin();
+                assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
             }
         }
-    );
+    }
 }

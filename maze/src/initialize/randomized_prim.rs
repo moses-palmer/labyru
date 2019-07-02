@@ -117,87 +117,77 @@ impl Maze {
 
 #[cfg(test)]
 mod tests {
+    use maze_test::maze_test;
+
     use super::*;
     use crate::test_utils::*;
     use crate::*;
 
-    maze_test!(
-        initialize_randomized_prim,
-        fn test(maze: &mut Maze) {
-            maze.randomized_prim(&mut rand::weak_rng());
+    #[maze_test]
+    fn initialize_randomized_prim(maze: &mut Maze) {
+        maze.randomized_prim(&mut rand::weak_rng());
 
-            let from = matrix_pos(0, 0);
-            let to = matrix_pos(
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
-            assert!(maze.walk(from, to).is_some());
-        }
-    );
+        let from = matrix_pos(0, 0);
+        let to = matrix_pos(
+            (maze.width() - 1) as isize,
+            (maze.height() - 1) as isize,
+        );
+        assert!(maze.walk(from, to).is_some());
+    }
 
-    maze_test!(
-        randomized_prim_filter_most,
-        fn test(maze: &mut Maze) {
-            let from = matrix_pos(0, 0);
-            let other = matrix_pos(1, 0);
-            let to = matrix_pos(
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
-            maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| {
-                pos != from
-            });
+    #[maze_test]
+    fn randomized_prim_filter_most(maze: &mut Maze) {
+        let from = matrix_pos(0, 0);
+        let other = matrix_pos(1, 0);
+        let to = matrix_pos(
+            (maze.width() - 1) as isize,
+            (maze.height() - 1) as isize,
+        );
+        maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| pos != from);
 
-            assert!(maze.walk(from, to).is_none());
-            assert!(maze.walk(other, to).is_some());
-        }
-    );
+        assert!(maze.walk(from, to).is_none());
+        assert!(maze.walk(other, to).is_some());
+    }
 
-    maze_test!(
-        randomized_prim_filter_all,
-        fn test(maze: &mut Maze) {
-            let from = matrix_pos(0, 0);
-            let other = matrix_pos(1, 0);
-            let to = matrix_pos(
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
-            maze.randomized_prim_filter(&mut rand::weak_rng(), |_| false);
+    #[maze_test]
+    fn randomized_prim_filter_all(maze: &mut Maze) {
+        let from = matrix_pos(0, 0);
+        let other = matrix_pos(1, 0);
+        let to = matrix_pos(
+            (maze.width() - 1) as isize,
+            (maze.height() - 1) as isize,
+        );
+        maze.randomized_prim_filter(&mut rand::weak_rng(), |_| false);
 
-            assert!(maze.walk(from, to).is_none());
-            assert!(maze.walk(other, to).is_none());
-        }
-    );
+        assert!(maze.walk(from, to).is_none());
+        assert!(maze.walk(other, to).is_none());
+    }
 
-    maze_test!(
-        randomized_prim_filter_picked,
-        fn test(maze: &mut Maze) {
-            for _ in 0..1000 {
-                let filter = |matrix::Pos { col, row }| col > row;
-                maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
+    #[maze_test]
+    fn randomized_prim_filter_picked(maze: &mut Maze) {
+        for _ in 0..1000 {
+            let filter = |matrix::Pos { col, row }| col > row;
+            maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
 
-                for pos in maze.rooms.positions() {
-                    assert_eq!(filter(pos), maze.rooms[pos].visited,);
-                }
+            for pos in maze.rooms.positions() {
+                assert_eq!(filter(pos), maze.rooms[pos].visited,);
             }
         }
-    );
+    }
 
-    maze_test!(
-        randomized_prim_filter_segmented,
-        fn test(maze: &mut Maze) {
-            for _ in 0..1000 {
-                let width = maze.width();
-                let height = maze.height();
-                let filter = |matrix::Pos { col, row }| {
-                    col as usize != width / 2 && row as usize != height / 2
-                };
-                maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
+    #[maze_test]
+    fn randomized_prim_filter_segmented(maze: &mut Maze) {
+        for _ in 0..1000 {
+            let width = maze.width();
+            let height = maze.height();
+            let filter = |matrix::Pos { col, row }| {
+                col as usize != width / 2 && row as usize != height / 2
+            };
+            maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
 
-                for pos in maze.rooms.positions() {
-                    assert_eq!(filter(pos), maze.rooms[pos].visited,);
-                }
+            for pos in maze.rooms.positions() {
+                assert_eq!(filter(pos), maze.rooms[pos].visited,);
             }
         }
-    );
+    }
 }

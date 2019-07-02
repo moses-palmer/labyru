@@ -180,7 +180,7 @@ mod tests {
     use crate::WallPos;
 
     #[maze_test(tri)]
-    fn back(maze: &mut Maze) {
+    fn back(maze: Maze) {
         assert_eq!(
             maze.back((matrix_pos(2, 0), &walls::LEFT0)),
             (matrix_pos(1, 0), &walls::RIGHT1)
@@ -208,7 +208,7 @@ mod tests {
     }
 
     #[maze_test(tri)]
-    fn corner_walls(maze: &mut Maze) {
+    fn corner_walls(maze: Maze) {
         assert_eq!(
             maze.corner_walls((matrix_pos(2, 0), &walls::LEFT0))
                 .collect::<Vec<_>>(),
@@ -284,7 +284,7 @@ mod tests {
     }
 
     #[maze_test(tri)]
-    fn follow_wall_single_room(maze: &mut Maze) {
+    fn follow_wall_single_room(maze: Maze) {
         assert_eq!(
             vec![
                 (matrix_pos(0, 0), &walls::LEFT0),
@@ -298,8 +298,8 @@ mod tests {
     }
 
     #[maze_test(tri)]
-    fn follow_wall(maze: &mut Maze) {
-        Navigator::new(maze)
+    fn follow_wall(mut maze: Maze) {
+        Navigator::new(&mut maze)
             .from(matrix_pos(1, 0))
             .down(true)
             .right(true)

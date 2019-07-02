@@ -34,7 +34,7 @@ pub fn maze_test(attr: TokenStream, item: TokenStream) -> TokenStream {
             if shapes.iter().any(|s| s == shape) {
                 body.extend(
                     format!(
-                        "inner(&mut \"{}\".parse::<crate::Shape>()
+                        "inner(\"{}\".parse::<crate::Shape>()
                         .unwrap().create(10, 5));",
                         shape,
                     )

@@ -270,11 +270,11 @@ mod tests {
     use crate::*;
 
     #[maze_test]
-    fn walk_empty(maze: &Maze) {
+    fn walk_empty(maze: Maze) {
         let map = HashMap::new();
 
         assert_eq!(
-            Path::new(maze, matrix_pos(0, 0), map)
+            Path::new(&maze, matrix_pos(0, 0), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![matrix_pos(0, 0)]
@@ -282,12 +282,12 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_from_unknown(maze: &Maze) {
+    fn walk_from_unknown(maze: Maze) {
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
         assert_eq!(
-            Path::new(maze, matrix_pos(0, 0), map)
+            Path::new(&maze, matrix_pos(0, 0), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![matrix_pos(0, 0)]
@@ -295,14 +295,14 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_path(maze: &Maze) {
+    fn walk_path(maze: Maze) {
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
         map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
         map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
 
         assert_eq!(
-            Path::new(maze, matrix_pos(1, 1), map)
+            Path::new(&maze, matrix_pos(1, 1), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![
@@ -315,12 +315,12 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_disconnected(maze: &mut Maze) {
+    fn walk_disconnected(maze: Maze) {
         assert!(maze.walk(matrix_pos(0, 0), matrix_pos(0, 1)).is_none());
     }
 
     #[maze_test]
-    fn walk_same(maze: &mut Maze) {
+    fn walk_same(maze: Maze) {
         let from = matrix_pos(0, 0);
         let to = matrix_pos(0, 0);
         let expected = vec![matrix_pos(0, 0)];
@@ -334,8 +334,8 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_simple(maze: &mut Maze) {
-        let log = Navigator::new(maze).down(true).stop();
+    fn walk_simple(mut maze: Maze) {
+        let log = Navigator::new(&mut maze).down(true).stop();
 
         let from = log.first().unwrap();
         let to = log.last().unwrap();
@@ -350,8 +350,8 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_shortest(maze: &mut Maze) {
-        let log = Navigator::new(maze)
+    fn walk_shortest(mut maze: Maze) {
+        let log = Navigator::new(&mut maze)
             .down(true)
             .right(true)
             .right(true)

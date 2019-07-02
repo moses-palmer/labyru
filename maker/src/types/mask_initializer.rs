@@ -61,7 +61,7 @@ impl Initializer for MaskInitializer {
     ///
     /// # Arguments
     /// * `maze` - The maze.
-    fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
+    fn initialize(&self, maze: maze::Maze) -> maze::Maze {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self
@@ -79,8 +79,7 @@ impl Initializer for MaskInitializer {
             .focus(&maze)
             .map(|v| v > self.threshold);
 
-        maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos]);
-        maze
+        maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos])
     }
 }
 

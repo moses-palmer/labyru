@@ -194,7 +194,7 @@ impl Maze {
         self.walls(pos)
             .iter()
             .filter(move |&wall| self.is_open((pos, wall)))
-            .map(|&wall| wall)
+            .copied()
     }
 
     /// Iterates over all reachble neighbours of a room.

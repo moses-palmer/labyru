@@ -1,24 +1,5 @@
 use super::*;
 
-/// Creates a test function that runs the tests for all known types of
-/// mazes.
-#[macro_export]
-macro_rules! maze_test {
-    ($name:ident, $code:item) => {
-        #[test]
-        fn $name() {
-            let width = 10;
-            let height = 5;
-
-            $code
-
-            test(&mut Shape::Hex.create(width, height));
-            test(&mut Shape::Quad.create(width, height));
-            test(&mut Shape::Tri.create(width, height));
-        }
-    }
-}
-
 /// Determines whether two physical locations are close enough to be
 /// considered equal.
 ///

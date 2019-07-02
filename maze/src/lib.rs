@@ -28,7 +28,7 @@ mod util;
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A maze contains rooms and has methods for managing paths and doors.
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Maze {
     /// The shape of the rooms.
     shape: Shape,

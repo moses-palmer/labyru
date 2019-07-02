@@ -172,15 +172,15 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
 
 #[cfg(test)]
 mod tests {
+    use maze_test::maze_test;
+
     use super::*;
     use crate::test_utils::*;
-    use crate::Shape;
+    use crate::Maze;
     use crate::WallPos;
 
-    #[test]
-    fn back() {
-        let maze = maze(5, 5);
-
+    #[maze_test(tri)]
+    fn back(maze: &mut Maze) {
         assert_eq!(
             maze.back((matrix_pos(2, 0), &walls::LEFT0)),
             (matrix_pos(1, 0), &walls::RIGHT1)
@@ -207,10 +207,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn corner_walls() {
-        let maze = maze(5, 5);
-
+    #[maze_test(tri)]
+    fn corner_walls(maze: &mut Maze) {
         assert_eq!(
             maze.corner_walls((matrix_pos(2, 0), &walls::LEFT0))
                 .collect::<Vec<_>>(),
@@ -285,9 +283,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn follow_wall_single_room() {
-        let maze = maze(5, 5);
+    #[maze_test(tri)]
+    fn follow_wall_single_room(maze: &mut Maze) {
         assert_eq!(
             vec![
                 (matrix_pos(0, 0), &walls::LEFT0),
@@ -300,11 +297,9 @@ mod tests {
         );
     }
 
-    #[test]
-    fn follow_wall() {
-        let mut maze = maze(5, 5);
-
-        Navigator::new(&mut maze)
+    #[maze_test(tri)]
+    fn follow_wall(maze: &mut Maze) {
+        Navigator::new(maze)
             .from(matrix_pos(1, 0))
             .down(true)
             .right(true)
@@ -327,14 +322,5 @@ mod tests {
                 .map(|(from, _)| from)
                 .collect::<Vec<WallPos>>()
         );
-    }
-
-    /// Creates a maze.
-    ///
-    /// # Arguments
-    /// *  `width` - The width.
-    /// *  `height` - The height.
-    fn maze(width: usize, height: usize) -> crate::Maze {
-        crate::Maze::new(Shape::Tri, width, height)
     }
 }

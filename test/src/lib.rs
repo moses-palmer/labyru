@@ -1,5 +1,7 @@
 extern crate proc_macro;
 
+use std::collections::hash_set;
+
 use proc_macro::{
     Delimiter, Group, Ident, Punct, Spacing, Span, TokenStream, TokenTree,
 };
@@ -15,9 +17,12 @@ const SHAPES: &[&str] = &["hex", "quad", "tri"];
 /// The annotated function should take one argument, which is the maze
 /// instance.
 #[proc_macro_attribute]
-pub fn maze_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn maze_test(attr: TokenStream, item: TokenStream) -> TokenStream {
     // Extract the interesting parts of the original function
     let (span, name, args, inner_body) = split(item);
+
+    // Extract the shapes for which to generate tests
+    let shapes = shapes(attr);
 
     // Generate the body of the new function
     let body = {
@@ -26,15 +31,17 @@ pub fn maze_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
         // Iterate through known shapes for consistent ordering
         for shape in SHAPES {
-            body.extend(
-                format!(
-                    "inner(&mut \"{}\".parse::<crate::Shape>()
-                    .unwrap().create(10, 5));",
-                    shape,
-                )
-                .parse::<TokenStream>()
-                .unwrap(),
-            );
+            if shapes.iter().any(|s| s == shape) {
+                body.extend(
+                    format!(
+                        "inner(&mut \"{}\".parse::<crate::Shape>()
+                        .unwrap().create(10, 5));",
+                        shape,
+                    )
+                    .parse::<TokenStream>()
+                    .unwrap(),
+                );
+            }
         }
         body
     };
@@ -78,6 +85,35 @@ fn split(item: TokenStream) -> (Span, Ident, Group, Group) {
             }
         }
         _ => panic!("Expected function"),
+    }
+}
+
+/// Generates a set of shapes.
+///
+/// If the attribute is empty, a set containing all shapes will be returned
+/// instead.
+///
+/// # Panics
+/// This function panics if the token stream is not a comma separated list of
+/// identifiers, or if any identifier is not in `SHAPES`.
+fn shapes(attr: TokenStream) -> hash_set::HashSet<String> {
+    let shapes = attr
+        .into_iter()
+        .flat_map(|tree| match tree {
+            TokenTree::Ident(ref shape) => Some(shape.to_string()),
+            TokenTree::Punct(ref punct) if punct.as_char() == ',' => None,
+            _ => panic!(format!("Unexpected token: {}", tree)),
+        })
+        .collect::<hash_set::HashSet<_>>();
+    if shapes.is_empty() {
+        SHAPES.iter().cloned().map(String::from).collect()
+    } else {
+        for shape in shapes.iter() {
+            if !SHAPES.iter().any(|&s| s == shape) {
+                panic!("Unknown shape: {}", shape);
+            }
+        }
+        shapes
     }
 }
 

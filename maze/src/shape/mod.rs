@@ -213,7 +213,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn minimal_dimensions(maze: &mut Maze) {
+    fn minimal_dimensions(maze: Maze) {
         for i in 1..20 {
             let width = i as f32 * 0.5;
             let height = width;
@@ -234,7 +234,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn room_at(maze: &mut Maze) {
+    fn room_at(maze: Maze) {
         let d = 0.95;
         for pos in maze.rooms.positions() {
             let center = maze.center(pos);

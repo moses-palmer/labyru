@@ -124,7 +124,7 @@ mod tests {
     use crate::*;
 
     #[maze_test]
-    fn initialize_randomized_prim(maze: &mut Maze) {
+    fn initialize_randomized_prim(mut maze: Maze) {
         maze.randomized_prim(&mut rand::weak_rng());
 
         let from = matrix_pos(0, 0);
@@ -136,7 +136,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn randomized_prim_filter_most(maze: &mut Maze) {
+    fn randomized_prim_filter_most(mut maze: Maze) {
         let from = matrix_pos(0, 0);
         let other = matrix_pos(1, 0);
         let to = matrix_pos(
@@ -150,7 +150,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn randomized_prim_filter_all(maze: &mut Maze) {
+    fn randomized_prim_filter_all(mut maze: Maze) {
         let from = matrix_pos(0, 0);
         let other = matrix_pos(1, 0);
         let to = matrix_pos(
@@ -164,7 +164,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn randomized_prim_filter_picked(maze: &mut Maze) {
+    fn randomized_prim_filter_picked(mut maze: Maze) {
         for _ in 0..1000 {
             let filter = |matrix::Pos { col, row }| col > row;
             maze.randomized_prim_filter(&mut rand::weak_rng(), &filter);
@@ -176,7 +176,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn randomized_prim_filter_segmented(maze: &mut Maze) {
+    fn randomized_prim_filter_segmented(mut maze: Maze) {
         for _ in 0..1000 {
             let width = maze.width();
             let height = maze.height();

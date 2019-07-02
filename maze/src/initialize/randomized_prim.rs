@@ -57,8 +57,8 @@ impl Maze {
         }
 
         loop {
-            // Start with all walls in a random room, except for those leading out
-            // of the maze
+            // Start with all walls in a random room, except for those leading
+            // out of the maze
             let mut walls = visited
                 // Pick a random room
                 .positions()
@@ -91,8 +91,8 @@ impl Maze {
                     visited[next_pos] = true;
                     self.open(wall_pos);
 
-                    // Add all walls of the next room except those already visited
-                    // and those outside of the maze
+                    // Add all walls of the next room except those already
+                    // visited and those outside of the maze
                     walls.extend(
                         self.walls(next_pos)
                             .iter()

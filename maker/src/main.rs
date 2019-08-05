@@ -14,7 +14,7 @@ fn run(
     maze: maze::Maze,
     scale: f32,
     margin: f32,
-    renderers: &[&Renderer],
+    renderers: &[&dyn Renderer],
     output: &str,
 ) {
     let document = svg::Document::new()
@@ -228,7 +228,7 @@ fn main() {
                     .randomized_prim(&mut rand::weak_rng())
             });
 
-        [&break_initializer as &Initializer]
+        [&break_initializer as &dyn Initializer]
             .iter()
             .fold(maze, |maze, a| a.initialize(maze))
     };

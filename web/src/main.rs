@@ -4,11 +4,11 @@ use rocket::{get, routes};
 
 use std::io;
 
+use maze::initialize::randomized_prim::*;
+use maze::render::svg::ToPath;
 use rocket::http;
 use rocket::response;
 use svg::Node;
-
-use maze::prelude::*;
 
 mod types;
 

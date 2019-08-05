@@ -4,7 +4,7 @@ use std::f32;
 use clap::{crate_authors, crate_version, App, Arg};
 use svg::Node;
 
-use maze::prelude::*;
+use maze::render::svg::ToPath;
 
 mod types;
 use self::types::*;

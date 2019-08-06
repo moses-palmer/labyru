@@ -4,6 +4,7 @@ use std::str::FromStr;
 use image;
 use rand;
 
+use maze::initialize;
 use maze::physical;
 use maze_tools::focus::*;
 
@@ -79,7 +80,11 @@ impl Initializer for MaskInitializer {
             .focus(&maze)
             .map(|v| v > self.threshold);
 
-        maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos])
+        maze.initialize_filter(
+            initialize::Method::Branching,
+            &mut rand::weak_rng(),
+            |pos| data[pos],
+        )
     }
 }
 

@@ -4,6 +4,7 @@ use std::f32;
 use clap::{crate_authors, crate_version, App, Arg};
 use svg::Node;
 
+use maze::initialize;
 use maze::render::svg::ToPath;
 
 mod types;
@@ -223,9 +224,10 @@ fn main() {
         let mut maze = mask_initializer
             .map(|a| a.initialize(shape.create(width, height)))
             .unwrap_or_else(|| {
-                shape
-                    .create(width, height)
-                    .randomized_prim(&mut rand::weak_rng())
+                shape.create(width, height).initialize(
+                    initialize::Method::Branching,
+                    &mut rand::weak_rng(),
+                )
             });
 
         [&break_initializer as &dyn Initializer]

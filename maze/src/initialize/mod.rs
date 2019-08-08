@@ -165,6 +165,29 @@ impl Maze {
     }
 }
 
+/// Returns a random unvisited room.
+///
+/// # Arguments
+/// *  `rng` - A random number generator.
+/// *  `filter_matrix` - A matrix containing the rooms to consider.
+fn random_room(
+    rng: &mut dyn Randomizer,
+    filter_matrix: &matrix::Matrix<bool>,
+) -> Option<matrix::Pos> {
+    let count = filter_matrix
+        .positions()
+        .filter(|&pos| filter_matrix[pos])
+        .count();
+    if count > 0 {
+        filter_matrix
+            .positions()
+            .filter(|&pos| filter_matrix[pos])
+            .nth(rng.range(0, count))
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use maze_test::maze_test;
@@ -206,6 +229,46 @@ mod tests {
         let iterations = 100 * 100 * buckets;
         let hist = (0..iterations).fold(vec![0; buckets], |mut hist, _| {
             hist[(buckets as f64 * lfsr.random()) as usize] += 1;
+            hist
+        });
+
+        let mid = iterations / buckets;
+        let h = 400;
+        for v in hist {
+            assert!(mid - h < v && v < mid + h);
+        }
+    }
+
+    #[test]
+    fn random_room_none() {
+        let width = 5;
+        let height = 5;
+        let mut rng = LFSR::new(12345);
+        let (count, filter_matrix) = matrix::filter(width, height, |_| false);
+
+        assert_eq!(0, count);
+
+        let iterations = width * height * 100;
+        for _ in 0..iterations {
+            assert!(random_room(&mut rng, &filter_matrix).is_none());
+        }
+    }
+
+    #[test]
+    fn random_room_some() {
+        let width = 5;
+        let height = 5;
+        let mut rng = LFSR::new(12345);
+        let (count, filter_matrix) =
+            matrix::filter(width, height, |pos| pos.col as usize == width - 1);
+
+        assert_eq!(height, count);
+
+        let buckets = height;
+        let iterations = 100 * 100 * buckets;
+        let hist = (0..iterations).fold(vec![0; buckets], |mut hist, _| {
+            hist[random_room(&mut rng, &filter_matrix).unwrap().row
+                as usize] += 1;
             hist
         });
 

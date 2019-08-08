@@ -328,6 +328,34 @@ pub fn partition(x: f32) -> (isize, f32) {
     (index, if x >= 0.0 { rel } else { rel + 1.0 })
 }
 
+/// Generates a matrix initialised with the value returned by a filter
+/// function.
+///
+/// The return value contains the number of filtered rooms.
+///
+/// # Arguments
+/// *  `width` - The width of the matrix to generate.
+/// *  `height` - The height of the matrix to generate.
+/// *  `filter` - A filter function.
+pub fn filter<F>(
+    width: usize,
+    height: usize,
+    filter: F,
+) -> (usize, Matrix<bool>)
+where
+    F: Fn(Pos) -> bool,
+{
+    let mut result = Matrix::new(width, height);
+    let count = result.positions().fold(0, |mut count, pos| {
+        if filter(pos) {
+            result[pos] = true;
+            count += 1;
+        }
+        count
+    });
+    (count, result)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -363,6 +391,24 @@ mod test {
         matrix[matrix_pos(0, 1)] = 3;
         matrix[matrix_pos(1, 1)] = 4;
         assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn filter_none() {
+        let width = 5;
+        let height = 5;
+        let (count, matrix) = filter(width, height, |_| false);
+        assert_eq!(0, count);
+        assert!(matrix.values().all(|v| !v));
+    }
+
+    #[test]
+    fn filter_all() {
+        let width = 5;
+        let height = 5;
+        let (count, matrix) = filter(width, height, |_| true);
+        assert_eq!(width * height, count);
+        assert!(matrix.values().all(|v| v));
     }
 
     #[test]

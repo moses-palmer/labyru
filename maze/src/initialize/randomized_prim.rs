@@ -13,17 +13,8 @@ where
     F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
 {
-    // Create the visited matrix by applying the filter to each room; if no
-    // rooms remain we terminate early
-    let mut visited = matrix::Matrix::<bool>::new(maze.width(), maze.height());
-    let count = visited.positions().fold(0, |mut count, pos| {
-        if filter(pos) {
-            count += 1;
-        } else {
-            visited[pos] = true;
-        }
-        count
-    });
+    let (count, mut candidates) =
+        matrix::filter(maze.width(), maze.height(), filter);
     if count == 0 {
         return maze;
     }
@@ -31,11 +22,7 @@ where
     loop {
         // Start with all walls in a random room, except for those leading
         // out of the maze
-        let mut walls = visited
-            // Pick a random room
-            .positions()
-            .filter(|&pos| filter(pos))
-            .nth(rng.range(0, count))
+        let mut walls = super::random_room(rng, &candidates)
             // Get all walls not leading out of the maze
             .map(|pos| {
                 maze.walls(pos)
@@ -57,10 +44,10 @@ where
             // Walk through the wall if we have not visited the room on the
             // other side before
             let (next_pos, _) = maze.back(wall_pos);
-            if !visited[next_pos] {
+            if candidates[next_pos] {
                 // Mark the rooms as visited and open the door
-                visited[wall_pos.0] = true;
-                visited[next_pos] = true;
+                candidates[wall_pos.0] = false;
+                candidates[next_pos] = false;
                 maze.open(wall_pos);
 
                 // Add all walls of the next room except those already
@@ -69,14 +56,16 @@ where
                     maze.walls(next_pos)
                         .iter()
                         .map(|w| maze.back((next_pos, w)))
-                        .filter(|&(pos, _)| !visited.get(pos).unwrap_or(&true))
+                        .filter(|&(pos, _)| {
+                            *candidates.get(pos).unwrap_or(&false)
+                        })
                         .map(|wall_pos| maze.back(wall_pos))
-                        .filter(|&(pos, _)| visited.is_inside(pos)),
+                        .filter(|&(pos, _)| candidates.is_inside(pos)),
                 );
             }
         }
 
-        if visited.positions().all(|pos| visited[pos]) {
+        if candidates.values().all(|v| !v) {
             break;
         }
     }

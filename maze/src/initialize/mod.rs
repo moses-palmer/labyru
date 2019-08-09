@@ -11,6 +11,7 @@ use crate::Maze;
 
 use crate::matrix;
 
+mod depth_first;
 mod randomized_prim;
 
 /// The various supported initialisation method.
@@ -24,6 +25,15 @@ pub enum Method {
     /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
     /// a description of the algorithm.
     Branching,
+
+    /// Initialises a maze using a winding algorithm.
+    ///
+    /// This method uses a simple _Depth First_ algorithm to generate a maze,
+    /// which yields mazes with long winding corridors.
+    ///
+    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
+    /// a description of the algorithm.
+    Winding,
 }
 
 impl str::FromStr for Method {
@@ -32,6 +42,7 @@ impl str::FromStr for Method {
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         match source {
             "branching" => Ok(Method::Branching),
+            "winding" => Ok(Method::Winding),
             e => Err(e.to_owned()),
         }
     }
@@ -161,6 +172,7 @@ impl Maze {
     {
         match method {
             Method::Branching => randomized_prim::initialize(self, rng, filter),
+            Method::Winding => depth_first::initialize(self, rng, filter),
         }
     }
 }
@@ -197,7 +209,7 @@ mod tests {
     use crate::*;
 
     /// The various initialisation methods tested.
-    const INITIALIZERS: &[Method] = &[Method::Branching];
+    const INITIALIZERS: &[Method] = &[Method::Branching, Method::Winding];
 
     /// Tests that range works as advertised.
     #[test]

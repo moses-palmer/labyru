@@ -4,6 +4,7 @@ use std::str::FromStr;
 use image;
 use rand;
 
+use maze::initialize;
 use maze::physical;
 use maze_tools::focus::*;
 
@@ -60,8 +61,13 @@ impl Initializer for MaskInitializer {
     /// rooms should be part of the maze.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
-    fn initialize(&self, maze: maze::Maze) -> maze::Maze {
+    /// *  `maze` - The maze.
+    /// *  `method` - The initialisation method to use.
+    fn initialize(
+        &self,
+        maze: maze::Maze,
+        method: initialize::Method,
+    ) -> maze::Maze {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self
@@ -79,7 +85,7 @@ impl Initializer for MaskInitializer {
             .focus(&maze)
             .map(|v| v > self.threshold);
 
-        maze.randomized_prim_filter(&mut rand::weak_rng(), |pos| data[pos])
+        maze.initialize_filter(method, &mut rand::weak_rng(), |pos| data[pos])
     }
 }
 

@@ -4,7 +4,8 @@ use std::f32;
 use clap::{crate_authors, crate_version, App, Arg};
 use svg::Node;
 
-use maze::prelude::*;
+use maze::initialize;
+use maze::render::svg::ToPath;
 
 mod types;
 use self::types::*;
@@ -14,7 +15,7 @@ fn run(
     maze: maze::Maze,
     scale: f32,
     margin: f32,
-    renderers: &[&Renderer],
+    renderers: &[&dyn Renderer],
     output: &str,
 ) {
     let document = svg::Document::new()
@@ -88,6 +89,12 @@ fn main() {
                 .takes_value(true)
                 .required_unless_all(&["BACKGROUND", "RATIO"])
                 .help("The height of the maze, in rooms."),
+        )
+        .arg(
+            Arg::with_name("METHOD")
+                .long("--method")
+                .takes_value(true)
+                .help("The initialisation method to use."),
         )
         .arg(
             Arg::with_name("SCALE")
@@ -164,6 +171,11 @@ fn main() {
         .unwrap_or(10.0);
 
     // Parse initialisers
+    let initializer: initialize::Method = args
+        .value_of("METHOD")
+        .map(str::parse)
+        .unwrap_or_else(|| Ok(initialize::Method::Branching))
+        .expect("invalid initialisation method");
     let mask_initializer: Option<MaskInitializer> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
@@ -221,16 +233,16 @@ fn main() {
     // Make sure the maze is initialised
     let maze = {
         let mut maze = mask_initializer
-            .map(|a| a.initialize(shape.create(width, height)))
+            .map(|a| a.initialize(shape.create(width, height), initializer))
             .unwrap_or_else(|| {
                 shape
                     .create(width, height)
-                    .randomized_prim(&mut rand::weak_rng())
+                    .initialize(initializer, &mut rand::weak_rng())
             });
 
-        [&break_initializer as &Initializer]
+        [&break_initializer as &dyn Initializer]
             .iter()
-            .fold(maze, |maze, a| a.initialize(maze))
+            .fold(maze, |maze, a| a.initialize(maze, initializer))
     };
 
     run(

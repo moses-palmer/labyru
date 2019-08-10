@@ -4,11 +4,11 @@ use rocket::{get, routes};
 
 use std::io;
 
+use maze::initialize;
+use maze::render::svg::ToPath;
 use rocket::http;
 use rocket::response;
 use svg::Node;
-
-use maze::prelude::*;
 
 mod types;
 
@@ -41,7 +41,7 @@ impl<'a> From<Maze> for response::Result<'a> {
         let maze = source
             .maze_type
             .create(source.dimensions)
-            .randomized_prim(&mut source.seed);
+            .initialize(initialize::Method::Branching, &mut source.seed);
 
         let mut container = svg::node::element::Group::new();
         container.append(

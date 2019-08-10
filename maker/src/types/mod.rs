@@ -9,6 +9,7 @@ use rayon::prelude::*;
 use svg::Node;
 
 use maze;
+use maze::initialize;
 use maze::matrix::AddableMatrix;
 use maze_tools::image::Color;
 
@@ -31,16 +32,25 @@ pub trait Initializer {
     ///
     /// # Arguments
     /// *  `maze` - The maze to initialise.
-    fn initialize(&self, maze: maze::Maze) -> maze::Maze;
+    /// *  `method` - The initialisation method to use.
+    fn initialize(
+        &self,
+        maze: maze::Maze,
+        method: initialize::Method,
+    ) -> maze::Maze;
 }
 
 impl<T> Initializer for Option<T>
 where
     T: Initializer,
 {
-    fn initialize(&self, maze: maze::Maze) -> maze::Maze {
+    fn initialize(
+        &self,
+        maze: maze::Maze,
+        method: initialize::Method,
+    ) -> maze::Maze {
         if let Some(action) = self {
-            action.initialize(maze)
+            action.initialize(maze, method)
         } else {
             maze
         }
@@ -81,12 +91,10 @@ pub enum HeatMapType {
     Full,
 }
 
-impl HeatMapType {
-    /// Converts a string to a heat map type.
-    ///
-    /// # Arguments
-    /// * `s` - The string to convert.
-    pub fn from_str(s: &str) -> Result<HeatMapType, String> {
+impl str::FromStr for HeatMapType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<HeatMapType, Self::Err> {
         match s {
             "vertical" => Ok(HeatMapType::Vertical),
             "horizontal" => Ok(HeatMapType::Horizontal),
@@ -94,7 +102,9 @@ impl HeatMapType {
             _ => Err(format!("unknown heat map type: {}", s)),
         }
     }
+}
 
+impl HeatMapType {
     /// Generates a heat map based on this heat map type.
     ///
     /// # Arguments
@@ -189,7 +199,7 @@ where
     for pos in maze
         .rooms()
         .positions()
-        .filter(|pos| maze.rooms()[*pos].visited)
+        .filter(|&pos| maze.rooms()[pos].visited)
     {
         let color = colors(pos);
         let mut commands = maze

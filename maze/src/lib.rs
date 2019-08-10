@@ -11,6 +11,7 @@ pub mod wall;
 
 #[macro_use]
 pub mod shape;
+pub use self::shape::Shape;
 
 pub mod initialize;
 pub mod matrix;
@@ -18,9 +19,6 @@ pub mod physical;
 pub mod render;
 pub mod room;
 pub mod walk;
-
-pub mod prelude;
-pub use self::prelude::*;
 
 mod util;
 

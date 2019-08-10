@@ -4,6 +4,8 @@ use maze;
 use maze::matrix;
 use maze::physical;
 
+pub mod initialize;
+
 pub fn matrix<V>(
     maze: &maze::Maze,
     points: Vec<(physical::Pos, f32, V)>,

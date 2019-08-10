@@ -4,7 +4,6 @@ use std::f32;
 use clap::{crate_authors, crate_version, App, Arg};
 use svg::Node;
 
-use maze::initialize;
 use maze::render::svg::ToPath;
 
 mod types;
@@ -171,11 +170,11 @@ fn main() {
         .unwrap_or(10.0);
 
     // Parse initialisers
-    let initializer: initialize::Method = args
+    let initializers: Methods<_> = args
         .value_of("METHOD")
         .map(str::parse)
-        .unwrap_or_else(|| Ok(initialize::Method::default()))
-        .expect("invalid initialisation method");
+        .unwrap_or_else(|| Ok(Methods::default()))
+        .expect("invalid initialisation methods");
     let mask_initializer: Option<MaskInitializer<_>> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
@@ -238,7 +237,7 @@ fn main() {
         let mut maze = mask_initializer.initialize(
             shape.create(width, height),
             &mut rng,
-            initializer,
+            initializers,
         );
 
         [&break_post_processor as &dyn PostProcessor<_>]

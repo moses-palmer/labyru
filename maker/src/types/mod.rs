@@ -81,12 +81,10 @@ pub enum HeatMapType {
     Full,
 }
 
-impl HeatMapType {
-    /// Converts a string to a heat map type.
-    ///
-    /// # Arguments
-    /// * `s` - The string to convert.
-    pub fn from_str(s: &str) -> Result<HeatMapType, String> {
+impl str::FromStr for HeatMapType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<HeatMapType, Self::Err> {
         match s {
             "vertical" => Ok(HeatMapType::Vertical),
             "horizontal" => Ok(HeatMapType::Horizontal),
@@ -94,7 +92,9 @@ impl HeatMapType {
             _ => Err(format!("unknown heat map type: {}", s)),
         }
     }
+}
 
+impl HeatMapType {
     /// Generates a heat map based on this heat map type.
     ///
     /// # Arguments

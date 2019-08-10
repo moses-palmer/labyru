@@ -174,7 +174,7 @@ fn main() {
     let initializer: initialize::Method = args
         .value_of("METHOD")
         .map(str::parse)
-        .unwrap_or_else(|| Ok(initialize::Method::Branching))
+        .unwrap_or_else(|| Ok(initialize::Method::default()))
         .expect("invalid initialisation method");
     let mask_initializer: Option<MaskInitializer> = args
         .value_of("MASK")

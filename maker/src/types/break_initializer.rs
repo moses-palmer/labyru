@@ -48,7 +48,7 @@ impl Initializer for BreakInitializer {
     /// rooms with higher probability in hot rooms.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
+    /// *  `maze` - The maze.
     fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
         let mut rng = rand::weak_rng();
 

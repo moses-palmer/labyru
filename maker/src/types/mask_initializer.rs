@@ -60,7 +60,7 @@ impl Initializer for MaskInitializer {
     /// rooms should be part of the maze.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
+    /// *  `maze` - The maze.
     fn initialize(&self, maze: maze::Maze) -> maze::Maze {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();

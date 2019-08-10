@@ -16,7 +16,7 @@ mod depth_first;
 mod randomized_prim;
 
 /// The various supported initialisation method.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Hash, PartialEq)]
 pub enum Method {
     /// Initialises a maze by opening all walls inside the area.
     Clear,
@@ -39,6 +39,8 @@ pub enum Method {
     /// a description of the algorithm.
     Winding,
 }
+
+impl Eq for Method {}
 
 impl Default for Method {
     fn default() -> Self {

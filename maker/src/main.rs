@@ -91,6 +91,12 @@ fn main() {
                 .help("The height of the maze, in rooms."),
         )
         .arg(
+            Arg::with_name("METHOD")
+                .long("--method")
+                .takes_value(true)
+                .help("The initialisation method to use."),
+        )
+        .arg(
             Arg::with_name("SCALE")
                 .long("--scale")
                 .takes_value(true)
@@ -165,6 +171,11 @@ fn main() {
         .unwrap_or(10.0);
 
     // Parse initialisers
+    let initializer: initialize::Method = args
+        .value_of("METHOD")
+        .map(str::parse)
+        .unwrap_or_else(|| Ok(initialize::Method::Branching))
+        .expect("invalid initialisation method");
     let mask_initializer: Option<MaskInitializer> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
@@ -222,17 +233,16 @@ fn main() {
     // Make sure the maze is initialised
     let maze = {
         let mut maze = mask_initializer
-            .map(|a| a.initialize(shape.create(width, height)))
+            .map(|a| a.initialize(shape.create(width, height), initializer))
             .unwrap_or_else(|| {
-                shape.create(width, height).initialize(
-                    initialize::Method::Branching,
-                    &mut rand::weak_rng(),
-                )
+                shape
+                    .create(width, height)
+                    .initialize(initializer, &mut rand::weak_rng())
             });
 
         [&break_initializer as &dyn Initializer]
             .iter()
-            .fold(maze, |maze, a| a.initialize(maze))
+            .fold(maze, |maze, a| a.initialize(maze, initializer))
     };
 
     run(

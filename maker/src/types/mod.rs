@@ -9,6 +9,7 @@ use rayon::prelude::*;
 use svg::Node;
 
 use maze;
+use maze::initialize;
 use maze::matrix::AddableMatrix;
 use maze_tools::image::Color;
 
@@ -31,16 +32,25 @@ pub trait Initializer {
     ///
     /// # Arguments
     /// *  `maze` - The maze to initialise.
-    fn initialize(&self, maze: maze::Maze) -> maze::Maze;
+    /// *  `method` - The initialisation method to use.
+    fn initialize(
+        &self,
+        maze: maze::Maze,
+        method: initialize::Method,
+    ) -> maze::Maze;
 }
 
 impl<T> Initializer for Option<T>
 where
     T: Initializer,
 {
-    fn initialize(&self, maze: maze::Maze) -> maze::Maze {
+    fn initialize(
+        &self,
+        maze: maze::Maze,
+        method: initialize::Method,
+    ) -> maze::Maze {
         if let Some(action) = self {
-            action.initialize(maze)
+            action.initialize(maze, method)
         } else {
             maze
         }

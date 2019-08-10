@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use maze::initialize;
 use rand;
 use rand::Rng;
 
@@ -49,7 +50,12 @@ impl Initializer for BreakInitializer {
     ///
     /// # Arguments
     /// *  `maze` - The maze.
-    fn initialize(&self, mut maze: maze::Maze) -> maze::Maze {
+    /// *  `_method` - Not used.
+    fn initialize(
+        &self,
+        mut maze: maze::Maze,
+        _method: initialize::Method,
+    ) -> maze::Maze {
         let mut rng = rand::weak_rng();
 
         for _ in 0..self.count {

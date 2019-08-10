@@ -15,8 +15,8 @@ use maze_tools::image::Color;
 
 pub mod background_renderer;
 pub use self::background_renderer::*;
-pub mod break_initializer;
-pub use self::break_initializer::*;
+pub mod break_post_processor;
+pub use self::break_post_processor::*;
 pub mod heatmap_renderer;
 pub use self::heatmap_renderer::*;
 pub mod mask_initializer;
@@ -51,6 +51,28 @@ where
     ) -> maze::Maze {
         if let Some(action) = self {
             action.initialize(maze, method)
+        } else {
+            maze
+        }
+    }
+}
+
+/// A trait to perform post-processing of a maze.
+pub trait PostProcessor {
+    /// Performs post-processing of a maze.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze to post-process.
+    fn post_process(&self, maze: maze::Maze) -> maze::Maze;
+}
+
+impl<T> PostProcessor for Option<T>
+where
+    T: PostProcessor,
+{
+    fn post_process(&self, maze: maze::Maze) -> maze::Maze {
+        if let Some(action) = self {
+            action.post_process(maze)
         } else {
             maze
         }

@@ -1,13 +1,12 @@
 use std::str::FromStr;
 
-use maze::initialize;
 use rand;
 use rand::Rng;
 
 use crate::types::*;
 
 /// A full description of the break action.
-pub struct BreakInitializer {
+pub struct BreakPostProcessor {
     /// The heat map type.
     pub map_type: HeatMapType,
 
@@ -15,7 +14,7 @@ pub struct BreakInitializer {
     pub count: usize,
 }
 
-impl FromStr for BreakInitializer {
+impl FromStr for BreakPostProcessor {
     type Err = String;
 
     /// Converts a string to a break description.
@@ -42,7 +41,7 @@ impl FromStr for BreakInitializer {
     }
 }
 
-impl Initializer for BreakInitializer {
+impl PostProcessor for BreakPostProcessor {
     /// Applies the break action.
     ///
     /// This action will repeatedly calculate a heat map, and then open walls in
@@ -50,12 +49,7 @@ impl Initializer for BreakInitializer {
     ///
     /// # Arguments
     /// *  `maze` - The maze.
-    /// *  `_method` - Not used.
-    fn initialize(
-        &self,
-        mut maze: maze::Maze,
-        _method: initialize::Method,
-    ) -> maze::Maze {
+    fn post_process(&self, mut maze: maze::Maze) -> maze::Maze {
         let mut rng = rand::weak_rng();
 
         for _ in 0..self.count {

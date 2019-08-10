@@ -179,7 +179,9 @@ fn main() {
     let mask_initializer: Option<MaskInitializer> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
-    let break_initializer: Option<BreakInitializer> = args
+
+    // Parse post-processors
+    let break_post_processor: Option<BreakPostProcessor> = args
         .value_of("BREAK")
         .map(|s| s.parse().expect("invalid break"));
 
@@ -240,9 +242,9 @@ fn main() {
                     .initialize(initializer, &mut rand::weak_rng())
             });
 
-        [&break_initializer as &dyn Initializer]
+        [&break_post_processor as &dyn PostProcessor]
             .iter()
-            .fold(maze, |maze, a| a.initialize(maze, initializer))
+            .fold(maze, |maze, a| a.post_process(maze))
     };
 
     run(

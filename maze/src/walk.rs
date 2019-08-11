@@ -23,7 +23,9 @@ impl Maze {
 
         // The heuristic for a room position
         let h = |pos: matrix::Pos| {
-            (pos.col - end.col).abs() + (pos.row - end.row).abs()
+            let dx = (pos.col - end.col).abs();
+            let dy = (pos.row - end.row).abs();
+            dx * dx + dy * dy
         };
 
         // The room positions already evaluated
@@ -59,9 +61,12 @@ impl Maze {
                 }
 
                 // Find the next room, and continue if we have already evaluated
-                // it, or it is outside of the maze
+                // it to a better distance, or it is outside of the maze
                 let (next, _) = self.back((current, wall));
-                if !self.rooms.is_inside(next) || closed_set.contains(&next) {
+                if !self.rooms.is_inside(next)
+                    || (closed_set.contains(&next)
+                        && g_score[&next] <= g_score[&current] + 1)
+                {
                     continue;
                 }
 

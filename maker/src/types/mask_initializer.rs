@@ -2,7 +2,6 @@ use std::ops;
 use std::str::FromStr;
 
 use image;
-use rand;
 
 use maze::initialize;
 use maze::physical;
@@ -15,15 +14,23 @@ use super::*;
 const D: f32 = 1.0 / 255.0 / 3.0;
 
 /// A masking image.
-pub struct MaskInitializer {
+pub struct MaskInitializer<R>
+where
+    R: initialize::Randomizer + Sized,
+{
     /// The mask image.
     pub image: image::RgbImage,
 
     /// The intensity threshold
     pub threshold: f32,
+
+    _marker: ::std::marker::PhantomData<R>,
 }
 
-impl FromStr for MaskInitializer {
+impl<R> FromStr for MaskInitializer<R>
+where
+    R: initialize::Randomizer + Sized,
+{
     type Err = String;
 
     /// Converts a string to an initialise mask description.
@@ -44,6 +51,7 @@ impl FromStr for MaskInitializer {
                         .map_err(|_| format!("failed to open {}", s))?
                         .to_rgb(),
                     threshold,
+                    _marker: ::std::marker::PhantomData,
                 })
             } else {
                 Err(format!("invalid threshold: {}", part1))
@@ -54,18 +62,23 @@ impl FromStr for MaskInitializer {
     }
 }
 
-impl Initializer for MaskInitializer {
+impl<R> Initializer<R> for MaskInitializer<R>
+where
+    R: initialize::Randomizer + Sized,
+{
     /// Applies the initialise action.
     ///
     /// This action will use the intensity of pixels to determine whether
     /// rooms should be part of the maze.
     ///
     /// # Arguments
-    /// *  `maze` - The maze.
-    /// *  `method` - The initialisation method to use.
+    /// *  `maze` - The maze to initialise.
+    /// *  `rng` - A random number generator.
+    /// *  `method` - The initialiser to use to generate the maze.
     fn initialize(
         &self,
         maze: maze::Maze,
+        rng: &mut R,
         method: initialize::Method,
     ) -> maze::Maze {
         let (_, _, width, height) = maze.viewbox();
@@ -85,7 +98,7 @@ impl Initializer for MaskInitializer {
             .focus(&maze)
             .map(|v| v > self.threshold);
 
-        maze.initialize_filter(method, &mut rand::weak_rng(), |pos| data[pos])
+        maze.initialize_filter(method, rng, |pos| data[pos])
     }
 }
 

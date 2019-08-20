@@ -15,8 +15,8 @@ use maze_tools::image::Color;
 
 pub mod background_renderer;
 pub use self::background_renderer::*;
-pub mod break_initializer;
-pub use self::break_initializer::*;
+pub mod break_post_processor;
+pub use self::break_post_processor::*;
 pub mod heatmap_renderer;
 pub use self::heatmap_renderer::*;
 pub mod mask_initializer;
@@ -27,30 +27,64 @@ pub mod text_renderer;
 pub use self::text_renderer::*;
 
 /// A trait to initialise a maze.
-pub trait Initializer {
+pub trait Initializer<R>
+where
+    R: initialize::Randomizer + Sized,
+{
     /// Initialises a maze.
     ///
     /// # Arguments
     /// *  `maze` - The maze to initialise.
+    /// *  `rng` - A random number generator.
     /// *  `method` - The initialisation method to use.
     fn initialize(
         &self,
         maze: maze::Maze,
+        rng: &mut R,
         method: initialize::Method,
     ) -> maze::Maze;
 }
 
-impl<T> Initializer for Option<T>
+impl<R, T> Initializer<R> for Option<T>
 where
-    T: Initializer,
+    R: initialize::Randomizer + Sized,
+    T: Initializer<R>,
 {
     fn initialize(
         &self,
         maze: maze::Maze,
+        rng: &mut R,
         method: initialize::Method,
     ) -> maze::Maze {
         if let Some(action) = self {
-            action.initialize(maze, method)
+            action.initialize(maze, rng, method)
+        } else {
+            maze
+        }
+    }
+}
+
+/// A trait to perform post-processing of a maze.
+pub trait PostProcessor<R>
+where
+    R: initialize::Randomizer + Sized,
+{
+    /// Performs post-processing of a maze.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze to post-process.
+    /// *  `rng` - A random number generator.
+    fn post_process(&self, maze: maze::Maze, rng: &mut R) -> maze::Maze;
+}
+
+impl<R, T> PostProcessor<R> for Option<T>
+where
+    R: initialize::Randomizer + Sized,
+    T: PostProcessor<R>,
+{
+    fn post_process(&self, maze: maze::Maze, rng: &mut R) -> maze::Maze {
+        if let Some(action) = self {
+            action.post_process(maze, rng)
         } else {
             maze
         }

@@ -36,6 +36,12 @@ pub enum Method {
     Winding,
 }
 
+impl Default for Method {
+    fn default() -> Self {
+        Method::Branching
+    }
+}
+
 impl str::FromStr for Method {
     type Err = String;
 

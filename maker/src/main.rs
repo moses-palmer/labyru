@@ -174,12 +174,14 @@ fn main() {
     let initializer: initialize::Method = args
         .value_of("METHOD")
         .map(str::parse)
-        .unwrap_or_else(|| Ok(initialize::Method::Branching))
+        .unwrap_or_else(|| Ok(initialize::Method::default()))
         .expect("invalid initialisation method");
-    let mask_initializer: Option<MaskInitializer> = args
+    let mask_initializer: Option<MaskInitializer<_>> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
-    let break_initializer: Option<BreakInitializer> = args
+
+    // Parse post-processors
+    let break_post_processor: Option<BreakPostProcessor> = args
         .value_of("BREAK")
         .map(|s| s.parse().expect("invalid break"));
 
@@ -231,18 +233,17 @@ fn main() {
     let output = args.value_of("OUTPUT").unwrap();
 
     // Make sure the maze is initialised
+    let mut rng = rand::weak_rng();
     let maze = {
-        let mut maze = mask_initializer
-            .map(|a| a.initialize(shape.create(width, height), initializer))
-            .unwrap_or_else(|| {
-                shape
-                    .create(width, height)
-                    .initialize(initializer, &mut rand::weak_rng())
-            });
+        let mut maze = mask_initializer.initialize(
+            shape.create(width, height),
+            &mut rng,
+            initializer,
+        );
 
-        [&break_initializer as &dyn Initializer]
+        [&break_post_processor as &dyn PostProcessor<_>]
             .iter()
-            .fold(maze, |maze, a| a.initialize(maze, initializer))
+            .fold(maze, |maze, a| a.post_process(maze, &mut rng))
     };
 
     run(

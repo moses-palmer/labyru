@@ -54,12 +54,7 @@ impl Maze {
             }
 
             closed_set.insert(current);
-            for wall in self.walls(current) {
-                // Ignore closed walls
-                if !self.is_open((current, wall)) {
-                    continue;
-                }
-
+            for wall in self.doors(current) {
                 // Find the next room, and continue if we have already evaluated
                 // it to a better distance, or it is outside of the maze
                 let (next, _) = self.back((current, wall));

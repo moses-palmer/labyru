@@ -181,6 +181,17 @@ impl Maze {
         )
     }
 
+    /// Iterates over all wall positions of a room.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn wall_positions<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = WallPos> + 'a {
+        self.walls(pos).iter().map(move |&wall| (pos, wall))
+    }
+
     /// Iterates over all open walls of a room.
     ///
     /// # Arguments

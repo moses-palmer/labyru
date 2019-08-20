@@ -11,12 +11,16 @@ use crate::Maze;
 
 use crate::matrix;
 
+mod clear;
 mod depth_first;
 mod randomized_prim;
 
 /// The various supported initialisation method.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Hash, PartialEq)]
 pub enum Method {
+    /// Initialises a maze by opening all walls inside the area.
+    Clear,
+
     /// Initialises a maze using a branching algorithm.
     ///
     /// This method uses the _Randomised Prim_ algorithm to generate a maze,
@@ -36,6 +40,8 @@ pub enum Method {
     Winding,
 }
 
+impl Eq for Method {}
+
 impl Default for Method {
     fn default() -> Self {
         Method::Branching
@@ -47,6 +53,7 @@ impl str::FromStr for Method {
 
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         match source {
+            "clear" => Ok(Method::Clear),
             "branching" => Ok(Method::Branching),
             "winding" => Ok(Method::Winding),
             e => Err(e.to_owned()),
@@ -177,6 +184,7 @@ impl Maze {
         R: Randomizer + Sized,
     {
         match method {
+            Method::Clear => clear::initialize(self, rng, filter),
             Method::Branching => randomized_prim::initialize(self, rng, filter),
             Method::Winding => depth_first::initialize(self, rng, filter),
         }

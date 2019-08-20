@@ -10,8 +10,10 @@ use svg::Node;
 
 use maze;
 use maze::initialize;
+use maze::matrix;
 use maze::matrix::AddableMatrix;
 use maze_tools::image::Color;
+use maze_tools::voronoi;
 
 pub mod background_renderer;
 pub use self::background_renderer::*;
@@ -41,7 +43,7 @@ where
         &self,
         maze: maze::Maze,
         rng: &mut R,
-        method: initialize::Method,
+        method: Methods<R>,
     ) -> maze::Maze;
 }
 
@@ -54,12 +56,12 @@ where
         &self,
         maze: maze::Maze,
         rng: &mut R,
-        method: initialize::Method,
+        methods: Methods<R>,
     ) -> maze::Maze {
         if let Some(action) = self {
-            action.initialize(maze, rng, method)
+            action.initialize(maze, rng, methods)
         } else {
-            maze
+            methods.initialize(maze, rng, |_| true)
         }
     }
 }
@@ -88,6 +90,59 @@ where
         } else {
             maze
         }
+    }
+}
+
+pub struct Methods<R>(pub voronoi::initialize::Methods<R>)
+where
+    R: initialize::Randomizer + Sized;
+
+impl<R> Default for Methods<R>
+where
+    R: initialize::Randomizer + Sized,
+{
+    fn default() -> Self {
+        Self(voronoi::initialize::Methods::default())
+    }
+}
+
+impl<R> str::FromStr for Methods<R>
+where
+    R: initialize::Randomizer + Sized,
+{
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut methods = vec![];
+        for method in s.split(",") {
+            methods.push(method.parse()?)
+        }
+
+        Ok(Self(voronoi::initialize::Methods::new(methods)))
+    }
+}
+
+impl<R> Methods<R>
+where
+    R: initialize::Randomizer + Sized,
+{
+    /// Wraps the inner initialiser.
+    ///
+    /// # Arguments
+    /// *  `maze` - The maze to initialise.
+    /// *  `rng` - A random number generator.
+    /// *  `filter` - An additional filter applied to all methods.
+    pub fn initialize<F>(
+        self,
+        maze: maze::Maze,
+        rng: &mut R,
+        filter: F,
+    ) -> maze::Maze
+    where
+        F: Fn(matrix::Pos) -> bool,
+    {
+        let (_, maze) = self.0.initialize(maze, rng, filter);
+        maze
     }
 }
 

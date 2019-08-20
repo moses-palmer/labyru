@@ -3,7 +3,6 @@ use std::str::FromStr;
 
 use image;
 
-use maze::initialize;
 use maze::physical;
 use maze_tools::focus::*;
 
@@ -74,12 +73,12 @@ where
     /// # Arguments
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
-    /// *  `method` - The initialiser to use to generate the maze.
+    /// *  `methods` - The initialisers to use to generate the maze.
     fn initialize(
         &self,
         maze: maze::Maze,
         rng: &mut R,
-        method: initialize::Method,
+        methods: Methods<R>,
     ) -> maze::Maze {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
@@ -98,7 +97,7 @@ where
             .focus(&maze)
             .map(|v| v > self.threshold);
 
-        maze.initialize_filter(method, rng, |pos| data[pos])
+        methods.initialize(maze, rng, |pos| data[pos])
     }
 }
 

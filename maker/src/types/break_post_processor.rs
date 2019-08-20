@@ -1,7 +1,6 @@
 use std::str::FromStr;
 
-use rand;
-use rand::Rng;
+use maze::initialize;
 
 use crate::types::*;
 
@@ -41,7 +40,10 @@ impl FromStr for BreakPostProcessor {
     }
 }
 
-impl PostProcessor for BreakPostProcessor {
+impl<R> PostProcessor<R> for BreakPostProcessor
+where
+    R: initialize::Randomizer + Sized,
+{
     /// Applies the break action.
     ///
     /// This action will repeatedly calculate a heat map, and then open walls in
@@ -49,15 +51,15 @@ impl PostProcessor for BreakPostProcessor {
     ///
     /// # Arguments
     /// *  `maze` - The maze.
-    fn post_process(&self, mut maze: maze::Maze) -> maze::Maze {
-        let mut rng = rand::weak_rng();
-
+    /// *  `rng` - A random number generator.
+    fn post_process(&self, mut maze: maze::Maze, rng: &mut R) -> maze::Maze {
         for _ in 0..self.count {
             let heat_map = self.map_type.generate(&maze);
             for pos in heat_map.positions() {
-                if 1.0 / (rng.next_f32() * heat_map[pos] as f32) < 0.5 {
+                if 1.0 / (rng.random() * f64::from(heat_map[pos])) < 0.5 {
                     loop {
-                        let wall = rng.choose(maze.walls(pos)).unwrap();
+                        let walls = maze.walls(pos);
+                        let wall = walls[rng.range(0, walls.len())];
                         if maze.rooms().is_inside(maze.back((pos, wall)).0) {
                             maze.open((pos, wall));
                             break;

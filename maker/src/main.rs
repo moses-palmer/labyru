@@ -176,7 +176,7 @@ fn main() {
         .map(str::parse)
         .unwrap_or_else(|| Ok(initialize::Method::default()))
         .expect("invalid initialisation method");
-    let mask_initializer: Option<MaskInitializer> = args
+    let mask_initializer: Option<MaskInitializer<_>> = args
         .value_of("MASK")
         .map(|s| s.parse().expect("invalid mask"));
 
@@ -233,18 +233,17 @@ fn main() {
     let output = args.value_of("OUTPUT").unwrap();
 
     // Make sure the maze is initialised
+    let mut rng = rand::weak_rng();
     let maze = {
-        let mut maze = mask_initializer
-            .map(|a| a.initialize(shape.create(width, height), initializer))
-            .unwrap_or_else(|| {
-                shape
-                    .create(width, height)
-                    .initialize(initializer, &mut rand::weak_rng())
-            });
+        let mut maze = mask_initializer.initialize(
+            shape.create(width, height),
+            &mut rng,
+            initializer,
+        );
 
-        [&break_post_processor as &dyn PostProcessor]
+        [&break_post_processor as &dyn PostProcessor<_>]
             .iter()
-            .fold(maze, |maze, a| a.post_process(maze))
+            .fold(maze, |maze, a| a.post_process(maze, &mut rng))
     };
 
     run(

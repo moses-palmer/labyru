@@ -150,7 +150,10 @@ where
     }
 }
 
-pub trait AddableMatrix<T> {
+impl<T> Matrix<T>
+where
+    T: std::ops::AddAssign + Clone + Copy + Default,
+{
     /// Adds another matrix to this one.
     ///
     /// If the matrices are of different dimensions, only the overlapping parts
@@ -158,14 +161,7 @@ pub trait AddableMatrix<T> {
     ///
     /// # Arguments
     /// * `other` - The matrix to add.
-    fn add(self, other: Self) -> Self;
-}
-
-impl<T> AddableMatrix<T> for Matrix<T>
-where
-    T: std::ops::AddAssign + Clone + Copy + Default,
-{
-    fn add(mut self, other: Self) -> Self {
+    pub fn add(mut self, other: Self) -> Self {
         let width = std::cmp::min(self.width, other.width);
         let height = std::cmp::min(self.height, other.height);
         for row in 0..height {

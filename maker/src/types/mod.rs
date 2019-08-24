@@ -11,7 +11,6 @@ use svg::Node;
 use maze;
 use maze::initialize;
 use maze::matrix;
-use maze::matrix::AddableMatrix;
 use maze_tools::image::Color;
 use maze_tools::voronoi;
 
@@ -270,7 +269,7 @@ impl HeatMapType {
             .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
             .reduce(
                 || maze::HeatMap::new(maze.width(), maze.height()),
-                AddableMatrix::add,
+                matrix::Matrix::add,
             )
     }
 }

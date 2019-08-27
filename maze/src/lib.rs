@@ -72,6 +72,26 @@ impl Maze {
         }
     }
 
+    /// Finds the wall connecting two rooms, and if it exists, returns it.
+    ///
+    /// # Arguments
+    /// *  `pos1` - The first room position. The returned wall position will be
+    ///    in this room.
+    /// *  `pos2` - The second room position.
+    pub fn connecting_wall(
+        &self,
+        pos1: matrix::Pos,
+        pos2: matrix::Pos,
+    ) -> Option<WallPos> {
+        self.walls(pos1)
+            .iter()
+            .find(|wall| {
+                (pos1.col + wall.dir.0 == pos2.col)
+                    && (pos1.row + wall.dir.1 == pos2.row)
+            })
+            .map(|&wall| (pos1, wall))
+    }
+
     /// Returns whether two rooms are connected.
     ///
     /// Two rooms are connected if there is an open wall between them, or if
@@ -336,6 +356,29 @@ mod tests {
                 assert!(!wall.in_span(wall.span.0 - d));
                 assert!(wall.in_span(wall.span.1 - d));
                 assert!(!wall.in_span(wall.span.1 + d));
+            }
+        }
+    }
+
+    #[maze_test]
+    fn connecting_wall_correct(maze: Maze) {
+        for pos in maze.rooms().positions() {
+            for &wall in maze.walls(pos) {
+                assert!(maze
+                    .connecting_wall(
+                        pos,
+                        matrix::Pos {
+                            col: pos.col - 3,
+                            row: pos.row - 3
+                        }
+                    )
+                    .is_none());
+                let wall_pos = (pos, wall);
+                let other = matrix::Pos {
+                    col: pos.col + wall.dir.0,
+                    row: pos.row + wall.dir.1,
+                };
+                assert_eq!(Some(wall_pos), maze.connecting_wall(pos, other));
             }
         }
     }

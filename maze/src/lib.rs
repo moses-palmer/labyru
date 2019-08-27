@@ -226,6 +226,22 @@ impl Maze {
             .copied()
     }
 
+    /// Iterates over all adjacent rooms.
+    ///
+    /// This method will list rooms outside of the maze for rooms on the edge.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn adjacent<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = matrix::Pos> + 'a {
+        self.walls(pos).iter().map(move |&wall| matrix::Pos {
+            col: pos.col + wall.dir.0,
+            row: pos.row + wall.dir.1,
+        })
+    }
+
     /// Iterates over all reachble neighbours of a room.
     ///
     /// This method may list rooms outside of the maze if an opening outside
@@ -427,6 +443,18 @@ mod tests {
             .collect::<Vec<_>>();
         walls.iter().for_each(|wall| maze.open((pos, wall)));
         assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
+    }
+
+    #[maze_test]
+    fn adjacent(maze: Maze) {
+        for pos1 in maze.rooms().positions() {
+            for pos2 in maze.rooms.positions() {
+                assert!(
+                    maze.connecting_wall(pos1, pos2).is_some()
+                        == maze.adjacent(pos1).find(|&p| pos2 == p).is_some()
+                );
+            }
+        }
     }
 
     #[maze_test]

@@ -214,6 +214,49 @@ fn random_room(
     }
 }
 
+/// Ensures all rooms are connected
+///
+/// This function will find all closed areas and ensure they have one exit to
+/// each neighbouring area.
+///
+/// # Arguments
+/// *  `maze` - The maze to modify.
+/// *  `filter` - A filter for rooms to consider.
+pub fn connect_all<F, R>(maze: &mut Maze, rng: &mut R, filter: F)
+where
+    F: Fn(matrix::Pos) -> bool,
+    R: Randomizer + Sized,
+{
+    // First find all non-connected areas by visiting all rooms and filling for
+    // each filtered, non-filled room and the incrementing the area index
+    let mut areas = matrix::Matrix::new(maze.width(), maze.height());
+    let mut index = 0;
+    for pos in maze.rooms().positions() {
+        // Ignore filtered and already visited rooms
+        if !filter(pos) || areas[pos] > 0 {
+            continue;
+        } else {
+            index += 1;
+            areas.fill(pos, index, |pos| {
+                maze.neighbors(pos).filter(|&pos| filter(pos))
+            });
+        }
+    }
+
+    // Then find all edges between separate areas and open a random wall
+    for (_, edge) in areas
+        .edges(|pos| maze.adjacent(pos))
+        .iter()
+        .filter(|&((source, _), _)| source > &0)
+    {
+        let wall_positions = edge
+            .iter()
+            .flat_map(|&(pos1, pos2)| maze.connecting_wall(pos1, pos2))
+            .collect::<Vec<_>>();
+        maze.open(wall_positions[rng.range(0, wall_positions.len())])
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use maze_test::maze_test;

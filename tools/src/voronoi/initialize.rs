@@ -50,10 +50,8 @@ where
     where
         F: Fn(matrix::Pos) -> bool,
     {
-        // Generate the segments and find all edges
+        // Generate the segments
         let matrix = self.matrix(&maze, rng);
-        let edges =
-            matrix.edges(|pos| maze.wall_positions(pos).map(|(pos, _)| pos));
 
         // Use a different initialisation method for each segment
         let mut maze = self.methods.into_iter().enumerate().fold(
@@ -66,13 +64,7 @@ where
         );
 
         // Make sure all segments are connected
-        for edge in edges.values() {
-            let wall_positions = edge
-                .iter()
-                .flat_map(|&(pos1, pos2)| maze.connecting_wall(pos1, pos2))
-                .collect::<Vec<_>>();
-            maze.open(wall_positions[rng.range(0, wall_positions.len())])
-        }
+        initialize::connect_all(&mut maze, rng, filter);
 
         (matrix, maze)
     }

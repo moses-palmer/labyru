@@ -204,6 +204,71 @@ where
 
 impl<T> Matrix<T>
 where
+    T: Clone + Copy + Default + PartialEq,
+{
+    /// Fills all rooms reachable from `pos` in `matrix` with the value
+    /// `value`.
+    ///
+    /// Filling will start at `pos`, and `neighbors` will be used to find the
+    /// next cells. Any cell with the value `value` is ignored; thus, if all
+    /// neighbours of `pos` already have the value `value`, filling will stop
+    /// immediately.
+    ///
+    /// If `pos` has the value `value`, however, filling may proceed with
+    /// neighbours.
+    ///
+    /// The number of filled rooms is returned.
+    ///
+    /// # Arguments
+    /// *  `pos` - The starting position.
+    /// *  `matrix` - The target matrix.
+    /// *  `value` - The value with which to fill.
+    pub fn fill<F, I>(&mut self, pos: Pos, value: T, neighbors: F) -> usize
+    where
+        F: Fn(Pos) -> I,
+        I: Iterator<Item = Pos>,
+    {
+        // Cancel immediately if the position is outside of the matrix
+        if !self.is_inside(pos) {
+            return 0;
+        }
+
+        // Mark the initial room
+        let mut result = 1;
+        self[pos] = value;
+
+        // Keep track of where we have been
+        let mut path = vec![pos];
+
+        // Traverse the rooms depth first
+        while !path.is_empty() {
+            let current = path[path.len() - 1];
+            if let Some(next) = neighbors(current)
+                .flat_map(|pos| {
+                    self.get(pos).and_then(|&v| {
+                        if v != value {
+                            Some(pos)
+                        } else {
+                            None
+                        }
+                    })
+                })
+                .next()
+            {
+                result += 1;
+                self[next] = value;
+                path.push(next);
+            } else {
+                path.pop();
+            }
+        }
+
+        result
+    }
+}
+
+impl<T> Matrix<T>
+where
     T: std::ops::AddAssign + Clone + Copy + Default,
 {
     /// Adds another matrix to this one.
@@ -614,6 +679,72 @@ mod test {
         let (index, rel) = super::partition(-1.2);
         assert_eq!(index, -2);
         assert!((rel - 0.8).abs() < 0.0001);
+    }
+
+    #[test]
+    fn fill_closed() {
+        let mut matrix = Matrix::new(10, 10);
+        for pos in matrix.positions() {
+            matrix[pos] = if pos.col == 0 && pos.row == 0 { 0 } else { 1 };
+        }
+        let count = 1;
+        let filled = matrix
+            .fill(Pos { col: 0, row: 0 }.into(), 1, |_| [].iter().cloned());
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(1, matrix[pos]);
+        }
+    }
+
+    #[test]
+    fn fill_open() {
+        let mut matrix = Matrix::new(10, 10);
+        let count = matrix.width * matrix.height;
+        let filled =
+            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(1, matrix[pos]);
+        }
+    }
+
+    #[test]
+    fn fill_semiopen() {
+        let mut matrix = Matrix::new(10, 10);
+        let filter = |pos: Pos| pos.col >= pos.row;
+        for pos in matrix.positions() {
+            matrix[pos] = if filter(pos) { 0 } else { 1 };
+        }
+        let count = matrix.values().filter(|&v| v == 0).count();
+        let filled =
+            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(1, matrix[pos]);
+        }
+    }
+
+    #[test]
+    fn fill_separated() {
+        let mut matrix = Matrix::new(10, 10);
+        let filter = |pos: Pos| pos.col < 2 || pos.col >= 8;
+        for pos in matrix.positions() {
+            matrix[pos] = if filter(pos) { 0 } else { 1 };
+        }
+        let count = matrix.height * 2;
+        let filled =
+            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(
+                if filter(pos) && pos.col >= 2 { 0 } else { 1 },
+                matrix[pos],
+            );
+        }
     }
 
     /// Generates the positions of all neighbouring cells.

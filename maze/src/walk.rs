@@ -15,8 +15,8 @@ impl Maze {
     /// finish, including `from` and ` to`.
     ///
     /// # Arguments
-    /// * `from` - The starting position.
-    /// * `to` - The desired goal.
+    /// *  `from` - The starting position.
+    /// *  `to` - The desired goal.
     pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path> {
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
@@ -91,7 +91,7 @@ impl Maze {
     /// the starting wall is encountered, no more walls will be returned.
     ///
     /// # Arguments
-    /// * `wall_pos` - The starting wall position.
+    /// *  `wall_pos` - The starting wall position.
     pub fn follow_wall<'a>(
         &'a self,
         wall_pos: WallPos,
@@ -206,7 +206,7 @@ impl<'a> Follower<'a> {
     /// method will yield walls clockwise inside a cavity in the maze.
     ///
     /// # Arguments
-    /// * `wall_pos`- The wall position for which to retrieve a room.
+    /// *  `wall_pos`- The wall position for which to retrieve a room.
     fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
         let all = self.maze.all_walls();
         let back = self.maze.back(wall_pos);

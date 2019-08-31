@@ -38,8 +38,8 @@ impl Renderer for BackgroundRenderer {
     /// This action will use an image to sample the background colour of rooms.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
-    /// * `group` - The group to which to add the rooms.
+    /// *  `maze` - The maze.
+    /// *  `group` - The group to which to add the rooms.
     fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();

@@ -4,8 +4,8 @@ use super::*;
 /// considered equal.
 ///
 /// # Arguments
-/// * `expected` - The expected location.
-/// * `actual` - Another location.
+/// *  `expected` - The expected location.
+/// *  `actual` - Another location.
 pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
     let d = (expected.x - actual.x, expected.y - actual.y);
     (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001

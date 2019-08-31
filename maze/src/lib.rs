@@ -64,7 +64,7 @@ impl Maze {
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
+    /// *  `wall_pos` - The wall position.
     pub fn is_open(&self, wall_pos: WallPos) -> bool {
         match self.rooms.get(wall_pos.0) {
             Some(room) => room.is_open(wall_pos.1),
@@ -98,8 +98,8 @@ impl Maze {
     /// they are the same room.
     ///
     /// # Arguments
-    /// * `pos1` - The first room.
-    /// * `pos2` - The second room.
+    /// *  `pos1` - The first room.
+    /// *  `pos2` - The second room.
     pub fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
         if pos1 == pos2 {
             true
@@ -116,8 +116,8 @@ impl Maze {
     /// Sets whether a wall is open.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
-    /// * `value` - Whether to open the wall.
+    /// *  `wall_pos` - The wall position.
+    /// *  `value` - Whether to open the wall.
     pub fn set_open(&mut self, wall_pos: WallPos, value: bool) {
         // First modify the requested wall...
         if let Some(room) = self.rooms.get_mut(wall_pos.0) {
@@ -134,7 +134,7 @@ impl Maze {
     /// Opens a wall.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
+    /// *  `wall_pos` - The wall position.
     pub fn open(&mut self, wall_pos: WallPos) {
         self.set_open(wall_pos, true);
     }
@@ -142,7 +142,7 @@ impl Maze {
     /// Closes a wall.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
+    /// *  `wall_pos` - The wall position.
     pub fn close(&mut self, wall_pos: WallPos) {
         self.set_open(wall_pos, false);
     }
@@ -155,8 +155,8 @@ impl Maze {
     /// Returns the physical positions of the two corners of a wall.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
-    /// * `wall` - The wall.
+    /// *  `pos` - The matrix position.
+    /// *  `wall` - The wall.
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
         let center = self.center(wall_pos.0);
         (
@@ -179,7 +179,7 @@ impl Maze {
     /// from the previous.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
+    /// *  `wall_pos` - The wall position.
     pub fn corner_walls(
         &self,
         wall_pos: WallPos,
@@ -266,7 +266,7 @@ pub type HeatMap = matrix::Matrix<u32>;
 /// Any position pairs with no path between them will be ignored.
 ///
 /// # Arguments
-/// * `positions` - The positions as the tuple `(from, to)`. These are used as
+/// *  `positions` - The positions as the tuple `(from, to)`. These are used as
 ///   positions between which to walk.
 pub fn heatmap<I>(maze: &crate::Maze, positions: I) -> HeatMap
 where

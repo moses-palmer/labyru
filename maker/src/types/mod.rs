@@ -196,7 +196,7 @@ impl HeatMapType {
     /// Generates a heat map based on this heat map type.
     ///
     /// # Arguments
-    /// * `maze` - The maze for which to generate a heat map.
+    /// *  `maze` - The maze for which to generate a heat map.
     pub fn generate(&self, maze: &maze::Maze) -> maze::matrix::Matrix<u32> {
         match *self {
             HeatMapType::Vertical => self.create_heatmap(
@@ -250,8 +250,8 @@ impl HeatMapType {
     /// Generates a heat map for a maze and an iteration of positions.
     ///
     /// # Arguments
-    /// * `maze` - The maze for which to generate a heat map.
-    /// * `positions` - The positions for which to generate a heat map. These
+    /// *  `maze` - The maze for which to generate a heat map.
+    /// *  `positions` - The positions for which to generate a heat map. These
     ///   will be generated from the heat map type.
     fn create_heatmap<I>(
         &self,
@@ -277,8 +277,8 @@ impl HeatMapType {
 /// Draws all rooms of a maze.
 ///
 /// # Arguments
-/// * `maze` - The maze to draw.
-/// * `colors` - A function determining the colour of a room.
+/// *  `maze` - The maze to draw.
+/// *  `colors` - A function determining the colour of a room.
 pub fn draw_rooms<F>(maze: &maze::Maze, colors: F) -> svg::node::element::Group
 where
     F: Fn(maze::matrix::Pos) -> Color,

@@ -12,8 +12,8 @@ impl Renderer for SolveRenderer {
     /// Renders the maze solution.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
-    /// * `group` - The group to which to add the solution.
+    /// *  `maze` - The maze.
+    /// *  `group` - The group to which to add the solution.
     fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
         group.append(
             svg::node::element::Path::new()

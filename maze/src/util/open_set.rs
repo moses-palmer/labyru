@@ -26,8 +26,8 @@ impl OpenSet {
     /// Adds a position with a priority.
     ///
     /// # Arguments
-    /// `priority` - The priority of the position.
-    /// `pos` - The position.
+    /// *  priority` - The priority of the position.
+    /// *  pos` - The position.
     pub fn push(&mut self, priority: isize, pos: matrix::Pos) {
         self.heap.push((priority, pos));
     }
@@ -43,7 +43,7 @@ impl OpenSet {
     /// Checks whether a position is in the set.
     ///
     /// # Arguments
-    /// `pos` - The position.
+    /// *  `pos` - The position.
     pub fn contains(&mut self, pos: matrix::Pos) -> bool {
         // TODO: Allow constant lookup time
         self.heap.iter().any(|&priority_pos| pos == priority_pos.1)

@@ -66,8 +66,8 @@ where
     /// Creates a new matrix with the specified dimensions.
     ///
     /// # Arguments
-    /// * `width` - The width of the matrix.
-    /// * `height` - The height of the matrix.
+    /// *  `width` - The width of the matrix.
+    /// *  `height` - The height of the matrix.
     pub fn new(width: usize, height: usize) -> Self {
         Self {
             width,
@@ -79,7 +79,7 @@ where
     /// Determines whether a position is inside of the matrix.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
+    /// *  `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
         pos.col >= 0
             && pos.row >= 0
@@ -90,7 +90,7 @@ where
     /// Retrieves a reference to the value at a specific position if it exists.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
+    /// *  `pos` - The matrix position.
     pub fn get(&self, pos: Pos) -> Option<&T> {
         if self.is_inside(pos) {
             Some(&self.data[(pos.col + pos.row * self.width as isize) as usize])
@@ -103,7 +103,7 @@ where
     /// exists.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
+    /// *  `pos` - The matrix position.
     pub fn get_mut(&mut self, pos: Pos) -> Option<&mut T> {
         if self.is_inside(pos) {
             Some(
@@ -137,7 +137,7 @@ where
     /// with every value mapped through the mapper.
     ///
     /// # Arguments
-    /// * `mapper` - The mapping function.
+    /// *  `mapper` - The mapping function.
     pub fn map<F, S>(&self, mapper: F) -> Matrix<S>
     where
         F: Fn(T) -> S,
@@ -277,7 +277,7 @@ where
     /// will be added.
     ///
     /// # Arguments
-    /// * `other` - The matrix to add.
+    /// *  `other` - The matrix to add.
     pub fn add(mut self, other: Self) -> Self {
         let width = std::cmp::min(self.width, other.width);
         let height = std::cmp::min(self.height, other.height);
@@ -312,8 +312,8 @@ impl PosIterator {
     /// Creates a new position iterator.
     ///
     /// # Arguments
-    /// * `width` - The width of the matrix.
-    /// * `height` - The height of the matrix.
+    /// *  `width` - The width of the matrix.
+    /// *  `height` - The height of the matrix.
     pub fn new(width: usize, height: usize) -> Self {
         Self {
             width,
@@ -359,7 +359,7 @@ where
     /// Creates a new position iterator.
     ///
     /// # Arguments
-    /// * `matrix` - The matrix.
+    /// *  `matrix` - The matrix.
     pub fn new(matrix: &'a Matrix<T>) -> Self {
         Self {
             matrix,
@@ -393,7 +393,7 @@ where
     /// Retrieves a reference to the value at a specific position.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
+    /// *  `pos` - The matrix position.
     ///
     /// # Panics
     /// Accessing a cell where [is_inside](#method.is_inside) returns `false`
@@ -414,7 +414,7 @@ where
     /// Retrieves a mutable reference to the value at a specific position.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
+    /// *  `pos` - The matrix position.
     ///
     /// # Panics
     /// Accessing a cell where [is_inside](#method.is_inside) returns `false`

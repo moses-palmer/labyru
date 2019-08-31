@@ -62,7 +62,7 @@ impl Wall {
     /// Normalises an angle to be in the bound _[0, 2𝜋)_.
     ///
     /// # Arguments
-    /// * `angle` - The angle to normalise.
+    /// *  `angle` - The angle to normalise.
     pub fn normalized_angle(angle: f32) -> f32 {
         if angle < RADIAN_BOUND && angle >= 0.0 {
             angle
@@ -81,7 +81,7 @@ impl Wall {
     /// The angle will be normalised.
     ///
     /// # Arguments
-    /// * `angle` - The angle in radians.
+    /// *  `angle` - The angle in radians.
     pub fn in_span(&self, angle: f32) -> bool {
         let normalized = Wall::normalized_angle(angle);
 

@@ -235,7 +235,7 @@ impl From<Operation> for Command {
 /// The center of a wall is the point between its corners.
 ///
 /// # Arguments
-/// * `wall_pos` - The wall position.
+/// *  `wall_pos` - The wall position.
 fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
     let (corner1, corner2) = maze.corners(wall_pos);
     physical::Pos {
@@ -248,8 +248,8 @@ fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
 /// distance to another wall.
 ///
 /// # Arguments
-/// * `from` - The wall position.
-/// * `to` - The next wall position from which distances are calculated.
+/// *  `from` - The wall position.
+/// *  `to` - The next wall position from which distances are calculated.
 fn corners(
     maze: &Maze,
     from: WallPos,

@@ -93,7 +93,7 @@ where
 }
 
 /// A linear feedback shift register.
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Eq, Serialize, PartialEq)]
 pub struct LFSR(u64);
 
 impl LFSR {

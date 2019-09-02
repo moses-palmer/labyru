@@ -1,3 +1,4 @@
+use rand;
 use rocket::http;
 use rocket::request;
 use serde::Deserialize;
@@ -10,6 +11,14 @@ use maze::initialize;
 pub struct Seed {
     /// The LFSR initialised with the seed.
     lfsr: initialize::LFSR,
+}
+
+impl Seed {
+    pub fn random() -> Self {
+        Self {
+            lfsr: initialize::LFSR::new(rand::random()),
+        }
+    }
 }
 
 impl<'a> request::FromFormValue<'a> for Seed {

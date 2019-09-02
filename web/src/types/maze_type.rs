@@ -2,8 +2,11 @@ use rocket::http;
 use rocket::request;
 
 use maze;
+use serde::Deserialize;
 
 /// A maze type, convertible from a query string.
+#[derive(Deserialize)]
+#[serde(transparent)]
 pub struct MazeType(maze::Shape);
 
 impl MazeType {

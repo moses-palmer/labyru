@@ -1,24 +1,34 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
-use rocket::{get, routes};
+use actix_web::{get, web, App, HttpServer, Responder};
+use serde::Deserialize;
 
 mod types;
 
-#[get("/<maze_type>/<dimensions>/image.svg?<seed>&<solve>")]
+#[derive(Deserialize)]
+struct Query {
+    seed: Option<types::Seed>,
+    solve: Option<bool>,
+}
+#[get("/{maze_type}/{dimensions}/image.svg")]
 fn maze_svg(
-    maze_type: types::MazeType,
-    dimensions: types::Dimensions,
-    seed: types::Seed,
-    solve: bool,
-) -> types::Maze {
+    (path, query): (
+        web::Path<(types::MazeType, types::Dimensions)>,
+        web::Query<Query>,
+    ),
+) -> impl Responder {
+    let (maze_type, dimensions) = path.into_inner();
+    let Query { seed, solve } = query.into_inner();
     types::Maze {
         maze_type,
         dimensions,
-        seed,
-        solve,
+        seed: seed.unwrap_or_else(|| types::Seed::random()),
+        solve: solve.unwrap_or(false),
     }
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![maze_svg]).launch();
+    HttpServer::new(|| App::new().service(maze_svg))
+        .bind("127.0.0.1:8000")
+        .unwrap()
+        .run()
+        .unwrap();
 }

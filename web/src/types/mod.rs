@@ -1,7 +1,4 @@
-use std::io;
-
-use rocket::http;
-use rocket::response;
+use actix_web::{error, Error, HttpRequest, HttpResponse, Responder};
 use svg::Node;
 
 use maze::initialize;
@@ -25,20 +22,23 @@ pub struct Maze {
     pub solve: bool,
 }
 
-impl<'a> response::Responder<'a> for Maze {
-    fn respond_to(self, _request: &rocket::Request) -> response::Result<'a> {
+impl Responder for Maze {
+    type Error = Error;
+    type Future = Result<HttpResponse, Error>;
+
+    fn respond_to(self, _req: &HttpRequest) -> Self::Future {
         let room_count = self.dimensions.width * self.dimensions.height;
         if room_count > MAX_ROOMS {
-            rocket::Response::build()
-                .status(http::Status::InsufficientStorage)
-                .ok()
+            Err(error::ErrorInsufficientStorage(
+                "the requested maze is too large",
+            ))
         } else {
-            self.into()
+            Ok(self.into())
         }
     }
 }
 
-impl<'a> From<Maze> for response::Result<'a> {
+impl From<Maze> for HttpResponse {
     fn from(mut source: Maze) -> Self {
         let maze = source
             .maze_type
@@ -71,9 +71,6 @@ impl<'a> From<Maze> for response::Result<'a> {
             .set("viewBox", maze.viewbox())
             .add(container)
             .to_string();
-        rocket::Response::build()
-            .sized_body(io::Cursor::new(data))
-            .header(http::ContentType::SVG)
-            .ok()
+        HttpResponse::Ok().content_type("image/svg+xml").body(data)
     }
 }

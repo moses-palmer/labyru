@@ -1,6 +1,4 @@
 use rand;
-use rocket::http;
-use rocket::request;
 use serde::Deserialize;
 
 use maze::initialize;
@@ -18,24 +16,6 @@ impl Seed {
         Self {
             lfsr: initialize::LFSR::new(rand::random()),
         }
-    }
-}
-
-impl<'a> request::FromFormValue<'a> for Seed {
-    type Error = &'a http::RawStr;
-
-    fn from_form_value(
-        form_value: &'a http::RawStr,
-    ) -> Result<Self, Self::Error> {
-        let seed = form_value.parse::<u64>().map_err(|_| form_value)?;
-        let lfsr = initialize::LFSR::new(seed);
-        Ok(Self { lfsr })
-    }
-
-    fn default() -> Option<Self> {
-        Some(Self {
-            lfsr: initialize::LFSR::new(rand::random()),
-        })
     }
 }
 

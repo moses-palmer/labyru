@@ -9,4 +9,9 @@ maze = { path = "../maze" }
 actix-web = { version = "1.0" }
 rand = { version = "0.4" }
 rocket = "0.4.2"
+serde = { version = "*" }
 svg = { version = "0.5" }
+
+
+[dev-dependencies]
+serde_urlencoded = { version = "*" }

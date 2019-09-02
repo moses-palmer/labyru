@@ -928,6 +928,8 @@ dependencies = [
  "maze 0.1.0",
  "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.97 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_urlencoded 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

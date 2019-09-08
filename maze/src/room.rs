@@ -53,6 +53,11 @@ impl Room {
     pub fn close(&mut self, wall: &'static wall::Wall) {
         self.walls &= !wall.mask();
     }
+
+    /// Returns the number of open walls.
+    pub fn open_walls(&self) -> usize {
+        self.walls.count_ones() as usize
+    }
 }
 
 pub type Rooms = matrix::Matrix<Room>;

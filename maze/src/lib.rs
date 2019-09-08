@@ -72,6 +72,26 @@ impl Maze {
         }
     }
 
+    /// Finds the wall connecting two rooms, and if it exists, returns it.
+    ///
+    /// # Arguments
+    /// *  `pos1` - The first room position. The returned wall position will be
+    ///    in this room.
+    /// *  `pos2` - The second room position.
+    pub fn connecting_wall(
+        &self,
+        pos1: matrix::Pos,
+        pos2: matrix::Pos,
+    ) -> Option<WallPos> {
+        self.walls(pos1)
+            .iter()
+            .find(|wall| {
+                (pos1.col + wall.dir.0 == pos2.col)
+                    && (pos1.row + wall.dir.1 == pos2.row)
+            })
+            .map(|&wall| (pos1, wall))
+    }
+
     /// Returns whether two rooms are connected.
     ///
     /// Two rooms are connected if there is an open wall between them, or if
@@ -204,6 +224,22 @@ impl Maze {
             .iter()
             .filter(move |&wall| self.is_open((pos, wall)))
             .copied()
+    }
+
+    /// Iterates over all adjacent rooms.
+    ///
+    /// This method will list rooms outside of the maze for rooms on the edge.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn adjacent<'a>(
+        &'a self,
+        pos: matrix::Pos,
+    ) -> impl Iterator<Item = matrix::Pos> + 'a {
+        self.walls(pos).iter().map(move |&wall| matrix::Pos {
+            col: pos.col + wall.dir.0,
+            row: pos.row + wall.dir.1,
+        })
     }
 
     /// Iterates over all reachble neighbours of a room.
@@ -341,6 +377,29 @@ mod tests {
     }
 
     #[maze_test]
+    fn connecting_wall_correct(maze: Maze) {
+        for pos in maze.rooms().positions() {
+            for &wall in maze.walls(pos) {
+                assert!(maze
+                    .connecting_wall(
+                        pos,
+                        matrix::Pos {
+                            col: pos.col - 3,
+                            row: pos.row - 3
+                        }
+                    )
+                    .is_none());
+                let wall_pos = (pos, wall);
+                let other = matrix::Pos {
+                    col: pos.col + wall.dir.0,
+                    row: pos.row + wall.dir.1,
+                };
+                assert_eq!(Some(wall_pos), maze.connecting_wall(pos, other));
+            }
+        }
+    }
+
+    #[maze_test]
     fn connected_correct(mut maze: Maze) {
         for pos in maze.rooms.positions() {
             assert!(maze.connected(pos, pos))
@@ -384,6 +443,18 @@ mod tests {
             .collect::<Vec<_>>();
         walls.iter().for_each(|wall| maze.open((pos, wall)));
         assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
+    }
+
+    #[maze_test]
+    fn adjacent(maze: Maze) {
+        for pos1 in maze.rooms().positions() {
+            for pos2 in maze.rooms.positions() {
+                assert!(
+                    maze.connecting_wall(pos1, pos2).is_some()
+                        == maze.adjacent(pos1).find(|&p| pos2 == p).is_some()
+                );
+            }
+        }
     }
 
     #[maze_test]

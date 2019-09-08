@@ -1,4 +1,7 @@
 use std;
+use std::collections::hash_map;
+use std::collections::hash_set;
+use std::hash;
 
 use serde::{Deserialize, Serialize};
 
@@ -150,7 +153,124 @@ where
     }
 }
 
-pub trait AddableMatrix<T> {
+impl<T> Matrix<T>
+where
+    T: Copy + Default + Eq + PartialEq + PartialOrd + hash::Hash,
+{
+    /// Finds all edges between areas with different values.
+    ///
+    /// The return value is a mapping from source area value and destination
+    /// area value to a set of matrix positions with connections.
+    ///
+    /// The keys will have the least area value as its first value.
+    ///
+    /// For a uniform matrix, this method will return an empty set.
+    ///
+    /// # Arguments
+    /// *  `neightbors` - A function returning neighbours to consider for each
+    ///    cell.
+    pub fn edges<F, I>(
+        &self,
+        neighbors: F,
+    ) -> hash_map::HashMap<(T, T), hash_set::HashSet<(Pos, Pos)>>
+    where
+        F: Fn(Pos) -> I,
+        I: Iterator<Item = Pos>,
+    {
+        self.positions()
+            .fold(hash_map::HashMap::new(), |mut acc, p1| {
+                neighbors(p1)
+                    .filter(|&p2| self.is_inside(p2))
+                    .flat_map(|p2| {
+                        let k1 = self[p1];
+                        let k2 = self[p2];
+                        if k1 < k2 {
+                            Some(((k1, k2), (p1, p2)))
+                        } else if k2 < k1 {
+                            Some(((k2, k1), (p2, p1)))
+                        } else {
+                            None
+                        }
+                    })
+                    .for_each(|(k, v)| {
+                        acc.entry(k)
+                            .or_insert_with(hash_set::HashSet::new)
+                            .insert(v);
+                    });
+                acc
+            })
+    }
+}
+
+impl<T> Matrix<T>
+where
+    T: Clone + Copy + Default + PartialEq,
+{
+    /// Fills all rooms reachable from `pos` in `matrix` with the value
+    /// `value`.
+    ///
+    /// Filling will start at `pos`, and `neighbors` will be used to find the
+    /// next cells. Any cell with the value `value` is ignored; thus, if all
+    /// neighbours of `pos` already have the value `value`, filling will stop
+    /// immediately.
+    ///
+    /// If `pos` has the value `value`, however, filling may proceed with
+    /// neighbours.
+    ///
+    /// The number of filled rooms is returned.
+    ///
+    /// # Arguments
+    /// *  `pos` - The starting position.
+    /// *  `matrix` - The target matrix.
+    /// *  `value` - The value with which to fill.
+    pub fn fill<F, I>(&mut self, pos: Pos, value: T, neighbors: F) -> usize
+    where
+        F: Fn(Pos) -> I,
+        I: Iterator<Item = Pos>,
+    {
+        // Cancel immediately if the position is outside of the matrix
+        if !self.is_inside(pos) {
+            return 0;
+        }
+
+        // Mark the initial room
+        let mut result = 1;
+        self[pos] = value;
+
+        // Keep track of where we have been
+        let mut path = vec![pos];
+
+        // Traverse the rooms depth first
+        while !path.is_empty() {
+            let current = path[path.len() - 1];
+            if let Some(next) = neighbors(current)
+                .flat_map(|pos| {
+                    self.get(pos).and_then(|&v| {
+                        if v != value {
+                            Some(pos)
+                        } else {
+                            None
+                        }
+                    })
+                })
+                .next()
+            {
+                result += 1;
+                self[next] = value;
+                path.push(next);
+            } else {
+                path.pop();
+            }
+        }
+
+        result
+    }
+}
+
+impl<T> Matrix<T>
+where
+    T: std::ops::AddAssign + Clone + Copy + Default,
+{
     /// Adds another matrix to this one.
     ///
     /// If the matrices are of different dimensions, only the overlapping parts
@@ -158,14 +278,7 @@ pub trait AddableMatrix<T> {
     ///
     /// # Arguments
     /// * `other` - The matrix to add.
-    fn add(self, other: Self) -> Self;
-}
-
-impl<T> AddableMatrix<T> for Matrix<T>
-where
-    T: std::ops::AddAssign + Clone + Copy + Default,
-{
-    fn add(mut self, other: Self) -> Self {
+    pub fn add(mut self, other: Self) -> Self {
         let width = std::cmp::min(self.width, other.width);
         let height = std::cmp::min(self.height, other.height);
         for row in 0..height {
@@ -394,6 +507,126 @@ mod test {
     }
 
     #[test]
+    fn edges_none() {
+        let matrix = Matrix::<u8>::new(3, 3);
+        assert_eq!(hash_map::HashMap::new(), matrix.edges(all_neighbors));
+    }
+
+    #[test]
+    fn edges_simple() {
+        let mut matrix = Matrix::<u8>::new(3, 3);
+        for pos in matrix.positions() {
+            match pos.col % 3 {
+                0 | 1 => matrix[pos] = 1,
+                _ => matrix[pos] = 2,
+            }
+        }
+
+        assert_eq!(
+            [(
+                (1, 2),
+                &[
+                    ((1isize, 0isize), (2isize, 0isize)),
+                    ((1isize, 1isize), (2isize, 1isize)),
+                    ((1isize, 2isize), (2isize, 2isize))
+                ]
+            )]
+            .iter()
+            .map(|(areas, positions)| (
+                areas.clone(),
+                positions
+                    .iter()
+                    .cloned()
+                    .map(|(p1, p2)| (p1.into(), p2.into()))
+                    .collect::<hash_set::HashSet<_>>(),
+            ))
+            .collect::<hash_map::HashMap<_, _>>(),
+            matrix.edges(all_neighbors),
+        );
+    }
+
+    #[test]
+    fn edges_many() {
+        let mut matrix = Matrix::<u8>::new(3, 3);
+        for pos in matrix.positions() {
+            match pos.col % 3 {
+                0 => matrix[pos] = 1,
+                1 => matrix[pos] = 2,
+                _ => matrix[pos] = 3,
+            }
+        }
+
+        assert_eq!(
+            [
+                (
+                    (1, 2),
+                    &[
+                        ((0isize, 0isize), (1isize, 0isize)),
+                        ((0isize, 1isize), (1isize, 1isize)),
+                        ((0isize, 2isize), (1isize, 2isize))
+                    ]
+                ),
+                (
+                    (2, 3),
+                    &[
+                        ((1isize, 0isize), (2isize, 0isize)),
+                        ((1isize, 1isize), (2isize, 1isize)),
+                        ((1isize, 2isize), (2isize, 2isize))
+                    ]
+                )
+            ]
+            .iter()
+            .map(|(areas, positions)| (
+                areas.clone(),
+                positions
+                    .iter()
+                    .cloned()
+                    .map(|(p1, p2)| (p1.into(), p2.into()))
+                    .collect::<hash_set::HashSet<_>>(),
+            ))
+            .collect::<hash_map::HashMap<_, _>>(),
+            matrix.edges(all_neighbors),
+        );
+    }
+
+    #[test]
+    fn edges_nonuniform() {
+        let mut matrix = Matrix::<u8>::new(5, 5);
+        for pos in matrix.positions() {
+            if (pos.col - 3).abs() < 2 && (pos.row - 3).abs() < 2 {
+                matrix[pos] = 0;
+            } else {
+                matrix[pos] = 1;
+            }
+        }
+
+        assert_eq!(
+            [(
+                (0, 1),
+                &[
+                    ((2isize, 2isize), (1isize, 2isize)),
+                    ((2isize, 2isize), (2isize, 1isize)),
+                    ((2isize, 3isize), (1isize, 3isize)),
+                    ((2isize, 4isize), (1isize, 4isize)),
+                    ((3isize, 2isize), (3isize, 1isize)),
+                    ((4isize, 2isize), (4isize, 1isize)),
+                ]
+            ),]
+            .iter()
+            .map(|(areas, positions)| (
+                areas.clone(),
+                positions
+                    .iter()
+                    .cloned()
+                    .map(|(p1, p2)| (p1.into(), p2.into()))
+                    .collect::<hash_set::HashSet<_>>(),
+            ))
+            .collect::<hash_map::HashMap<_, _>>(),
+            matrix.edges(all_neighbors),
+        );
+    }
+
+    #[test]
     fn filter_none() {
         let width = 5;
         let height = 5;
@@ -448,4 +681,95 @@ mod test {
         assert!((rel - 0.8).abs() < 0.0001);
     }
 
+    #[test]
+    fn fill_closed() {
+        let mut matrix = Matrix::new(10, 10);
+        for pos in matrix.positions() {
+            matrix[pos] = if pos.col == 0 && pos.row == 0 { 0 } else { 1 };
+        }
+        let count = 1;
+        let filled = matrix
+            .fill(Pos { col: 0, row: 0 }.into(), 1, |_| [].iter().cloned());
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(1, matrix[pos]);
+        }
+    }
+
+    #[test]
+    fn fill_open() {
+        let mut matrix = Matrix::new(10, 10);
+        let count = matrix.width * matrix.height;
+        let filled =
+            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(1, matrix[pos]);
+        }
+    }
+
+    #[test]
+    fn fill_semiopen() {
+        let mut matrix = Matrix::new(10, 10);
+        let filter = |pos: Pos| pos.col >= pos.row;
+        for pos in matrix.positions() {
+            matrix[pos] = if filter(pos) { 0 } else { 1 };
+        }
+        let count = matrix.values().filter(|&v| v == 0).count();
+        let filled =
+            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(1, matrix[pos]);
+        }
+    }
+
+    #[test]
+    fn fill_separated() {
+        let mut matrix = Matrix::new(10, 10);
+        let filter = |pos: Pos| pos.col < 2 || pos.col >= 8;
+        for pos in matrix.positions() {
+            matrix[pos] = if filter(pos) { 0 } else { 1 };
+        }
+        let count = matrix.height * 2;
+        let filled =
+            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+        assert_eq!(count, filled);
+
+        for pos in matrix.positions() {
+            assert_eq!(
+                if filter(pos) && pos.col >= 2 { 0 } else { 1 },
+                matrix[pos],
+            );
+        }
+    }
+
+    /// Generates the positions of all neighbouring cells.
+    ///
+    /// # Arguments
+    /// *  `pos` - The cell position for which to generate neighbours.
+    fn all_neighbors(pos: Pos) -> impl Iterator<Item = Pos> {
+        vec![
+            Pos {
+                col: pos.col,
+                row: pos.row - 1,
+            },
+            Pos {
+                col: pos.col - 1,
+                row: pos.row,
+            },
+            Pos {
+                col: pos.col + 1,
+                row: pos.row,
+            },
+            Pos {
+                col: pos.col,
+                row: pos.row + 1,
+            },
+        ]
+        .into_iter()
+    }
 }

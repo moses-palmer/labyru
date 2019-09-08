@@ -11,6 +11,7 @@ use crate::Maze;
 
 use crate::matrix;
 
+mod braid;
 mod clear;
 mod depth_first;
 mod randomized_prim;
@@ -18,6 +19,14 @@ mod randomized_prim;
 /// The various supported initialisation method.
 #[derive(Copy, Clone, Debug, Hash, PartialEq)]
 pub enum Method {
+    /// Initialises a maze with no dead ends.
+    ///
+    /// A dead end is a room with only one open wall.
+    ///
+    /// This method starts with a fully cleared area, and adds walls until no
+    /// longer possible without creating dead ends.
+    Braid,
+
     /// Initialises a maze by opening all walls inside the area.
     Clear,
 
@@ -53,6 +62,7 @@ impl str::FromStr for Method {
 
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         match source {
+            "braid" => Ok(Method::Braid),
             "clear" => Ok(Method::Clear),
             "branching" => Ok(Method::Branching),
             "winding" => Ok(Method::Winding),
@@ -184,6 +194,7 @@ impl Maze {
         R: Randomizer + Sized,
     {
         match method {
+            Method::Braid => braid::initialize(self, rng, filter),
             Method::Clear => clear::initialize(self, rng, filter),
             Method::Branching => randomized_prim::initialize(self, rng, filter),
             Method::Winding => depth_first::initialize(self, rng, filter),
@@ -214,6 +225,49 @@ fn random_room(
     }
 }
 
+/// Ensures all rooms are connected
+///
+/// This function will find all closed areas and ensure they have one exit to
+/// each neighbouring area.
+///
+/// # Arguments
+/// *  `maze` - The maze to modify.
+/// *  `filter` - A filter for rooms to consider.
+pub fn connect_all<F, R>(maze: &mut Maze, rng: &mut R, filter: F)
+where
+    F: Fn(matrix::Pos) -> bool,
+    R: Randomizer + Sized,
+{
+    // First find all non-connected areas by visiting all rooms and filling for
+    // each filtered, non-filled room and the incrementing the area index
+    let mut areas = matrix::Matrix::new(maze.width(), maze.height());
+    let mut index = 0;
+    for pos in maze.rooms().positions() {
+        // Ignore filtered and already visited rooms
+        if !filter(pos) || areas[pos] > 0 {
+            continue;
+        } else {
+            index += 1;
+            areas.fill(pos, index, |pos| {
+                maze.neighbors(pos).filter(|&pos| filter(pos))
+            });
+        }
+    }
+
+    // Then find all edges between separate areas and open a random wall
+    for (_, edge) in areas
+        .edges(|pos| maze.adjacent(pos))
+        .iter()
+        .filter(|&((source, _), _)| source > &0)
+    {
+        let wall_positions = edge
+            .iter()
+            .flat_map(|&(pos1, pos2)| maze.connecting_wall(pos1, pos2))
+            .collect::<Vec<_>>();
+        maze.open(wall_positions[rng.range(0, wall_positions.len())])
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use maze_test::maze_test;
@@ -223,7 +277,8 @@ mod tests {
     use crate::*;
 
     /// The various initialisation methods tested.
-    const INITIALIZERS: &[Method] = &[Method::Branching, Method::Winding];
+    const INITIALIZERS: &[Method] =
+        &[Method::Braid, Method::Branching, Method::Winding];
 
     /// Tests that range works as advertised.
     #[test]

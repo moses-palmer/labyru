@@ -113,7 +113,7 @@ where
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut methods = vec![];
-        for method in s.split(",") {
+        for method in s.split(',') {
             methods.push(method.parse()?)
         }
 

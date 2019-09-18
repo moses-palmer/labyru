@@ -48,15 +48,11 @@ impl Maze {
     }
 
     /// Returns the width of the maze.
-    ///
-    /// This is short hand for `self.rooms.width()`.
     pub fn width(&self) -> usize {
         self.rooms.width
     }
 
     /// Returns the height of the maze.
-    ///
-    /// This is short hand for `self.rooms.height()`.
     pub fn height(&self) -> usize {
         self.rooms.height
     }
@@ -158,11 +154,6 @@ impl Maze {
     /// *  `wall_pos` - The wall position.
     pub fn close(&mut self, wall_pos: WallPos) {
         self.set_open(wall_pos, false);
-    }
-
-    /// Retrieves a reference to the underlying rooms.
-    pub fn rooms(&self) -> &room::Rooms {
-        &self.rooms
     }
 
     /// Returns an iterator over all rooms positions.

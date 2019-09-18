@@ -204,6 +204,99 @@ impl Maze {
     pub fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         dispatch!(self.shape => room_at(pos))
     }
+
+    /// Yields all rooms that are touched by the rectangle described.
+    ///
+    /// This method does not perform an exhaustive check; rather, only the
+    /// centre and all corners of rooms are considered, and all rooms for which
+    /// any of these points are inside of the rectangle are yielded.
+    ///
+    /// This, a small rectangle inside a room, but not touching the centre nor
+    /// any corner, will not match.
+    ///
+    /// # Arguments
+    /// *  `center` - The centre of the rectangle.
+    /// *  `width` - The width of the rectangle. The absolute value will be
+    ///    used.
+    /// *  `height` - The height of the rectangle. The absolute value will be
+    ///    used.
+    pub fn rooms_touched_by(
+        &self,
+        center: physical::Pos,
+        width: f32,
+        height: f32,
+    ) -> Vec<matrix::Pos> {
+        let dx = (width * 0.5).abs();
+        let dy = (height * 0.5).abs();
+        let top = center.y - dy;
+        let left = center.x - dx;
+        let bottom = center.y + dy;
+        let right = center.x + dx;
+        let start = self.room_at(center);
+
+        let mut result = Vec::new();
+        let mut distance = 0;
+        loop {
+            let before = result.len();
+
+            // Add all rooms inside of the rectangle
+            result.extend(surround(start, distance).filter(|&pos| {
+                let center = self.center(pos);
+                (center.x >= left
+                    && center.y >= top
+                    && center.x <= right
+                    && center.y <= bottom)
+                    || self
+                        .walls(pos)
+                        .iter()
+                        .map(|wall| physical::Pos {
+                            x: center.x + wall.span.0.dx,
+                            y: center.y + wall.span.0.dy,
+                        })
+                        .any(|pos| {
+                            pos.x >= left
+                                && pos.y >= top
+                                && pos.x <= right
+                                && pos.y <= bottom
+                        })
+            }));
+
+            if result.len() == before {
+                break;
+            } else {
+                distance += 1;
+            }
+        }
+
+        result
+    }
+}
+
+/// Yields all positions with a horisontal or vertical distance of `distance`
+/// from `pos`.
+///
+/// # Arguments
+/// *  `pos` - The centre position.
+/// *  `distance` - The distance from the centre.
+pub fn surround(
+    pos: matrix::Pos,
+    distance: usize,
+) -> impl Iterator<Item = matrix::Pos> {
+    let distance = distance as isize;
+
+    // Generate iterators over the edges; let bottom filter to avoid adding the
+    // same row twice when distance == 0
+    let top = (pos.col - distance..pos.col + distance + 1)
+        .map(move |col| (col, pos.row - distance).into());
+    let bottom = (pos.col - distance..pos.col + distance + 1)
+        .filter(move |_| distance != 0)
+        .map(move |col| (col, pos.row + distance).into());
+    let left = (pos.row - distance + 1..pos.row + distance)
+        .map(move |row| (pos.col - distance, row).into());
+    let right = (pos.row - distance + 1..pos.row + distance)
+        .map(move |row| (pos.col + distance, row).into());
+
+    top.chain(bottom).chain(left).chain(right)
 }
 
 pub mod hex;
@@ -212,9 +305,43 @@ pub mod tri;
 
 #[cfg(test)]
 mod tests {
+    use std::collections::hash_set;
+
     use maze_test::maze_test;
 
+    use super::*;
     use crate::*;
+
+    #[test]
+    fn surround_single() {
+        assert_eq!(
+            [(0isize, 0isize).into()]
+                .iter()
+                .cloned()
+                .collect::<hash_set::HashSet<matrix::Pos>>(),
+            surround((0isize, 0isize).into(), 0).collect(),
+        );
+    }
+
+    #[test]
+    fn surround_multiple() {
+        assert_eq!(
+            [
+                (-1isize, -1isize).into(),
+                (0isize, -1isize).into(),
+                (1isize, -1isize).into(),
+                (-1isize, 0isize).into(),
+                (1isize, 0isize).into(),
+                (-1isize, 1isize).into(),
+                (0isize, 1isize).into(),
+                (1isize, 1isize).into(),
+            ]
+            .iter()
+            .cloned()
+            .collect::<hash_set::HashSet<matrix::Pos>>(),
+            surround((0isize, 0isize).into(), 1).collect(),
+        );
+    }
 
     #[test]
     fn shape_from_str() {
@@ -256,5 +383,71 @@ mod tests {
                 assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
             }
         }
+    }
+
+    #[maze_test]
+    fn rooms_touched_by_for_center(maze: Maze) {
+        let (left, top, right, bottom) = maze
+            .positions()
+            .filter(|pos| pos.row == 0)
+            .map(|pos| maze.center(pos))
+            .fold(
+                (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN),
+                |(l, t, r, b), p| {
+                    (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
+                },
+            );
+        let center = physical::Pos {
+            x: (left + right) / 2.0,
+            y: (top + bottom) / 2.0,
+        };
+        let width = right - left;
+        let height = bottom - top;
+
+        assert_eq!(
+            maze.positions()
+                .filter(|pos| pos.row == 0)
+                .collect::<hash_set::HashSet<_>>(),
+            maze.rooms_touched_by(center, width, height)
+                .into_iter()
+                .filter(|&pos| maze.is_inside(pos))
+                .collect::<hash_set::HashSet<_>>(),
+        );
+    }
+
+    #[maze_test]
+    fn rooms_touched_by_for_corners(maze: Maze) {
+        let (left, top, right, bottom) = maze
+            .positions()
+            .filter(|pos| pos.row == 0)
+            .flat_map(|pos| {
+                let center = maze.center(pos);
+                maze.walls(pos).iter().map(move |wall| physical::Pos {
+                    x: center.x + wall.span.0.dx,
+                    y: center.y + wall.span.0.dy,
+                })
+            })
+            .fold(
+                (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN),
+                |(l, t, r, b), p| {
+                    (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
+                },
+            );
+        let center = physical::Pos {
+            x: (left + right) / 2.0,
+            y: (top + bottom) / 2.0,
+        };
+        let width = right - left;
+        let height = bottom - top;
+
+        assert_eq!(
+            maze.positions()
+                .filter(|pos| pos.row == 0 || pos.row == 1)
+                .collect::<hash_set::HashSet<_>>(),
+            maze.rooms_touched_by(center, width, height)
+                .into_iter()
+                .filter(|&pos| maze.is_inside(pos))
+                .collect::<hash_set::HashSet<_>>(),
+        );
     }
 }

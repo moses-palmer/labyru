@@ -799,9 +799,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "maze"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
- "maze-test 0.1.0",
+ "maze-test 1.0.0",
  "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.100 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -809,12 +809,12 @@ dependencies = [
 
 [[package]]
 name = "maze-maker"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "image 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "maze 0.1.0",
- "maze-tools 0.1.0",
+ "maze 1.0.0",
+ "maze-tools 1.0.0",
  "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rayon 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "svg 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -822,22 +822,22 @@ dependencies = [
 
 [[package]]
 name = "maze-test"
-version = "0.1.0"
+version = "1.0.0"
 
 [[package]]
 name = "maze-tools"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "maze 0.1.0",
+ "maze 1.0.0",
 ]
 
 [[package]]
 name = "maze-web"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "actix-web 1.0.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "maze 0.1.0",
+ "maze 1.0.0",
  "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.100 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_urlencoded 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",

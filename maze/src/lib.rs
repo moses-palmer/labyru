@@ -165,6 +165,14 @@ impl Maze {
         &self.rooms
     }
 
+    /// Returns an iterator over all rooms positions.
+    ///
+    /// The positions are returned row by row, starting from `(0, 0)` and ending
+    /// with `(self.width() - 1, self.height - 1())`.
+    pub fn positions(&self) -> impl Iterator<Item = matrix::Pos> {
+        self.rooms.positions()
+    }
+
     /// Returns the physical positions of the two corners of a wall.
     ///
     /// # Arguments
@@ -386,7 +394,7 @@ mod tests {
 
     #[maze_test]
     fn walls_span(maze: Maze) {
-        for pos in maze.rooms.positions() {
+        for pos in maze.positions() {
             for wall in maze.walls(pos) {
                 let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
                 assert!(wall.in_span(wall.span.0 + d));
@@ -399,7 +407,7 @@ mod tests {
 
     #[maze_test]
     fn connecting_wall_correct(maze: Maze) {
-        for pos in maze.rooms().positions() {
+        for pos in maze.positions() {
             for &wall in maze.walls(pos) {
                 assert!(maze
                     .connecting_wall(
@@ -422,7 +430,7 @@ mod tests {
 
     #[maze_test]
     fn connected_correct(mut maze: Maze) {
-        for pos in maze.rooms.positions() {
+        for pos in maze.positions() {
             assert!(maze.connected(pos, pos))
         }
 
@@ -437,7 +445,7 @@ mod tests {
 
     #[maze_test]
     fn corner_walls(maze: Maze) {
-        for pos in maze.rooms.positions() {
+        for pos in maze.positions() {
             for wall in maze.walls(pos) {
                 let wall_pos = (pos, *wall);
                 let (center, _) = maze.corners(wall_pos);
@@ -468,8 +476,8 @@ mod tests {
 
     #[maze_test]
     fn adjacent(maze: Maze) {
-        for pos1 in maze.rooms().positions() {
-            for pos2 in maze.rooms.positions() {
+        for pos1 in maze.positions() {
+            for pos2 in maze.positions() {
                 assert!(
                     maze.connecting_wall(pos1, pos2).is_some()
                         == maze.adjacent(pos1).find(|&p| pos2 == p).is_some()

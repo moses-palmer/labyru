@@ -16,7 +16,7 @@ where
     }
 
     // First remove all inner walls
-    for pos in maze.rooms().positions().filter(|&pos| candidates[pos]) {
+    for pos in maze.positions().filter(|&pos| candidates[pos]) {
         for wall in maze.walls(pos) {
             let (pos, wall) = maze.back((pos, wall));
             if *candidates.get(pos).unwrap_or(&false) {
@@ -27,7 +27,6 @@ where
 
     // List all possible walls
     let walls = maze
-        .rooms()
         .positions()
         .filter(|&pos| candidates[pos])
         .flat_map(|pos| {

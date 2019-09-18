@@ -20,7 +20,7 @@ where
         return maze;
     }
 
-    for pos in maze.rooms().positions().filter(|&pos| candidates[pos]) {
+    for pos in maze.positions().filter(|&pos| candidates[pos]) {
         for wall in maze.walls(pos) {
             let (pos, wall) = maze.back((pos, wall));
             if *candidates.get(pos).unwrap_or(&false) {

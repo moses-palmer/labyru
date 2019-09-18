@@ -134,7 +134,6 @@ impl<'a> Navigator<'a> {
         if self.pos.is_none() {
             self.pos = self
                 .maze
-                .rooms
                 .positions()
                 .filter(|&pos| {
                     self.maze.walls(pos).iter().any(|wall| predicate(&wall))

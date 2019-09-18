@@ -236,7 +236,7 @@ mod tests {
     #[maze_test]
     fn room_at(maze: Maze) {
         let d = 0.95;
-        for pos in maze.rooms.positions() {
+        for pos in maze.positions() {
             let center = maze.center(pos);
             for wall in maze.walls(pos) {
                 let a = wall.span.0;

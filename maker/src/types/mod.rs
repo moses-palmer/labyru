@@ -231,8 +231,7 @@ impl HeatMapType {
             ),
             HeatMapType::Full => self.create_heatmap(
                 maze,
-                maze.rooms()
-                    .positions()
+                maze.positions()
                     .filter(|&pos| pos.col == 0 || pos.row == 0)
                     .map(|pos| {
                         (
@@ -284,11 +283,7 @@ where
     F: Fn(maze::matrix::Pos) -> Color,
 {
     let mut group = svg::node::element::Group::new();
-    for pos in maze
-        .rooms()
-        .positions()
-        .filter(|&pos| maze[pos].visited)
-    {
+    for pos in maze.positions().filter(|&pos| maze[pos].visited) {
         let color = colors(pos);
         let mut commands = maze
             .walls(pos)

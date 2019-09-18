@@ -242,7 +242,7 @@ where
     // each filtered, non-filled room and the incrementing the area index
     let mut areas = matrix::Matrix::new(maze.width(), maze.height());
     let mut index = 0;
-    for pos in maze.rooms().positions() {
+    for pos in maze.positions() {
         // Ignore filtered and already visited rooms
         if !filter(pos) || areas[pos] > 0 {
             continue;
@@ -425,7 +425,7 @@ mod tests {
                     &filter,
                 );
 
-                for pos in maze.rooms.positions() {
+                for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);
                 }
             }
@@ -447,7 +447,7 @@ mod tests {
                     &filter,
                 );
 
-                for pos in maze.rooms.positions() {
+                for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);
                 }
             }

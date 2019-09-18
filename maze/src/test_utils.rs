@@ -11,6 +11,18 @@ pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
     (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001
 }
 
+/// Determines whether two floating point values are close enough to be
+/// considered equal.
+///
+/// This function lowers the resolution to `std::f32::EPSILON * 4.0`.
+///
+/// # Arguments
+/// *  `a` - One value.
+/// *  `b` - Another value.
+pub fn nearly_equal(a: f32, b: f32) -> bool {
+    return a == b || (a - b).abs() < std::f32::EPSILON * 4.0;
+}
+
 /// A simple helper to create a matrix position.
 ///
 /// # Arguments

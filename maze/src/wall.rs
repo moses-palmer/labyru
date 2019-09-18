@@ -24,6 +24,19 @@ pub struct Offset {
     pub wall: Index,
 }
 
+/// An angle in a span.
+#[derive(Clone, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+pub struct Angle {
+    /// The angle.
+    pub a: f32,
+
+    /// cos(a).
+    pub dx: f32,
+
+    /// sin(a).
+    pub dy: f32,
+}
+
 /// A wall.
 ///
 /// Walls have an index, which is used by [Room](../room/struct.Room.html) to
@@ -50,7 +63,7 @@ pub struct Wall {
     /// The first value is the start of the span, and the second value the end.
     /// The second value will always be greater, even if the span wraps around
     /// _2𝜋_.
-    pub span: (f32, f32),
+    pub span: (Angle, Angle),
 }
 
 impl Wall {
@@ -85,11 +98,11 @@ impl Wall {
     pub fn in_span(&self, angle: f32) -> bool {
         let normalized = Wall::normalized_angle(angle);
 
-        if (self.span.0 <= normalized) && (normalized < self.span.1) {
+        if (self.span.0.a <= normalized) && (normalized < self.span.1.a) {
             true
         } else {
             let overflowed = normalized + RADIAN_BOUND;
-            (self.span.0 <= overflowed) && (overflowed < self.span.1)
+            (self.span.0.a <= overflowed) && (overflowed < self.span.1.a)
         }
     }
 }

@@ -61,6 +61,11 @@ impl Maze {
         self.rooms.height
     }
 
+    /// Returns the shape of the maze.
+    pub fn shape(&self) -> Shape {
+        self.shape
+    }
+
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments

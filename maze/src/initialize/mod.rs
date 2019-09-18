@@ -17,7 +17,7 @@ mod depth_first;
 mod randomized_prim;
 
 /// The various supported initialisation method.
-#[derive(Copy, Clone, Debug, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Deserialize, Hash, PartialEq, Serialize)]
 pub enum Method {
     /// Initialises a maze with no dead ends.
     ///
@@ -103,7 +103,7 @@ where
 }
 
 /// A linear feedback shift register.
-#[derive(Debug, Deserialize, Eq, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Serialize, PartialEq)]
 pub struct LFSR(u64);
 
 impl LFSR {

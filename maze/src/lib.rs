@@ -44,7 +44,7 @@ impl Maze {
     /// *  `height` - The height, in rooms, of the maze.
     pub fn new(shape: Shape, width: usize, height: usize) -> Self {
         let rooms = room::Rooms::new(width, height);
-        Maze { shape, rooms }
+        Self { shape, rooms }
     }
 
     /// Returns the width of the maze.

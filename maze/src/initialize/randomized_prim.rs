@@ -27,9 +27,7 @@ where
             .map(|pos| {
                 maze.walls(pos)
                     .iter()
-                    .filter(|wall| {
-                        maze.rooms.is_inside(maze.back((pos, wall)).0)
-                    })
+                    .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
                     // Create a wall position
                     .map(|wall| (pos, *wall))
                     .collect::<Vec<_>>()

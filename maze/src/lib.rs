@@ -66,6 +66,14 @@ impl Maze {
         self.shape
     }
 
+    /// Determines whether a position is inside of the maze.
+    ///
+    /// # Arguments
+    /// *  `pos` - The romm position.
+    pub fn is_inside(&self, pos: matrix::Pos) -> bool {
+        self.rooms.is_inside(pos)
+    }
+
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
@@ -301,13 +309,13 @@ mod tests {
 
     #[maze_test]
     fn is_inside_correct(maze: Maze) {
-        assert!(maze.rooms.is_inside(matrix_pos(0, 0)));
-        assert!(maze.rooms.is_inside(matrix_pos(
+        assert!(maze.is_inside(matrix_pos(0, 0)));
+        assert!(maze.is_inside(matrix_pos(
             maze.width() as isize - 1,
             maze.height() as isize - 1,
         )));
-        assert!(!maze.rooms.is_inside(matrix_pos(-1, -1)));
-        assert!(!maze.rooms.is_inside(matrix_pos(
+        assert!(!maze.is_inside(matrix_pos(-1, -1)));
+        assert!(!maze.is_inside(matrix_pos(
             maze.width() as isize,
             maze.height() as isize
         )));
@@ -443,7 +451,7 @@ mod tests {
         let walls = maze
             .walls(pos)
             .iter()
-            .filter(|wall| maze.rooms().is_inside(maze.back((pos, wall)).0))
+            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
             .map(|&wall| wall)
             .collect::<Vec<_>>();
         walls.iter().for_each(|wall| maze.open((pos, wall)));

@@ -58,7 +58,7 @@ impl Maze {
                 // Find the next room, and continue if we have already evaluated
                 // it to a better distance, or it is outside of the maze
                 let (next, _) = self.back((current, wall));
-                if !self.rooms.is_inside(next)
+                if !self.is_inside(next)
                     || (closed_set.contains(&next)
                         && g_score[&next] <= g_score[&current] + 1)
                 {

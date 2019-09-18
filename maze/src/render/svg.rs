@@ -52,10 +52,7 @@ impl ToPath for Maze {
                 commands.push(Operation::Line(pos));
 
                 // If the next room is outside of the maze, break
-                if to
-                    .map(|(pos, _)| !self.rooms.is_inside(pos))
-                    .unwrap_or(false)
-                {
+                if to.map(|(pos, _)| !self.is_inside(pos)).unwrap_or(false) {
                     break;
                 }
             }

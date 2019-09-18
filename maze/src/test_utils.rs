@@ -150,7 +150,7 @@ impl<'a> Navigator<'a> {
             .iter()
             .filter(predicate)
             .filter(|wall| {
-                self.maze.rooms.is_inside(matrix_pos(
+                self.maze.is_inside(matrix_pos(
                     pos.col + wall.dir.0,
                     pos.row + wall.dir.1,
                 ))

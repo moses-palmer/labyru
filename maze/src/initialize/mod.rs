@@ -426,7 +426,7 @@ mod tests {
                 );
 
                 for pos in maze.rooms.positions() {
-                    assert_eq!(filter(pos), maze.rooms[pos].visited);
+                    assert_eq!(filter(pos), maze[pos].visited);
                 }
             }
         }
@@ -448,7 +448,7 @@ mod tests {
                 );
 
                 for pos in maze.rooms.positions() {
-                    assert_eq!(filter(pos), maze.rooms[pos].visited);
+                    assert_eq!(filter(pos), maze[pos].visited);
                 }
             }
         }

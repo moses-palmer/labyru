@@ -56,9 +56,7 @@ where
     // Attempt to add every wall, but make sure no dead-ends appear
     for &wall_pos in walls {
         let back = maze.back(wall_pos);
-        if maze.rooms()[wall_pos.0].open_walls() > 2
-            && maze.rooms()[back.0].open_walls() > 2
-        {
+        if maze[wall_pos.0].open_walls() > 2 && maze[back.0].open_walls() > 2 {
             maze.close(wall_pos);
         }
     }

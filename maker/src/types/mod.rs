@@ -287,7 +287,7 @@ where
     for pos in maze
         .rooms()
         .positions()
-        .filter(|&pos| maze.rooms()[pos].visited)
+        .filter(|&pos| maze[pos].visited)
     {
         let color = colors(pos);
         let mut commands = maze

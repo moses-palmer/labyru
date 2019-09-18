@@ -44,9 +44,9 @@ fn run(
 /// Calculates the view box for a maze with a margin.
 ///
 /// # Arguments
-/// * `maze` - The maze for which to generate a view box.
-/// * `scale` - A scale multiplier.
-/// * `margin` - The margin to apply to all sides.
+/// *  `maze` - The maze for which to generate a view box.
+/// *  `scale` - A scale multiplier.
+/// *  `margin` - The margin to apply to all sides.
 fn maze_to_viewbox(
     maze: &maze::Maze,
     scale: f32,

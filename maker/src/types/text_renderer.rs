@@ -34,8 +34,8 @@ impl Renderer for TextRenderer {
     /// This action will render a string as background.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
-    /// * `group` - The group to which to add the rooms.
+    /// *  `maze` - The maze.
+    /// *  `group` - The group to which to add the rooms.
     fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
         let (_, _, width, height) = maze.viewbox();
         let columns = (self.text.len() as f32).sqrt().ceil() as usize;

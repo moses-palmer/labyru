@@ -30,8 +30,8 @@ impl Color {
     /// Fades one colour to another.
     ///
     /// # Arguments
-    /// * `other` - The other colour.
-    /// * `w` - The weight of this colour. If this is `1.0` or greater, `self`
+    /// *  `other` - The other colour.
+    /// *  `w` - The weight of this colour. If this is `1.0` or greater, `self`
     ///   colour is returned; if this is 0.0 or less, `other` is returned;
     ///   otherwise a linear interpolation between the colours is returned.
     pub fn fade(self, other: Self, w: f32) -> Color {
@@ -64,7 +64,7 @@ impl str::FromStr for Color {
     /// components hex encoded.
     ///
     /// # Arguments
-    /// * `s` - The string to convert.
+    /// *  `s` - The string to convert.
     fn from_str(s: &str) -> Result<Color, String> {
         if !s.starts_with('#') || s.len() % 2 == 0 {
             Err(format!("unknown colour value: {}", s))

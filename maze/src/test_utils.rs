@@ -4,8 +4,8 @@ use super::*;
 /// considered equal.
 ///
 /// # Arguments
-/// * `expected` - The expected location.
-/// * `actual` - Another location.
+/// *  `expected` - The expected location.
+/// *  `actual` - Another location.
 pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
     let d = (expected.x - actual.x, expected.y - actual.y);
     (d.0 * d.0 + d.1 * d.1).sqrt() < 0.00001
@@ -134,7 +134,6 @@ impl<'a> Navigator<'a> {
         if self.pos.is_none() {
             self.pos = self
                 .maze
-                .rooms
                 .positions()
                 .filter(|&pos| {
                     self.maze.walls(pos).iter().any(|wall| predicate(&wall))
@@ -150,7 +149,7 @@ impl<'a> Navigator<'a> {
             .iter()
             .filter(predicate)
             .filter(|wall| {
-                self.maze.rooms.is_inside(matrix_pos(
+                self.maze.is_inside(matrix_pos(
                     pos.col + wall.dir.0,
                     pos.row + wall.dir.1,
                 ))

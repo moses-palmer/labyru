@@ -82,8 +82,8 @@ impl Shape {
     /// Creates a maze of this type.
     ///
     /// # Arguments
-    /// * `width` - The width, in rooms, of the maze.
-    /// * `height` - The height, in rooms, of the maze.
+    /// *  `width` - The width, in rooms, of the maze.
+    /// *  `height` - The height, in rooms, of the maze.
     pub fn create(self, width: usize, height: usize) -> Maze {
         Maze::new(self, width, height)
     }
@@ -149,7 +149,7 @@ impl Maze {
     /// The back is the other side of the wall, located in a neighbouring room.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
+    /// *  `wall_pos` - The wall position.
     pub fn back(&self, wall_pos: WallPos) -> WallPos {
         dispatch!(self.shape => back(wall_pos))
     }
@@ -160,7 +160,7 @@ impl Maze {
     /// mazes with rooms with an odd number of walls, there is no opposite wall.
     ///
     /// # Arguments
-    /// * `wall_pos` - The wall position.
+    /// *  `wall_pos` - The wall position.
     pub fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
         dispatch!(self.shape => opposite(wall_pos))
     }
@@ -168,7 +168,7 @@ impl Maze {
     /// Returns all walls of a specific room.
     ///
     /// # Arguments
-    /// * `pos` - The room position.
+    /// *  `pos` - The room position.
     pub fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
         dispatch!(self.shape => walls(pos))
     }
@@ -176,7 +176,7 @@ impl Maze {
     /// Returns the physical centre of a matrix position.
     ///
     /// # Arguments
-    /// * `pos` - The matrix position.
+    /// *  `pos` - The matrix position.
     pub fn center(&self, pos: matrix::Pos) -> physical::Pos {
         dispatch!(self.shape => center(pos))
     }
@@ -188,7 +188,7 @@ impl Maze {
     /// outside of the maze.
     ///
     /// # Arguments
-    /// * `pos` - The physical position.
+    /// *  `pos` - The physical position.
     pub fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
         dispatch!(self.shape => room_at(pos))
     }
@@ -236,7 +236,7 @@ mod tests {
     #[maze_test]
     fn room_at(maze: Maze) {
         let d = 0.95;
-        for pos in maze.rooms.positions() {
+        for pos in maze.positions() {
             let center = maze.center(pos);
             for wall in maze.walls(pos) {
                 let a = wall.span.0;

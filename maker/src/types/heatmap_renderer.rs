@@ -78,8 +78,8 @@ impl Renderer for HeatMapRenderer {
     /// interpolate between the colours in `action`.
     ///
     /// # Arguments
-    /// * `maze` - The maze.
-    /// * `group` - The group to which to add the rooms.
+    /// *  `maze` - The maze.
+    /// *  `group` - The group to which to add the rooms.
     fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;

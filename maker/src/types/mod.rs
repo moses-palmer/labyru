@@ -113,7 +113,7 @@ where
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut methods = vec![];
-        for method in s.split(",") {
+        for method in s.split(',') {
             methods.push(method.parse()?)
         }
 
@@ -196,7 +196,7 @@ impl HeatMapType {
     /// Generates a heat map based on this heat map type.
     ///
     /// # Arguments
-    /// * `maze` - The maze for which to generate a heat map.
+    /// *  `maze` - The maze for which to generate a heat map.
     pub fn generate(&self, maze: &maze::Maze) -> maze::matrix::Matrix<u32> {
         match *self {
             HeatMapType::Vertical => self.create_heatmap(
@@ -231,8 +231,7 @@ impl HeatMapType {
             ),
             HeatMapType::Full => self.create_heatmap(
                 maze,
-                maze.rooms()
-                    .positions()
+                maze.positions()
                     .filter(|&pos| pos.col == 0 || pos.row == 0)
                     .map(|pos| {
                         (
@@ -250,8 +249,8 @@ impl HeatMapType {
     /// Generates a heat map for a maze and an iteration of positions.
     ///
     /// # Arguments
-    /// * `maze` - The maze for which to generate a heat map.
-    /// * `positions` - The positions for which to generate a heat map. These
+    /// *  `maze` - The maze for which to generate a heat map.
+    /// *  `positions` - The positions for which to generate a heat map. These
     ///   will be generated from the heat map type.
     fn create_heatmap<I>(
         &self,
@@ -277,18 +276,14 @@ impl HeatMapType {
 /// Draws all rooms of a maze.
 ///
 /// # Arguments
-/// * `maze` - The maze to draw.
-/// * `colors` - A function determining the colour of a room.
+/// *  `maze` - The maze to draw.
+/// *  `colors` - A function determining the colour of a room.
 pub fn draw_rooms<F>(maze: &maze::Maze, colors: F) -> svg::node::element::Group
 where
     F: Fn(maze::matrix::Pos) -> Color,
 {
     let mut group = svg::node::element::Group::new();
-    for pos in maze
-        .rooms()
-        .positions()
-        .filter(|&pos| maze.rooms()[pos].visited)
-    {
+    for pos in maze.positions().filter(|&pos| maze[pos].visited) {
         let color = colors(pos);
         let mut commands = maze
             .walls(pos)

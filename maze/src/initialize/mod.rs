@@ -17,7 +17,7 @@ mod depth_first;
 mod randomized_prim;
 
 /// The various supported initialisation method.
-#[derive(Copy, Clone, Debug, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Deserialize, Hash, PartialEq, Serialize)]
 pub enum Method {
     /// Initialises a maze with no dead ends.
     ///
@@ -103,7 +103,7 @@ where
 }
 
 /// A linear feedback shift register.
-#[derive(Debug, Deserialize, Eq, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Serialize, PartialEq)]
 pub struct LFSR(u64);
 
 impl LFSR {
@@ -242,7 +242,7 @@ where
     // each filtered, non-filled room and the incrementing the area index
     let mut areas = matrix::Matrix::new(maze.width(), maze.height());
     let mut index = 0;
-    for pos in maze.rooms().positions() {
+    for pos in maze.positions() {
         // Ignore filtered and already visited rooms
         if !filter(pos) || areas[pos] > 0 {
             continue;
@@ -425,8 +425,8 @@ mod tests {
                     &filter,
                 );
 
-                for pos in maze.rooms.positions() {
-                    assert_eq!(filter(pos), maze.rooms[pos].visited);
+                for pos in maze.positions() {
+                    assert_eq!(filter(pos), maze[pos].visited);
                 }
             }
         }
@@ -447,8 +447,8 @@ mod tests {
                     &filter,
                 );
 
-                for pos in maze.rooms.positions() {
-                    assert_eq!(filter(pos), maze.rooms[pos].visited);
+                for pos in maze.positions() {
+                    assert_eq!(filter(pos), maze[pos].visited);
                 }
             }
         }

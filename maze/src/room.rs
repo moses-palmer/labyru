@@ -19,7 +19,7 @@ impl Room {
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
-    /// `wall` - The wall to check.
+    /// *  `wall` - The wall to check.
     pub fn is_open(self, wall: &'static wall::Wall) -> bool {
         self.walls & wall.mask() != 0
     }
@@ -27,8 +27,8 @@ impl Room {
     /// Sets whether a wall is open..
     ///
     /// # Arguments
-    /// `wall` - The wall to set.
-    // `state` - Whether the wall is open.
+    /// *  `wall` - The wall to set.
+    /// *  `state` - Whether the wall is open.
     pub fn set_open(&mut self, wall: &'static wall::Wall, value: bool) {
         if value {
             self.open(wall);
@@ -40,7 +40,7 @@ impl Room {
     /// Opens a wall.
     ///
     /// # Arguments
-    /// `wall` - The wall to open.
+    /// *  `wall` - The wall to open.
     pub fn open(&mut self, wall: &'static wall::Wall) {
         self.walls |= wall.mask();
         self.visited = true;
@@ -49,7 +49,7 @@ impl Room {
     /// Closes a wall.
     ///
     /// # Arguments
-    /// `wall` - The wall to close.
+    /// *  `wall` - The wall to close.
     pub fn close(&mut self, wall: &'static wall::Wall) {
         self.walls &= !wall.mask();
     }

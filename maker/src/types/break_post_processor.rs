@@ -60,7 +60,7 @@ where
                     loop {
                         let walls = maze.walls(pos);
                         let wall = walls[rng.range(0, walls.len())];
-                        if maze.rooms().is_inside(maze.back((pos, wall)).0) {
+                        if maze.is_inside(maze.back((pos, wall)).0) {
                             maze.open((pos, wall));
                             break;
                         }

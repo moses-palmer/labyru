@@ -6,7 +6,7 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Index, Offset};
+use crate::wall::{Angle, Index, Offset};
 
 /// A span step angle
 const D: f32 = PI / 6.0;
@@ -35,7 +35,7 @@ define_shape! {
             Offset { dx: 1, dy: 0, wall: WallIndex::LEFT1 as Index },
         ],
         dir: (-1, 0),
-        span: (3.0 * D, 7.0 * D),
+        span: (Angle { a: 3.0 * D }, Angle { a: 7.0 * D }),
     },
     RIGHT1 = {
         corner_wall_offsets: &[
@@ -46,7 +46,7 @@ define_shape! {
             Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT0 as Index },
         ],
         dir: (1, 0),
-        span: (9.0 * D, 13.0 * D),
+        span: (Angle { a: 9.0 * D }, Angle { a: 13.0 * D }),
     },
 
     LEFT1 = {
@@ -58,7 +58,7 @@ define_shape! {
             Offset { dx: 0, dy: 1, wall: WallIndex::UP as Index },
         ],
         dir: (-1, 0),
-        span: (5.0 * D, 9.0 * D),
+        span: (Angle { a: 5.0 * D }, Angle { a: 9.0 * D }),
     },
     RIGHT0 = {
         corner_wall_offsets: &[
@@ -69,7 +69,7 @@ define_shape! {
             Offset { dx: 0, dy: -1, wall: WallIndex::DOWN as Index },
         ],
         dir: (1, 0),
-        span: (11.0 * D, 15.0 * D),
+        span: (Angle { a: 11.0 * D }, Angle { a: 15.0 * D }),
     },
 
     UP = {
@@ -81,7 +81,7 @@ define_shape! {
             Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT1 as Index },
         ],
         dir: (0, -1),
-        span: (7.0 * D, 11.0 * D),
+        span: (Angle { a: 7.0 * D }, Angle { a: 11.0 * D }),
     },
     DOWN = {
         corner_wall_offsets: &[
@@ -92,7 +92,7 @@ define_shape! {
             Offset { dx: 1, dy: 0, wall: WallIndex::LEFT0 as Index },
         ],
         dir: (0, 1),
-        span: (1.0 * D, 5.0 * D),
+        span: (Angle { a: 1.0 * D }, Angle { a: 5.0 * D }),
     }
 }
 

@@ -173,12 +173,12 @@ impl Maze {
         let center = self.center(wall_pos.0);
         (
             physical::Pos {
-                x: center.x + wall_pos.1.span.0.cos(),
-                y: center.y + wall_pos.1.span.0.sin(),
+                x: center.x + wall_pos.1.span.0.a.cos(),
+                y: center.y + wall_pos.1.span.0.a.sin(),
             },
             physical::Pos {
-                x: center.x + wall_pos.1.span.1.cos(),
-                y: center.y + wall_pos.1.span.1.sin(),
+                x: center.x + wall_pos.1.span.1.a.cos(),
+                y: center.y + wall_pos.1.span.1.a.sin(),
             },
         )
     }
@@ -387,11 +387,11 @@ mod tests {
     fn walls_span(maze: Maze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
-                let d = (2.0 / 5.0) * (wall.span.1 - wall.span.0);
-                assert!(wall.in_span(wall.span.0 + d));
-                assert!(!wall.in_span(wall.span.0 - d));
-                assert!(wall.in_span(wall.span.1 - d));
-                assert!(!wall.in_span(wall.span.1 + d));
+                let d = (2.0 / 5.0) * (wall.span.1.a - wall.span.0.a);
+                assert!(wall.in_span(wall.span.0.a + d));
+                assert!(!wall.in_span(wall.span.0.a - d));
+                assert!(wall.in_span(wall.span.1.a - d));
+                assert!(!wall.in_span(wall.span.1.a + d));
             }
         }
     }

@@ -239,7 +239,7 @@ mod tests {
         for pos in maze.positions() {
             let center = maze.center(pos);
             for wall in maze.walls(pos) {
-                let a = wall.span.0;
+                let a = wall.span.0.a;
                 let x = center.x + d * a.cos();
                 let y = center.y + d * a.sin();
                 assert_eq!(maze.room_at(physical::Pos { x, y }), pos);

@@ -30,8 +30,8 @@ impl Maze {
                 .chain(right)
                 .map(|(center, wall)| {
                     (
-                        center.x + f32::cos(wall.span.0),
-                        center.y + f32::sin(wall.span.0),
+                        center.x + f32::cos(wall.span.0.a),
+                        center.y + f32::sin(wall.span.0.a),
                     )
                 })
                 .fold(window, |acc, v| {

@@ -4,7 +4,7 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Index, Offset};
+use crate::wall::{Angle, Index, Offset};
 use crate::WallPos;
 
 /// A span step angle
@@ -21,7 +21,7 @@ define_shape! {
             Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT as Index },
         ],
         dir: (0, -1),
-        span: (5.0 * D, 7.0 * D),
+        span: (Angle { a: 5.0 * D }, Angle { a: 7.0 * D }),
     },
     LEFT = {
         corner_wall_offsets: &[
@@ -30,7 +30,7 @@ define_shape! {
             Offset { dx: 0, dy: 1, wall: WallIndex::UP as Index },
         ],
         dir: (-1, 0),
-        span: (3.0 * D, 5.0 * D),
+        span: (Angle { a: 3.0 * D }, Angle { a: 5.0 * D }),
     },
     DOWN = {
         corner_wall_offsets: &[
@@ -39,7 +39,7 @@ define_shape! {
             Offset { dx: 1, dy: 0, wall: WallIndex::LEFT as Index },
         ],
         dir: (0, 1),
-        span: (D, 3.0 * D),
+        span: (Angle { a: D }, Angle { a: 3.0 * D }),
     },
     RIGHT = {
         corner_wall_offsets: &[
@@ -48,7 +48,7 @@ define_shape! {
             Offset { dx: 0, dy: -1, wall: WallIndex::DOWN as Index },
         ],
         dir: (1, 0),
-        span: (7.0 * D, 9.0 * D),
+        span: (Angle { a: 7.0 * D }, Angle { a: 9.0 * D }),
     }
 }
 

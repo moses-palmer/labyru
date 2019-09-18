@@ -173,12 +173,12 @@ impl Maze {
         let center = self.center(wall_pos.0);
         (
             physical::Pos {
-                x: center.x + wall_pos.1.span.0.a.cos(),
-                y: center.y + wall_pos.1.span.0.a.sin(),
+                x: center.x + wall_pos.1.span.0.dx,
+                y: center.y + wall_pos.1.span.0.dy,
             },
             physical::Pos {
-                x: center.x + wall_pos.1.span.1.a.cos(),
-                y: center.y + wall_pos.1.span.1.a.sin(),
+                x: center.x + wall_pos.1.span.1.dx,
+                y: center.y + wall_pos.1.span.1.dy,
             },
         )
     }
@@ -392,6 +392,47 @@ mod tests {
                 assert!(!wall.in_span(wall.span.0.a - d));
                 assert!(wall.in_span(wall.span.1.a - d));
                 assert!(!wall.in_span(wall.span.1.a + d));
+
+                assert!(
+                    nearly_equal(wall.span.0.a.cos(), wall.span.0.dx),
+                    format!(
+                        "{:?} wall {} span 0 dx invalid ({} != {})",
+                        maze.shape(),
+                        wall.name,
+                        wall.span.0.a.cos(),
+                        wall.span.0.dx,
+                    ),
+                );
+                assert!(
+                    nearly_equal(wall.span.0.a.sin(), wall.span.0.dy),
+                    format!(
+                        "{:?} wall {} span 0 dy invalid ({} != {})",
+                        maze.shape(),
+                        wall.name,
+                        wall.span.0.a.sin(),
+                        wall.span.0.dy,
+                    ),
+                );
+                assert!(
+                    nearly_equal(wall.span.1.a.cos(), wall.span.1.dx),
+                    format!(
+                        "{:?} wall {} span 1 dx invalid ({} != {})",
+                        maze.shape(),
+                        wall.name,
+                        wall.span.1.a.cos(),
+                        wall.span.1.dx,
+                    ),
+                );
+                assert!(
+                    nearly_equal(wall.span.1.a.sin(), wall.span.1.dy),
+                    format!(
+                        "{:?} wall {} span 1 dy invalid ({} != {})",
+                        maze.shape(),
+                        wall.name,
+                        wall.span.1.a.sin(),
+                        wall.span.1.dy,
+                    ),
+                );
             }
         }
     }

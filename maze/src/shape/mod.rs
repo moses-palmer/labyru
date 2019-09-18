@@ -8,6 +8,18 @@ use crate::wall;
 
 use crate::{Maze, WallPos};
 
+/// cos(30°)
+const COS_30: f32 = 0.866_025_4f32;
+
+/// sin(30°)
+const SIN_30: f32 = 1.0 / 2.0;
+
+/// cos(45°)
+const COS_45: f32 = 0.707_106_77f32;
+
+/// sin(45°)
+const SIN_45: f32 = 0.707_106_77f32;
+
 /// Dispatches a function call for the current maze to a shape defined module.
 macro_rules! dispatch {
     ($on:expr => $func:ident ( $($args:ident $(,)?)* ) ) => {
@@ -239,9 +251,8 @@ mod tests {
         for pos in maze.positions() {
             let center = maze.center(pos);
             for wall in maze.walls(pos) {
-                let a = wall.span.0.a;
-                let x = center.x + d * a.cos();
-                let y = center.y + d * a.sin();
+                let x = center.x + d * wall.span.0.dx;
+                let y = center.y + d * wall.span.0.dy;
                 assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
             }
         }

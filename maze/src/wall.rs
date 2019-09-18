@@ -29,6 +29,12 @@ pub struct Offset {
 pub struct Angle {
     /// The angle.
     pub a: f32,
+
+    /// cos(a).
+    pub dx: f32,
+
+    /// sin(a).
+    pub dy: f32,
 }
 
 /// A wall.

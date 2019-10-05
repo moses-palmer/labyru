@@ -311,6 +311,7 @@ mod tests {
 
     use super::*;
     use crate::*;
+    use test_utils::*;
 
     #[test]
     fn surround_single() {
@@ -352,7 +353,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn minimal_dimensions(maze: Maze) {
+    fn minimal_dimensions(maze: TestMaze) {
         for i in 1..20 {
             let width = i as f32 * 0.5;
             let height = width;
@@ -373,7 +374,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn room_at(maze: Maze) {
+    fn room_at(maze: TestMaze) {
         let d = 0.95;
         for pos in maze.positions() {
             let center = maze.center(pos);
@@ -386,7 +387,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn rooms_touched_by_for_center(maze: Maze) {
+    fn rooms_touched_by_for_center(maze: TestMaze) {
         let (left, top, right, bottom) = maze
             .positions()
             .filter(|pos| pos.row == 0)
@@ -416,7 +417,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn rooms_touched_by_for_corners(maze: Maze) {
+    fn rooms_touched_by_for_corners(maze: TestMaze) {
         let (left, top, right, bottom) = maze
             .positions()
             .filter(|pos| pos.row == 0)

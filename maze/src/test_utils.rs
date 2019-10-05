@@ -1,5 +1,7 @@
 use super::*;
 
+pub type TestMaze = Maze;
+
 /// Determines whether two physical locations are close enough to be
 /// considered equal.
 ///

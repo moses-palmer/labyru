@@ -267,10 +267,9 @@ mod tests {
 
     use super::*;
     use crate::test_utils::*;
-    use crate::*;
 
     #[maze_test]
-    fn walk_empty(maze: Maze) {
+    fn walk_empty(maze: TestMaze) {
         let map = HashMap::new();
 
         assert_eq!(
@@ -282,7 +281,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_from_unknown(maze: Maze) {
+    fn walk_from_unknown(maze: TestMaze) {
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
@@ -295,7 +294,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_path(maze: Maze) {
+    fn walk_path(maze: TestMaze) {
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
         map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
@@ -315,12 +314,12 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_disconnected(maze: Maze) {
+    fn walk_disconnected(maze: TestMaze) {
         assert!(maze.walk(matrix_pos(0, 0), matrix_pos(0, 1)).is_none());
     }
 
     #[maze_test]
-    fn walk_same(maze: Maze) {
+    fn walk_same(maze: TestMaze) {
         let from = matrix_pos(0, 0);
         let to = matrix_pos(0, 0);
         let expected = vec![matrix_pos(0, 0)];
@@ -334,7 +333,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_simple(mut maze: Maze) {
+    fn walk_simple(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze).down(true).stop();
 
         let from = log.first().unwrap();
@@ -350,7 +349,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_shortest(mut maze: Maze) {
+    fn walk_shortest(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze)
             .down(true)
             .right(true)

@@ -274,7 +274,6 @@ mod tests {
 
     use super::*;
     use crate::test_utils::*;
-    use crate::*;
 
     /// The various initialisation methods tested.
     const INITIALIZERS: &[Method] =
@@ -361,7 +360,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn initialize(maze: Maze) {
+    fn initialize(maze: TestMaze) {
         for method in INITIALIZERS {
             let maze = maze.clone().initialize(*method, &mut rand::weak_rng());
 
@@ -375,7 +374,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn initialize_filter_most(maze: Maze) {
+    fn initialize_filter_most(maze: TestMaze) {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
@@ -395,7 +394,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn initialize_filter_all(maze: Maze) {
+    fn initialize_filter_all(maze: TestMaze) {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
@@ -415,7 +414,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn initialize_filter_picked(maze: Maze) {
+    fn initialize_filter_picked(maze: TestMaze) {
         for method in INITIALIZERS {
             for _ in 0..1000 {
                 let filter = |matrix::Pos { col, row }| col > row;
@@ -433,7 +432,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn initialize_filter_segmented(maze: Maze) {
+    fn initialize_filter_segmented(maze: TestMaze) {
         for method in INITIALIZERS {
             for _ in 0..1000 {
                 let width = maze.width();

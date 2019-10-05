@@ -315,7 +315,7 @@ mod tests {
     use super::*;
 
     #[maze_test]
-    fn is_inside_correct(maze: Maze) {
+    fn is_inside_correct(maze: TestMaze) {
         assert!(maze.is_inside(matrix_pos(0, 0)));
         assert!(maze.is_inside(matrix_pos(
             maze.width() as isize - 1,
@@ -329,7 +329,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn can_open(mut maze: Maze) {
+    fn can_open(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze).down(true).stop();
         let pos = log[0];
         let next = log[1];
@@ -350,7 +350,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn can_close(mut maze: Maze) {
+    fn can_close(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze).down(true).up(false).stop();
         let pos = log.first().unwrap();
         let next = log.last().unwrap();
@@ -371,7 +371,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walls_correct(maze: Maze) {
+    fn walls_correct(maze: TestMaze) {
         let walls = maze.walls(matrix_pos(0, 1));
         assert_eq!(
             walls
@@ -384,7 +384,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walls_span(maze: Maze) {
+    fn walls_span(maze: TestMaze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
                 let d = (2.0 / 5.0) * (wall.span.1.a - wall.span.0.a);
@@ -438,7 +438,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn connecting_wall_correct(maze: Maze) {
+    fn connecting_wall_correct(maze: TestMaze) {
         for pos in maze.positions() {
             for &wall in maze.walls(pos) {
                 assert!(maze
@@ -461,7 +461,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn connected_correct(mut maze: Maze) {
+    fn connected_correct(mut maze: TestMaze) {
         for pos in maze.positions() {
             assert!(maze.connected(pos, pos))
         }
@@ -476,7 +476,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn corner_walls(maze: Maze) {
+    fn corner_walls(maze: TestMaze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
                 let wall_pos = (pos, *wall);
@@ -490,7 +490,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn doors(mut maze: Maze) {
+    fn doors(mut maze: TestMaze) {
         let pos = matrix::Pos { col: 0, row: 0 };
         assert_eq!(
             maze.doors(pos).collect::<Vec<&'static wall::Wall>>(),
@@ -507,7 +507,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn adjacent(maze: Maze) {
+    fn adjacent(maze: TestMaze) {
         for pos1 in maze.positions() {
             for pos2 in maze.positions() {
                 assert!(
@@ -519,7 +519,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn neighbors(mut maze: Maze) {
+    fn neighbors(mut maze: TestMaze) {
         let pos = matrix::Pos { col: 0, row: 0 };
         assert_eq!(maze.neighbors(pos).collect::<Vec<_>>(), vec![]);
         maze.walls(pos)

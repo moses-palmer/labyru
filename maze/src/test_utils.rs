@@ -1,6 +1,6 @@
 use super::*;
 
-pub type TestMaze = Maze;
+pub type TestMaze = Maze<()>;
 
 /// Determines whether two physical locations are close enough to be
 /// considered equal.
@@ -39,7 +39,7 @@ pub fn matrix_pos(col: isize, row: isize) -> matrix::Pos {
 /// This struct provides utility methods to open and close doors based on
 /// directions.
 pub struct Navigator<'a> {
-    maze: &'a mut Maze,
+    maze: &'a mut TestMaze,
     pos: Option<matrix::Pos>,
     log: Vec<matrix::Pos>,
 }
@@ -49,7 +49,7 @@ impl<'a> Navigator<'a> {
     ///
     /// # Arguments
     /// *  `maze` - The maze to modify.
-    pub fn new(maze: &'a mut Maze) -> Navigator<'a> {
+    pub fn new(maze: &'a mut TestMaze) -> Navigator<'a> {
         Navigator {
             maze: maze,
             pos: None,

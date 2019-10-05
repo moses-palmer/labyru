@@ -42,7 +42,7 @@ impl From<Maze> for HttpResponse {
     fn from(mut source: Maze) -> Self {
         let maze = source
             .maze_type
-            .create(source.dimensions)
+            .create::<()>(source.dimensions)
             .initialize(initialize::Method::Branching, &mut source.seed);
 
         let mut container = svg::node::element::Group::new();

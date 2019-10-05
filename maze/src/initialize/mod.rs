@@ -152,7 +152,10 @@ impl Randomizer for LFSR {
     }
 }
 
-impl Maze {
+impl<T> Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Initialises a maze using the selected algorithm.
     ///
     /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
@@ -233,10 +236,11 @@ fn random_room(
 /// # Arguments
 /// *  `maze` - The maze to modify.
 /// *  `filter` - A filter for rooms to consider.
-pub fn connect_all<F, R>(maze: &mut Maze, rng: &mut R, filter: F)
+pub fn connect_all<F, R, T>(maze: &mut Maze<T>, rng: &mut R, filter: F)
 where
     F: Fn(matrix::Pos) -> bool,
     R: Randomizer + Sized,
+    T: Clone + Copy + Default,
 {
     // First find all non-connected areas by visiting all rooms and filling for
     // each filtered, non-filled room and the incrementing the area index

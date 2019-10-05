@@ -27,15 +27,21 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A maze contains rooms and has methods for managing paths and doors.
 #[derive(Clone, Deserialize, Serialize)]
-pub struct Maze {
+pub struct Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// The shape of the rooms.
     shape: Shape,
 
     /// The actual rooms.
-    rooms: room::Rooms<()>,
+    rooms: room::Rooms<T>,
 }
 
-impl Maze {
+impl<T> Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Creates an uninitialised maze.
     ///
     /// # Arguments
@@ -269,8 +275,11 @@ impl Maze {
     }
 }
 
-impl std::ops::Index<matrix::Pos> for Maze {
-    type Output = room::Room<()>;
+impl<T> std::ops::Index<matrix::Pos> for Maze<T>
+where
+    T: Clone + Copy + Default,
+{
+    type Output = room::Room<T>;
 
     fn index(&self, pos: matrix::Pos) -> &Self::Output {
         &self.rooms[pos]
@@ -288,9 +297,10 @@ pub type HeatMap = matrix::Matrix<u32>;
 /// # Arguments
 /// *  `positions` - The positions as the tuple `(from, to)`. These are used as
 ///   positions between which to walk.
-pub fn heatmap<I>(maze: &crate::Maze, positions: I) -> HeatMap
+pub fn heatmap<I, T>(maze: &crate::Maze<T>, positions: I) -> HeatMap
 where
     I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
+    T: Clone + Copy + Default,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 

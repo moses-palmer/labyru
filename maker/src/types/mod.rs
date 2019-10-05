@@ -14,7 +14,7 @@ use maze::matrix;
 use maze_tools::image::Color;
 use maze_tools::voronoi;
 
-pub type Maze = maze::Maze;
+pub type Maze = maze::Maze<()>;
 
 pub mod background_renderer;
 pub use self::background_renderer::*;

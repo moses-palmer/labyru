@@ -19,7 +19,10 @@ pub trait Facet {
     fn height(&self) -> usize;
 }
 
-impl Facet for maze::Maze {
+impl<T> Facet for maze::Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     fn facet(&self, pos: physical::Pos) -> matrix::Pos {
         self.room_at(pos)
     }

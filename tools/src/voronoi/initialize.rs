@@ -41,14 +41,15 @@ where
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
     /// *  `filter` - An additional filter applied to all methods.
-    pub fn initialize<F>(
+    pub fn initialize<F, T>(
         self,
-        maze: maze::Maze,
+        maze: maze::Maze<T>,
         rng: &mut R,
         filter: F,
-    ) -> (matrix::Matrix<usize>, maze::Maze)
+    ) -> (matrix::Matrix<usize>, maze::Maze<T>)
     where
         F: Fn(matrix::Pos) -> bool,
+        T: Clone + Copy + Default,
     {
         // Generate the segments
         let matrix = self.matrix(&maze, rng);
@@ -74,7 +75,15 @@ where
     ///
     /// # Arguments
     /// *  `maze` - The source maze.
-    fn matrix(&self, maze: &maze::Maze, rng: &mut R) -> matrix::Matrix<usize> {
+    /// *  `rng``- A random number generator.
+    fn matrix<T>(
+        &self,
+        maze: &maze::Maze<T>,
+        rng: &mut R,
+    ) -> matrix::Matrix<usize>
+    where
+        T: Clone + Copy + Default,
+    {
         let (left, top, width, height) = maze.viewbox();
         super::matrix(
             maze,

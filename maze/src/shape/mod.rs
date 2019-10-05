@@ -96,7 +96,10 @@ impl Shape {
     /// # Arguments
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
-    pub fn create(self, width: usize, height: usize) -> Maze {
+    pub fn create<T>(self, width: usize, height: usize) -> Maze<T>
+    where
+        T: Clone + Copy + Default,
+    {
         Maze::new(self, width, height)
     }
 
@@ -150,7 +153,10 @@ impl std::str::FromStr for Shape {
     }
 }
 
-impl Maze {
+impl<T> Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
         dispatch!(self.shape => all_walls())
@@ -359,13 +365,13 @@ mod tests {
             let height = width;
             let (w, h) = maze.shape.minimal_dimensions(width, height);
 
-            let m = maze.shape.create(w, h);
+            let m = maze.shape.create::<()>(w, h);
             let (_, _, actual_width, actual_height) = m.viewbox();
             assert!(actual_width >= width);
             assert!(actual_height >= height);
 
             if w > 1 && h > 1 {
-                let m = maze.shape.create(w - 1, h - 1);
+                let m = maze.shape.create::<()>(w - 1, h - 1);
                 let (_, _, actual_width, actual_height) = m.viewbox();
                 assert!(actual_width <= width);
                 assert!(actual_height <= height);

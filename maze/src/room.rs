@@ -69,4 +69,4 @@ where
     }
 }
 
-pub type Rooms = matrix::Matrix<Room<()>>;
+pub type Rooms<T> = matrix::Matrix<Room<T>>;

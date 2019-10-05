@@ -32,7 +32,7 @@ pub struct Maze {
     shape: Shape,
 
     /// The actual rooms.
-    rooms: room::Rooms,
+    rooms: room::Rooms<()>,
 }
 
 impl Maze {

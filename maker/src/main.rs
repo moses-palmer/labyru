@@ -11,7 +11,7 @@ use self::types::*;
 
 #[allow(unused_variables, clippy::too_many_arguments)]
 fn run(
-    maze: maze::Maze,
+    maze: Maze,
     scale: f32,
     margin: f32,
     renderers: &[&dyn Renderer],
@@ -48,7 +48,7 @@ fn run(
 /// *  `scale` - A scale multiplier.
 /// *  `margin` - The margin to apply to all sides.
 fn maze_to_viewbox(
-    maze: &maze::Maze,
+    maze: &Maze,
     scale: f32,
     margin: f32,
 ) -> (f32, f32, f32, f32) {

@@ -52,7 +52,7 @@ where
     /// # Arguments
     /// *  `maze` - The maze.
     /// *  `rng` - A random number generator.
-    fn post_process(&self, mut maze: maze::Maze, rng: &mut R) -> maze::Maze {
+    fn post_process(&self, mut maze: Maze, rng: &mut R) -> Maze {
         for _ in 0..self.count {
             let heat_map = self.map_type.generate(&maze);
             for pos in heat_map.positions() {

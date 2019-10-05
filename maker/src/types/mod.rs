@@ -14,6 +14,8 @@ use maze::matrix;
 use maze_tools::image::Color;
 use maze_tools::voronoi;
 
+pub type Maze = maze::Maze;
+
 pub mod background_renderer;
 pub use self::background_renderer::*;
 pub mod break_post_processor;
@@ -38,12 +40,7 @@ where
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
     /// *  `method` - The initialisation method to use.
-    fn initialize(
-        &self,
-        maze: maze::Maze,
-        rng: &mut R,
-        method: Methods<R>,
-    ) -> maze::Maze;
+    fn initialize(&self, maze: Maze, rng: &mut R, method: Methods<R>) -> Maze;
 }
 
 impl<R, T> Initializer<R> for Option<T>
@@ -51,12 +48,7 @@ where
     R: initialize::Randomizer + Sized,
     T: Initializer<R>,
 {
-    fn initialize(
-        &self,
-        maze: maze::Maze,
-        rng: &mut R,
-        methods: Methods<R>,
-    ) -> maze::Maze {
+    fn initialize(&self, maze: Maze, rng: &mut R, methods: Methods<R>) -> Maze {
         if let Some(action) = self {
             action.initialize(maze, rng, methods)
         } else {
@@ -75,7 +67,7 @@ where
     /// # Arguments
     /// *  `maze` - The maze to post-process.
     /// *  `rng` - A random number generator.
-    fn post_process(&self, maze: maze::Maze, rng: &mut R) -> maze::Maze;
+    fn post_process(&self, maze: Maze, rng: &mut R) -> Maze;
 }
 
 impl<R, T> PostProcessor<R> for Option<T>
@@ -83,7 +75,7 @@ where
     R: initialize::Randomizer + Sized,
     T: PostProcessor<R>,
 {
-    fn post_process(&self, maze: maze::Maze, rng: &mut R) -> maze::Maze {
+    fn post_process(&self, maze: Maze, rng: &mut R) -> Maze {
         if let Some(action) = self {
             action.post_process(maze, rng)
         } else {
@@ -131,12 +123,7 @@ where
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
     /// *  `filter` - An additional filter applied to all methods.
-    pub fn initialize<F>(
-        self,
-        maze: maze::Maze,
-        rng: &mut R,
-        filter: F,
-    ) -> maze::Maze
+    pub fn initialize<F>(self, maze: Maze, rng: &mut R, filter: F) -> Maze
     where
         F: Fn(matrix::Pos) -> bool,
     {
@@ -152,14 +139,14 @@ pub trait Renderer {
     /// # Arguments
     /// *  `maze` - The maze.
     /// *  `group` - An SVG group.
-    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group);
+    fn render(&self, maze: &Maze, group: &mut svg::node::element::Group);
 }
 
 impl<T> Renderer for Option<T>
 where
     T: Renderer,
 {
-    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
+    fn render(&self, maze: &Maze, group: &mut svg::node::element::Group) {
         if let Some(action) = self {
             action.render(maze, group);
         }
@@ -197,7 +184,7 @@ impl HeatMapType {
     ///
     /// # Arguments
     /// *  `maze` - The maze for which to generate a heat map.
-    pub fn generate(&self, maze: &maze::Maze) -> maze::matrix::Matrix<u32> {
+    pub fn generate(&self, maze: &Maze) -> maze::matrix::Matrix<u32> {
         match *self {
             HeatMapType::Vertical => self.create_heatmap(
                 maze,
@@ -252,11 +239,7 @@ impl HeatMapType {
     /// *  `maze` - The maze for which to generate a heat map.
     /// *  `positions` - The positions for which to generate a heat map. These
     ///   will be generated from the heat map type.
-    fn create_heatmap<I>(
-        &self,
-        maze: &maze::Maze,
-        positions: I,
-    ) -> maze::HeatMap
+    fn create_heatmap<I>(&self, maze: &Maze, positions: I) -> maze::HeatMap
     where
         I: Iterator<Item = (maze::matrix::Pos, maze::matrix::Pos)>,
     {
@@ -278,7 +261,7 @@ impl HeatMapType {
 /// # Arguments
 /// *  `maze` - The maze to draw.
 /// *  `colors` - A function determining the colour of a room.
-pub fn draw_rooms<F>(maze: &maze::Maze, colors: F) -> svg::node::element::Group
+pub fn draw_rooms<F>(maze: &Maze, colors: F) -> svg::node::element::Group
 where
     F: Fn(maze::matrix::Pos) -> Color,
 {

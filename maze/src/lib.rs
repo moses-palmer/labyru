@@ -270,7 +270,7 @@ impl Maze {
 }
 
 impl std::ops::Index<matrix::Pos> for Maze {
-    type Output = room::Room;
+    type Output = room::Room<()>;
 
     fn index(&self, pos: matrix::Pos) -> &Self::Output {
         &self.rooms[pos]

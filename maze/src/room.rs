@@ -5,17 +5,26 @@ use crate::wall;
 
 /// A room is a part of a maze.
 ///
-/// It has walls and openings connecting it with other rooms.
+/// It has walls, openings connecting it with other rooms, and asssociated data.
 #[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
-pub struct Room {
+pub struct Room<T>
+where
+    T: Clone + Copy + Default,
+{
     walls: wall::Mask,
 
     /// Whether this room has been visited. This is true if at least one door
     /// has at any time been opened.
     pub visited: bool,
+
+    /// The data associated with this room.
+    pub data: T,
 }
 
-impl Room {
+impl<T> Room<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
@@ -60,4 +69,4 @@ impl Room {
     }
 }
 
-pub type Rooms = matrix::Matrix<Room>;
+pub type Rooms = matrix::Matrix<Room<()>>;

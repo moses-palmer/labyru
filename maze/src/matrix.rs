@@ -267,10 +267,12 @@ where
     }
 }
 
-impl<T> Matrix<T>
+impl<T> std::ops::Add for Matrix<T>
 where
     T: std::ops::AddAssign + Clone + Copy + Default,
 {
+    type Output = Self;
+
     /// Adds another matrix to this one.
     ///
     /// If the matrices are of different dimensions, only the overlapping parts
@@ -278,7 +280,7 @@ where
     ///
     /// # Arguments
     /// *  `other` - The matrix to add.
-    pub fn add(mut self, other: Self) -> Self {
+    fn add(mut self, other: Self) -> Self {
         let width = std::cmp::min(self.width, other.width);
         let height = std::cmp::min(self.height, other.height);
         for row in 0..height {

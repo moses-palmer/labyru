@@ -292,9 +292,9 @@ pub fn surround(
 
     // Generate iterators over the edges; let bottom filter to avoid adding the
     // same row twice when distance == 0
-    let top = (pos.col - distance..pos.col + distance + 1)
+    let top = (pos.col - distance..=pos.col + distance)
         .map(move |col| (col, pos.row - distance).into());
-    let bottom = (pos.col - distance..pos.col + distance + 1)
+    let bottom = (pos.col - distance..=pos.col + distance)
         .filter(move |_| distance != 0)
         .map(move |col| (col, pos.row + distance).into());
     let left = (pos.row - distance + 1..pos.row + distance)

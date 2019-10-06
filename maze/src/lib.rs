@@ -68,6 +68,24 @@ where
         self.shape
     }
 
+    /// Retrieves tha data for a specific room.
+    ///
+    /// # Arguments
+    /// *  `pos``- The room position.
+    pub fn data(&self, pos: matrix::Pos) -> Option<&T> {
+        self.rooms.get(pos).and_then(|room| Some(&room.data))
+    }
+
+    /// Retrieves tha mutable data for a specific room.
+    ///
+    /// # Arguments
+    /// *  `pos``- The room position.
+    pub fn data_mut(&mut self, pos: matrix::Pos) -> Option<&mut T> {
+        self.rooms
+            .get_mut(pos)
+            .and_then(|room| Some(&mut room.data))
+    }
+
     /// Determines whether a position is inside of the maze.
     ///
     /// # Arguments
@@ -323,6 +341,15 @@ mod tests {
 
     use super::test_utils::*;
     use super::*;
+
+    #[test]
+    fn data() {
+        let mut maze = Shape::Quad.create::<bool>(5, 5);
+        let pos = (0isize, 0isize).into();
+        assert_eq!(Some(&false), maze.data(pos));
+        *maze.data_mut(pos).unwrap() = true;
+        assert_eq!(Some(&true), maze.data(pos));
+    }
 
     #[maze_test]
     fn is_inside_correct(maze: TestMaze) {

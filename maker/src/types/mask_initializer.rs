@@ -76,10 +76,10 @@ where
     /// *  `methods` - The initialisers to use to generate the maze.
     fn initialize(
         &self,
-        maze: maze::Maze,
+        maze: Maze,
         rng: &mut R,
         methods: Methods<R>,
-    ) -> maze::Maze {
+    ) -> Maze {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self

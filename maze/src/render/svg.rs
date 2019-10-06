@@ -15,7 +15,10 @@ pub trait ToPath {
     fn to_path_d(&self) -> svg::node::element::path::Data;
 }
 
-impl ToPath for Maze {
+impl<T> ToPath for Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     fn to_path_d(&self) -> svg::node::element::path::Data {
         let mut commands = Vec::new();
         let mut visitor = Visitor::new(self);
@@ -67,7 +70,10 @@ impl ToPath for Maze {
     }
 }
 
-impl<'a> ToPath for Path<'a> {
+impl<'a, T> ToPath for Path<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     fn to_path_d(&self) -> svg::node::element::path::Data {
         svg::node::element::path::Data::from(
             self.into_iter()
@@ -89,9 +95,12 @@ impl<'a> ToPath for Path<'a> {
 /// A visitor for wall positions.
 ///
 /// This struct provides means to visit all wall positions of a maze.
-struct Visitor<'a> {
+struct Visitor<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     /// The maze whose walls are being visited.
-    maze: &'a Maze,
+    maze: &'a Maze<T>,
 
     /// The visited walls.
     walls: matrix::Matrix<wall::Mask>,
@@ -100,12 +109,15 @@ struct Visitor<'a> {
     index: usize,
 }
 
-impl<'a> Visitor<'a> {
+impl<'a, T> Visitor<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     /// Creates a new visitor for a maze.
     ///
     /// # Arguments
     /// *  `maze` - The maze whose walls to visit.
-    pub fn new(maze: &'a Maze) -> Self {
+    pub fn new(maze: &'a Maze<T>) -> Self {
         Self {
             maze,
             walls: matrix::Matrix::new(maze.width(), maze.height()),
@@ -233,7 +245,10 @@ impl From<Operation> for Command {
 ///
 /// # Arguments
 /// *  `wall_pos` - The wall position.
-fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
+fn center<T>(maze: &Maze<T>, wall_pos: WallPos) -> physical::Pos
+where
+    T: Clone + Copy + Default,
+{
     let (corner1, corner2) = maze.corners(wall_pos);
     physical::Pos {
         x: (corner1.x + corner2.x) / 2.0,
@@ -247,11 +262,14 @@ fn center(maze: &Maze, wall_pos: WallPos) -> physical::Pos {
 /// # Arguments
 /// *  `from` - The wall position.
 /// *  `to` - The next wall position from which distances are calculated.
-fn corners(
-    maze: &Maze,
+fn corners<T>(
+    maze: &Maze<T>,
     from: WallPos,
     origin: physical::Pos,
-) -> (physical::Pos, physical::Pos) {
+) -> (physical::Pos, physical::Pos)
+where
+    T: Clone + Copy + Default,
+{
     let (pos1, pos2) = maze.corners(from);
     let d1 = (pos1.x - origin.x).powi(2) + (pos1.y - origin.y).powi(2);
     let d2 = (pos2.x - origin.x).powi(2) + (pos2.y - origin.y).powi(2);

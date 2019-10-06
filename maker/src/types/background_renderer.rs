@@ -40,7 +40,7 @@ impl Renderer for BackgroundRenderer {
     /// # Arguments
     /// *  `maze` - The maze.
     /// *  `group` - The group to which to add the rooms.
-    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
+    fn render(&self, maze: &Maze, group: &mut svg::node::element::Group) {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self

@@ -7,7 +7,10 @@ use crate::wall;
 use crate::Maze;
 use crate::WallPos;
 
-impl Maze {
+impl<T> Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Walks from `from` to `to` along the shortest path.
     ///
     /// If the rooms are connected, the return value will iterate over the
@@ -17,7 +20,7 @@ impl Maze {
     /// # Arguments
     /// *  `from` - The starting position.
     /// *  `to` - The desired goal.
-    pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path> {
+    pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path<T>> {
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
@@ -104,9 +107,12 @@ impl Maze {
 ///
 /// This struct describes the path through a maze by maintaining a mapping from
 /// a room position to the next room.
-pub struct Path<'a> {
+pub struct Path<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     /// The maze being walked.
-    pub(crate) maze: &'a Maze,
+    pub(crate) maze: &'a Maze<T>,
 
     /// The starting position.
     start: matrix::Pos,
@@ -115,13 +121,16 @@ pub struct Path<'a> {
     map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
 }
 
-impl<'a> Path<'a> {
+impl<'a, T> Path<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     /// Stores the path from a starting position and a supporting map.
     ///
     /// It is possible to walk indefinitely if the mapping contains circular
     /// references.
     pub fn new(
-        maze: &'a Maze,
+        maze: &'a Maze<T>,
         start: matrix::Pos,
         map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
     ) -> Self {
@@ -129,9 +138,12 @@ impl<'a> Path<'a> {
     }
 }
 
-impl<'a> IntoIterator for &'a Path<'a> {
+impl<'a, T> IntoIterator for &'a Path<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     type Item = matrix::Pos;
-    type IntoIter = Walker<'a>;
+    type IntoIter = Walker<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
         Walker {
@@ -142,9 +154,12 @@ impl<'a> IntoIterator for &'a Path<'a> {
     }
 }
 
-pub struct Walker<'a> {
+pub struct Walker<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     /// The actual path to walk.
-    path: &'a Path<'a>,
+    path: &'a Path<'a, T>,
 
     /// The current position.
     current: matrix::Pos,
@@ -154,7 +169,10 @@ pub struct Walker<'a> {
     increment: bool,
 }
 
-impl<'a> Iterator for Walker<'a> {
+impl<'a, T> Iterator for Walker<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     type Item = matrix::Pos;
 
     /// Yields the next room position.
@@ -175,9 +193,12 @@ impl<'a> Iterator for Walker<'a> {
 }
 
 /// Follows a wall.
-struct Follower<'a> {
+struct Follower<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     /// The maze.
-    maze: &'a Maze,
+    maze: &'a Maze<T>,
 
     /// The starting position.
     start_pos: WallPos,
@@ -189,8 +210,11 @@ struct Follower<'a> {
     finished: bool,
 }
 
-impl<'a> Follower<'a> {
-    pub(self) fn new(maze: &'a Maze, start_pos: WallPos) -> Self {
+impl<'a, T> Follower<'a, T>
+where
+    T: Clone + Copy + Default,
+{
+    pub(self) fn new(maze: &'a Maze<T>, start_pos: WallPos) -> Self {
         Self {
             maze,
             start_pos,
@@ -233,7 +257,10 @@ impl<'a> Follower<'a> {
     }
 }
 
-impl<'a> Iterator for Follower<'a> {
+impl<'a, T> Iterator for Follower<'a, T>
+where
+    T: Clone + Copy + Default,
+{
     type Item = (WallPos, Option<WallPos>);
 
     /// Iterates over all wall positions.
@@ -267,10 +294,9 @@ mod tests {
 
     use super::*;
     use crate::test_utils::*;
-    use crate::*;
 
     #[maze_test]
-    fn walk_empty(maze: Maze) {
+    fn walk_empty(maze: TestMaze) {
         let map = HashMap::new();
 
         assert_eq!(
@@ -282,7 +308,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_from_unknown(maze: Maze) {
+    fn walk_from_unknown(maze: TestMaze) {
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
@@ -295,7 +321,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_path(maze: Maze) {
+    fn walk_path(maze: TestMaze) {
         let mut map = HashMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
         map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
@@ -315,12 +341,12 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_disconnected(maze: Maze) {
+    fn walk_disconnected(maze: TestMaze) {
         assert!(maze.walk(matrix_pos(0, 0), matrix_pos(0, 1)).is_none());
     }
 
     #[maze_test]
-    fn walk_same(maze: Maze) {
+    fn walk_same(maze: TestMaze) {
         let from = matrix_pos(0, 0);
         let to = matrix_pos(0, 0);
         let expected = vec![matrix_pos(0, 0)];
@@ -334,7 +360,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_simple(mut maze: Maze) {
+    fn walk_simple(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze).down(true).stop();
 
         let from = log.first().unwrap();
@@ -350,7 +376,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walk_shortest(mut maze: Maze) {
+    fn walk_shortest(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze)
             .down(true)
             .right(true)

@@ -6,12 +6,13 @@ use maze::physical;
 
 pub mod initialize;
 
-pub fn matrix<V>(
-    maze: &maze::Maze,
+pub fn matrix<V, T>(
+    maze: &maze::Maze<T>,
     points: Vec<(physical::Pos, f32, V)>,
 ) -> matrix::Matrix<V>
 where
     V: Clone + Copy + Default,
+    T: Clone + Copy + Default,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 

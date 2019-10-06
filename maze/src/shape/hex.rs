@@ -372,11 +372,10 @@ mod tests {
 
     use super::walls;
     use crate::test_utils::*;
-    use crate::Maze;
     use crate::WallPos;
 
     #[maze_test(hex)]
-    fn back(maze: Maze) {
+    fn back(maze: TestMaze) {
         assert_eq!(
             maze.back((matrix_pos(1, 0), &walls::LEFT0)),
             (matrix_pos(0, 0), &walls::RIGHT0)
@@ -428,7 +427,7 @@ mod tests {
     }
 
     #[maze_test(hex)]
-    fn opposite(maze: Maze) {
+    fn opposite(maze: TestMaze) {
         assert_eq!(
             maze.opposite((matrix_pos(1, 0), &walls::LEFT0)).unwrap(),
             &walls::RIGHT0
@@ -486,7 +485,7 @@ mod tests {
     }
 
     #[maze_test(hex)]
-    fn corner_walls(maze: Maze) {
+    fn corner_walls(maze: TestMaze) {
         assert_eq!(
             maze.corner_walls((matrix_pos(1, 2), &walls::LEFT0))
                 .collect::<Vec<_>>(),
@@ -598,7 +597,7 @@ mod tests {
     }
 
     #[maze_test(hex)]
-    fn follow_wall_single_room(maze: Maze) {
+    fn follow_wall_single_room(maze: TestMaze) {
         assert_eq!(
             vec![
                 (matrix_pos(0, 0), &walls::LEFT0),
@@ -615,7 +614,7 @@ mod tests {
     }
 
     #[maze_test(hex)]
-    fn follow_wall(mut maze: Maze) {
+    fn follow_wall(mut maze: TestMaze) {
         Navigator::new(&mut maze)
             .from(matrix_pos(0, 0))
             .down(true)

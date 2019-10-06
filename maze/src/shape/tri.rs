@@ -241,11 +241,10 @@ mod tests {
 
     use super::*;
     use crate::test_utils::*;
-    use crate::Maze;
     use crate::WallPos;
 
     #[maze_test(tri)]
-    fn back(maze: Maze) {
+    fn back(maze: TestMaze) {
         assert_eq!(
             maze.back((matrix_pos(2, 0), &walls::LEFT0)),
             (matrix_pos(1, 0), &walls::RIGHT1)
@@ -273,7 +272,7 @@ mod tests {
     }
 
     #[maze_test(tri)]
-    fn corner_walls(maze: Maze) {
+    fn corner_walls(maze: TestMaze) {
         assert_eq!(
             maze.corner_walls((matrix_pos(2, 0), &walls::LEFT0))
                 .collect::<Vec<_>>(),
@@ -349,7 +348,7 @@ mod tests {
     }
 
     #[maze_test(tri)]
-    fn follow_wall_single_room(maze: Maze) {
+    fn follow_wall_single_room(maze: TestMaze) {
         assert_eq!(
             vec![
                 (matrix_pos(0, 0), &walls::LEFT0),
@@ -363,7 +362,7 @@ mod tests {
     }
 
     #[maze_test(tri)]
-    fn follow_wall(mut maze: Maze) {
+    fn follow_wall(mut maze: TestMaze) {
         Navigator::new(&mut maze)
             .from(matrix_pos(1, 0))
             .down(true)

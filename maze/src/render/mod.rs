@@ -3,7 +3,10 @@ use std;
 use crate::matrix;
 use crate::Maze;
 
-impl Maze {
+impl<T> Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Calculates the _view box_ for an object when rendered.
     ///
     /// The returned tuple _(left, top, width, height)_ is the minimal rectangle

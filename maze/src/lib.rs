@@ -27,15 +27,21 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A maze contains rooms and has methods for managing paths and doors.
 #[derive(Clone, Deserialize, Serialize)]
-pub struct Maze {
+pub struct Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// The shape of the rooms.
     shape: Shape,
 
     /// The actual rooms.
-    rooms: room::Rooms,
+    rooms: room::Rooms<T>,
 }
 
-impl Maze {
+impl<T> Maze<T>
+where
+    T: Clone + Copy + Default,
+{
     /// Creates an uninitialised maze.
     ///
     /// # Arguments
@@ -60,6 +66,24 @@ impl Maze {
     /// Returns the shape of the maze.
     pub fn shape(&self) -> Shape {
         self.shape
+    }
+
+    /// Retrieves tha data for a specific room.
+    ///
+    /// # Arguments
+    /// *  `pos``- The room position.
+    pub fn data(&self, pos: matrix::Pos) -> Option<&T> {
+        self.rooms.get(pos).and_then(|room| Some(&room.data))
+    }
+
+    /// Retrieves tha mutable data for a specific room.
+    ///
+    /// # Arguments
+    /// *  `pos``- The room position.
+    pub fn data_mut(&mut self, pos: matrix::Pos) -> Option<&mut T> {
+        self.rooms
+            .get_mut(pos)
+            .and_then(|room| Some(&mut room.data))
     }
 
     /// Determines whether a position is inside of the maze.
@@ -254,7 +278,7 @@ impl Maze {
         })
     }
 
-    /// Iterates over all reachble neighbours of a room.
+    /// Iterates over all reachable neighbours of a room.
     ///
     /// This method may list rooms outside of the maze if an opening outside
     /// exists.
@@ -269,8 +293,11 @@ impl Maze {
     }
 }
 
-impl std::ops::Index<matrix::Pos> for Maze {
-    type Output = room::Room;
+impl<T> std::ops::Index<matrix::Pos> for Maze<T>
+where
+    T: Clone + Copy + Default,
+{
+    type Output = room::Room<T>;
 
     fn index(&self, pos: matrix::Pos) -> &Self::Output {
         &self.rooms[pos]
@@ -288,9 +315,10 @@ pub type HeatMap = matrix::Matrix<u32>;
 /// # Arguments
 /// *  `positions` - The positions as the tuple `(from, to)`. These are used as
 ///   positions between which to walk.
-pub fn heatmap<I>(maze: &crate::Maze, positions: I) -> HeatMap
+pub fn heatmap<I, T>(maze: &crate::Maze<T>, positions: I) -> HeatMap
 where
     I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
+    T: Clone + Copy + Default,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 
@@ -314,8 +342,17 @@ mod tests {
     use super::test_utils::*;
     use super::*;
 
+    #[test]
+    fn data() {
+        let mut maze = Shape::Quad.create::<bool>(5, 5);
+        let pos = (0isize, 0isize).into();
+        assert_eq!(Some(&false), maze.data(pos));
+        *maze.data_mut(pos).unwrap() = true;
+        assert_eq!(Some(&true), maze.data(pos));
+    }
+
     #[maze_test]
-    fn is_inside_correct(maze: Maze) {
+    fn is_inside_correct(maze: TestMaze) {
         assert!(maze.is_inside(matrix_pos(0, 0)));
         assert!(maze.is_inside(matrix_pos(
             maze.width() as isize - 1,
@@ -329,7 +366,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn can_open(mut maze: Maze) {
+    fn can_open(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze).down(true).stop();
         let pos = log[0];
         let next = log[1];
@@ -350,7 +387,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn can_close(mut maze: Maze) {
+    fn can_close(mut maze: TestMaze) {
         let log = Navigator::new(&mut maze).down(true).up(false).stop();
         let pos = log.first().unwrap();
         let next = log.last().unwrap();
@@ -371,7 +408,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walls_correct(maze: Maze) {
+    fn walls_correct(maze: TestMaze) {
         let walls = maze.walls(matrix_pos(0, 1));
         assert_eq!(
             walls
@@ -384,7 +421,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walls_span(maze: Maze) {
+    fn walls_span(maze: TestMaze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
                 let d = (2.0 / 5.0) * (wall.span.1.a - wall.span.0.a);
@@ -438,7 +475,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn connecting_wall_correct(maze: Maze) {
+    fn connecting_wall_correct(maze: TestMaze) {
         for pos in maze.positions() {
             for &wall in maze.walls(pos) {
                 assert!(maze
@@ -461,7 +498,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn connected_correct(mut maze: Maze) {
+    fn connected_correct(mut maze: TestMaze) {
         for pos in maze.positions() {
             assert!(maze.connected(pos, pos))
         }
@@ -476,7 +513,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn corner_walls(maze: Maze) {
+    fn corner_walls(maze: TestMaze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
                 let wall_pos = (pos, *wall);
@@ -490,7 +527,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn doors(mut maze: Maze) {
+    fn doors(mut maze: TestMaze) {
         let pos = matrix::Pos { col: 0, row: 0 };
         assert_eq!(
             maze.doors(pos).collect::<Vec<&'static wall::Wall>>(),
@@ -507,7 +544,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn adjacent(maze: Maze) {
+    fn adjacent(maze: TestMaze) {
         for pos1 in maze.positions() {
             for pos2 in maze.positions() {
                 assert!(
@@ -519,7 +556,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn neighbors(mut maze: Maze) {
+    fn neighbors(mut maze: TestMaze) {
         let pos = matrix::Pos { col: 0, row: 0 };
         assert_eq!(maze.neighbors(pos).collect::<Vec<_>>(), vec![]);
         maze.walls(pos)

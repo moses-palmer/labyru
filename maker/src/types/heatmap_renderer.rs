@@ -80,7 +80,7 @@ impl Renderer for HeatMapRenderer {
     /// # Arguments
     /// *  `maze` - The maze.
     /// *  `group` - The group to which to add the rooms.
-    fn render(&self, maze: &maze::Maze, group: &mut svg::node::element::Group) {
+    fn render(&self, maze: &Maze, group: &mut svg::node::element::Group) {
         let matrix = self.map_type.generate(maze);
         let max = matrix.values().max().unwrap() as f32;
         group.append(draw_rooms(maze, |pos| {

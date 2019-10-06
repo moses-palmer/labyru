@@ -262,7 +262,7 @@ where
     for (_, edge) in areas
         .edges(|pos| maze.adjacent(pos))
         .iter()
-        .filter(|&((source, _), _)| source > &0)
+        .filter(|&((source, _), _)| *source > 0)
     {
         let wall_positions = edge
             .iter()

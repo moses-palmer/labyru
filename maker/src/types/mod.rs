@@ -251,7 +251,7 @@ impl HeatMapType {
             .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
             .reduce(
                 || maze::HeatMap::new(maze.width(), maze.height()),
-                matrix::Matrix::add,
+                std::ops::Add::add,
             )
     }
 }

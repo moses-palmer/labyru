@@ -254,7 +254,7 @@ impl Maze {
         })
     }
 
-    /// Iterates over all reachble neighbours of a room.
+    /// Iterates over all reachable neighbours of a room.
     ///
     /// This method may list rooms outside of the maze if an opening outside
     /// exists.

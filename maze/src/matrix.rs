@@ -44,7 +44,7 @@ where
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct Matrix<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// The width of the matrix.
     pub width: usize,
@@ -61,7 +61,7 @@ where
 /// position.
 impl<T> Matrix<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// Creates a new matrix with the specified dimensions.
     ///
@@ -140,13 +140,13 @@ where
     /// *  `mapper` - The mapping function.
     pub fn map<F, S>(&self, mapper: F) -> Matrix<S>
     where
-        F: Fn(T) -> S,
+        F: Fn(&T) -> S,
         S: Clone + Copy + Default,
     {
         self.positions().fold(
             Matrix::new(self.width, self.height),
             |mut matrix, pos| {
-                matrix[pos] = mapper(self[pos]);
+                matrix[pos] = mapper(&self[pos]);
                 matrix
             },
         )
@@ -345,7 +345,7 @@ impl Iterator for PosIterator {
 /// An iterator over matrix values.
 pub struct ValueIterator<'a, T>
 where
-    T: 'a + Clone + Copy + Default,
+    T: 'a + Clone + Default,
 {
     /// An iterator over positions
     pos_iter: PosIterator,
@@ -356,7 +356,7 @@ where
 
 impl<'a, T> ValueIterator<'a, T>
 where
-    T: 'a + Clone + Copy + Default,
+    T: 'a + Clone + Default,
 {
     /// Creates a new position iterator.
     ///
@@ -372,14 +372,14 @@ where
 
 impl<'a, T> Iterator for ValueIterator<'a, T>
 where
-    T: 'a + Clone + Copy + Default,
+    T: 'a + Clone + Default,
 {
-    type Item = T;
+    type Item = &'a T;
 
     /// Iterates over all cell values in a matrix, row by row.
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(pos) = self.pos_iter.next() {
-            Some(self.matrix[pos])
+            Some(&self.matrix[pos])
         } else {
             None
         }
@@ -388,7 +388,7 @@ where
 
 impl<T> std::ops::Index<Pos> for Matrix<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     type Output = T;
 
@@ -411,7 +411,7 @@ where
 
 impl<T> std::ops::IndexMut<Pos> for Matrix<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// Retrieves a mutable reference to the value at a specific position.
     ///
@@ -505,7 +505,10 @@ mod test {
         matrix[matrix_pos(1, 0)] = 2;
         matrix[matrix_pos(0, 1)] = 3;
         matrix[matrix_pos(1, 1)] = 4;
-        assert_eq!(vec![1, 2, 3, 4], matrix.values().collect::<Vec<_>>());
+        assert_eq!(
+            vec![1, 2, 3, 4],
+            matrix.values().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -643,7 +646,7 @@ mod test {
         let height = 5;
         let (count, matrix) = filter(width, height, |_| true);
         assert_eq!(width * height, count);
-        assert!(matrix.values().all(|v| v));
+        assert!(matrix.values().all(|&v| v));
     }
 
     #[test]
@@ -655,7 +658,7 @@ mod test {
         matrix[matrix_pos(1, 1)] = 4;
         assert_eq!(
             vec![2, 3, 4, 5],
-            matrix.map(|v| v + 1).values().collect::<Vec<_>>()
+            matrix.map(|&v| v + 1).values().cloned().collect::<Vec<_>>()
         );
     }
 
@@ -719,7 +722,7 @@ mod test {
         for pos in matrix.positions() {
             matrix[pos] = if filter(pos) { 0 } else { 1 };
         }
-        let count = matrix.values().filter(|&v| v == 0).count();
+        let count = matrix.values().filter(|&&v| v == 0).count();
         let filled =
             matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
         assert_eq!(count, filled);

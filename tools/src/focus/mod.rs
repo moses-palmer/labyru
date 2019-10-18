@@ -69,6 +69,6 @@ where
                 acc
             },
         )
-        .map(|(count, value)| value / count)
+        .map(|(count, value)| *value / *count)
     }
 }

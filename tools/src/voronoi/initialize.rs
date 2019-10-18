@@ -49,7 +49,7 @@ where
     ) -> (matrix::Matrix<usize>, maze::Maze<T>)
     where
         F: Fn(matrix::Pos) -> bool,
-        T: Clone + Copy + Default,
+        T: Clone + Default,
     {
         // Generate the segments
         let matrix = self.matrix(&maze, rng);
@@ -82,7 +82,7 @@ where
         rng: &mut R,
     ) -> matrix::Matrix<usize>
     where
-        T: Clone + Copy + Default,
+        T: Clone + Default,
     {
         let (left, top, width, height) = maze.viewbox();
         super::matrix(

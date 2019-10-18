@@ -74,12 +74,7 @@ where
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
     /// *  `methods` - The initialisers to use to generate the maze.
-    fn initialize(
-        &self,
-        maze: Maze,
-        rng: &mut R,
-        methods: Methods<R>,
-    ) -> Maze {
+    fn initialize(&self, maze: Maze, rng: &mut R, methods: Methods<R>) -> Maze {
         let (_, _, width, height) = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self
@@ -95,7 +90,7 @@ where
                 )
             })
             .focus(&maze)
-            .map(|v| v > self.threshold);
+            .map(|&v| v > self.threshold);
 
         methods.initialize(maze, rng, |pos| data[pos])
     }

@@ -6,10 +6,10 @@ use crate::wall;
 /// A room is a part of a maze.
 ///
 /// It has walls, openings connecting it with other rooms, and asssociated data.
-#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Room<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     walls: wall::Mask,
 
@@ -23,13 +23,13 @@ where
 
 impl<T> Room<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// Returns whether a specified wall is open.
     ///
     /// # Arguments
     /// *  `wall` - The wall to check.
-    pub fn is_open(self, wall: &'static wall::Wall) -> bool {
+    pub fn is_open(&self, wall: &'static wall::Wall) -> bool {
         self.walls & wall.mask() != 0
     }
 

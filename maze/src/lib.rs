@@ -29,7 +29,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Maze<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// The shape of the rooms.
     shape: Shape,
@@ -40,7 +40,7 @@ where
 
 impl<T> Maze<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// Creates an uninitialised maze.
     ///
@@ -99,10 +99,10 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn is_open(&self, wall_pos: WallPos) -> bool {
-        match self.rooms.get(wall_pos.0) {
-            Some(room) => room.is_open(wall_pos.1),
-            None => false,
-        }
+        self.rooms
+            .get(wall_pos.0)
+            .map(|room| room.is_open(wall_pos.1))
+            .unwrap_or(false)
     }
 
     /// Finds the wall connecting two rooms, and if it exists, returns it.
@@ -295,7 +295,7 @@ where
 
 impl<T> std::ops::Index<matrix::Pos> for Maze<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     type Output = room::Room<T>;
 
@@ -318,7 +318,7 @@ pub type HeatMap = matrix::Matrix<u32>;
 pub fn heatmap<I, T>(maze: &crate::Maze<T>, positions: I) -> HeatMap
 where
     I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 

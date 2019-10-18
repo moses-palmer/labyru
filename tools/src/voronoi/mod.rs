@@ -11,8 +11,8 @@ pub fn matrix<V, T>(
     points: Vec<(physical::Pos, f32, V)>,
 ) -> matrix::Matrix<V>
 where
-    V: Clone + Copy + Default,
-    T: Clone + Copy + Default,
+    V: Clone + Default,
+    T: Clone + Default,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 
@@ -26,9 +26,9 @@ where
             .map(|(physical::Pos { x, y }, w, v)| (x - cx, y - cy, w, v))
             .map(|(dx, dy, w, v)| ((dx * dx + dy * dy) / w, v))
             // Find the closest point
-            .fold((f32::MAX, V::default()), |(ad, av), (cd, &cv)| {
+            .fold((f32::MAX, V::default()), |(ad, av), (cd, cv)| {
                 if cd < ad {
-                    (cd, cv)
+                    (cd, cv.clone())
                 } else {
                     (ad, av)
                 }

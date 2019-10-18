@@ -17,7 +17,7 @@ pub fn initialize<F, R, T>(
 where
     F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     let (count, candidates) =
         matrix::filter(maze.width(), maze.height(), filter);

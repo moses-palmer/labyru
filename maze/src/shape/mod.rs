@@ -98,7 +98,7 @@ impl Shape {
     /// *  `height` - The height, in rooms, of the maze.
     pub fn create<T>(self, width: usize, height: usize) -> Maze<T>
     where
-        T: Clone + Copy + Default,
+        T: Clone + Default,
     {
         Maze::new(self, width, height)
     }
@@ -155,7 +155,7 @@ impl std::str::FromStr for Shape {
 
 impl<T> Maze<T>
 where
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {

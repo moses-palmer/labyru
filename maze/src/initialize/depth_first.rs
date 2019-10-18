@@ -15,15 +15,11 @@ use crate::matrix;
 /// # Arguments
 /// *  `rng` - A random number generator.
 /// *  `filter` - A predicate filtering rooms to consider.
-pub fn initialize<F, R, T>(
-    mut maze: Maze<T>,
-    rng: &mut R,
-    filter: F,
-) -> Maze<T>
+pub fn initialize<F, R, T>(mut maze: Maze<T>, rng: &mut R, filter: F) -> Maze<T>
 where
     F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
-    T: Clone + Copy + Default,
+    T: Clone + Default,
 {
     let (count, mut candidates) =
         matrix::filter(maze.width(), maze.height(), filter);

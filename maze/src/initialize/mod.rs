@@ -164,6 +164,9 @@ where
     /// The maze  should be fully closed; any already open walls will be
     /// ignored and kept.
     ///
+    /// This method guarantees that the resulting maze is predictable if the
+    /// _RNG_ is predictable.
+    ///
     /// # Arguments
     /// *  `method` - The initialisation method to use.
     /// *  `rng` - A random number generator.
@@ -181,6 +184,9 @@ where
     ///
     /// The maze  should be fully closed; any already open walls will be
     /// ignored and kept.
+    ///
+    /// This method guarantees that the resulting maze is predictable if the
+    /// _RNG_ is predictable.
     ///
     /// # Arguments
     /// *  `method` - The initialisation method to use.
@@ -374,6 +380,19 @@ mod tests {
                 (maze.height() - 1) as isize,
             );
             assert!(maze.walk(from, to).is_some());
+        }
+    }
+
+    #[maze_test]
+    fn initialize_lfsr_stable(maze: TestMaze) {
+        for method in INITIALIZERS {
+            let seed = 12345;
+            let mut rng1 = LFSR::new(seed);
+            let mut rng2 = LFSR::new(seed);
+            maze.clone().initialize(*method, &mut rng1);
+            maze.clone().initialize(*method, &mut rng2);
+
+            assert_eq!(rng1, rng2, "for method {:?}", method);
         }
     }
 

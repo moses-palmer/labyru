@@ -26,7 +26,7 @@ where
         }
     }
 
-    // List all possible walls
+    // List all possible walls; ensure the list is sorted for reproducibility
     let walls = maze
         .positions()
         .filter(|&pos| candidates[pos])
@@ -46,6 +46,7 @@ where
         })
         .collect::<hash_set::HashSet<_>>();
     let mut walls = walls.iter().collect::<Vec<_>>();
+    walls.sort();
 
     // Randomize the wall array
     let len = walls.len();

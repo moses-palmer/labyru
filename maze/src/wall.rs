@@ -64,6 +64,12 @@ pub struct Wall {
     /// The second value will always be greater, even if the span wraps around
     /// _2𝜋_.
     pub span: (Angle, Angle),
+
+    /// The previous wall, clock-wise.
+    pub previous: &'static Wall,
+
+    /// The next wall, clock-wise.
+    pub next: &'static Wall,
 }
 
 impl Wall {

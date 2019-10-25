@@ -457,4 +457,32 @@ mod tests {
                 .collect::<hash_set::HashSet<_>>(),
         );
     }
+
+    #[maze_test]
+    fn previous_and_next_wall(maze: TestMaze) {
+        for pos in maze.positions() {
+            for wall in maze.walls(pos) {
+                let a1 = wall::Wall::normalized_angle(wall.span.0.a);
+                let a2 = wall::Wall::normalized_angle(wall.previous.span.1.a);
+                assert!(
+                    (a1 - a2).abs() < std::f32::EPSILON * 16.0,
+                    "first wall {:?} for {:?} ({} != {})",
+                    wall,
+                    maze.shape(),
+                    a1,
+                    a2,
+                );
+                let a1 = wall::Wall::normalized_angle(wall.span.1.a);
+                let a2 = wall::Wall::normalized_angle(wall.next.span.0.a);
+                assert!(
+                    (a1 - a2).abs() < std::f32::EPSILON * 16.0,
+                    "second wall {:?} for {:?} ({} != {})",
+                    wall,
+                    maze.shape(),
+                    a1,
+                    a2,
+                );
+            }
+        }
+    }
 }

@@ -35,6 +35,8 @@ define_shape! {
                 dy: -SIN_45,
             },
         ),
+        previous: &LEFT,
+        next: &RIGHT,
     },
     LEFT = {
         corner_wall_offsets: &[
@@ -55,6 +57,8 @@ define_shape! {
                 dy: -SIN_45,
             },
         ),
+        previous: &DOWN,
+        next: &UP,
     },
     DOWN = {
         corner_wall_offsets: &[
@@ -75,6 +79,8 @@ define_shape! {
                 dy: SIN_45,
             },
         ),
+        previous: &RIGHT,
+        next: &LEFT,
     },
     RIGHT = {
         corner_wall_offsets: &[
@@ -95,6 +101,8 @@ define_shape! {
                 dy: SIN_45,
             },
         ),
+        previous: &UP,
+        next: &DOWN,
     }
 }
 

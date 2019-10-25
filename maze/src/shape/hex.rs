@@ -43,6 +43,8 @@ define_shape! {
                 dy: -SIN_30,
             },
         ),
+        previous: &DOWN_LEFT0,
+        next: &UP_LEFT0,
     },
     RIGHT0 = {
         corner_wall_offsets: &[
@@ -62,6 +64,8 @@ define_shape! {
                 dy: SIN_30,
             },
         ),
+        previous: &UP_RIGHT0,
+        next: &DOWN_RIGHT0,
     },
 
     LEFT1 = {
@@ -82,6 +86,8 @@ define_shape! {
                 dy: -SIN_30,
             },
         ),
+        previous: &DOWN_LEFT1,
+        next: &UP_LEFT1,
     },
     RIGHT1 = {
         corner_wall_offsets: &[
@@ -101,6 +107,8 @@ define_shape! {
                 dy: SIN_30,
             },
         ),
+        previous: &UP_RIGHT1,
+        next: &DOWN_RIGHT1,
     },
 
     UP_LEFT0 = {
@@ -121,6 +129,8 @@ define_shape! {
                 dy: -1.0,
             },
         ),
+        previous: &LEFT0,
+        next: &UP_RIGHT0,
     },
     DOWN_RIGHT1 = {
         corner_wall_offsets: &[
@@ -140,6 +150,8 @@ define_shape! {
                 dy: 1.0,
             },
         ),
+        previous: &RIGHT1,
+        next: &DOWN_LEFT1,
     },
 
     UP_LEFT1 = {
@@ -160,6 +172,8 @@ define_shape! {
                 dy: -1.0,
             },
         ),
+        previous: &LEFT1,
+        next: &UP_RIGHT1,
     },
     DOWN_RIGHT0 = {
         corner_wall_offsets: &[
@@ -179,6 +193,8 @@ define_shape! {
                 dy: 1.0,
             },
         ),
+        previous: &RIGHT0,
+        next: &DOWN_LEFT0,
     },
 
     UP_RIGHT0 = {
@@ -199,6 +215,8 @@ define_shape! {
                 dy: -SIN_30,
             },
         ),
+        previous: &UP_LEFT0,
+        next: &RIGHT0,
     },
     DOWN_LEFT1 = {
         corner_wall_offsets: &[
@@ -218,6 +236,8 @@ define_shape! {
                 dy: SIN_30,
             },
         ),
+        previous: &DOWN_RIGHT1,
+        next: &LEFT1,
     },
 
     UP_RIGHT1 = {
@@ -238,6 +258,8 @@ define_shape! {
                 dy: -SIN_30,
             },
         ),
+        previous: &UP_LEFT1,
+        next: &RIGHT1,
     },
     DOWN_LEFT0 = {
         corner_wall_offsets: &[
@@ -257,6 +279,8 @@ define_shape! {
                 dy: SIN_30,
             },
         ),
+        previous: &DOWN_RIGHT0,
+        next: &LEFT0,
     }
 }
 

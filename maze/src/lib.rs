@@ -407,7 +407,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walls_correct(maze: TestMaze) {
+    fn walls_unique(maze: TestMaze) {
         let walls = maze.walls(matrix_pos(0, 1));
         assert_eq!(
             walls
@@ -423,11 +423,14 @@ mod tests {
     fn walls_span(maze: TestMaze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
-                let d = (2.0 / 5.0) * (wall.span.1.a - wall.span.0.a);
+                let d =
+                    16.0 * std::f32::EPSILON * (wall.span.1.a - wall.span.0.a);
                 assert!(wall.in_span(wall.span.0.a + d));
                 assert!(!wall.in_span(wall.span.0.a - d));
+                assert!(wall.previous.in_span(wall.span.0.a - d));
                 assert!(wall.in_span(wall.span.1.a - d));
                 assert!(!wall.in_span(wall.span.1.a + d));
+                assert!(wall.next.in_span(wall.span.1.a + d));
 
                 assert!(
                     nearly_equal(wall.span.0.a.cos(), wall.span.0.dx),

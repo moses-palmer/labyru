@@ -191,8 +191,7 @@ where
     /// Returns the physical positions of the two corners of a wall.
     ///
     /// # Arguments
-    /// *  `pos` - The matrix position.
-    /// *  `wall` - The wall.
+    /// *  `wall_pos` - The wall position.
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
         let center = self.center(wall_pos.0);
         (
@@ -408,7 +407,7 @@ mod tests {
     }
 
     #[maze_test]
-    fn walls_correct(maze: TestMaze) {
+    fn walls_unique(maze: TestMaze) {
         let walls = maze.walls(matrix_pos(0, 1));
         assert_eq!(
             walls
@@ -424,11 +423,14 @@ mod tests {
     fn walls_span(maze: TestMaze) {
         for pos in maze.positions() {
             for wall in maze.walls(pos) {
-                let d = (2.0 / 5.0) * (wall.span.1.a - wall.span.0.a);
+                let d =
+                    16.0 * std::f32::EPSILON * (wall.span.1.a - wall.span.0.a);
                 assert!(wall.in_span(wall.span.0.a + d));
                 assert!(!wall.in_span(wall.span.0.a - d));
+                assert!(wall.previous.in_span(wall.span.0.a - d));
                 assert!(wall.in_span(wall.span.1.a - d));
                 assert!(!wall.in_span(wall.span.1.a + d));
+                assert!(wall.next.in_span(wall.span.1.a + d));
 
                 assert!(
                     nearly_equal(wall.span.0.a.cos(), wall.span.0.dx),
@@ -469,6 +471,39 @@ mod tests {
                         wall.span.1.a.sin(),
                         wall.span.1.dy,
                     ),
+                );
+            }
+        }
+    }
+
+    #[maze_test]
+    fn walls_order(maze: TestMaze) {
+        for pos in maze.positions() {
+            let walls = maze.walls(pos);
+            for i in 0..walls.len() {
+                let i = (
+                    (i + walls.len() - 1) % walls.len(),
+                    i,
+                    (i + 1) % walls.len(),
+                );
+                let d = 16.0
+                    * std::f32::EPSILON
+                    * (walls[i.1].span.1.a - walls[i.1].span.0.a);
+                assert!(
+                    walls[i.1].in_span(walls[i.0].span.1.a + d),
+                    "invalid wall order {:?} for {:?}: {:?} <=> {:?}",
+                    walls,
+                    maze.shape(),
+                    walls[i.0],
+                    walls[i.1],
+                );
+                assert!(
+                    walls[i.1].in_span(walls[i.2].span.0.a - d),
+                    "invalid wall order {:?} for {:?}: {:?} <=> {:?}",
+                    walls,
+                    maze.shape(),
+                    walls[i.1],
+                    walls[i.2],
                 );
             }
         }

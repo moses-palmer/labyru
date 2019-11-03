@@ -174,10 +174,10 @@ define_shape! {
 }
 
 /// The walls for even rows
-static ALL0: &[&wall::Wall] = &[&walls::LEFT0, &walls::RIGHT0, &walls::UP];
+static ALL0: &[&wall::Wall] = &[&walls::LEFT0, &walls::UP, &walls::RIGHT0];
 
 /// The walls for odd rows
-static ALL1: &[&wall::Wall] = &[&walls::LEFT1, &walls::DOWN, &walls::RIGHT1];
+static ALL1: &[&wall::Wall] = &[&walls::LEFT1, &walls::RIGHT1, &walls::DOWN];
 
 /// Returns whether a room is reversed.
 ///

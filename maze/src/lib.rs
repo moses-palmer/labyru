@@ -191,8 +191,7 @@ where
     /// Returns the physical positions of the two corners of a wall.
     ///
     /// # Arguments
-    /// *  `pos` - The matrix position.
-    /// *  `wall` - The wall.
+    /// *  `wall_pos` - The wall position.
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
         let center = self.center(wall_pos.0);
         (

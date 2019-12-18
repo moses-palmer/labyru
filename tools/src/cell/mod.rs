@@ -13,12 +13,9 @@ pub trait Cells {
     fn cell(&self, pos: physical::Pos) -> matrix::Pos;
 }
 
-impl<T> Cells for maze::Maze<T>
-where
-    T: Clone + Copy + Default,
-{
+impl Cells for maze::Shape {
     fn cell(&self, pos: physical::Pos) -> matrix::Pos {
-        self.room_at(pos)
+        self.physical_to_cell(pos)
     }
 }
 

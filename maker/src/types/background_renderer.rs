@@ -55,7 +55,7 @@ impl Renderer for BackgroundRenderer {
                     Intermediate::from(pixel),
                 )
             })
-            .split_by(maze, maze.width(), maze.height());
+            .split_by(&maze.shape(), maze.width(), maze.height());
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }

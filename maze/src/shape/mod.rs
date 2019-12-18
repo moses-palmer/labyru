@@ -113,6 +113,14 @@ impl Shape {
     pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
         dispatch!(self => minimal_dimensions(width, height))
     }
+
+    /// Converts a physical position to a matrix cell.
+    ///
+    /// # Arguments
+    /// *  `pos` - The physical position.
+    pub fn physical_to_cell(self, pos: physical::Pos) -> matrix::Pos {
+        dispatch!(self => room_at(pos))
+    }
 }
 
 impl std::convert::TryFrom<u32> for Shape {
@@ -388,6 +396,10 @@ mod tests {
                 let x = center.x + d * wall.span.0.dx;
                 let y = center.y + d * wall.span.0.dy;
                 assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
+                assert_eq!(
+                    maze.shape().physical_to_cell(physical::Pos { x, y }),
+                    pos,
+                );
             }
         }
     }

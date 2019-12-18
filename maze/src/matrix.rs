@@ -141,7 +141,7 @@ where
     pub fn map<F, S>(&self, mapper: F) -> Matrix<S>
     where
         F: Fn(&T) -> S,
-        S: Clone + Copy + Default,
+        S: Clone + Default,
     {
         self.positions().fold(
             Matrix::new(self.width, self.height),

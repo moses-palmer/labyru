@@ -103,6 +103,22 @@ impl Shape {
         Maze::new(self, width, height)
     }
 
+    /// Creates a maze of this type, populated with data from a source matrix.
+    ///
+    /// # Arguments
+    /// *  `source` - The source matrix. The maze dimensions are extracted from
+    ///    this object.
+    pub fn create_populated<T, V>(self, source: matrix::Matrix<T>) -> Maze<V>
+    where
+        T: Clone + Default + Into<V>,
+        V: Clone + Default,
+    {
+        Maze {
+            shape: self,
+            rooms: source.map(|data| data.clone().into().into()),
+        }
+    }
+
     /// Calculates the minimal dimensions for a maze to let the distance
     /// between the leftmost and rightmost corners be `width` and the distance
     /// between the top and bottom be `height`.
@@ -364,6 +380,24 @@ mod tests {
         assert_eq!("quad".parse(), Ok(Shape::Quad),);
         assert_eq!("hex".parse(), Ok(Shape::Hex),);
         assert_eq!("invalid".parse::<Shape>(), Err("invalid".to_owned()));
+    }
+
+    #[maze_test]
+    fn create_populated(maze: TestMaze) {
+        let width = 10;
+        let height = 5;
+
+        let mut matrix = matrix::Matrix::new(width, height);
+        for pos in matrix.positions() {
+            matrix[pos] = pos.col * pos.row;
+        }
+
+        let maze = maze.shape().create_populated(matrix);
+        assert_eq!(maze.width(), width);
+        assert_eq!(maze.height(), height);
+        for pos in maze.positions() {
+            assert_eq!(maze.data(pos), Some(&(pos.col * pos.row)));
+        }
     }
 
     #[maze_test]

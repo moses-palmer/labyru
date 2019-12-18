@@ -2,6 +2,6 @@
 extern crate lazy_static;
 
 pub mod alphabet;
-pub mod focus;
+pub mod cell;
 pub mod image;
 pub mod voronoi;

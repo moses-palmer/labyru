@@ -69,4 +69,21 @@ where
     }
 }
 
+impl<T> From<T> for Room<T>
+where
+    T: Clone + Default,
+{
+    /// Constructs a non-visited room with data.
+    ///
+    /// # Arguments
+    /// *  `source` - The data content.
+    fn from(source: T) -> Self {
+        Self {
+            walls: 0,
+            visited: false,
+            data: source,
+        }
+    }
+}
+
 pub type Rooms<T> = matrix::Matrix<Room<T>>;

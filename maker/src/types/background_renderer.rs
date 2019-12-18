@@ -6,7 +6,7 @@ use svg;
 use svg::Node;
 
 use maze::physical;
-use maze_tools::focus::*;
+use maze_tools::cell::*;
 use maze_tools::image::Color;
 
 use crate::types::*;
@@ -55,7 +55,7 @@ impl Renderer for BackgroundRenderer {
                     Intermediate::from(pixel),
                 )
             })
-            .focus(maze);
+            .split_by(maze);
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }

@@ -4,7 +4,7 @@ use std::str::FromStr;
 use image;
 
 use maze::physical;
-use maze_tools::focus::*;
+use maze_tools::cell::*;
 
 use super::*;
 
@@ -89,7 +89,7 @@ where
                     Intermediate::from(pixel),
                 )
             })
-            .focus(&maze)
+            .split_by(&maze)
             .map(|&v| v > self.threshold);
 
         methods.initialize(maze, rng, |pos| data[pos])

@@ -6,7 +6,7 @@ use svg::Node;
 
 use maze::physical;
 use maze_tools::alphabet;
-use maze_tools::focus::*;
+use maze_tools::cell::*;
 use maze_tools::image::Color;
 
 use crate::types::*;
@@ -51,7 +51,7 @@ impl Renderer for TextRenderer {
                     Intermediate::from(v),
                 )
             })
-            .focus(maze);
+            .split_by(maze);
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }

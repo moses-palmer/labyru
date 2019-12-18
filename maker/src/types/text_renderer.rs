@@ -51,7 +51,7 @@ impl Renderer for TextRenderer {
                     Intermediate::from(v),
                 )
             })
-            .split_by(maze);
+            .split_by(maze, maze.width(), maze.height());
 
         group.append(draw_rooms(maze, |pos| data[pos]));
     }

@@ -11,12 +11,6 @@ pub trait Cells {
     /// # Arguments
     /// *  `pos` - The physical position to translate.
     fn cell(&self, pos: physical::Pos) -> matrix::Pos;
-
-    /// The width of this facet.
-    fn width(&self) -> usize;
-
-    /// The height og this facet.
-    fn height(&self) -> usize;
 }
 
 impl<T> Cells for maze::Maze<T>
@@ -25,14 +19,6 @@ where
 {
     fn cell(&self, pos: physical::Pos) -> matrix::Pos {
         self.room_at(pos)
-    }
-
-    fn width(&self) -> usize {
-        maze::Maze::width(self)
-    }
-
-    fn height(&self) -> usize {
-        maze::Maze::height(self)
     }
 }
 
@@ -48,7 +34,14 @@ where
     /// # Arguments
     /// *  `cells` - The cells used to translate physical coordinates to matrix
     ///    coordinates.
-    fn split_by(self, cells: &C) -> matrix::Matrix<T>;
+    /// *  `width` - The expected width of the resulting matrix.
+    /// *  `height` - The expected height of the resulting matrix.
+    fn split_by(
+        self,
+        cells: &C,
+        width: usize,
+        height: usize,
+    ) -> matrix::Matrix<T>;
 }
 
 impl<'a, C, I, T, U> Splitter<C, T, U> for &'a mut I
@@ -58,9 +51,14 @@ where
     T: Copy + Default,
     U: Copy + Default + ops::Add<U, Output = U> + ops::Div<usize, Output = T>,
 {
-    fn split_by(self, cells: &C) -> matrix::Matrix<T> {
+    fn split_by(
+        self,
+        cells: &C,
+        width: usize,
+        height: usize,
+    ) -> matrix::Matrix<T> {
         self.fold(
-            matrix::Matrix::<(usize, U)>::new(cells.width(), cells.height()),
+            matrix::Matrix::<(usize, U)>::new(width, height),
             |mut acc, (physical_pos, value)| {
                 let matrix_pos = cells.cell(physical_pos);
                 if let Some((count, previous)) = acc.get(matrix_pos) {

@@ -89,7 +89,7 @@ where
                     Intermediate::from(pixel),
                 )
             })
-            .split_by(&maze)
+            .split_by(&maze, maze.width(), maze.height())
             .map(|&v| v > self.threshold);
 
         methods.initialize(maze, rng, |pos| data[pos])

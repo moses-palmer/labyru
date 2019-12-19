@@ -76,6 +76,24 @@ macro_rules! define_shape {
     }
 }
 
+/// A view box described by one corner and the width and height of the sides.
+///
+/// The corner is the coordinate closest to the point `(0, 0)`.
+#[derive(Clone, Copy, Debug)]
+pub struct ViewBox {
+    /// A corner.
+    ///
+    /// The coordinates of the remaining corners can be calculated by adding
+    /// `width` and `height` to this value.
+    pub corner: physical::Pos,
+
+    /// The width of the view box.
+    pub width: f32,
+
+    /// The height of the view box.
+    pub height: f32,
+}
+
 /// The different types of mazes implemented, identified by number of walls.
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -136,6 +154,69 @@ impl Shape {
     /// *  `pos` - The physical position.
     pub fn physical_to_cell(self, pos: physical::Pos) -> matrix::Pos {
         dispatch!(self => room_at(pos))
+    }
+
+    /// Returns the physical centre of a matrix cell.
+    ///
+    /// # Arguments
+    /// *  `pos` - The matrix position.
+    pub fn cell_to_physical(&self, pos: matrix::Pos) -> physical::Pos {
+        dispatch!(self => center(pos))
+    }
+
+    /// Calculates the _view box_ for a maze with this shape when rendered.
+    ///
+    /// The returned value is the minimal rectangle that will contain a maze
+    /// with the specified matrix dimensions.
+    ///
+    /// # Arguments
+    /// *  `cols` - The number of columns in the matrix.
+    /// *  `rows` - The number of rows in the matrix.
+    pub fn viewbox(&self, cols: usize, rows: usize) -> ViewBox {
+        let mut window =
+            (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
+        for y in 0..rows {
+            let lpos = matrix::Pos {
+                col: 0,
+                row: y as isize,
+            };
+            let lcenter = self.cell_to_physical(lpos);
+            let left = dispatch!(self => walls(lpos))
+                .iter()
+                .map(|wall| (lcenter, wall));
+
+            let rpos = matrix::Pos {
+                col: cols as isize - 1,
+                row: y as isize,
+            };
+            let rcenter = self.cell_to_physical(rpos);
+            let right = dispatch!(self => walls(rpos))
+                .iter()
+                .map(|wall| (rcenter, wall));
+
+            window = left
+                .chain(right)
+                .map(|(center, wall)| {
+                    (center.x + wall.span.0.dx, center.y + wall.span.0.dy)
+                })
+                .fold(window, |acc, v| {
+                    (
+                        acc.0.min(v.0),
+                        acc.1.min(v.1),
+                        acc.2.max(v.0),
+                        acc.3.max(v.1),
+                    )
+                });
+        }
+
+        ViewBox {
+            corner: physical::Pos {
+                x: window.0,
+                y: window.1,
+            },
+            width: window.2 - window.0,
+            height: window.3 - window.1,
+        }
     }
 }
 

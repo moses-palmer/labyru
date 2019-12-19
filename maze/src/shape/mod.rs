@@ -1,4 +1,5 @@
 use std;
+use std::ops;
 
 use serde::{Deserialize, Serialize};
 
@@ -92,6 +93,49 @@ pub struct ViewBox {
 
     /// The height of the view box.
     pub height: f32,
+}
+
+impl ViewBox {
+    /// Flattens this view box to the tuple `(x, y, width, height)`.
+    pub fn tuple(self) -> (f32, f32, f32, f32) {
+        (self.corner.x, self.corner.y, self.width, self.height)
+    }
+
+    /// Expands this view box with `d` units.
+    ///
+    /// The centre is maintained, but every side will be `d` units further from
+    /// it.
+    ///
+    /// If `d` is a negative value, the view box will be contracted, which may
+    /// lead to a view box width negative dimensions.
+    ///
+    /// # Arguments
+    /// *  `d` - The number of units to expand.
+    pub fn expand(self, d: f32) -> Self {
+        Self {
+            corner: physical::Pos {
+                x: self.corner.x - d,
+                y: self.corner.y - d,
+            },
+            width: self.width + 2.0 * d,
+            height: self.height + 2.0 * d,
+        }
+    }
+}
+
+impl ops::Mul<f32> for ViewBox {
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self {
+        Self {
+            corner: physical::Pos {
+                x: self.corner.x * rhs,
+                y: self.corner.y * rhs,
+            },
+            width: self.width * rhs,
+            height: self.height * rhs,
+        }
+    }
 }
 
 /// The different types of mazes implemented, identified by number of walls.
@@ -489,13 +533,21 @@ mod tests {
             let (w, h) = maze.shape.minimal_dimensions(width, height);
 
             let m = maze.shape.create::<()>(w, h);
-            let (_, _, actual_width, actual_height) = m.viewbox();
+            let ViewBox {
+                width: actual_width,
+                height: actual_height,
+                ..
+            } = m.viewbox();
             assert!(actual_width >= width);
             assert!(actual_height >= height);
 
             if w > 1 && h > 1 {
                 let m = maze.shape.create::<()>(w - 1, h - 1);
-                let (_, _, actual_width, actual_height) = m.viewbox();
+                let ViewBox {
+                    width: actual_width,
+                    height: actual_height,
+                    ..
+                } = m.viewbox();
                 assert!(actual_width <= width);
                 assert!(actual_height <= height);
             }

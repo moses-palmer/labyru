@@ -84,15 +84,17 @@ where
     where
         T: Clone + Default,
     {
-        let (left, top, width, height) = maze.viewbox();
+        let viewbox = maze.viewbox();
         super::matrix(
             maze,
             (0..self.methods.len())
                 .map(|i| {
                     (
                         physical::Pos {
-                            x: left + rng.random() as f32 * width,
-                            y: top + rng.random() as f32 * height,
+                            x: viewbox.corner.x
+                                + rng.random() as f32 * viewbox.width,
+                            y: viewbox.corner.y
+                                + rng.random() as f32 * viewbox.height,
                         },
                         (rng.random() as f32) + 0.5,
                         i,

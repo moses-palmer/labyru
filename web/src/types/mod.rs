@@ -68,7 +68,7 @@ impl From<Maze> for HttpResponse {
             );
         }
         let data = svg::Document::new()
-            .set("viewBox", maze.viewbox())
+            .set("viewBox", maze.viewbox().tuple())
             .add(container)
             .to_string();
         HttpResponse::Ok().content_type("image/svg+xml").body(data)

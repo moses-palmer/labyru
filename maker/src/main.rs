@@ -52,14 +52,7 @@ fn maze_to_viewbox(
     scale: f32,
     margin: f32,
 ) -> (f32, f32, f32, f32) {
-    let viewbox = maze.viewbox();
-
-    (
-        viewbox.0 * scale - margin,
-        viewbox.1 * scale - margin,
-        viewbox.2 * scale + 2.0 * margin,
-        viewbox.3 * scale + 2.0 * margin,
-    )
+    (maze.viewbox() * scale).expand(margin).tuple()
 }
 
 #[allow(unused_mut)]

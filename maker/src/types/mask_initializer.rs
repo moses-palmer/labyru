@@ -4,6 +4,7 @@ use std::str::FromStr;
 use image;
 
 use maze::physical;
+use maze::shape;
 use maze_tools::cell::*;
 
 use super::*;
@@ -75,7 +76,7 @@ where
     /// *  `rng` - A random number generator.
     /// *  `methods` - The initialisers to use to generate the maze.
     fn initialize(&self, maze: Maze, rng: &mut R, methods: Methods<R>) -> Maze {
-        let (_, _, width, height) = maze.viewbox();
+        let shape::ViewBox { width, height, .. } = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self
             .image

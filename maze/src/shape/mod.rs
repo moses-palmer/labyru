@@ -607,13 +607,21 @@ mod tests {
             let (w, h) = maze.shape.minimal_dimensions(width, height);
 
             let m = maze.shape.create::<()>(w, h);
-            let (_, _, actual_width, actual_height) = m.viewbox();
+            let ViewBox {
+                width: actual_width,
+                height: actual_height,
+                ..
+            } = m.viewbox();
             assert!(actual_width >= width);
             assert!(actual_height >= height);
 
             if w > 1 && h > 1 {
                 let m = maze.shape.create::<()>(w - 1, h - 1);
-                let (_, _, actual_width, actual_height) = m.viewbox();
+                let ViewBox {
+                    width: actual_width,
+                    height: actual_height,
+                    ..
+                } = m.viewbox();
                 assert!(actual_width <= width);
                 assert!(actual_height <= height);
             }

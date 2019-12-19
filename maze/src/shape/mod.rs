@@ -1,4 +1,5 @@
 use std;
+use std::ops;
 
 use serde::{Deserialize, Serialize};
 
@@ -76,6 +77,92 @@ macro_rules! define_shape {
     }
 }
 
+/// A view box described by one corner and the width and height of the sides.
+///
+/// The corner is the coordinate closest to the point `(0, 0)`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ViewBox {
+    /// A corner.
+    ///
+    /// The coordinates of the remaining corners can be calculated by adding
+    /// `width` and `height` to this value.
+    pub corner: physical::Pos,
+
+    /// The width of the view box.
+    pub width: f32,
+
+    /// The height of the view box.
+    pub height: f32,
+}
+
+impl ViewBox {
+    /// Creates a view box centered around a point.
+    ///
+    /// # Arguments
+    /// *  `pos` - The centre.
+    /// *  `width` - The width of the view box.
+    /// *  `height` - The height of the view box.
+    pub fn centered_at(pos: physical::Pos, width: f32, height: f32) -> Self {
+        Self {
+            corner: physical::Pos {
+                x: pos.x - 0.5 * width,
+                y: pos.y - 0.5 * height,
+            },
+            width,
+            height,
+        }
+    }
+
+    /// Flattens this view box to the tuple `(x, y, width, height)`.
+    pub fn tuple(self) -> (f32, f32, f32, f32) {
+        (self.corner.x, self.corner.y, self.width, self.height)
+    }
+
+    /// Expands this view box with `d` units.
+    ///
+    /// The centre is maintained, but every side will be `d` units further from
+    /// it.
+    ///
+    /// If `d` is a negative value, the view box will be contracted, which may
+    /// lead to a view box width negative dimensions.
+    ///
+    /// # Arguments
+    /// *  `d` - The number of units to expand.
+    pub fn expand(self, d: f32) -> Self {
+        Self {
+            corner: physical::Pos {
+                x: self.corner.x - d,
+                y: self.corner.y - d,
+            },
+            width: self.width + 2.0 * d,
+            height: self.height + 2.0 * d,
+        }
+    }
+
+    /// The centre of this view box.
+    pub fn center(self) -> physical::Pos {
+        physical::Pos {
+            x: self.corner.x + 0.5 * self.width,
+            y: self.corner.y + 0.5 * self.height,
+        }
+    }
+}
+
+impl ops::Mul<f32> for ViewBox {
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self {
+        Self {
+            corner: physical::Pos {
+                x: self.corner.x * rhs,
+                y: self.corner.y * rhs,
+            },
+            width: self.width * rhs,
+            height: self.height * rhs,
+        }
+    }
+}
+
 /// The different types of mazes implemented, identified by number of walls.
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -136,6 +223,69 @@ impl Shape {
     /// *  `pos` - The physical position.
     pub fn physical_to_cell(self, pos: physical::Pos) -> matrix::Pos {
         dispatch!(self => room_at(pos))
+    }
+
+    /// Returns the physical centre of a matrix cell.
+    ///
+    /// # Arguments
+    /// *  `pos` - The matrix position.
+    pub fn cell_to_physical(self, pos: matrix::Pos) -> physical::Pos {
+        dispatch!(self => center(pos))
+    }
+
+    /// Calculates the _view box_ for a maze with this shape when rendered.
+    ///
+    /// The returned value is the minimal rectangle that will contain a maze
+    /// with the specified matrix dimensions.
+    ///
+    /// # Arguments
+    /// *  `cols` - The number of columns in the matrix.
+    /// *  `rows` - The number of rows in the matrix.
+    pub fn viewbox(self, cols: usize, rows: usize) -> ViewBox {
+        let mut window =
+            (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
+        for y in 0..rows {
+            let lpos = matrix::Pos {
+                col: 0,
+                row: y as isize,
+            };
+            let lcenter = self.cell_to_physical(lpos);
+            let left = dispatch!(self => walls(lpos))
+                .iter()
+                .map(|wall| (lcenter, wall));
+
+            let rpos = matrix::Pos {
+                col: cols as isize - 1,
+                row: y as isize,
+            };
+            let rcenter = self.cell_to_physical(rpos);
+            let right = dispatch!(self => walls(rpos))
+                .iter()
+                .map(|wall| (rcenter, wall));
+
+            window = left
+                .chain(right)
+                .map(|(center, wall)| {
+                    (center.x + wall.span.0.dx, center.y + wall.span.0.dy)
+                })
+                .fold(window, |acc, v| {
+                    (
+                        acc.0.min(v.0),
+                        acc.1.min(v.1),
+                        acc.2.max(v.0),
+                        acc.3.max(v.1),
+                    )
+                });
+        }
+
+        ViewBox {
+            corner: physical::Pos {
+                x: window.0,
+                y: window.1,
+            },
+            width: window.2 - window.0,
+            height: window.3 - window.1,
+        }
     }
 }
 
@@ -372,6 +522,55 @@ mod tests {
             .collect::<hash_set::HashSet<matrix::Pos>>(),
             surround((0isize, 0isize).into(), 1).collect(),
         );
+    }
+
+    #[test]
+    fn viewbox_centered_at() {
+        assert_eq!(
+            ViewBox::centered_at(physical::Pos { x: 0.0, y: 0.0 }, 2.0, 2.0),
+            ViewBox {
+                corner: physical::Pos { x: -1.0, y: -1.0 },
+                width: 2.0,
+                height: 2.0,
+            },
+        );
+    }
+
+    #[test]
+    fn viewbox_expand() {
+        assert_eq!(
+            ViewBox {
+                corner: physical::Pos { x: 1.0, y: 1.0 },
+                width: 1.0,
+                height: 1.0,
+            }
+            .expand(1.0),
+            ViewBox {
+                corner: physical::Pos { x: 0.0, y: 0.0 },
+                width: 3.0,
+                height: 3.0,
+            },
+        );
+        assert_eq!(
+            ViewBox {
+                corner: physical::Pos { x: 1.0, y: 1.0 },
+                width: 1.0,
+                height: 1.0,
+            }
+            .expand(1.0)
+            .expand(-1.0),
+            ViewBox {
+                corner: physical::Pos { x: 1.0, y: 1.0 },
+                width: 1.0,
+                height: 1.0,
+            },
+        );
+    }
+
+    #[test]
+    fn viewbox_center() {
+        let center = physical::Pos { x: 5.0, y: -5.0 };
+        assert_eq!(ViewBox::centered_at(center, 10.0, 10.0).center(), center);
     }
 
     #[test]

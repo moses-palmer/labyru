@@ -395,23 +395,13 @@ where
     /// any corner, will not match.
     ///
     /// # Arguments
-    /// *  `center` - The centre of the rectangle.
-    /// *  `width` - The width of the rectangle. The absolute value will be
-    ///    used.
-    /// *  `height` - The height of the rectangle. The absolute value will be
-    ///    used.
-    pub fn rooms_touched_by(
-        &self,
-        center: physical::Pos,
-        width: f32,
-        height: f32,
-    ) -> Vec<matrix::Pos> {
-        let dx = (width * 0.5).abs();
-        let dy = (height * 0.5).abs();
-        let top = center.y - dy;
-        let left = center.x - dx;
-        let bottom = center.y + dy;
-        let right = center.x + dx;
+    /// *  `viewbox` - The rectangle.
+    pub fn rooms_touched_by(&self, viewbox: ViewBox) -> Vec<matrix::Pos> {
+        let center = viewbox.center();
+        let left = viewbox.corner.x;
+        let top = viewbox.corner.y;
+        let right = left + viewbox.width;
+        let bottom = top + viewbox.height;
         let start = self.room_at(center);
 
         let mut result = Vec::new();
@@ -657,18 +647,17 @@ mod tests {
                     (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
                 },
             );
-        let center = physical::Pos {
-            x: (left + right) / 2.0,
-            y: (top + bottom) / 2.0,
+        let viewbox = ViewBox {
+            corner: physical::Pos { x: left, y: top },
+            width: right - left,
+            height: bottom - top,
         };
-        let width = right - left;
-        let height = bottom - top;
 
         assert_eq!(
             maze.positions()
                 .filter(|pos| pos.row == 0)
                 .collect::<hash_set::HashSet<_>>(),
-            maze.rooms_touched_by(center, width, height)
+            maze.rooms_touched_by(viewbox)
                 .into_iter()
                 .filter(|&pos| maze.is_inside(pos))
                 .collect::<hash_set::HashSet<_>>(),
@@ -693,18 +682,17 @@ mod tests {
                     (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
                 },
             );
-        let center = physical::Pos {
-            x: (left + right) / 2.0,
-            y: (top + bottom) / 2.0,
+        let viewbox = ViewBox {
+            corner: physical::Pos { x: left, y: top },
+            width: right - left,
+            height: bottom - top,
         };
-        let width = right - left;
-        let height = bottom - top;
 
         assert_eq!(
             maze.positions()
                 .filter(|pos| pos.row == 0 || pos.row == 1)
                 .collect::<hash_set::HashSet<_>>(),
-            maze.rooms_touched_by(center, width, height)
+            maze.rooms_touched_by(viewbox)
                 .into_iter()
                 .filter(|&pos| maze.is_inside(pos))
                 .collect::<hash_set::HashSet<_>>(),

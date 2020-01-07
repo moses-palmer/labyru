@@ -138,9 +138,9 @@ where
     ///
     /// # Arguments
     /// *  `mapper` - The mapping function.
-    pub fn map<F, S>(&self, mapper: F) -> Matrix<S>
+    pub fn map<F, S>(&self, mut mapper: F) -> Matrix<S>
     where
-        F: Fn(&T) -> S,
+        F: FnMut(&T) -> S,
         S: Clone + Default,
     {
         self.positions().fold(

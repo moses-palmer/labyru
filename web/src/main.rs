@@ -27,7 +27,7 @@ fn maze_svg(
 
 fn main() {
     HttpServer::new(|| App::new().service(maze_svg))
-        .bind("127.0.0.1:8000")
+        .bind("0.0.0.0:8000")
         .unwrap()
         .run()
         .unwrap();

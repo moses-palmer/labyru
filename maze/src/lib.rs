@@ -73,7 +73,7 @@ where
     /// # Arguments
     /// *  `pos``- The room position.
     pub fn data(&self, pos: matrix::Pos) -> Option<&T> {
-        self.rooms.get(pos).and_then(|room| Some(&room.data))
+        self.rooms.get(pos).map(|room| &room.data)
     }
 
     /// Retrieves tha mutable data for a specific room.
@@ -81,9 +81,7 @@ where
     /// # Arguments
     /// *  `pos``- The room position.
     pub fn data_mut(&mut self, pos: matrix::Pos) -> Option<&mut T> {
-        self.rooms
-            .get_mut(pos)
-            .and_then(|room| Some(&mut room.data))
+        self.rooms.get_mut(pos).map(|room| &mut room.data)
     }
 
     /// Determines whether a position is inside of the maze.

@@ -1,6 +1,4 @@
-use std;
-
-use crate::matrix;
+use crate::shape;
 use crate::Maze;
 
 impl<T> Maze<T>
@@ -9,42 +7,10 @@ where
 {
     /// Calculates the _view box_ for an object when rendered.
     ///
-    /// The returned tuple _(left, top, width, height)_ is the minimal rectangle
-    /// that will contain the walls of the maze.
-    pub fn viewbox(&self) -> (f32, f32, f32, f32) {
-        let mut window =
-            (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
-        for y in 0..self.height() {
-            let lpos = matrix::Pos {
-                col: 0,
-                row: y as isize,
-            };
-            let lcenter = self.center(lpos);
-            let left = self.walls(lpos).iter().map(|wall| (lcenter, wall));
-
-            let rpos = matrix::Pos {
-                col: self.width() as isize - 1,
-                row: y as isize,
-            };
-            let rcenter = self.center(rpos);
-            let right = self.walls(rpos).iter().map(|wall| (rcenter, wall));
-
-            window = left
-                .chain(right)
-                .map(|(center, wall)| {
-                    (center.x + wall.span.0.dx, center.y + wall.span.0.dy)
-                })
-                .fold(window, |acc, v| {
-                    (
-                        acc.0.min(v.0),
-                        acc.1.min(v.1),
-                        acc.2.max(v.0),
-                        acc.3.max(v.1),
-                    )
-                });
-        }
-
-        (window.0, window.1, window.2 - window.0, window.3 - window.1)
+    /// The returned value is the minimal rectangle that will contain this
+    /// maze.
+    pub fn viewbox(&self) -> shape::ViewBox {
+        self.shape().viewbox(self.width(), self.height())
     }
 }
 

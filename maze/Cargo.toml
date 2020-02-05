@@ -1,6 +1,6 @@
 [package]
 name = "maze"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 edition = "2018"
 

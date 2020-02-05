@@ -10,6 +10,9 @@ serde = { version = "1.0", features = ["derive"] }
 svg = { version = "0.5", optional = true }
 maze-test = { path = "../test" }
 
+[dev-dependencies]
+serde_json = "*"
+
 [features]
 default = ["osrand", "render-svg"]
 osrand = ["rand"]

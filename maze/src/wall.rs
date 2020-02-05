@@ -1,6 +1,9 @@
 use std;
 
-use serde::{Deserialize, Serialize};
+use serde::de::Error;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use crate::shape::Shape;
 
 /// The maximum nomalised value of a radian.
 const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
@@ -43,10 +46,13 @@ pub struct Angle {
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, PartialOrd, Serialize)]
+#[derive(Clone, PartialOrd)]
 pub struct Wall {
     /// The name of this wall.
     pub name: &'static str,
+
+    /// The shape to which this wall belongs.
+    pub shape: Shape,
 
     /// The index of this wall, used to generate the bit mask.
     pub index: Index,
@@ -115,7 +121,9 @@ impl Wall {
 
 impl PartialEq for Wall {
     fn eq(&self, other: &Self) -> bool {
-        self.index == other.index && self.dir == other.dir
+        self.shape == other.shape
+            && self.index == other.index
+            && self.dir == other.dir
     }
 }
 
@@ -126,6 +134,7 @@ impl std::hash::Hash for Wall {
     where
         H: std::hash::Hasher,
     {
+        self.shape.hash(state);
         self.index.hash(state);
         self.dir.hash(state);
     }
@@ -140,5 +149,49 @@ impl std::fmt::Debug for Wall {
 impl Ord for Wall {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
+    }
+}
+
+impl<'de> Deserialize<'de> for &'static Wall {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wall_name = String::deserialize(deserializer)?;
+        crate::shape::hex::walls::ALL
+            .iter()
+            .chain(crate::shape::quad::walls::ALL.iter())
+            .chain(crate::shape::tri::walls::ALL.iter())
+            .find(|wall| wall.name == wall_name)
+            .map(|&wall| wall)
+            .ok_or_else(|| D::Error::custom("expected a wall name"))
+    }
+}
+
+impl Serialize for Wall {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.name)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use maze_test::maze_test;
+
+    use super::*;
+    use crate::*;
+    use test_utils::*;
+
+    #[maze_test]
+    fn wall_serialization(maze: TestMaze) {
+        for wall in maze.all_walls() {
+            let serialized = serde_json::to_string(wall).unwrap();
+            let deserialized: &'static Wall =
+                serde_json::from_str(&serialized).unwrap();
+            assert_eq!(*wall, deserialized);
+        }
     }
 }

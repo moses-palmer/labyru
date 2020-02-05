@@ -25,6 +25,8 @@ const TOP_HEIGHT: f32 = 1.0 + SIN_30;
 
 // The walls are arranged in back-to-back pairs
 define_shape! {
+    << Hex >>
+
     LEFT0 = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::DOWN_RIGHT0 as Index },

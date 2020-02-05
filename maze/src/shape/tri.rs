@@ -25,6 +25,8 @@ const VERTICAL_MULTIPLICATOR: f32 = 2.0 - 1.0f32 / 2.0f32;
 const OFFSET: f32 = 1.0f32 / 4.0f32;
 
 define_shape! {
+    << Tri >>
+
     LEFT0 = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::DOWN as Index },

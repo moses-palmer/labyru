@@ -36,7 +36,9 @@ macro_rules! dispatch {
 ///
 /// This is an internal library macro.
 macro_rules! define_shape {
-    ( $( $wall_name:ident = { $( $field:ident: $val:expr, )* } ),* ) => {
+    ( << $name:ident >> $( $wall_name:ident = {
+            $( $field:ident: $val:expr, )*
+    } ),* ) => {
         #[allow(unused_imports, non_camel_case_types)]
         pub mod walls {
             use $crate::wall as wall;
@@ -47,7 +49,7 @@ macro_rules! define_shape {
             }
 
             $(pub static $wall_name: wall::Wall = wall::Wall {
-                name: stringify!($wall_name),
+                name: concat!(stringify!($name), ":", stringify!($wall_name)),
                 index: WallIndex::$wall_name as usize,
                 $( $field: $val, )*
             } );*;

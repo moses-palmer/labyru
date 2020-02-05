@@ -16,6 +16,8 @@ const D: f32 = std::f32::consts::PI / 4.0;
 const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;
 
 define_shape! {
+    << Quad >>
+
     UP = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: -1, wall: WallIndex::LEFT as Index },

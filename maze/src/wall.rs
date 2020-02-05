@@ -2,6 +2,8 @@ use std;
 
 use serde::{Deserialize, Serialize};
 
+use crate::shape::Shape;
+
 /// The maximum nomalised value of a radian.
 const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
 
@@ -47,6 +49,9 @@ pub struct Angle {
 pub struct Wall {
     /// The name of this wall.
     pub name: &'static str,
+
+    /// The shape to which this wall belongs.
+    pub shape: Shape,
 
     /// The index of this wall, used to generate the bit mask.
     pub index: Index,
@@ -115,7 +120,9 @@ impl Wall {
 
 impl PartialEq for Wall {
     fn eq(&self, other: &Self) -> bool {
-        self.index == other.index && self.dir == other.dir
+        self.shape == other.shape
+            && self.index == other.index
+            && self.dir == other.dir
     }
 }
 
@@ -126,6 +133,7 @@ impl std::hash::Hash for Wall {
     where
         H: std::hash::Hasher,
     {
+        self.shape.hash(state);
         self.index.hash(state);
         self.dir.hash(state);
     }

@@ -50,6 +50,7 @@ macro_rules! define_shape {
 
             $(pub static $wall_name: wall::Wall = wall::Wall {
                 name: concat!(stringify!($name), ":", stringify!($wall_name)),
+                shape: crate::shape::Shape::$name,
                 index: WallIndex::$wall_name as usize,
                 $( $field: $val, )*
             } );*;
@@ -166,7 +167,9 @@ impl ops::Mul<f32> for ViewBox {
 }
 
 /// The different types of mazes implemented, identified by number of walls.
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(
+    Clone, Copy, Debug, Deserialize, Hash, PartialEq, PartialOrd, Serialize,
+)]
 #[serde(rename_all = "lowercase")]
 pub enum Shape {
     /// A maze with triangular rooms.

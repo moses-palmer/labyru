@@ -67,8 +67,7 @@ pub struct Wall {
     /// The span, in radians, of the wall.
     ///
     /// The first value is the start of the span, and the second value the end.
-    /// The second value will always be greater, even if the span wraps around
-    /// _2𝜋_.
+    /// The second value will be smaller if the span wraps around _2𝜋_.
     pub span: (Angle, Angle),
 
     /// The previous wall, clock-wise.
@@ -110,11 +109,10 @@ impl Wall {
     pub fn in_span(&self, angle: f32) -> bool {
         let normalized = Wall::normalized_angle(angle);
 
-        if (self.span.0.a <= normalized) && (normalized < self.span.1.a) {
-            true
+        if self.span.0.a < self.span.1.a {
+            (self.span.0.a <= normalized) && (normalized < self.span.1.a)
         } else {
-            let overflowed = normalized + RADIAN_BOUND;
-            (self.span.0.a <= overflowed) && (overflowed < self.span.1.a)
+            (self.span.0.a <= normalized) || (normalized < self.span.1.a)
         }
     }
 }
@@ -179,11 +177,116 @@ impl Serialize for Wall {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use maze_test::maze_test;
 
     use super::*;
     use crate::*;
     use test_utils::*;
+
+    #[maze_test]
+    fn unique(maze: TestMaze) {
+        let walls = maze.walls(matrix_pos(0, 1));
+        assert_eq!(
+            walls
+                .iter()
+                .cloned()
+                .collect::<HashSet<&wall::Wall>>()
+                .len(),
+            walls.len()
+        );
+    }
+
+    #[maze_test]
+    fn span(maze: TestMaze) {
+        fn assert_span(wall: &'static Wall, angle: f32) {
+            assert!(
+                wall.in_span(angle),
+                "{} was not in span ({} - {}) for {:?}",
+                angle,
+                wall.span.0.a,
+                wall.span.1.a,
+                wall,
+            );
+        }
+
+        fn assert_not_span(wall: &'static Wall, angle: f32) {
+            assert!(
+                !wall.in_span(angle),
+                "{} was in span ({} - {}) for {:?}",
+                angle,
+                wall.span.0.a,
+                wall.span.1.a,
+                wall,
+            );
+        }
+
+        for pos in maze.positions() {
+            for wall in maze.walls(pos) {
+                let d = 16.0 * std::f32::EPSILON;
+                assert_span(wall, wall.span.0.a + d);
+                assert_not_span(wall, wall.span.0.a - d);
+                assert_span(wall.previous, wall.span.0.a - d);
+                assert_span(wall, wall.span.1.a - d);
+                assert_not_span(wall, wall.span.1.a + d);
+                assert_span(wall.next, wall.span.1.a + d);
+
+                assert!(
+                    nearly_equal(wall.span.0.a.cos(), wall.span.0.dx),
+                    "{} span 0 dx invalid ({} != {})",
+                    wall.name,
+                    wall.span.0.a.cos(),
+                    wall.span.0.dx,
+                );
+                assert!(
+                    nearly_equal(wall.span.0.a.sin(), wall.span.0.dy),
+                    "{} span 0 dy invalid ({} != {})",
+                    wall.name,
+                    wall.span.0.a.sin(),
+                    wall.span.0.dy,
+                );
+                assert!(
+                    nearly_equal(wall.span.1.a.cos(), wall.span.1.dx),
+                    "{} span 1 dx invalid ({} != {})",
+                    wall.name,
+                    wall.span.1.a.cos(),
+                    wall.span.1.dx,
+                );
+                assert!(
+                    nearly_equal(wall.span.1.a.sin(), wall.span.1.dy),
+                    "{} span 1 dy invalid ({} != {})",
+                    wall.name,
+                    wall.span.1.a.sin(),
+                    wall.span.1.dy,
+                );
+            }
+        }
+    }
+
+    #[maze_test]
+    fn order(maze: TestMaze) {
+        for pos in maze.positions() {
+            let walls = maze.walls(pos);
+            for wall in walls {
+                let d = 16.0 * std::f32::EPSILON;
+                assert!(
+                    wall.in_span(wall.previous.span.1.a + d),
+                    "invalid wall order {:?}: {:?} <=> {:?}",
+                    walls,
+                    wall.previous,
+                    wall,
+                );
+                assert!(
+                    wall.in_span(wall.next.span.0.a - d),
+                    "invalid wall order {:?}: {:?} <=> {:?}",
+                    walls,
+                    wall,
+                    wall.next,
+                );
+            }
+        }
+    }
 
     #[maze_test]
     fn wall_serialization(maze: TestMaze) {
@@ -193,5 +296,36 @@ mod tests {
                 serde_json::from_str(&serialized).unwrap();
             assert_eq!(*wall, deserialized);
         }
+    }
+
+    #[maze_test]
+    fn in_span(maze: TestMaze) {
+        let mut failures = Vec::new();
+        let count = 100_000;
+
+        // Test for two different rooms to ensure we cover all room types
+        for col in 0..=1 {
+            failures.extend(
+                (0..=count)
+                    .map(|t| {
+                        2.0 * (RADIAN_BOUND * (t as f32 / count as f32)
+                            - std::f32::consts::PI)
+                    })
+                    .filter(|&a| {
+                        maze.walls(matrix::Pos { col, row: 0 })
+                            .iter()
+                            .filter(|wall| wall.in_span(a))
+                            .next()
+                            .is_none()
+                    }),
+            );
+        }
+
+        assert_eq!(
+            Vec::<f32>::new(),
+            failures,
+            "not all angles were in the span of a wall ({}% failed)",
+            100.0 * (failures.len() as f32 / (2.0 * count as f32)),
+        );
     }
 }

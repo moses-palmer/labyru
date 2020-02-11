@@ -98,7 +98,7 @@ define_shape! {
                 dy: -SIN_45,
             },
             Angle {
-                a: 9.0 * D,
+                a: 1.0 * D,
                 dx: COS_45,
                 dy: SIN_45,
             },

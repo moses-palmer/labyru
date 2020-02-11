@@ -67,8 +67,7 @@ pub struct Wall {
     /// The span, in radians, of the wall.
     ///
     /// The first value is the start of the span, and the second value the end.
-    /// The second value will always be greater, even if the span wraps around
-    /// _2𝜋_.
+    /// The second value will be smaller if the span wraps around _2𝜋_.
     pub span: (Angle, Angle),
 
     /// The previous wall, clock-wise.
@@ -110,11 +109,10 @@ impl Wall {
     pub fn in_span(&self, angle: f32) -> bool {
         let normalized = Wall::normalized_angle(angle);
 
-        if (self.span.0.a <= normalized) && (normalized < self.span.1.a) {
-            true
+        if self.span.0.a < self.span.1.a {
+            (self.span.0.a <= normalized) && (normalized < self.span.1.a)
         } else {
-            let overflowed = normalized + RADIAN_BOUND;
-            (self.span.0.a <= overflowed) && (overflowed < self.span.1.a)
+            (self.span.0.a <= normalized) || (normalized < self.span.1.a)
         }
     }
 }
@@ -298,5 +296,36 @@ mod tests {
                 serde_json::from_str(&serialized).unwrap();
             assert_eq!(*wall, deserialized);
         }
+    }
+
+    #[maze_test]
+    fn in_span(maze: TestMaze) {
+        let mut failures = Vec::new();
+        let count = 100_000;
+
+        // Test for two different rooms to ensure we cover all room types
+        for col in 0..=1 {
+            failures.extend(
+                (0..=count)
+                    .map(|t| {
+                        2.0 * (RADIAN_BOUND * (t as f32 / count as f32)
+                            - std::f32::consts::PI)
+                    })
+                    .filter(|&a| {
+                        maze.walls(matrix::Pos { col, row: 0 })
+                            .iter()
+                            .filter(|wall| wall.in_span(a))
+                            .next()
+                            .is_none()
+                    }),
+            );
+        }
+
+        assert_eq!(
+            Vec::<f32>::new(),
+            failures,
+            "not all angles were in the span of a wall ({}% failed)",
+            100.0 * (failures.len() as f32 / (2.0 * count as f32)),
+        );
     }
 }

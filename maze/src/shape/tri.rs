@@ -67,7 +67,7 @@ define_shape! {
                 dy: -1.0,
             },
             Angle {
-                a: 13.0 * D,
+                a: 1.0 * D,
                 dx: COS_30,
                 dy: SIN_30,
             },
@@ -116,7 +116,7 @@ define_shape! {
                 dy: -SIN_30,
             },
             Angle {
-                a: 15.0 * D,
+                a: 3.0 * D,
                 dx: 0.0,
                 dy: 1.0,
             },

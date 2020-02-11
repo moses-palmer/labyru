@@ -332,8 +332,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use maze_test::maze_test;
 
     use super::test_utils::*;
@@ -402,109 +400,6 @@ mod tests {
                 .count()
                 == 0
         );
-    }
-
-    #[maze_test]
-    fn walls_unique(maze: TestMaze) {
-        let walls = maze.walls(matrix_pos(0, 1));
-        assert_eq!(
-            walls
-                .iter()
-                .cloned()
-                .collect::<HashSet<&wall::Wall>>()
-                .len(),
-            walls.len()
-        );
-    }
-
-    #[maze_test]
-    fn walls_span(maze: TestMaze) {
-        for pos in maze.positions() {
-            for wall in maze.walls(pos) {
-                let d =
-                    16.0 * std::f32::EPSILON * (wall.span.1.a - wall.span.0.a);
-                assert!(wall.in_span(wall.span.0.a + d));
-                assert!(!wall.in_span(wall.span.0.a - d));
-                assert!(wall.previous.in_span(wall.span.0.a - d));
-                assert!(wall.in_span(wall.span.1.a - d));
-                assert!(!wall.in_span(wall.span.1.a + d));
-                assert!(wall.next.in_span(wall.span.1.a + d));
-
-                assert!(
-                    nearly_equal(wall.span.0.a.cos(), wall.span.0.dx),
-                    format!(
-                        "{:?} wall {} span 0 dx invalid ({} != {})",
-                        maze.shape(),
-                        wall.name,
-                        wall.span.0.a.cos(),
-                        wall.span.0.dx,
-                    ),
-                );
-                assert!(
-                    nearly_equal(wall.span.0.a.sin(), wall.span.0.dy),
-                    format!(
-                        "{:?} wall {} span 0 dy invalid ({} != {})",
-                        maze.shape(),
-                        wall.name,
-                        wall.span.0.a.sin(),
-                        wall.span.0.dy,
-                    ),
-                );
-                assert!(
-                    nearly_equal(wall.span.1.a.cos(), wall.span.1.dx),
-                    format!(
-                        "{:?} wall {} span 1 dx invalid ({} != {})",
-                        maze.shape(),
-                        wall.name,
-                        wall.span.1.a.cos(),
-                        wall.span.1.dx,
-                    ),
-                );
-                assert!(
-                    nearly_equal(wall.span.1.a.sin(), wall.span.1.dy),
-                    format!(
-                        "{:?} wall {} span 1 dy invalid ({} != {})",
-                        maze.shape(),
-                        wall.name,
-                        wall.span.1.a.sin(),
-                        wall.span.1.dy,
-                    ),
-                );
-            }
-        }
-    }
-
-    #[maze_test]
-    fn walls_order(maze: TestMaze) {
-        for pos in maze.positions() {
-            let walls = maze.walls(pos);
-            for i in 0..walls.len() {
-                let i = (
-                    (i + walls.len() - 1) % walls.len(),
-                    i,
-                    (i + 1) % walls.len(),
-                );
-                let d = 16.0
-                    * std::f32::EPSILON
-                    * (walls[i.1].span.1.a - walls[i.1].span.0.a);
-                assert!(
-                    walls[i.1].in_span(walls[i.0].span.1.a + d),
-                    "invalid wall order {:?} for {:?}: {:?} <=> {:?}",
-                    walls,
-                    maze.shape(),
-                    walls[i.0],
-                    walls[i.1],
-                );
-                assert!(
-                    walls[i.1].in_span(walls[i.2].span.0.a - d),
-                    "invalid wall order {:?} for {:?}: {:?} <=> {:?}",
-                    walls,
-                    maze.shape(),
-                    walls[i.1],
-                    walls[i.2],
-                );
-            }
-        }
     }
 
     #[maze_test]

@@ -179,11 +179,116 @@ impl Serialize for Wall {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use maze_test::maze_test;
 
     use super::*;
     use crate::*;
     use test_utils::*;
+
+    #[maze_test]
+    fn unique(maze: TestMaze) {
+        let walls = maze.walls(matrix_pos(0, 1));
+        assert_eq!(
+            walls
+                .iter()
+                .cloned()
+                .collect::<HashSet<&wall::Wall>>()
+                .len(),
+            walls.len()
+        );
+    }
+
+    #[maze_test]
+    fn span(maze: TestMaze) {
+        fn assert_span(wall: &'static Wall, angle: f32) {
+            assert!(
+                wall.in_span(angle),
+                "{} was not in span ({} - {}) for {:?}",
+                angle,
+                wall.span.0.a,
+                wall.span.1.a,
+                wall,
+            );
+        }
+
+        fn assert_not_span(wall: &'static Wall, angle: f32) {
+            assert!(
+                !wall.in_span(angle),
+                "{} was in span ({} - {}) for {:?}",
+                angle,
+                wall.span.0.a,
+                wall.span.1.a,
+                wall,
+            );
+        }
+
+        for pos in maze.positions() {
+            for wall in maze.walls(pos) {
+                let d = 16.0 * std::f32::EPSILON;
+                assert_span(wall, wall.span.0.a + d);
+                assert_not_span(wall, wall.span.0.a - d);
+                assert_span(wall.previous, wall.span.0.a - d);
+                assert_span(wall, wall.span.1.a - d);
+                assert_not_span(wall, wall.span.1.a + d);
+                assert_span(wall.next, wall.span.1.a + d);
+
+                assert!(
+                    nearly_equal(wall.span.0.a.cos(), wall.span.0.dx),
+                    "{} span 0 dx invalid ({} != {})",
+                    wall.name,
+                    wall.span.0.a.cos(),
+                    wall.span.0.dx,
+                );
+                assert!(
+                    nearly_equal(wall.span.0.a.sin(), wall.span.0.dy),
+                    "{} span 0 dy invalid ({} != {})",
+                    wall.name,
+                    wall.span.0.a.sin(),
+                    wall.span.0.dy,
+                );
+                assert!(
+                    nearly_equal(wall.span.1.a.cos(), wall.span.1.dx),
+                    "{} span 1 dx invalid ({} != {})",
+                    wall.name,
+                    wall.span.1.a.cos(),
+                    wall.span.1.dx,
+                );
+                assert!(
+                    nearly_equal(wall.span.1.a.sin(), wall.span.1.dy),
+                    "{} span 1 dy invalid ({} != {})",
+                    wall.name,
+                    wall.span.1.a.sin(),
+                    wall.span.1.dy,
+                );
+            }
+        }
+    }
+
+    #[maze_test]
+    fn order(maze: TestMaze) {
+        for pos in maze.positions() {
+            let walls = maze.walls(pos);
+            for wall in walls {
+                let d = 16.0 * std::f32::EPSILON;
+                assert!(
+                    wall.in_span(wall.previous.span.1.a + d),
+                    "invalid wall order {:?}: {:?} <=> {:?}",
+                    walls,
+                    wall.previous,
+                    wall,
+                );
+                assert!(
+                    wall.in_span(wall.next.span.0.a - d),
+                    "invalid wall order {:?}: {:?} <=> {:?}",
+                    walls,
+                    wall,
+                    wall.next,
+                );
+            }
+        }
+    }
 
     #[maze_test]
     fn wall_serialization(maze: TestMaze) {

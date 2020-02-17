@@ -249,6 +249,10 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
     }
 }
 
+pub fn wall_pos_at(pos: physical::Pos) -> WallPos {
+    unimplemented!();
+}
+
 #[cfg(test)]
 mod tests {
     use maze_test::maze_test;

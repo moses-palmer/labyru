@@ -390,6 +390,18 @@ where
         dispatch!(self.shape => room_at(pos))
     }
 
+    /// Returns the matrix position whose centre is closest to a physical
+    /// position along with the closest wall.
+    ///
+    /// The position returned may not correspond to an actual room; it may lie
+    /// outside of the maze.
+    ///
+    /// # Arguments
+    /// *  `pos` - The physical position.
+    pub fn wall_pos_at(&self, pos: physical::Pos) -> WallPos {
+        dispatch!(self.shape => wall_pos_at(pos))
+    }
+
     /// Yields all rooms that are touched by the rectangle described.
     ///
     /// This method does not perform an exhaustive check; rather, only the
@@ -636,6 +648,38 @@ mod tests {
                     maze.shape().physical_to_cell(physical::Pos { x, y }),
                     pos,
                 );
+            }
+        }
+    }
+
+    #[maze_test]
+    fn wall_pos_at(maze: TestMaze) {
+        let steps = 10;
+
+        for pos in maze.positions() {
+            let center = maze.center(pos);
+            for i in 0..steps {
+                let a = 2.0 * std::f32::consts::PI * (i as f32 / steps as f32);
+                let expected = (
+                    pos,
+                    maze.walls(pos)
+                        .iter()
+                        .cloned()
+                        .filter(|wall| wall.in_span(a))
+                        .next()
+                        .unwrap(),
+                );
+                for r in &[0.1, 0.3, 0.5] {
+                    assert_eq!(
+                        expected,
+                        maze.wall_pos_at(physical::Pos {
+                            x: center.x + r * a.cos(),
+                            y: center.y + r * a.sin(),
+                        }),
+                        "Invalid wall for {}°",
+                        360.0 * a / (2.0 * std::f32::consts::PI),
+                    );
+                }
             }
         }
     }

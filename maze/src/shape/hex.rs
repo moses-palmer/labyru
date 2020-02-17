@@ -392,6 +392,36 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
     }
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_if))]
+pub fn wall_pos_at(pos: physical::Pos) -> WallPos {
+    let matrix_pos = room_at(pos);
+    let odd_row = matrix_pos.row & 1 == 1;
+    let center = center(matrix_pos);
+    let (dx, dy) = (pos.x - center.x, pos.y - center.y);
+
+    let either = |a, b| if odd_row { a } else { b };
+
+    let wall = if dx > 0.0 {
+        if dy < dx * walls::RIGHT0.span.0.dy {
+            either(&walls::UP_RIGHT1, &walls::UP_RIGHT0)
+        } else if dy > dx * walls::RIGHT0.span.1.dy {
+            either(&walls::DOWN_RIGHT1, &walls::DOWN_RIGHT0)
+        } else {
+            either(&walls::RIGHT1, &walls::RIGHT0)
+        }
+    } else {
+        if dy < dx * walls::LEFT0.span.0.dy {
+            either(&walls::UP_LEFT1, &walls::UP_LEFT0)
+        } else if dy > dx * walls::LEFT0.span.1.dy {
+            either(&walls::DOWN_LEFT1, &walls::DOWN_LEFT0)
+        } else {
+            either(&walls::LEFT1, &walls::LEFT0)
+        }
+    };
+
+    (matrix_pos, wall)
+}
+
 #[cfg(test)]
 mod tests {
     use maze_test::maze_test;

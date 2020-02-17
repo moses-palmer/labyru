@@ -249,8 +249,39 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
     }
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_if))]
 pub fn wall_pos_at(pos: physical::Pos) -> WallPos {
-    unimplemented!();
+    let matrix_pos = room_at(pos);
+    let flipped = (matrix_pos.col + matrix_pos.row) & 1 == 1;
+    let center = center(matrix_pos);
+    let (dx, dy) = (
+        pos.x - center.x,
+        if flipped {
+            center.y - pos.y
+        } else {
+            pos.y - center.y
+        },
+    );
+
+    let either = |a, b| if flipped { a } else { b };
+
+    let wall = if dx > 0.0 {
+        let t = dx;
+        if dy > t * walls::UP.span.0.dy {
+            either(&walls::RIGHT1, &walls::RIGHT0)
+        } else {
+            either(&walls::DOWN, &walls::UP)
+        }
+    } else {
+        let t = -dx;
+        if dy > t * walls::UP.span.0.dy {
+            either(&walls::LEFT1, &walls::LEFT0)
+        } else {
+            either(&walls::DOWN, &walls::UP)
+        }
+    };
+
+    (matrix_pos, wall)
 }
 
 #[cfg(test)]

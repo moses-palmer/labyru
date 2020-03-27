@@ -168,7 +168,7 @@ where
     /// For a uniform matrix, this method will return an empty set.
     ///
     /// # Arguments
-    /// *  `neightbors` - A function returning neighbours to consider for each
+    /// *  `neighbors` - A function returning neighbours to consider for each
     ///    cell.
     pub fn edges<F, I>(
         &self,
@@ -220,8 +220,9 @@ where
     ///
     /// # Arguments
     /// *  `pos` - The starting position.
-    /// *  `matrix` - The target matrix.
     /// *  `value` - The value with which to fill.
+    /// *  `neighbors``- A function returning neighbours given a matrix
+    ///    position.
     pub fn fill<F, I>(&mut self, pos: Pos, value: T, neighbors: F) -> usize
     where
         F: Fn(Pos) -> I,

@@ -4,6 +4,17 @@ use crate::Maze;
 
 use crate::matrix;
 
+/// Initialises a maze using the _Braid_ algorithm.
+///
+/// This method will leave no dead ends in the final maze; all rooms will have
+/// at least two open walls.
+///
+/// This method will ignore rooms for which `filter` returns `false`.
+///
+/// # Arguments
+/// *  `maze``- The maze to initialise.
+/// *  `rng` - Not used.
+/// *  `filter` - A predicate filtering rooms to consider.
 pub(crate) fn initialize<F, R, T>(
     mut maze: Maze<T>,
     rng: &mut R,

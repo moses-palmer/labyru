@@ -1,3 +1,9 @@
+//! # Aspects of the maze as laid out in a physical landscape
+//!
+//! When physically laying out the maze, rooms and edges have certain
+//! attributes. These are collected in this module.
+use std::ops;
+
 use serde::{Deserialize, Serialize};
 
 /// A physical position.
@@ -11,14 +17,9 @@ pub struct Pos {
 }
 
 impl Pos {
-    /// Returns the distance squared between two points.
-    ///
-    /// # Arguments
-    /// *  `other` - The other point.
-    pub fn distance_squared(self, other: Self) -> f32 {
-        let dx = self.x - other.x;
-        let dy = self.y - other.y;
-        dx * dx + dy * dy
+    /// A scalar value signifying distance from _(0, 0)_.
+    pub fn value(self) -> f32 {
+        self.x * self.x + self.y * self.y
     }
 }
 
@@ -26,6 +27,7 @@ impl<T> From<(T, T)> for Pos
 where
     T: Into<f32>,
 {
+    /// Converts the tuple _(x, y)_ to `Pos { x, y }`.
     fn from((x, y): (T, T)) -> Self {
         Pos {
             x: x.into(),
@@ -34,27 +36,34 @@ where
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl ops::Add for Pos {
+    type Output = Self;
 
-    #[test]
-    fn pos_into() {
-        let expected = Pos { x: 1.0, y: 2.0 };
-        let actual: Pos = (1.0, 2.0).into();
-        assert_eq!(expected, actual);
+    /// Adds the axis values of two positions.
+    ///
+    /// # Arguments
+    /// *  `other` - The other position to add.
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
     }
+}
 
-    #[test]
-    fn distance_squared() {
-        assert_eq!(
-            4.0,
-            Pos { x: 0.0, y: 0.0 }.distance_squared((2.0, 0.0).into()),
-        );
-        assert_eq!(
-            4.0,
-            Pos { x: 0.0, y: 0.0 }.distance_squared((0.0, 2.0).into()),
-        );
+impl ops::Sub for Pos {
+    type Output = Self;
+
+    /// Subtracts the axis values of another position from the axis values of
+    /// this one.
+    ///
+    /// # Arguments
+    /// *  `other` - The other position to add.
+    fn sub(self, other: Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
     }
 }
 

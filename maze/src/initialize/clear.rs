@@ -9,7 +9,7 @@ use crate::matrix;
 /// # Arguments
 /// *  `_rng` - Not used.
 /// *  `filter` - A predicate filtering rooms to consider.
-pub fn initialize<F, R, T>(
+pub(crate) fn initialize<F, R, T>(
     mut maze: Maze<T>,
     _rng: &mut R,
     filter: F,

@@ -8,7 +8,11 @@ use crate::matrix;
 /// *  `maze` - The maze to initialise.
 /// *  `rng` - A random number generator.
 /// *  `filter` - A predicate filtering rooms to consider.
-pub fn initialize<F, R, T>(mut maze: Maze<T>, rng: &mut R, filter: F) -> Maze<T>
+pub(crate) fn initialize<F, R, T>(
+    mut maze: Maze<T>,
+    rng: &mut R,
+    filter: F,
+) -> Maze<T>
 where
     F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,

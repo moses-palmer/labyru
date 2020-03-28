@@ -20,7 +20,7 @@ fn maze_svg(
     types::Maze {
         maze_type,
         dimensions,
-        seed: seed.unwrap_or_else(|| types::Seed::random()),
+        seed: seed.unwrap_or_else(types::Seed::random),
         solve: solve.unwrap_or(false),
     }
 }

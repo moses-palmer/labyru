@@ -1,4 +1,5 @@
 use std;
+use std::cmp::Ordering;
 use std::collections::hash_map;
 use std::collections::hash_set;
 use std::hash;
@@ -184,13 +185,11 @@ where
                     .flat_map(|p2| {
                         let k1 = self[p1];
                         let k2 = self[p2];
-                        if k1 < k2 {
-                            Some(((k1, k2), (p1, p2)))
-                        } else if k2 < k1 {
-                            Some(((k2, k1), (p2, p1)))
-                        } else {
-                            None
-                        }
+                        k1.partial_cmp(&k2).and_then(|val| match val {
+                            Ordering::Less => Some(((k1, k2), (p1, p2))),
+                            Ordering::Greater => Some(((k2, k1), (p2, p1))),
+                            _ => None,
+                        })
                     })
                     .for_each(|(k, v)| {
                         acc.entry(k)

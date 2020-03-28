@@ -248,11 +248,9 @@ where
                     all[wall],
                 )
             })
-            // Find the first closed wall
-            .skip_while(|&next| self.maze.is_open(next))
-            // Yield the first wall we encounter, or the back of the original
-            // wall if we encounter no other wall
-            .next()
+            // Find the first closed wall, or the back of the original wall if
+            // we encounter no other wall
+            .find(|&next| !self.maze.is_open(next))
             .unwrap_or(back)
     }
 }

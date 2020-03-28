@@ -161,7 +161,7 @@ impl<'de> Deserialize<'de> for &'static Wall {
             .chain(crate::shape::quad::walls::ALL.iter())
             .chain(crate::shape::tri::walls::ALL.iter())
             .find(|wall| wall.name == wall_name)
-            .map(|&wall| wall)
+            .copied()
             .ok_or_else(|| D::Error::custom("expected a wall name"))
     }
 }

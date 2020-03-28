@@ -1,7 +1,7 @@
 use std;
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use crate::matrix;
-use crate::util::open_set;
 use crate::wall;
 
 use crate::Maze;
@@ -32,23 +32,23 @@ where
         };
 
         // The room positions already evaluated
-        let mut closed_set = std::collections::HashSet::new();
+        let mut closed_set = HashSet::new();
 
         // The room positions pending evaluation and their cost
-        let mut open_set = open_set::OpenSet::new();
+        let mut open_set = OpenSet::new();
         open_set.push(std::isize::MAX, start);
 
         // The cost from start to a room along the best known path
-        let mut g_score = std::collections::HashMap::new();
+        let mut g_score = HashMap::new();
         g_score.insert(start, 0isize);
 
         // The estimated cost from start to end through a room
-        let mut f_score = std::collections::HashMap::new();
+        let mut f_score = HashMap::new();
         f_score.insert(start, h(start));
 
         // The room from which we entered a room; when we reach the end, we use
         // this to backtrack to the start
-        let mut came_from = std::collections::HashMap::new();
+        let mut came_from = HashMap::new();
 
         while let Some(current) = open_set.pop() {
             // Have we reached the target?
@@ -118,7 +118,7 @@ where
     start: matrix::Pos,
 
     /// The backing map.
-    map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
+    map: HashMap<matrix::Pos, matrix::Pos>,
 }
 
 impl<'a, T> Path<'a, T>
@@ -132,7 +132,7 @@ where
     pub fn new(
         maze: &'a Maze<T>,
         start: matrix::Pos,
-        map: std::collections::HashMap<matrix::Pos, matrix::Pos>,
+        map: HashMap<matrix::Pos, matrix::Pos>,
     ) -> Self {
         Path { maze, start, map }
     }
@@ -284,6 +284,54 @@ where
     }
 }
 
+/// A room position with a priority.
+type PriorityPos = (isize, matrix::Pos);
+
+/// A set of rooms and priorities.
+///
+/// This struct supports adding a position with a priority, retrieving the
+/// position with the highest priority and querying whether a position is in the
+/// set.
+struct OpenSet {
+    /// The heap containing prioritised positions.
+    heap: BinaryHeap<PriorityPos>,
+}
+
+impl OpenSet {
+    /// Creates a new open set.
+    pub fn new() -> OpenSet {
+        OpenSet {
+            heap: BinaryHeap::new(),
+        }
+    }
+
+    /// Adds a position with a priority.
+    ///
+    /// # Arguments
+    /// *  priority` - The priority of the position.
+    /// *  pos` - The position.
+    pub fn push(&mut self, priority: isize, pos: matrix::Pos) {
+        self.heap.push((priority, pos));
+    }
+
+    /// Pops the room with the highest priority.
+    pub fn pop(&mut self) -> Option<matrix::Pos> {
+        match self.heap.pop() {
+            Some((_, pos)) => Some(pos),
+            None => None,
+        }
+    }
+
+    /// Checks whether a position is in the set.
+    ///
+    /// # Arguments
+    /// *  `pos` - The position.
+    pub fn contains(&mut self, pos: matrix::Pos) -> bool {
+        // TODO: Allow constant lookup time
+        self.heap.iter().any(|&priority_pos| pos == priority_pos.1)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -392,5 +440,47 @@ mod tests {
                 .len()
                 <= log.len()
         );
+    }
+
+    #[test]
+    fn pop_empty() {
+        let mut os = OpenSet::new();
+
+        assert!(os.pop().is_none());
+    }
+
+    #[test]
+    fn pop_nonempty() {
+        let mut os = OpenSet::new();
+
+        os.push(0, matrix_pos(0, 0));
+        assert!(os.pop().is_some());
+    }
+
+    #[test]
+    fn pop_correct() {
+        let mut os = OpenSet::new();
+        let expected = (10, matrix_pos(1, 2));
+
+        os.push(0, matrix_pos(3, 4));
+        os.push(expected.0, expected.1);
+        os.push(5, matrix_pos(5, 6));
+        assert_eq!(os.pop(), Some(expected.1));
+    }
+
+    #[test]
+    fn contains_same() {
+        let mut os = OpenSet::new();
+        let expected = (10, matrix_pos(1, 2));
+
+        assert!(!os.contains(expected.1));
+        os.push(0, matrix_pos(3, 4));
+        assert!(!os.contains(expected.1));
+        os.push(expected.0, expected.1);
+        assert!(os.contains(expected.1));
+        os.push(5, matrix_pos(5, 6));
+        assert!(os.contains(expected.1));
+        os.pop();
+        assert!(!os.contains(expected.1));
     }
 }

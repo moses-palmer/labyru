@@ -6,7 +6,6 @@ use svg;
 use svg::Node;
 
 use maze::physical;
-use maze::shape;
 use maze_tools::cell::*;
 use maze_tools::image::Color;
 
@@ -42,7 +41,7 @@ impl Renderer for BackgroundRenderer {
     /// *  `maze` - The maze.
     /// *  `group` - The group to which to add the rooms.
     fn render(&self, maze: &Maze, group: &mut svg::node::element::Group) {
-        let shape::ViewBox { width, height, .. } = maze.viewbox();
+        let physical::ViewBox { width, height, .. } = maze.viewbox();
         let (cols, rows) = self.image.dimensions();
         let data = self
             .image

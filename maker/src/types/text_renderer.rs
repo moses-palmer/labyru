@@ -5,7 +5,6 @@ use svg;
 use svg::Node;
 
 use maze::physical;
-use maze::shape;
 use maze_tools::alphabet;
 use maze_tools::cell::*;
 use maze_tools::image::Color;
@@ -38,7 +37,7 @@ impl Renderer for TextRenderer {
     /// *  `maze` - The maze.
     /// *  `group` - The group to which to add the rooms.
     fn render(&self, maze: &Maze, group: &mut svg::node::element::Group) {
-        let shape::ViewBox { width, height, .. } = maze.viewbox();
+        let physical::ViewBox { width, height, .. } = maze.viewbox();
         let columns = (self.text.len() as f32).sqrt().ceil() as usize;
         let rows = (self.text.len() as f32 / columns as f32).ceil() as usize;
         let data = alphabet::default::ALPHABET

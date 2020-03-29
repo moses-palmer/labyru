@@ -126,7 +126,7 @@ impl ViewBox {
     /// it.
     ///
     /// If `d` is a negative value, the view box will be contracted, which may
-    /// lead to a view box width negative dimensions.
+    /// lead to a view box with negative dimensions.
     ///
     /// # Arguments
     /// *  `d` - The number of units to expand.

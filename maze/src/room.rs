@@ -33,7 +33,7 @@ where
         self.walls & wall.mask() != 0
     }
 
-    /// Sets whether a wall is open..
+    /// Sets whether a wall is open.
     ///
     /// # Arguments
     /// *  `wall` - The wall to set.

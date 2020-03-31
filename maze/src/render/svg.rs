@@ -81,12 +81,11 @@ where
                 .enumerate()
                 .map(|(i, pos)| {
                     if i == 0 {
-                        Operation::Move(pos)
+                        Operation::Move(pos).into()
                     } else {
-                        Operation::Line(pos)
+                        Operation::Line(pos).into()
                     }
                 })
-                .map(Into::into)
                 .collect::<Vec<Command>>(),
         )
     }

@@ -18,7 +18,7 @@ const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;
 define_shape! {
     << Quad >>
 
-    UP = {
+    UP(1) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: -1, wall: WallIndex::LEFT as Index },
             Offset { dx: -1, dy: -1, wall: WallIndex::DOWN as Index },
@@ -40,7 +40,7 @@ define_shape! {
         previous: &LEFT,
         next: &RIGHT,
     },
-    LEFT = {
+    LEFT(0) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::DOWN as Index },
             Offset { dx: -1, dy: 1, wall: WallIndex::RIGHT as Index },
@@ -62,7 +62,7 @@ define_shape! {
         previous: &DOWN,
         next: &UP,
     },
-    DOWN = {
+    DOWN(3) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: 1, wall: WallIndex::RIGHT as Index },
             Offset { dx: 1, dy: 1, wall: WallIndex::UP as Index },
@@ -84,7 +84,7 @@ define_shape! {
         previous: &RIGHT,
         next: &LEFT,
     },
-    RIGHT = {
+    RIGHT(2) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: 0, wall: WallIndex::UP as Index },
             Offset { dx: 1, dy: -1, wall: WallIndex::LEFT as Index },

@@ -27,7 +27,7 @@ const TOP_HEIGHT: f32 = 1.0 + SIN_30;
 define_shape! {
     << Hex >>
 
-    LEFT0 = {
+    LEFT0(0) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::DOWN_RIGHT0 as Index },
             Offset { dx: 0, dy: 1, wall: WallIndex::UP_RIGHT1 as Index },
@@ -48,7 +48,7 @@ define_shape! {
         previous: &DOWN_LEFT0,
         next: &UP_LEFT0,
     },
-    RIGHT0 = {
+    RIGHT0(3) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: 0, wall: WallIndex::UP_LEFT0 as Index },
             Offset { dx: 1, dy: -1, wall: WallIndex::DOWN_LEFT1 as Index },
@@ -70,7 +70,7 @@ define_shape! {
         next: &DOWN_RIGHT0,
     },
 
-    LEFT1 = {
+    LEFT1(0) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::DOWN_RIGHT1 as Index },
             Offset { dx: -1, dy: 1, wall: WallIndex::UP_RIGHT0 as Index },
@@ -91,7 +91,7 @@ define_shape! {
         previous: &DOWN_LEFT1,
         next: &UP_LEFT1,
     },
-    RIGHT1 = {
+    RIGHT1(3) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: 0, wall: WallIndex::UP_LEFT1 as Index },
             Offset { dx: 0, dy: -1, wall: WallIndex::DOWN_LEFT0 as Index },
@@ -113,7 +113,7 @@ define_shape! {
         next: &DOWN_RIGHT1,
     },
 
-    UP_LEFT0 = {
+    UP_LEFT0(1) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: -1, wall: WallIndex::DOWN_LEFT1 as Index },
             Offset { dx: -1, dy: 0, wall: WallIndex::UP_RIGHT0 as Index },
@@ -134,7 +134,7 @@ define_shape! {
         previous: &LEFT0,
         next: &UP_RIGHT0,
     },
-    DOWN_RIGHT1 = {
+    DOWN_RIGHT1(4) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: 1, wall: WallIndex::UP_RIGHT0 as Index },
             Offset { dx: 1, dy: 0, wall: WallIndex::LEFT1 as Index },
@@ -156,7 +156,7 @@ define_shape! {
         next: &DOWN_LEFT1,
     },
 
-    UP_LEFT1 = {
+    UP_LEFT1(1) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: -1, wall: WallIndex::DOWN_LEFT0 as Index },
             Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT1 as Index },
@@ -177,7 +177,7 @@ define_shape! {
         previous: &LEFT1,
         next: &UP_RIGHT1,
     },
-    DOWN_RIGHT0 = {
+    DOWN_RIGHT0(4) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: 1, wall: WallIndex::UP_RIGHT1 as Index },
             Offset { dx: 1, dy: 0, wall: WallIndex::LEFT0 as Index },
@@ -199,7 +199,7 @@ define_shape! {
         next: &DOWN_LEFT0,
     },
 
-    UP_RIGHT0 = {
+    UP_RIGHT0(2) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: -1, wall: WallIndex::LEFT1 as Index },
             Offset { dx: 0, dy: -1, wall: WallIndex::DOWN_RIGHT1 as Index },
@@ -220,7 +220,7 @@ define_shape! {
         previous: &UP_LEFT0,
         next: &RIGHT0,
     },
-    DOWN_LEFT1 = {
+    DOWN_LEFT1(5) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 1, wall: WallIndex::RIGHT0 as Index },
             Offset { dx: 0, dy: 1, wall: WallIndex::UP_LEFT0 as Index },
@@ -242,7 +242,7 @@ define_shape! {
         next: &LEFT1,
     },
 
-    UP_RIGHT1 = {
+    UP_RIGHT1(2) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: -1, wall: WallIndex::LEFT0 as Index },
             Offset { dx: -1, dy: -1, wall: WallIndex::DOWN_RIGHT0 as Index },
@@ -263,7 +263,7 @@ define_shape! {
         previous: &UP_LEFT1,
         next: &RIGHT1,
     },
-    DOWN_LEFT0 = {
+    DOWN_LEFT0(5) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: 1, wall: WallIndex::RIGHT1 as Index },
             Offset { dx: 1, dy: 1, wall: WallIndex::UP_LEFT1 as Index },

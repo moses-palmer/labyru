@@ -54,6 +54,13 @@ pub struct Wall {
     /// The shape to which this wall belongs.
     pub shape: Shape,
 
+    /// The ordinal of this wall.
+    ///
+    /// The ordinals will be in the range _[0, n)_, where _n_ is the number of
+    /// walls for the shape. When listing the walls of a room, the sequence
+    /// number of a wall will be equal to this number.
+    pub ordinal: usize,
+
     /// The index of this wall, used to generate the bit mask.
     pub index: Index,
 
@@ -196,6 +203,15 @@ mod tests {
                 .len(),
             walls.len()
         );
+    }
+
+    #[maze_test]
+    fn ordinal(maze: TestMaze) {
+        for pos in maze.positions() {
+            for (i, wall) in maze.walls(pos).iter().enumerate() {
+                assert_eq!(i, wall.ordinal, "invalid ordinal for {:?}", wall);
+            }
+        }
     }
 
     #[maze_test]

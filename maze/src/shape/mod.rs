@@ -35,7 +35,7 @@ macro_rules! dispatch {
 ///
 /// This is an internal library macro.
 macro_rules! define_shape {
-    ( << $name:ident >> $( $wall_name:ident = {
+    ( << $name:ident >> $( $wall_name:ident ( $ordinal:expr ) = {
             $( $field:ident: $val:expr, )*
     } ),* ) => {
         #[allow(unused_imports, non_camel_case_types)]
@@ -51,6 +51,7 @@ macro_rules! define_shape {
                 name: concat!(stringify!($name), ":", stringify!($wall_name)),
                 shape: crate::shape::Shape::$name,
                 index: WallIndex::$wall_name as usize,
+                ordinal: $ordinal,
                 $( $field: $val, )*
             } );*;
 

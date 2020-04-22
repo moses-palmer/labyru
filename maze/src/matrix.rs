@@ -1,3 +1,7 @@
+//! # The data matrix
+//!
+//! A matrix is a two-dimensional array of data. A maze is a matrix of rooms.
+
 use std;
 use std::cmp::Ordering;
 use std::collections::hash_map;
@@ -7,6 +11,9 @@ use std::hash;
 use serde::{Deserialize, Serialize};
 
 /// A matrix position.
+///
+/// The coordinates of this type are signed, but valid matrix positions never
+/// have negative coordinates.
 #[derive(
     Clone,
     Copy,
@@ -21,9 +28,13 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Pos {
     /// The column index.
+    ///
+    /// Valid values are always zero or greater.
     pub col: isize,
 
     /// The row index.
+    ///
+    /// Valid values are always zero or greater.
     pub row: isize,
 }
 
@@ -31,6 +42,22 @@ impl<T> From<(T, T)> for Pos
 where
     T: Into<isize>,
 {
+    /// Converts the tuple _(x, y)_ to `Pos { x, y }`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::Pos;
+    ///
+    /// assert_eq!(
+    ///     Pos::from((1i16,    2i16)),
+    ///     Pos { col: 1,  row: 2 },
+    /// );
+    /// assert_eq!(
+    ///     Pos::from((1i8,     2i8)),
+    ///     Pos { col: 1,  row: 2 },
+    /// );
+    /// ```
     fn from((col, row): (T, T)) -> Self {
         Pos {
             col: col.into(),
@@ -68,6 +95,8 @@ where
 {
     /// Creates a new matrix with the specified dimensions.
     ///
+    /// Every cell is initiated with the `default` value of the type.
+    ///
     /// # Arguments
     /// *  `width` - The width of the matrix.
     /// *  `height` - The height of the matrix.
@@ -81,6 +110,25 @@ where
 
     /// Determines whether a position is inside of the matrix.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<bool>;
+    ///
+    /// let matrix = Matrix::new(5, 5);
+    /// assert!(matrix.is_inside(Pos {col: 0, row: 0 }));
+    /// assert!(!matrix.is_inside(Pos {
+    ///     col: matrix.width as isize,
+    ///     row: matrix.height as isize,
+    /// }));
+    /// # assert!(!matrix.is_inside(Pos { col: -1, row: -1 }));
+    /// # assert!(matrix.is_inside(Pos {
+    /// #     col: matrix.width as isize - 1,
+    /// #     row: matrix.height as isize - 1,
+    /// # }));
+    /// ```
+    ///
     /// # Arguments
     /// *  `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
@@ -91,6 +139,24 @@ where
     }
 
     /// Retrieves a reference to the value at a specific position if it exists.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(5, 5);
+    /// matrix[Pos { col: 1, row: 1 }] = 5;
+    /// assert_eq!(
+    ///     matrix.get(Pos { col: 1, row: 1 }),
+    ///     Some(&5),
+    /// );
+    /// # assert_eq!(
+    /// #     matrix.get(Pos { col: -1, row: -1 }),
+    /// #     None,
+    /// # );
+    /// ```
     ///
     /// # Arguments
     /// *  `pos` - The matrix position.
@@ -104,6 +170,20 @@ where
 
     /// Retrieves a mutable reference to the value at a specific position if it
     /// exists.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(5, 5);
+    /// *matrix.get_mut(Pos { col: 1, row: 1 }).unwrap() = 5;
+    /// assert_eq!(
+    ///     matrix[Pos { col: 1, row: 1 }],
+    ///     5,
+    /// );
+    /// ```
     ///
     /// # Arguments
     /// *  `pos` - The matrix position.
@@ -122,6 +202,24 @@ where
     ///
     /// The positions are returned row by row, starting from `(0, 0)` and ending
     /// with `(self.width - 1, self.height - 1)`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let matrix = Matrix::new(2, 2);
+    /// assert_eq!(
+    ///     matrix.positions().collect::<Vec<_>>(),
+    ///     vec![
+    ///         Pos { col: 0, row: 0 },
+    ///         Pos { col: 1, row: 0 },
+    ///         Pos { col: 0, row: 1 },
+    ///         Pos { col: 1, row: 1 },
+    ///     ],
+    /// );
+    /// ```
     pub fn positions(&self) -> impl Iterator<Item = Pos> {
         PosIterator::new(self.width, self.height)
     }
@@ -130,6 +228,28 @@ where
     ///
     /// The values are returned row by row, starting from `(0, 0)` and ending
     /// with `(self.width - 1, self.height - 1)`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(2, 2);
+    /// matrix[Pos { col: 0, row: 0 }] = 0;
+    /// matrix[Pos { col: 1, row: 0 }] = 1;
+    /// matrix[Pos { col: 0, row: 1 }] = 2;
+    /// matrix[Pos { col: 1, row: 1 }] = 3;
+    /// assert_eq!(
+    ///     matrix.values().cloned().collect::<Vec<_>>(),
+    ///     vec![
+    ///         0,
+    ///         1,
+    ///         2,
+    ///         3,
+    ///     ],
+    /// );
+    /// ```
     pub fn values(&self) -> ValueIterator<'_, T> {
         ValueIterator::new(self)
     }
@@ -141,6 +261,28 @@ where
     ///
     /// # Arguments
     /// *  `mapper` - The mapping function.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(2, 2);
+    /// matrix[Pos { col: 0, row: 0 }] = 0;
+    /// matrix[Pos { col: 1, row: 0 }] = 1;
+    /// matrix[Pos { col: 0, row: 1 }] = 2;
+    /// matrix[Pos { col: 1, row: 1 }] = 3;
+    /// assert_eq!(
+    ///     matrix.map(|v| v + 1).values().cloned().collect::<Vec<_>>(),
+    ///     vec![
+    ///         1,
+    ///         2,
+    ///         3,
+    ///         4,
+    ///     ],
+    /// );
+    /// ```
     pub fn map<F, S>(&self, mut mapper: F) -> Matrix<S>
     where
         F: FnMut(&T) -> S,
@@ -279,6 +421,34 @@ where
     ///
     /// If the matrices are of different dimensions, only the overlapping parts
     /// will be added.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix1 = Matrix::new(2, 2);
+    /// matrix1[Pos { col: 0, row: 0 }] = 0;
+    /// matrix1[Pos { col: 1, row: 0 }] = 1;
+    /// matrix1[Pos { col: 0, row: 1 }] = 2;
+    /// matrix1[Pos { col: 1, row: 1 }] = 3;
+    /// let mut matrix2 = Matrix::new(2, 2);
+    /// matrix2[Pos { col: 0, row: 0 }] = 5;
+    /// matrix2[Pos { col: 1, row: 1 }] = 5;
+    /// assert_eq!(
+    ///     (matrix1 + matrix2).map(|v| v + 1)
+    ///         .values()
+    ///         .cloned()
+    ///         .collect::<Vec<_>>(),
+    ///     vec![
+    ///         6,
+    ///         2,
+    ///         3,
+    ///         9,
+    ///     ],
+    /// );
+    /// ```
     ///
     /// # Arguments
     /// *  `other` - The matrix to add.

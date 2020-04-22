@@ -361,8 +361,8 @@ where
     /// centre and all corners of rooms are considered, and all rooms for which
     /// any of these points are inside of the rectangle are yielded.
     ///
-    /// This, a small rectangle inside a room, but not touching the centre nor
-    /// any corner, will not match.
+    /// Thus, a small rectangle inside a room not touching the centre nor any
+    /// corner will not match.
     ///
     /// # Arguments
     /// *  `viewbox` - The rectangle.

@@ -18,6 +18,24 @@ pub struct Pos {
 
 impl Pos {
     /// A scalar value signifying distance from _(0, 0)_.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// let d = (0.1f32.cos(), 0.1f32.sin());
+    /// let v = (
+    ///     Pos { x:       0.0, y:       0.0 }.value(),
+    ///     Pos { x: d.0 * 1.0, y: d.1 * 1.0 }.value(),
+    ///     Pos { x: d.0 * 2.0, y: d.1 * 2.0 }.value(),
+    ///     Pos { x: d.0 * 4.0, y: d.1 * 4.0 }.value(),
+    /// );
+    ///
+    /// assert!(v.0 < v.1);
+    /// assert!(v.1 < v.2);
+    /// assert!(v.2 < v.3);
+    /// ```
     pub fn value(self) -> f32 {
         self.x * self.x + self.y * self.y
     }
@@ -28,6 +46,21 @@ where
     T: Into<f32>,
 {
     /// Converts the tuple _(x, y)_ to `Pos { x, y }`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     Pos::from((1.0f32,    2.0f32)),
+    ///     Pos {   x: 1.0,    y: 2.0 },
+    /// );
+    /// assert_eq!(
+    ///     Pos::from((1i16,      2i16)),
+    ///     Pos {   x: 1.0,    y: 2.0 },
+    /// );
+    /// ```
     fn from((x, y): (T, T)) -> Self {
         Pos {
             x: x.into(),
@@ -40,6 +73,17 @@ impl ops::Add for Pos {
     type Output = Self;
 
     /// Adds the axis values of two positions.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     Pos { x: 1.0, y: 2.0 } + Pos { x: 3.0, y: 4.0 },
+    ///     Pos { x: 4.0, y: 6.0 },
+    /// );
+    /// ```
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
@@ -56,6 +100,17 @@ impl ops::Sub for Pos {
 
     /// Subtracts the axis values of another position from the axis values of
     /// this one.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     Pos { x: 4.0, y: 6.0 } - Pos { x: 3.0, y: 4.0 },
+    ///     Pos { x: 1.0, y: 2.0 },
+    /// );
+    /// ```
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
@@ -105,6 +160,24 @@ impl ViewBox {
     }
 
     /// Flattens this view box to the tuple `(x, y, width, height)`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     ViewBox {
+    ///         corner: Pos {
+    ///             x: 1.0,
+    ///             y: 2.0,
+    ///         },
+    ///         width: 3.0,
+    ///         height: 4.0,
+    ///     }.tuple(),
+    ///     (1.0, 2.0, 3.0, 4.0),
+    /// );
+    /// ```
     pub fn tuple(self) -> (f32, f32, f32, f32) {
         (self.corner.x, self.corner.y, self.width, self.height)
     }
@@ -116,6 +189,25 @@ impl ViewBox {
     ///
     /// If `d` is a negative value, the view box will be contracted, which may
     /// lead to a view box with negative dimensions.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     ViewBox::centered_at(Pos { x: 1.0, y: 1.0 }, 2.0, 2.0)
+    ///         .expand(1.0),
+    ///     ViewBox {
+    ///         corner: Pos {
+    ///             x: -1.0,
+    ///             y: -1.0,
+    ///         },
+    ///         width: 4.0,
+    ///         height: 4.0,
+    ///     },
+    /// );
+    /// ```
     ///
     /// # Arguments
     /// *  `d` - The number of units to expand.
@@ -131,6 +223,23 @@ impl ViewBox {
     }
 
     /// The centre of this view box.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// let viewbox = ViewBox {
+    ///     corner: Pos { x: 0.0, y: 0.0 },
+    ///     width: 2.0,
+    ///     height: 2.0,
+    /// };
+    ///
+    /// assert_eq!(
+    ///     viewbox.center(),
+    ///     Pos { x: 1.0, y: 1.0 },
+    /// );
+    /// ```
     pub fn center(self) -> Pos {
         Pos {
             x: self.corner.x + 0.5 * self.width,
@@ -141,6 +250,22 @@ impl ViewBox {
     /// Determines whether a point is inside this view box.
     ///
     /// Points along the edge of the view box are also considered to be inside.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// let viewbox = ViewBox {
+    ///     corner: Pos { x: 0.0, y: 0.0 },
+    ///     width: 1.0,
+    ///     height: 1.0,
+    /// };
+    /// assert!(viewbox.contains(Pos { x: 0.0, y: 0.0 }));
+    /// assert!(viewbox.contains(Pos { x: 0.5, y: 0.5 }));
+    /// assert!(viewbox.contains(Pos { x: 1.0, y: 1.0 }));
+    /// assert!(!viewbox.contains(Pos { x: 2.0, y: 2.0 }));
+    /// ```
     ///
     /// # Arguments
     /// *  `pos` - The position to check.
@@ -156,6 +281,28 @@ impl ops::Mul<ViewBox> for f32 {
     type Output = ViewBox;
 
     /// Scales every value in this view box by `rhs`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     2.0 * ViewBox {
+    ///         corner: Pos { x: 1.0, y: 1.0 },
+    ///         width: 2.0,
+    ///         height: 2.0,
+    ///     },
+    ///     ViewBox {
+    ///         corner: Pos { x: 2.0, y: 2.0 },
+    ///         width: 4.0,
+    ///         height: 4.0,
+    ///     },
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `rhs` - The view box to scale.
     fn mul(self, rhs: ViewBox) -> Self::Output {
         Self::Output {
             corner: Pos {
@@ -171,6 +318,7 @@ impl ops::Mul<ViewBox> for f32 {
 impl ops::Mul<f32> for ViewBox {
     type Output = Self;
 
+    /// Scales every value in a view box by this value.
     fn mul(self, rhs: f32) -> Self::Output {
         rhs * self
     }

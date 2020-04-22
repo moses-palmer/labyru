@@ -17,6 +17,34 @@ where
     /// minimal set of rooms required to pass through to get from start to
     /// finish, including `from` and ` to`.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix;
+    /// # use maze::walk::*;
+    /// # let maze = maze::Shape::Hex.create::<u32>(5, 5)
+    /// #     .initialize(
+    /// #         maze::initialize::Method::Winding,
+    /// #         &mut maze::initialize::LFSR::new(12345),
+    /// #     );
+    ///
+    /// for (i, pos) in maze
+    ///     .walk(
+    ///         matrix::Pos { col: 0, row: 0 },
+    ///         matrix::Pos {
+    ///             col: maze.width() as isize - 1,
+    ///             row: maze.height() as isize - 1,
+    ///         },
+    ///     )
+    ///     .unwrap()
+    ///     .into_iter()
+    ///     .enumerate()
+    /// {
+    ///     println!("{:?} is room #{} on the path", pos, i);
+    /// }
+    ///
+    /// ```
+    ///
     /// # Arguments
     /// *  `from` - The starting position.
     /// *  `to` - The desired goal.

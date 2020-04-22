@@ -4,6 +4,8 @@ use crate::matrix;
 
 /// Initialises a maze using the _Randomised Prim_ algorithm.
 ///
+/// This method will ignore rooms for which `filter` returns `false`.
+///
 /// # Arguments
 /// *  `maze` - The maze to initialise.
 /// *  `rng` - A random number generator.

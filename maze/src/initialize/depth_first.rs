@@ -4,11 +4,11 @@ use crate::matrix;
 
 /// Initialises a maze using the _Depth First_ algorithm.
 ///
-/// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
-/// a description of the algorithm.
+/// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for a
+/// description of the algorithm.
 ///
-/// The maze  should be fully closed; any already open walls will be
-/// ignored and kept.
+/// The maze should be fully closed; any already open walls will be ignored and
+/// kept.
 ///
 /// This method will ignore rooms for which `filter` returns `false`.
 ///

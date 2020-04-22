@@ -1,3 +1,8 @@
+//! # Initialisation methods
+//!
+//! This module contains implementations of initialisation methods. These are
+//! used to open walls in a fully closed maze to make it navigable.
+
 use std::iter;
 use std::str;
 use std::u64;
@@ -24,7 +29,8 @@ pub enum Method {
     /// A dead end is a room with only one open wall.
     ///
     /// This method starts with a fully cleared area, and adds walls until no
-    /// longer possible without creating dead ends.
+    /// longer possible without creating dead ends. A maze initialised with
+    /// this method will contain loops.
     Braid,
 
     /// Initialises a maze by opening all walls inside the area.
@@ -33,25 +39,32 @@ pub enum Method {
     /// Initialises a maze using a branching algorithm.
     ///
     /// This method uses the _Randomised Prim_ algorithm to generate a maze,
-    /// which yields mazes with a branching characteristic.
+    /// which yields mazes with a branching characteristic. A maze initialised
+    /// with this method will not contain loops.
     ///
-    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
-    /// a description of the algorithm.
+    /// See [Wikipedia] for a description of the algorithm.
+    ///
+    /// [Wikipedia]: https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_Prim's_algorithm
     Branching,
 
     /// Initialises a maze using a winding algorithm.
     ///
     /// This method uses a simple _Depth First_ algorithm to generate a maze,
-    /// which yields mazes with long winding corridors.
+    /// which yields mazes with long winding corridors. A maze initialised with
+    /// this method will not contain loops.
     ///
-    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
-    /// a description of the algorithm.
+    /// See [Wikipedia] for a description of the algorithm.
+    ///
+    /// [Wikipedia]: https://en.wikipedia.org/wiki/Maze_generation_algorithm#Depth-first_search
     Winding,
 }
 
 impl Eq for Method {}
 
 impl Default for Method {
+    /// The default initialisation method is [`Branching`].
+    ///
+    /// [`Branching`]: #variant.Branching
     fn default() -> Self {
         Method::Branching
     }
@@ -60,6 +73,33 @@ impl Default for Method {
 impl str::FromStr for Method {
     type Err = String;
 
+    /// Converts a string to an initialiser.
+    ///
+    /// The source strings are the lower case names of the initialisation
+    /// methods.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use maze::initialize::*;
+    ///
+    /// assert_eq!(
+    ///     "braid".parse::<Method>(),
+    ///     Ok(Method::Braid),
+    /// );
+    /// assert_eq!(
+    ///     "branching".parse::<Method>(),
+    ///     Ok(Method::Branching),
+    /// );
+    /// assert_eq!(
+    ///     "clear".parse::<Method>(),
+    ///     Ok(Method::Clear),
+    /// );
+    /// assert_eq!(
+    ///     "winding".parse::<Method>(),
+    ///     Ok(Method::Winding),
+    /// );
+    /// ```
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         match source {
             "braid" => Ok(Method::Braid),

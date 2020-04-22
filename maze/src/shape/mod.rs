@@ -35,7 +35,7 @@ macro_rules! dispatch {
 ///
 /// This is an internal library macro.
 macro_rules! define_shape {
-    ( << $name:ident >> $( $wall_name:ident = {
+    ( << $name:ident >> $( $wall_name:ident ( $ordinal:expr ) = {
             $( $field:ident: $val:expr, )*
     } ),* ) => {
         #[allow(unused_imports, non_camel_case_types)]
@@ -51,6 +51,7 @@ macro_rules! define_shape {
                 name: concat!(stringify!($name), ":", stringify!($wall_name)),
                 shape: crate::shape::Shape::$name,
                 index: WallIndex::$wall_name as usize,
+                ordinal: $ordinal,
                 $( $field: $val, )*
             } );*;
 
@@ -132,6 +133,11 @@ impl Shape {
     /// *  `height` - The required physical height.
     pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
         dispatch!(self => minimal_dimensions(width, height))
+    }
+
+    /// The number of walls per room for this shape.
+    pub fn wall_count(self) -> usize {
+        self as usize
     }
 
     /// Returns all walls for a shape.

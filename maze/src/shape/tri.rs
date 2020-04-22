@@ -27,7 +27,7 @@ const OFFSET: f32 = 1.0f32 / 4.0f32;
 define_shape! {
     << Tri >>
 
-    LEFT0 = {
+    LEFT0(0) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::DOWN as Index },
             Offset { dx: -1, dy: 1, wall: WallIndex::RIGHT0 as Index },
@@ -51,7 +51,7 @@ define_shape! {
         previous: &RIGHT0,
         next: &UP,
     },
-    RIGHT1 = {
+    RIGHT1(1) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: 0, wall: WallIndex::UP as Index },
             Offset { dx: 1, dy: -1, wall: WallIndex::LEFT1 as Index },
@@ -76,7 +76,7 @@ define_shape! {
         next: &DOWN,
     },
 
-    LEFT1 = {
+    LEFT1(0) = {
         corner_wall_offsets: &[
             Offset { dx: -1, dy: 0, wall: WallIndex::LEFT0 as Index },
             Offset { dx: -2, dy: 0, wall: WallIndex::DOWN as Index },
@@ -100,7 +100,7 @@ define_shape! {
         previous: &DOWN,
         next: &RIGHT1,
     },
-    RIGHT0 = {
+    RIGHT0(2) = {
         corner_wall_offsets: &[
             Offset { dx: 1, dy: 0, wall: WallIndex::RIGHT1 as Index },
             Offset { dx: 2, dy: 0, wall: WallIndex::UP as Index },
@@ -125,7 +125,7 @@ define_shape! {
         next: &LEFT0,
     },
 
-    UP = {
+    UP(1) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: -1, wall: WallIndex::LEFT1 as Index },
             Offset { dx: -1, dy: -1, wall: WallIndex::LEFT0 as Index },
@@ -149,7 +149,7 @@ define_shape! {
         previous: &LEFT0,
         next: &RIGHT0,
     },
-    DOWN = {
+    DOWN(2) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: 1, wall: WallIndex::RIGHT0 as Index },
             Offset { dx: 1, dy: 1, wall: WallIndex::RIGHT1 as Index },

@@ -134,12 +134,53 @@ impl Shape {
         dispatch!(self => minimal_dimensions(width, height))
     }
 
+    /// Returns all walls for a shape.
+    pub fn all_walls(self) -> &'static [&'static wall::Wall] {
+        dispatch!(self => all_walls())
+    }
+
+    /// Returns the back of a wall.
+    ///
+    /// The back is the other side of the wall, located in a neighbouring room.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall position.
+    pub fn back(self, wall_pos: WallPos) -> WallPos {
+        dispatch!(self => back(wall_pos))
+    }
+
+    /// Returns the opposite of a wall.
+    ///
+    /// The opposite is the wall located on the opposite side of the room. For
+    /// mazes with rooms with an odd number of walls, there is no opposite wall.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall position.
+    pub fn opposite(self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
+        dispatch!(self => opposite(wall_pos))
+    }
+
+    /// Returns all walls of a specific room.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn walls(self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+        dispatch!(self => walls(pos))
+    }
     /// Converts a physical position to a matrix cell.
     ///
     /// # Arguments
     /// *  `pos` - The physical position.
     pub fn physical_to_cell(self, pos: physical::Pos) -> matrix::Pos {
-        dispatch!(self => room_at(pos))
+        dispatch!(self => physical_to_cell(pos))
+    }
+
+    /// Converts a physical position to a matrix cell.
+    ///
+    /// # Arguments
+    /// *  `pos` - The physical position.
+    pub fn physical_to_wall_pos(self, pos: physical::Pos) -> WallPos {
+        dispatch!(self => physical_to_wall_pos(pos))
     }
 
     /// Returns the physical centre of a matrix cell.
@@ -147,7 +188,7 @@ impl Shape {
     /// # Arguments
     /// *  `pos` - The matrix position.
     pub fn cell_to_physical(self, pos: matrix::Pos) -> physical::Pos {
-        dispatch!(self => center(pos))
+        dispatch!(self => cell_to_physical(pos))
     }
 
     /// Calculates the _view box_ for a maze with this shape when rendered.
@@ -250,7 +291,7 @@ where
 {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
-        dispatch!(self.shape => all_walls())
+        self.shape.all_walls()
     }
 
     /// Returns the back of a wall.
@@ -260,7 +301,7 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn back(&self, wall_pos: WallPos) -> WallPos {
-        dispatch!(self.shape => back(wall_pos))
+        self.shape.back(wall_pos)
     }
 
     /// Returns the opposite of a wall.
@@ -271,7 +312,7 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
-        dispatch!(self.shape => opposite(wall_pos))
+        self.shape.opposite(wall_pos)
     }
 
     /// Returns all walls of a specific room.
@@ -279,7 +320,7 @@ where
     /// # Arguments
     /// *  `pos` - The room position.
     pub fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-        dispatch!(self.shape => walls(pos))
+        self.shape.walls(pos)
     }
 
     /// Returns the physical centre of a matrix position.
@@ -287,7 +328,7 @@ where
     /// # Arguments
     /// *  `pos` - The matrix position.
     pub fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        dispatch!(self.shape => center(pos))
+        self.shape.cell_to_physical(pos)
     }
 
     /// Returns the matrix position whose centre is closest to a physical
@@ -299,7 +340,7 @@ where
     /// # Arguments
     /// *  `pos` - The physical position.
     pub fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
-        dispatch!(self.shape => room_at(pos))
+        self.shape.physical_to_cell(pos)
     }
 
     /// Returns the matrix position whose centre is closest to a physical
@@ -311,7 +352,7 @@ where
     /// # Arguments
     /// *  `pos` - The physical position.
     pub fn wall_pos_at(&self, pos: physical::Pos) -> WallPos {
-        dispatch!(self.shape => wall_pos_at(pos))
+        self.shape.physical_to_wall_pos(pos)
     }
 
     /// Yields all rooms that are touched by the rectangle described.

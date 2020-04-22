@@ -134,6 +134,11 @@ impl Shape {
         dispatch!(self => minimal_dimensions(width, height))
     }
 
+    /// The number of walls per room for this shape.
+    pub fn wall_count(self) -> usize {
+        self as usize
+    }
+
     /// Returns all walls for a shape.
     pub fn all_walls(self) -> &'static [&'static wall::Wall] {
         dispatch!(self => all_walls())

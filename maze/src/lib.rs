@@ -20,8 +20,6 @@ pub mod render;
 pub mod room;
 pub mod walk;
 
-mod util;
-
 /// A wall of a room.
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 

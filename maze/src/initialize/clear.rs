@@ -7,9 +7,10 @@ use crate::matrix;
 /// This method will ignore rooms for which `filter` returns `false`.
 ///
 /// # Arguments
+/// *  `maze``- The maze to initialise.
 /// *  `_rng` - Not used.
 /// *  `filter` - A predicate filtering rooms to consider.
-pub fn initialize<F, R, T>(
+pub(crate) fn initialize<F, R, T>(
     mut maze: Maze<T>,
     _rng: &mut R,
     filter: F,

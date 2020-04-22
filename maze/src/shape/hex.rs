@@ -343,7 +343,7 @@ pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
     }
 }
 
-pub fn center(pos: matrix::Pos) -> physical::Pos {
+pub fn cell_to_physical(pos: matrix::Pos) -> physical::Pos {
     physical::Pos {
         x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
             * HORIZONTAL_MULTIPLICATOR,
@@ -351,7 +351,7 @@ pub fn center(pos: matrix::Pos) -> physical::Pos {
     }
 }
 
-pub fn room_at(pos: physical::Pos) -> matrix::Pos {
+pub fn physical_to_cell(pos: physical::Pos) -> matrix::Pos {
     // Calculate approximations of the room position
     let (i, f) = matrix::partition(pos.y / VERTICAL_MULTIPLICATOR);
     let odd_row = i & 1 == 1;
@@ -393,10 +393,10 @@ pub fn room_at(pos: physical::Pos) -> matrix::Pos {
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_if))]
-pub fn wall_pos_at(pos: physical::Pos) -> WallPos {
-    let matrix_pos = room_at(pos);
+pub fn physical_to_wall_pos(pos: physical::Pos) -> WallPos {
+    let matrix_pos = physical_to_cell(pos);
     let odd_row = matrix_pos.row & 1 == 1;
-    let center = center(matrix_pos);
+    let center = cell_to_physical(matrix_pos);
     let (dx, dy) = (pos.x - center.x, pos.y - center.y);
 
     let either = |a, b| if odd_row { a } else { b };

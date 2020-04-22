@@ -1,5 +1,4 @@
 use std;
-use std::ops;
 
 use serde::{Deserialize, Serialize};
 
@@ -55,8 +54,7 @@ macro_rules! define_shape {
                 $( $field: $val, )*
             } );*;
 
-            pub static ALL: &[&'static wall::Wall] = &[
-                            $(&$wall_name),*];
+            pub static ALL: &[&'static wall::Wall] = &[$(&$wall_name),*];
         }
 
         /// Returns all walls used in this type of maze.
@@ -76,92 +74,6 @@ macro_rules! define_shape {
             };
 
             (other, walls::ALL[self::back_index(wall.index)])
-        }
-    }
-}
-
-/// A view box described by one corner and the width and height of the sides.
-///
-/// The corner is the coordinate closest to the point `(0, 0)`.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct ViewBox {
-    /// A corner.
-    ///
-    /// The coordinates of the remaining corners can be calculated by adding
-    /// `width` and `height` to this value.
-    pub corner: physical::Pos,
-
-    /// The width of the view box.
-    pub width: f32,
-
-    /// The height of the view box.
-    pub height: f32,
-}
-
-impl ViewBox {
-    /// Creates a view box centered around a point.
-    ///
-    /// # Arguments
-    /// *  `pos` - The centre.
-    /// *  `width` - The width of the view box.
-    /// *  `height` - The height of the view box.
-    pub fn centered_at(pos: physical::Pos, width: f32, height: f32) -> Self {
-        Self {
-            corner: physical::Pos {
-                x: pos.x - 0.5 * width,
-                y: pos.y - 0.5 * height,
-            },
-            width,
-            height,
-        }
-    }
-
-    /// Flattens this view box to the tuple `(x, y, width, height)`.
-    pub fn tuple(self) -> (f32, f32, f32, f32) {
-        (self.corner.x, self.corner.y, self.width, self.height)
-    }
-
-    /// Expands this view box with `d` units.
-    ///
-    /// The centre is maintained, but every side will be `d` units further from
-    /// it.
-    ///
-    /// If `d` is a negative value, the view box will be contracted, which may
-    /// lead to a view box width negative dimensions.
-    ///
-    /// # Arguments
-    /// *  `d` - The number of units to expand.
-    pub fn expand(self, d: f32) -> Self {
-        Self {
-            corner: physical::Pos {
-                x: self.corner.x - d,
-                y: self.corner.y - d,
-            },
-            width: self.width + 2.0 * d,
-            height: self.height + 2.0 * d,
-        }
-    }
-
-    /// The centre of this view box.
-    pub fn center(self) -> physical::Pos {
-        physical::Pos {
-            x: self.corner.x + 0.5 * self.width,
-            y: self.corner.y + 0.5 * self.height,
-        }
-    }
-}
-
-impl ops::Mul<f32> for ViewBox {
-    type Output = Self;
-
-    fn mul(self, rhs: f32) -> Self {
-        Self {
-            corner: physical::Pos {
-                x: self.corner.x * rhs,
-                y: self.corner.y * rhs,
-            },
-            width: self.width * rhs,
-            height: self.height * rhs,
         }
     }
 }
@@ -222,12 +134,53 @@ impl Shape {
         dispatch!(self => minimal_dimensions(width, height))
     }
 
+    /// Returns all walls for a shape.
+    pub fn all_walls(self) -> &'static [&'static wall::Wall] {
+        dispatch!(self => all_walls())
+    }
+
+    /// Returns the back of a wall.
+    ///
+    /// The back is the other side of the wall, located in a neighbouring room.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall position.
+    pub fn back(self, wall_pos: WallPos) -> WallPos {
+        dispatch!(self => back(wall_pos))
+    }
+
+    /// Returns the opposite of a wall.
+    ///
+    /// The opposite is the wall located on the opposite side of the room. For
+    /// mazes with rooms with an odd number of walls, there is no opposite wall.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall position.
+    pub fn opposite(self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
+        dispatch!(self => opposite(wall_pos))
+    }
+
+    /// Returns all walls of a specific room.
+    ///
+    /// # Arguments
+    /// *  `pos` - The room position.
+    pub fn walls(self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
+        dispatch!(self => walls(pos))
+    }
     /// Converts a physical position to a matrix cell.
     ///
     /// # Arguments
     /// *  `pos` - The physical position.
     pub fn physical_to_cell(self, pos: physical::Pos) -> matrix::Pos {
-        dispatch!(self => room_at(pos))
+        dispatch!(self => physical_to_cell(pos))
+    }
+
+    /// Converts a physical position to a matrix cell.
+    ///
+    /// # Arguments
+    /// *  `pos` - The physical position.
+    pub fn physical_to_wall_pos(self, pos: physical::Pos) -> WallPos {
+        dispatch!(self => physical_to_wall_pos(pos))
     }
 
     /// Returns the physical centre of a matrix cell.
@@ -235,7 +188,7 @@ impl Shape {
     /// # Arguments
     /// *  `pos` - The matrix position.
     pub fn cell_to_physical(self, pos: matrix::Pos) -> physical::Pos {
-        dispatch!(self => center(pos))
+        dispatch!(self => cell_to_physical(pos))
     }
 
     /// Calculates the _view box_ for a maze with this shape when rendered.
@@ -246,7 +199,7 @@ impl Shape {
     /// # Arguments
     /// *  `cols` - The number of columns in the matrix.
     /// *  `rows` - The number of rows in the matrix.
-    pub fn viewbox(self, cols: usize, rows: usize) -> ViewBox {
+    pub fn viewbox(self, cols: usize, rows: usize) -> physical::ViewBox {
         let mut window =
             (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
         for y in 0..rows {
@@ -283,7 +236,7 @@ impl Shape {
                 });
         }
 
-        ViewBox {
+        physical::ViewBox {
             corner: physical::Pos {
                 x: window.0,
                 y: window.1,
@@ -338,7 +291,7 @@ where
 {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
-        dispatch!(self.shape => all_walls())
+        self.shape.all_walls()
     }
 
     /// Returns the back of a wall.
@@ -348,7 +301,7 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn back(&self, wall_pos: WallPos) -> WallPos {
-        dispatch!(self.shape => back(wall_pos))
+        self.shape.back(wall_pos)
     }
 
     /// Returns the opposite of a wall.
@@ -359,7 +312,7 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn opposite(&self, wall_pos: WallPos) -> Option<&'static wall::Wall> {
-        dispatch!(self.shape => opposite(wall_pos))
+        self.shape.opposite(wall_pos)
     }
 
     /// Returns all walls of a specific room.
@@ -367,7 +320,7 @@ where
     /// # Arguments
     /// *  `pos` - The room position.
     pub fn walls(&self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-        dispatch!(self.shape => walls(pos))
+        self.shape.walls(pos)
     }
 
     /// Returns the physical centre of a matrix position.
@@ -375,7 +328,7 @@ where
     /// # Arguments
     /// *  `pos` - The matrix position.
     pub fn center(&self, pos: matrix::Pos) -> physical::Pos {
-        dispatch!(self.shape => center(pos))
+        self.shape.cell_to_physical(pos)
     }
 
     /// Returns the matrix position whose centre is closest to a physical
@@ -387,7 +340,7 @@ where
     /// # Arguments
     /// *  `pos` - The physical position.
     pub fn room_at(&self, pos: physical::Pos) -> matrix::Pos {
-        dispatch!(self.shape => room_at(pos))
+        self.shape.physical_to_cell(pos)
     }
 
     /// Returns the matrix position whose centre is closest to a physical
@@ -399,7 +352,7 @@ where
     /// # Arguments
     /// *  `pos` - The physical position.
     pub fn wall_pos_at(&self, pos: physical::Pos) -> WallPos {
-        dispatch!(self.shape => wall_pos_at(pos))
+        self.shape.physical_to_wall_pos(pos)
     }
 
     /// Yields all rooms that are touched by the rectangle described.
@@ -408,12 +361,15 @@ where
     /// centre and all corners of rooms are considered, and all rooms for which
     /// any of these points are inside of the rectangle are yielded.
     ///
-    /// This, a small rectangle inside a room, but not touching the centre nor
-    /// any corner, will not match.
+    /// Thus, a small rectangle inside a room not touching the centre nor any
+    /// corner will not match.
     ///
     /// # Arguments
     /// *  `viewbox` - The rectangle.
-    pub fn rooms_touched_by(&self, viewbox: ViewBox) -> Vec<matrix::Pos> {
+    pub fn rooms_touched_by(
+        &self,
+        viewbox: physical::ViewBox,
+    ) -> Vec<matrix::Pos> {
         let center = viewbox.center();
         let left = viewbox.corner.x;
         let top = viewbox.corner.y;
@@ -534,8 +490,12 @@ mod tests {
     #[test]
     fn viewbox_centered_at() {
         assert_eq!(
-            ViewBox::centered_at(physical::Pos { x: 0.0, y: 0.0 }, 2.0, 2.0),
-            ViewBox {
+            physical::ViewBox::centered_at(
+                physical::Pos { x: 0.0, y: 0.0 },
+                2.0,
+                2.0
+            ),
+            physical::ViewBox {
                 corner: physical::Pos { x: -1.0, y: -1.0 },
                 width: 2.0,
                 height: 2.0,
@@ -546,27 +506,27 @@ mod tests {
     #[test]
     fn viewbox_expand() {
         assert_eq!(
-            ViewBox {
+            physical::ViewBox {
                 corner: physical::Pos { x: 1.0, y: 1.0 },
                 width: 1.0,
                 height: 1.0,
             }
             .expand(1.0),
-            ViewBox {
+            physical::ViewBox {
                 corner: physical::Pos { x: 0.0, y: 0.0 },
                 width: 3.0,
                 height: 3.0,
             },
         );
         assert_eq!(
-            ViewBox {
+            physical::ViewBox {
                 corner: physical::Pos { x: 1.0, y: 1.0 },
                 width: 1.0,
                 height: 1.0,
             }
             .expand(1.0)
             .expand(-1.0),
-            ViewBox {
+            physical::ViewBox {
                 corner: physical::Pos { x: 1.0, y: 1.0 },
                 width: 1.0,
                 height: 1.0,
@@ -577,7 +537,10 @@ mod tests {
     #[test]
     fn viewbox_center() {
         let center = physical::Pos { x: 5.0, y: -5.0 };
-        assert_eq!(ViewBox::centered_at(center, 10.0, 10.0).center(), center);
+        assert_eq!(
+            physical::ViewBox::centered_at(center, 10.0, 10.0).center(),
+            center
+        );
     }
 
     #[test]
@@ -614,7 +577,7 @@ mod tests {
             let (w, h) = maze.shape.minimal_dimensions(width, height);
 
             let m = maze.shape.create::<()>(w, h);
-            let ViewBox {
+            let physical::ViewBox {
                 width: actual_width,
                 height: actual_height,
                 ..
@@ -624,7 +587,7 @@ mod tests {
 
             if w > 1 && h > 1 {
                 let m = maze.shape.create::<()>(w - 1, h - 1);
-                let ViewBox {
+                let physical::ViewBox {
                     width: actual_width,
                     height: actual_height,
                     ..
@@ -696,7 +659,7 @@ mod tests {
                     (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
                 },
             );
-        let viewbox = ViewBox {
+        let viewbox = physical::ViewBox {
             corner: physical::Pos { x: left, y: top },
             width: right - left,
             height: bottom - top,
@@ -731,7 +694,7 @@ mod tests {
                     (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
                 },
             );
-        let viewbox = ViewBox {
+        let viewbox = physical::ViewBox {
             corner: physical::Pos { x: left, y: top },
             width: right - left,
             height: bottom - top,

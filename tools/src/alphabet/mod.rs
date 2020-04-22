@@ -57,7 +57,7 @@ impl Character {
             });
             let b = bl * (1.0 - dx) + br * dx;
 
-            (t * (1.0 - dy) + b * dy)
+            t * (1.0 - dy) + b * dy
         }
     }
 

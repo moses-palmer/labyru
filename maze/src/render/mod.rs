@@ -1,4 +1,4 @@
-use crate::shape;
+use crate::physical;
 use crate::Maze;
 
 impl<T> Maze<T>
@@ -9,7 +9,7 @@ where
     ///
     /// The returned value is the minimal rectangle that will contain this
     /// maze.
-    pub fn viewbox(&self) -> shape::ViewBox {
+    pub fn viewbox(&self) -> physical::ViewBox {
         self.shape().viewbox(self.width(), self.height())
     }
 }

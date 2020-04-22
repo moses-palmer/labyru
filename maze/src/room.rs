@@ -27,13 +27,24 @@ where
 {
     /// Returns whether a specified wall is open.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::room::*;
+    /// # let mut room: Room<_> = false.into();
+    /// # let wall = &maze::shape::quad::walls::LEFT;
+    ///
+    /// room.set_open(wall, true);
+    /// assert!(room.is_open(wall));
+    /// ```
+    ///
     /// # Arguments
     /// *  `wall` - The wall to check.
     pub fn is_open(&self, wall: &'static wall::Wall) -> bool {
         self.walls & wall.mask() != 0
     }
 
-    /// Sets whether a wall is open..
+    /// Sets whether a wall is open.
     ///
     /// # Arguments
     /// *  `wall` - The wall to set.

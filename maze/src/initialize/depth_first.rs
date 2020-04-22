@@ -4,18 +4,23 @@ use crate::matrix;
 
 /// Initialises a maze using the _Depth First_ algorithm.
 ///
-/// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
-/// a description of the algorithm.
+/// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for a
+/// description of the algorithm.
 ///
-/// The maze  should be fully closed; any already open walls will be
-/// ignored and kept.
+/// The maze should be fully closed; any already open walls will be ignored and
+/// kept.
 ///
 /// This method will ignore rooms for which `filter` returns `false`.
 ///
 /// # Arguments
+/// *  `maze``- The maze to initialise.
 /// *  `rng` - A random number generator.
 /// *  `filter` - A predicate filtering rooms to consider.
-pub fn initialize<F, R, T>(mut maze: Maze<T>, rng: &mut R, filter: F) -> Maze<T>
+pub(crate) fn initialize<F, R, T>(
+    mut maze: Maze<T>,
+    rng: &mut R,
+    filter: F,
+) -> Maze<T>
 where
     F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,

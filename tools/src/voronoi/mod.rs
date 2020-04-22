@@ -6,9 +6,15 @@ use maze::physical;
 
 pub mod initialize;
 
+/// A point description in the Voronoi diagram initialisation vector.
+///
+/// The first item is the physical location of this point and the second its
+/// weight. The final item is the actual value.
+pub type Point<V> = (physical::Pos, f32, V);
+
 pub fn matrix<V, T>(
     maze: &maze::Maze<T>,
-    points: Vec<(physical::Pos, f32, V)>,
+    points: Vec<Point<V>>,
 ) -> matrix::Matrix<V>
 where
     V: Clone + Default,
@@ -17,23 +23,21 @@ where
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 
     // For each cell in the resulting matrix, retrieve the value of the point
-    // closest to the centre of the room corresponding to the cell
+    // closest to the centre of the room corresponding to the cell by iterating
+    // over all points and selecting the one where the distance / weight ratio
+    // is the smallest
     for pos in result.positions() {
-        let physical::Pos { x: cx, y: cy } = maze.center(pos);
-        let (_, value) = points
+        let center = maze.center(pos);
+        if let Some(val) = points
             .iter()
-            // Map points to a measurement of the distance to the current cell
-            .map(|(physical::Pos { x, y }, w, v)| (x - cx, y - cy, w, v))
-            .map(|(dx, dy, w, v)| ((dx * dx + dy * dy) / w, v))
-            // Find the closest point
-            .fold((f32::MAX, V::default()), |(ad, av), (cd, cv)| {
-                if cd < ad {
-                    (cd, cv.clone())
-                } else {
-                    (ad, av)
-                }
-            });
-        result[pos] = value;
+            .map(|(p, w, val)| ((*p - center).value() / w, val))
+            // We assume that that the weights are not exotic enough to cause
+            // this to fail
+            .min_by(|v1, v2| v1.0.partial_cmp(&v2.0).unwrap())
+            .map(|(_, val)| val)
+        {
+            result[pos] = val.clone();
+        }
     }
 
     result

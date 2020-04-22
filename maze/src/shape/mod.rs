@@ -55,8 +55,7 @@ macro_rules! define_shape {
                 $( $field: $val, )*
             } );*;
 
-            pub static ALL: &[&'static wall::Wall] = &[
-                            $(&$wall_name),*];
+            pub static ALL: &[&'static wall::Wall] = &[$(&$wall_name),*];
         }
 
         /// Returns all walls used in this type of maze.

@@ -293,7 +293,7 @@ impl std::str::FromStr for Shape {
 
 impl<T> Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {

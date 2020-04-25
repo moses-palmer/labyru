@@ -27,7 +27,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The shape of the rooms.
     shape: Shape,
@@ -51,6 +51,12 @@ where
         Self { shape, rooms }
     }
 
+}
+
+impl<T> Maze<T>
+where
+    T: Clone,
+{
     /// Returns the width of the maze.
     pub fn width(&self) -> usize {
         self.rooms.width

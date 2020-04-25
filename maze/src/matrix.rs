@@ -103,49 +103,6 @@ where
             data: vec![T::default(); width * height],
         }
     }
-
-    /// Applies a mapping to this matrix.
-    ///
-    /// The return value is a matrix with the same dimensions as this one, but
-    /// with every value mapped through the mapper.
-    ///
-    /// # Arguments
-    /// *  `mapper` - The mapping function.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use maze::matrix::*;
-    /// # type Matrix = maze::matrix::Matrix<u32>;
-    ///
-    /// let mut matrix = Matrix::new(2, 2);
-    /// matrix[Pos { col: 0, row: 0 }] = 0;
-    /// matrix[Pos { col: 1, row: 0 }] = 1;
-    /// matrix[Pos { col: 0, row: 1 }] = 2;
-    /// matrix[Pos { col: 1, row: 1 }] = 3;
-    /// assert_eq!(
-    ///     matrix.map(|v| v + 1).values().cloned().collect::<Vec<_>>(),
-    ///     vec![
-    ///         1,
-    ///         2,
-    ///         3,
-    ///         4,
-    ///     ],
-    /// );
-    /// ```
-    pub fn map<F, S>(&self, mut mapper: F) -> Matrix<S>
-    where
-        F: FnMut(&T) -> S,
-        S: Clone + Default,
-    {
-        self.positions().fold(
-            Matrix::new(self.width, self.height),
-            |mut matrix, pos| {
-                matrix[pos] = mapper(&self[pos]);
-                matrix
-            },
-        )
-    }
 }
 
 
@@ -181,7 +138,7 @@ where
     /// ```
     pub fn new_with_data<F>(width: usize, height: usize, data: F) -> Self
     where
-        F: Fn(Pos) -> T,
+        F: FnMut(Pos) -> T,
     {
         Self {
             width,
@@ -190,6 +147,46 @@ where
         }
     }
 
+    /// Applies a mapping to this matrix.
+    ///
+    /// The return value is a matrix with the same dimensions as this one, but
+    /// with every value mapped through the mapper.
+    ///
+    /// # Arguments
+    /// *  `mapper` - The mapping function.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(2, 2);
+    /// matrix[Pos { col: 0, row: 0 }] = 0;
+    /// matrix[Pos { col: 1, row: 0 }] = 1;
+    /// matrix[Pos { col: 0, row: 1 }] = 2;
+    /// matrix[Pos { col: 1, row: 1 }] = 3;
+    /// assert_eq!(
+    ///     matrix.map(|v| v + 1).values().cloned().collect::<Vec<_>>(),
+    ///     vec![
+    ///         1,
+    ///         2,
+    ///         3,
+    ///         4,
+    ///     ],
+    /// );
+    /// ```
+    pub fn map<F, S>(&self, mut mapper: F) -> Matrix<S>
+    where
+        F: FnMut(&T) -> S,
+        S: Clone,
+    {
+        Matrix::new_with_data(
+            self.width,
+            self.height,
+            |pos| mapper(&self[pos]),
+        )
+    }
     /// Determines whether a position is inside of the matrix.
     ///
     /// # Example

@@ -6,10 +6,10 @@ use crate::wall;
 /// A room is a part of a maze.
 ///
 /// It has walls, openings connecting it with other rooms, and asssociated data.
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Room<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     walls: wall::Mask,
 
@@ -21,9 +21,22 @@ where
     pub data: T,
 }
 
-impl<T> Room<T>
+impl<T> Default for Room<T>
 where
     T: Clone + Default,
+{
+    fn default() -> Self {
+        Self {
+            walls: wall::Mask::default(),
+            visited: false,
+            data: T::default(),
+        }
+    }
+}
+
+impl<T> Room<T>
+where
+    T: Clone,
 {
     /// Returns whether a specified wall is open.
     ///
@@ -82,7 +95,7 @@ where
 
 impl<T> From<T> for Room<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Constructs a non-visited room with data.
     ///

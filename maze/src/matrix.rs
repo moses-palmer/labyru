@@ -153,6 +153,43 @@ impl<T> Matrix<T>
 where
     T: Clone,
 {
+    /// Constructs an initialised matrix.
+    ///
+    /// This constructor can be used when no default value exists for the data
+    /// type.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    ///
+    /// let matrix = Matrix::new_with_data(
+    ///     2,
+    ///     2,
+    ///     |pos| (pos.col + 1) * (pos.row + 1),
+    /// );
+    /// assert_eq!(
+    ///     matrix.values().cloned().collect::<Vec<_>>(),
+    ///     vec![
+    ///         1,
+    ///         2,
+    ///         2,
+    ///         4,
+    ///     ],
+    /// );
+    ///
+    /// ```
+    pub fn new_with_data<F>(width: usize, height: usize, data: F) -> Self
+    where
+        F: Fn(Pos) -> T,
+    {
+        Self {
+            width,
+            height,
+            data: PosIterator::new(width, height).map(data).collect(),
+        }
+    }
+
     /// Determines whether a position is inside of the matrix.
     ///
     /// # Example

@@ -115,8 +115,8 @@ impl Shape {
     ///    this object.
     pub fn create_populated<T, V>(self, source: matrix::Matrix<T>) -> Maze<V>
     where
-        T: Clone + Default + Into<V>,
-        V: Clone + Default,
+        T: Clone + Into<V>,
+        V: Clone,
     {
         Maze {
             shape: self,
@@ -293,7 +293,7 @@ impl std::str::FromStr for Shape {
 
 impl<T> Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {

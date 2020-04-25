@@ -17,7 +17,7 @@ pub trait ToPath {
 
 impl<T> ToPath for Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     fn to_path_d(&self) -> svg::node::element::path::Data {
         let mut commands = Vec::new();
@@ -72,7 +72,7 @@ where
 
 impl<'a, T> ToPath for Path<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     fn to_path_d(&self) -> svg::node::element::path::Data {
         svg::node::element::path::Data::from(
@@ -96,7 +96,7 @@ where
 /// This struct provides means to visit all wall positions of a maze.
 struct Visitor<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The maze whose walls are being visited.
     maze: &'a Maze<T>,
@@ -110,7 +110,7 @@ where
 
 impl<'a, T> Visitor<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Creates a new visitor for a maze.
     ///
@@ -246,7 +246,7 @@ impl From<Operation> for Command {
 /// *  `wall_pos` - The wall position.
 fn center<T>(maze: &Maze<T>, wall_pos: WallPos) -> physical::Pos
 where
-    T: Clone + Default,
+    T: Clone,
 {
     let (corner1, corner2) = maze.corners(wall_pos);
     physical::Pos {
@@ -267,7 +267,7 @@ fn corners<T>(
     origin: physical::Pos,
 ) -> (physical::Pos, physical::Pos)
 where
-    T: Clone + Default,
+    T: Clone,
 {
     let (pos1, pos2) = maze.corners(from);
     let d1 = (pos1.x - origin.x).powi(2) + (pos1.y - origin.y).powi(2);

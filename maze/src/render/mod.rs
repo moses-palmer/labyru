@@ -3,7 +3,7 @@ use crate::Maze;
 
 impl<T> Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Calculates the _view box_ for an object when rendered.
     ///

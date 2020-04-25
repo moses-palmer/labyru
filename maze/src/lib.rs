@@ -27,7 +27,7 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The shape of the rooms.
     shape: Shape,
@@ -48,6 +48,31 @@ where
     /// *  `height` - The height, in rooms, of the maze.
     pub fn new(shape: Shape, width: usize, height: usize) -> Self {
         let rooms = room::Rooms::new(width, height);
+        Self { shape, rooms }
+    }
+}
+
+impl<T> Maze<T>
+where
+    T: Clone,
+{
+    /// Creates an uninitialised maze.
+    ///
+    /// # Arguments
+    /// *  `shape` - The shape of the rooms.
+    /// *  `width` - The width, in rooms, of the maze.
+    /// *  `height` - The height, in rooms, of the maze.
+    pub fn new_with_data<F>(
+        shape: Shape,
+        width: usize,
+        height: usize,
+        mut data: F,
+    ) -> Self
+    where
+        F: FnMut(matrix::Pos) -> T,
+    {
+        let rooms =
+            room::Rooms::new_with_data(width, height, |pos| data(pos).into());
         Self { shape, rooms }
     }
 
@@ -290,7 +315,7 @@ where
 
 impl<T> std::ops::Index<matrix::Pos> for Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     type Output = room::Room<T>;
 
@@ -313,7 +338,7 @@ pub type HeatMap = matrix::Matrix<u32>;
 pub fn heatmap<I, T>(maze: &crate::Maze<T>, positions: I) -> HeatMap
 where
     I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
-    T: Clone + Default,
+    T: Clone,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 

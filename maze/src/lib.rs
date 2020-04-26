@@ -76,6 +76,24 @@ where
         Self { shape, rooms }
     }
 
+    /// Maps each room, yielding a maze with the same layout but with
+    /// transformed data.
+    ///
+    /// # Arguments
+    /// *  `data` - A function providing data for the new maze.
+    pub fn map<F, U>(&self, mut data: F) -> Maze<U>
+    where
+        F: FnMut(matrix::Pos, T) -> U,
+        U: Clone,
+    {
+        Maze {
+            shape: self.shape,
+            rooms: self.rooms.map_with_pos(|pos, value| {
+                value.with_data(data(pos, value.data.clone()))
+            }),
+        }
+    }
+
     /// Returns the width of the maze.
     pub fn width(&self) -> usize {
         self.rooms.width

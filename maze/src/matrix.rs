@@ -184,6 +184,48 @@ where
         Matrix::new_with_data(self.width, self.height, |pos| mapper(&self[pos]))
     }
 
+    /// Applies a mapping to this matrix.
+    ///
+    /// The return value is a matrix with the same dimensions as this one, but
+    /// with every value mapped through the mapper.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(2, 2);
+    /// matrix[Pos { col: 0, row: 0 }] = 0;
+    /// matrix[Pos { col: 1, row: 0 }] = 1;
+    /// matrix[Pos { col: 0, row: 1 }] = 2;
+    /// matrix[Pos { col: 1, row: 1 }] = 3;
+    /// assert_eq!(
+    ///     matrix.map_with_pos(|p, v| ((p.col, p.row), v + 1)).values()
+    ///         .cloned()
+    ///         .collect::<Vec<_>>(),
+    ///     vec![
+    ///         ((0, 0), 1),
+    ///         ((1, 0), 2),
+    ///         ((0, 1), 3),
+    ///         ((1, 1), 4),
+    ///     ],
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `mapper` - The mapping function.
+    ///
+    pub fn map_with_pos<F, S>(&self, mut mapper: F) -> Matrix<S>
+    where
+        F: FnMut(Pos, &T) -> S,
+        S: Clone,
+    {
+        Matrix::new_with_data(self.width, self.height, |pos| {
+            mapper(pos, &self[pos])
+        })
+    }
+
     /// Determines whether a position is inside of the matrix.
     ///
     /// # Example

@@ -18,7 +18,7 @@ pub(crate) fn initialize<F, R, T>(
 where
     F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
-    T: Clone + Default,
+    T: Clone,
 {
     let (count, mut candidates) =
         matrix::filter(maze.width(), maze.height(), filter);

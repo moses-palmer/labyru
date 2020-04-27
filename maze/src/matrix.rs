@@ -71,10 +71,10 @@ where
 /// Every cell has a value, which is addressed using a [`Pos`].
 ///
 /// [`Pos`]: struct.Pos.html
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Matrix<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The width of the matrix.
     pub width: usize,
@@ -85,10 +85,6 @@ where
     data: Vec<T>,
 }
 
-/// A matrix of rooms.
-///
-/// A room matrix has a width and a height, and rooms can be addressed by
-/// position.
 impl<T> Matrix<T>
 where
     T: Clone + Default,
@@ -106,6 +102,128 @@ where
             height,
             data: vec![T::default(); width * height],
         }
+    }
+}
+
+impl<T> Matrix<T>
+where
+    T: Clone,
+{
+    /// Constructs an initialised matrix.
+    ///
+    /// This constructor can be used when no default value exists for the data
+    /// type.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    ///
+    /// let matrix = Matrix::new_with_data(
+    ///     2,
+    ///     2,
+    ///     |pos| (pos.col + 1) * (pos.row + 1),
+    /// );
+    /// assert_eq!(
+    ///     matrix.values().cloned().collect::<Vec<_>>(),
+    ///     vec![
+    ///         1,
+    ///         2,
+    ///         2,
+    ///         4,
+    ///     ],
+    /// );
+    ///
+    /// ```
+    pub fn new_with_data<F>(width: usize, height: usize, data: F) -> Self
+    where
+        F: FnMut(Pos) -> T,
+    {
+        Self {
+            width,
+            height,
+            data: PosIterator::new(width, height).map(data).collect(),
+        }
+    }
+
+    /// Applies a mapping to this matrix.
+    ///
+    /// The return value is a matrix with the same dimensions as this one, but
+    /// with every value mapped through the mapper.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(2, 2);
+    /// matrix[Pos { col: 0, row: 0 }] = 0;
+    /// matrix[Pos { col: 1, row: 0 }] = 1;
+    /// matrix[Pos { col: 0, row: 1 }] = 2;
+    /// matrix[Pos { col: 1, row: 1 }] = 3;
+    /// assert_eq!(
+    ///     matrix.map(|v| v + 1).values().cloned().collect::<Vec<_>>(),
+    ///     vec![
+    ///         1,
+    ///         2,
+    ///         3,
+    ///         4,
+    ///     ],
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `mapper` - The mapping function.
+    ///
+    pub fn map<F, S>(&self, mut mapper: F) -> Matrix<S>
+    where
+        F: FnMut(&T) -> S,
+        S: Clone,
+    {
+        Matrix::new_with_data(self.width, self.height, |pos| mapper(&self[pos]))
+    }
+
+    /// Applies a mapping to this matrix.
+    ///
+    /// The return value is a matrix with the same dimensions as this one, but
+    /// with every value mapped through the mapper.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// let mut matrix = Matrix::new(2, 2);
+    /// matrix[Pos { col: 0, row: 0 }] = 0;
+    /// matrix[Pos { col: 1, row: 0 }] = 1;
+    /// matrix[Pos { col: 0, row: 1 }] = 2;
+    /// matrix[Pos { col: 1, row: 1 }] = 3;
+    /// assert_eq!(
+    ///     matrix.map_with_pos(|p, v| ((p.col, p.row), v + 1)).values()
+    ///         .cloned()
+    ///         .collect::<Vec<_>>(),
+    ///     vec![
+    ///         ((0, 0), 1),
+    ///         ((1, 0), 2),
+    ///         ((0, 1), 3),
+    ///         ((1, 1), 4),
+    ///     ],
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `mapper` - The mapping function.
+    ///
+    pub fn map_with_pos<F, S>(&self, mut mapper: F) -> Matrix<S>
+    where
+        F: FnMut(Pos, &T) -> S,
+        S: Clone,
+    {
+        Matrix::new_with_data(self.width, self.height, |pos| {
+            mapper(pos, &self[pos])
+        })
     }
 
     /// Determines whether a position is inside of the matrix.
@@ -253,54 +371,11 @@ where
     pub fn values(&self) -> ValueIterator<'_, T> {
         ValueIterator::new(self)
     }
-
-    /// Applies a mapping to this matrix.
-    ///
-    /// The return value is a matrix with the same dimensions as this one, but
-    /// with every value mapped through the mapper.
-    ///
-    /// # Arguments
-    /// *  `mapper` - The mapping function.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use maze::matrix::*;
-    /// # type Matrix = maze::matrix::Matrix<u32>;
-    ///
-    /// let mut matrix = Matrix::new(2, 2);
-    /// matrix[Pos { col: 0, row: 0 }] = 0;
-    /// matrix[Pos { col: 1, row: 0 }] = 1;
-    /// matrix[Pos { col: 0, row: 1 }] = 2;
-    /// matrix[Pos { col: 1, row: 1 }] = 3;
-    /// assert_eq!(
-    ///     matrix.map(|v| v + 1).values().cloned().collect::<Vec<_>>(),
-    ///     vec![
-    ///         1,
-    ///         2,
-    ///         3,
-    ///         4,
-    ///     ],
-    /// );
-    /// ```
-    pub fn map<F, S>(&self, mut mapper: F) -> Matrix<S>
-    where
-        F: FnMut(&T) -> S,
-        S: Clone + Default,
-    {
-        self.positions().fold(
-            Matrix::new(self.width, self.height),
-            |mut matrix, pos| {
-                matrix[pos] = mapper(&self[pos]);
-                matrix
-            },
-        )
-    }
 }
 
 impl<T> Matrix<T>
 where
-    T: Copy + Default + Eq + PartialEq + PartialOrd + hash::Hash,
+    T: Copy + Eq + PartialEq + PartialOrd + hash::Hash,
 {
     /// Finds all edges between areas with different values.
     ///
@@ -347,7 +422,7 @@ where
 
 impl<T> Matrix<T>
 where
-    T: Clone + Copy + Default + PartialEq,
+    T: Clone + Copy + PartialEq,
 {
     /// Fills all rooms reachable from `pos` in `matrix` with the value
     /// `value`.
@@ -413,7 +488,7 @@ where
 
 impl<T> std::ops::Add for Matrix<T>
 where
-    T: std::ops::AddAssign + Clone + Copy + Default,
+    T: std::ops::AddAssign + Clone + Copy,
 {
     type Output = Self;
 
@@ -517,7 +592,7 @@ impl Iterator for PosIterator {
 /// An iterator over matrix values.
 pub struct ValueIterator<'a, T>
 where
-    T: 'a + Clone + Default,
+    T: 'a + Clone,
 {
     /// An iterator over positions
     pos_iter: PosIterator,
@@ -528,7 +603,7 @@ where
 
 impl<'a, T> ValueIterator<'a, T>
 where
-    T: 'a + Clone + Default,
+    T: 'a + Clone,
 {
     /// Creates a new position iterator.
     ///
@@ -544,7 +619,7 @@ where
 
 impl<'a, T> Iterator for ValueIterator<'a, T>
 where
-    T: 'a + Clone + Default,
+    T: 'a + Clone,
 {
     type Item = &'a T;
 
@@ -560,7 +635,7 @@ where
 
 impl<T> std::ops::Index<Pos> for Matrix<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     type Output = T;
 
@@ -583,7 +658,7 @@ where
 
 impl<T> std::ops::IndexMut<Pos> for Matrix<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Retrieves a mutable reference to the value at a specific position.
     ///

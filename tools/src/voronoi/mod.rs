@@ -18,7 +18,7 @@ pub fn matrix<V, T>(
 ) -> matrix::Matrix<V>
 where
     V: Clone + Default,
-    T: Clone + Default,
+    T: Clone,
 {
     let mut result = matrix::Matrix::new(maze.width(), maze.height());
 

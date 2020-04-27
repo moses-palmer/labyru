@@ -108,20 +108,23 @@ impl Shape {
         Maze::new(self, width, height)
     }
 
-    /// Creates a maze of this type, populated with data from a source matrix.
+    /// Creates a fully initialised maze of this type.
     ///
     /// # Arguments
-    /// *  `source` - The source matrix. The maze dimensions are extracted from
-    ///    this object.
-    pub fn create_populated<T, V>(self, source: matrix::Matrix<T>) -> Maze<V>
+    /// *  `width` - The width, in rooms, of the maze.
+    /// *  `height` - The height, in rooms, of the maze.
+    /// *  `data` - A function providing data for rooms.
+    pub fn create_with_data<F, T>(
+        self,
+        width: usize,
+        height: usize,
+        data: F,
+    ) -> Maze<T>
     where
-        T: Clone + Default + Into<V>,
-        V: Clone + Default,
+        F: FnMut(matrix::Pos) -> T,
+        T: Clone,
     {
-        Maze {
-            shape: self,
-            rooms: source.map(|data| data.clone().into().into()),
-        }
+        Maze::new_with_data(self, width, height, data)
     }
 
     /// Calculates the minimal dimensions for a maze to let the distance
@@ -293,7 +296,7 @@ impl std::str::FromStr for Shape {
 
 impl<T> Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Returns all walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
@@ -558,16 +561,13 @@ mod tests {
     }
 
     #[maze_test]
-    fn create_populated(maze: TestMaze) {
+    fn create_with_data(maze: TestMaze) {
         let width = 10;
         let height = 5;
 
-        let mut matrix = matrix::Matrix::new(width, height);
-        for pos in matrix.positions() {
-            matrix[pos] = pos.col * pos.row;
-        }
-
-        let maze = maze.shape().create_populated(matrix);
+        let maze = maze
+            .shape()
+            .create_with_data(width, height, |pos| pos.col * pos.row);
         assert_eq!(maze.width(), width);
         assert_eq!(maze.height(), height);
         for pos in maze.positions() {

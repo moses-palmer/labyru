@@ -23,8 +23,8 @@ impl Cells for maze::Shape {
 pub trait Splitter<C, T, U>
 where
     C: Cells,
-    T: Copy + Default,
-    U: Copy + Default + ops::Add + ops::Div<usize, Output = T>,
+    T: Copy,
+    U: Copy + ops::Add + ops::Div<usize, Output = T>,
 {
     /// Passes values through cells and collects their average in a matrix.
     ///
@@ -45,7 +45,7 @@ impl<'a, C, I, T, U> Splitter<C, T, U> for &'a mut I
 where
     C: Cells,
     I: Iterator<Item = (physical::Pos, U)>,
-    T: Copy + Default,
+    T: Copy,
     U: Copy + Default + ops::Add<U, Output = U> + ops::Div<usize, Output = T>,
 {
     fn split_by(

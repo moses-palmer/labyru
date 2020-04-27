@@ -127,8 +127,7 @@ where
     where
         F: Fn(matrix::Pos) -> bool,
     {
-        let (_, maze) = self.0.initialize(maze, rng, filter);
-        maze
+        self.0.initialize(maze, rng, filter).into()
     }
 }
 

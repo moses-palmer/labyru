@@ -13,6 +13,49 @@ where
     _marker: ::std::marker::PhantomData<R>,
 }
 
+/// A description of an initialised maze and its areas.
+pub struct InitializedMaze<T>
+where
+    T: Clone,
+{
+    /// The initialised maze.
+    pub maze: maze::Maze<T>,
+
+    /// A mapping from room position to the index of its initialiser in the
+    /// initialisation vector.
+    pub areas: matrix::Matrix<usize>,
+}
+
+impl<T> InitializedMaze<T>
+where
+    T: Clone,
+{
+    /// Maps each room of the maze, yielding a maze with the same layout but
+    /// with transformed data.
+    ///
+    /// This method allows for incorporating are information into the new maze.
+    ///
+    /// # Arguments
+    /// *  `data` - A function providing data for the new maze.
+    pub fn map<F, U>(&self, mut data: F) -> maze::Maze<U>
+    where
+        F: FnMut(matrix::Pos, T, usize) -> U,
+        U: Clone,
+    {
+        self.maze
+            .map(|pos, value| data(pos, value, self.areas[pos]))
+    }
+}
+
+impl<T> From<InitializedMaze<T>> for maze::Maze<T>
+where
+    T: Clone,
+{
+    fn from(source: InitializedMaze<T>) -> Self {
+        source.maze
+    }
+}
+
 impl<R> Methods<R>
 where
     R: initialize::Randomizer + Sized,
@@ -46,20 +89,20 @@ where
         maze: maze::Maze<T>,
         rng: &mut R,
         filter: F,
-    ) -> (matrix::Matrix<usize>, maze::Maze<T>)
+    ) -> InitializedMaze<T>
     where
         F: Fn(matrix::Pos) -> bool,
-        T: Clone + Default,
+        T: Clone,
     {
-        // Generate the segments
-        let matrix = self.matrix(&maze, rng);
+        // Generate the areas
+        let areas = self.matrix(&maze, rng);
 
         // Use a different initialisation method for each segment
         let mut maze = self.methods.into_iter().enumerate().fold(
             maze,
             |maze, (i, method)| {
                 maze.initialize_filter(method, rng, |pos| {
-                    filter(pos) && matrix[pos] == i
+                    filter(pos) && areas[pos] == i
                 })
             },
         );
@@ -67,7 +110,7 @@ where
         // Make sure all segments are connected
         initialize::connect_all(&mut maze, rng, filter);
 
-        (matrix, maze)
+        InitializedMaze { maze, areas }
     }
 
     /// Generates a Voronoi diagram where values are indices into the methods
@@ -82,7 +125,7 @@ where
         rng: &mut R,
     ) -> matrix::Matrix<usize>
     where
-        T: Clone + Default,
+        T: Clone,
     {
         let viewbox = maze.viewbox();
         super::matrix(

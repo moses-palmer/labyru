@@ -9,7 +9,7 @@ use crate::WallPos;
 
 impl<T> Maze<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Walks from `from` to `to` along the shortest path.
     ///
@@ -137,7 +137,7 @@ where
 /// a room position to the next room.
 pub struct Path<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The maze being walked.
     pub(crate) maze: &'a Maze<T>,
@@ -151,7 +151,7 @@ where
 
 impl<'a, T> Path<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// Stores the path from a starting position and a supporting map.
     ///
@@ -168,7 +168,7 @@ where
 
 impl<'a, T> IntoIterator for &'a Path<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     type Item = matrix::Pos;
     type IntoIter = Walker<'a, T>;
@@ -184,7 +184,7 @@ where
 
 pub struct Walker<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The actual path to walk.
     path: &'a Path<'a, T>,
@@ -199,7 +199,7 @@ where
 
 impl<'a, T> Iterator for Walker<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     type Item = matrix::Pos;
 
@@ -223,7 +223,7 @@ where
 /// Follows a wall.
 struct Follower<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     /// The maze.
     maze: &'a Maze<T>,
@@ -240,7 +240,7 @@ where
 
 impl<'a, T> Follower<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     pub(self) fn new(maze: &'a Maze<T>, start_pos: WallPos) -> Self {
         Self {
@@ -285,7 +285,7 @@ where
 
 impl<'a, T> Iterator for Follower<'a, T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     type Item = (WallPos, Option<WallPos>);
 

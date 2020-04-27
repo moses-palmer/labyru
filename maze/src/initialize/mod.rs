@@ -163,6 +163,15 @@ impl LFSR {
     }
 }
 
+impl<T> From<T> for LFSR
+where
+    T: Into<u64>,
+{
+    fn from(source: T) -> Self {
+        Self(source.into())
+    }
+}
+
 impl iter::Iterator for LFSR {
     type Item = bool;
 

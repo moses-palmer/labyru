@@ -2,7 +2,6 @@ use std;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use crate::matrix;
-use crate::wall;
 
 use crate::Maze;
 use crate::WallPos;
@@ -260,25 +259,10 @@ where
     /// # Arguments
     /// *  `wall_pos`- The wall position for which to retrieve a room.
     fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
-        let back = self.maze.back(wall_pos);
-        let matrix::Pos { col, row } = back.0;
-        back.1
-            .corner_wall_offsets
-            .iter()
-            // Convert the offsets to wall positions
-            .map(|&wall::Offset { dx, dy, wall }| {
-                (
-                    matrix::Pos {
-                        col: col + dx,
-                        row: row + dy,
-                    },
-                    wall,
-                )
-            })
-            // Find the first closed wall, or the back of the original wall if
-            // we encounter no other wall
+        self.maze
+            .corner_walls((wall_pos.0, wall_pos.1.next))
             .find(|&next| !self.maze.is_open(next))
-            .unwrap_or(back)
+            .unwrap_or_else(|| self.maze.back(wall_pos))
     }
 }
 

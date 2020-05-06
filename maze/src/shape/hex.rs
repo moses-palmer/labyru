@@ -4,7 +4,7 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Angle, Index, Offset};
+use crate::wall::{Angle, Offset};
 use crate::WallPos;
 
 use super::{COS_30, SIN_30};
@@ -29,8 +29,8 @@ define_shape! {
 
     LEFT0(0) = {
         corner_wall_offsets: &[
-            Offset { dx: -1, dy: 0, wall: WallIndex::DOWN_RIGHT0 as Index },
-            Offset { dx: 0, dy: 1, wall: WallIndex::UP_RIGHT1 as Index },
+            Offset { dx: -1, dy: 0, wall: &DOWN_RIGHT0 },
+            Offset { dx: 0, dy: 1, wall: &UP_RIGHT1 },
         ],
         dir: (-1, 0),
         span: (
@@ -50,8 +50,8 @@ define_shape! {
     },
     RIGHT0(3) = {
         corner_wall_offsets: &[
-            Offset { dx: 1, dy: 0, wall: WallIndex::UP_LEFT0 as Index },
-            Offset { dx: 1, dy: -1, wall: WallIndex::DOWN_LEFT1 as Index },
+            Offset { dx: 1, dy: 0, wall: &UP_LEFT0 },
+            Offset { dx: 1, dy: -1, wall: &DOWN_LEFT1 },
         ],
         dir: (1, 0),
         span: (
@@ -72,8 +72,8 @@ define_shape! {
 
     LEFT1(0) = {
         corner_wall_offsets: &[
-            Offset { dx: -1, dy: 0, wall: WallIndex::DOWN_RIGHT1 as Index },
-            Offset { dx: -1, dy: 1, wall: WallIndex::UP_RIGHT0 as Index },
+            Offset { dx: -1, dy: 0, wall: &DOWN_RIGHT1 },
+            Offset { dx: -1, dy: 1, wall: &UP_RIGHT0 },
         ],
         dir: (-1, 0),
         span: (
@@ -93,8 +93,8 @@ define_shape! {
     },
     RIGHT1(3) = {
         corner_wall_offsets: &[
-            Offset { dx: 1, dy: 0, wall: WallIndex::UP_LEFT1 as Index },
-            Offset { dx: 0, dy: -1, wall: WallIndex::DOWN_LEFT0 as Index },
+            Offset { dx: 1, dy: 0, wall: &UP_LEFT1 },
+            Offset { dx: 0, dy: -1, wall: &DOWN_LEFT0 },
         ],
         dir: (1, 0),
         span: (
@@ -115,8 +115,8 @@ define_shape! {
 
     UP_LEFT0(1) = {
         corner_wall_offsets: &[
-            Offset { dx: 0, dy: -1, wall: WallIndex::DOWN_LEFT1 as Index },
-            Offset { dx: -1, dy: 0, wall: WallIndex::UP_RIGHT0 as Index },
+            Offset { dx: 0, dy: -1, wall: &DOWN_LEFT1 },
+            Offset { dx: -1, dy: 0, wall: &UP_RIGHT0 },
         ],
         dir: (0, -1),
         span: (
@@ -136,8 +136,8 @@ define_shape! {
     },
     DOWN_RIGHT1(4) = {
         corner_wall_offsets: &[
-            Offset { dx: 0, dy: 1, wall: WallIndex::UP_RIGHT0 as Index },
-            Offset { dx: 1, dy: 0, wall: WallIndex::LEFT1 as Index },
+            Offset { dx: 0, dy: 1, wall: &UP_RIGHT0 },
+            Offset { dx: 1, dy: 0, wall: &LEFT1 },
         ],
         dir: (0, 1),
         span: (
@@ -158,8 +158,8 @@ define_shape! {
 
     UP_LEFT1(1) = {
         corner_wall_offsets: &[
-            Offset { dx: -1, dy: -1, wall: WallIndex::DOWN_LEFT0 as Index },
-            Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT1 as Index },
+            Offset { dx: -1, dy: -1, wall: &DOWN_LEFT0 },
+            Offset { dx: -1, dy: 0, wall: &RIGHT1 },
         ],
         dir: (-1, -1),
         span: (
@@ -179,8 +179,8 @@ define_shape! {
     },
     DOWN_RIGHT0(4) = {
         corner_wall_offsets: &[
-            Offset { dx: 1, dy: 1, wall: WallIndex::UP_RIGHT1 as Index },
-            Offset { dx: 1, dy: 0, wall: WallIndex::LEFT0 as Index },
+            Offset { dx: 1, dy: 1, wall: &UP_RIGHT1 },
+            Offset { dx: 1, dy: 0, wall: &LEFT0 },
         ],
         dir: (1, 1),
         span: (
@@ -201,8 +201,8 @@ define_shape! {
 
     UP_RIGHT0(2) = {
         corner_wall_offsets: &[
-            Offset { dx: 1, dy: -1, wall: WallIndex::LEFT1 as Index },
-            Offset { dx: 0, dy: -1, wall: WallIndex::DOWN_RIGHT1 as Index },
+            Offset { dx: 1, dy: -1, wall: &LEFT1 },
+            Offset { dx: 0, dy: -1, wall: &DOWN_RIGHT1 },
         ],
         dir: (1, -1),
         span: (
@@ -222,8 +222,8 @@ define_shape! {
     },
     DOWN_LEFT1(5) = {
         corner_wall_offsets: &[
-            Offset { dx: -1, dy: 1, wall: WallIndex::RIGHT0 as Index },
-            Offset { dx: 0, dy: 1, wall: WallIndex::UP_LEFT0 as Index },
+            Offset { dx: -1, dy: 1, wall: &RIGHT0 },
+            Offset { dx: 0, dy: 1, wall: &UP_LEFT0 },
         ],
         dir: (-1, 1),
         span: (
@@ -244,8 +244,8 @@ define_shape! {
 
     UP_RIGHT1(2) = {
         corner_wall_offsets: &[
-            Offset { dx: 0, dy: -1, wall: WallIndex::LEFT0 as Index },
-            Offset { dx: -1, dy: -1, wall: WallIndex::DOWN_RIGHT0 as Index },
+            Offset { dx: 0, dy: -1, wall: &LEFT0 },
+            Offset { dx: -1, dy: -1, wall: &DOWN_RIGHT0 },
         ],
         dir: (0, -1),
         span: (
@@ -265,8 +265,8 @@ define_shape! {
     },
     DOWN_LEFT0(5) = {
         corner_wall_offsets: &[
-            Offset { dx: 0, dy: 1, wall: WallIndex::RIGHT1 as Index },
-            Offset { dx: 1, dy: 1, wall: WallIndex::UP_LEFT1 as Index },
+            Offset { dx: 0, dy: 1, wall: &RIGHT1 },
+            Offset { dx: 1, dy: 1, wall: &UP_LEFT1 },
         ],
         dir: (0, 1),
         span: (

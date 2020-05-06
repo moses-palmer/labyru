@@ -260,10 +260,9 @@ where
     /// # Arguments
     /// *  `wall_pos`- The wall position for which to retrieve a room.
     fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
-        let all = self.maze.all_walls();
         let back = self.maze.back(wall_pos);
         let matrix::Pos { col, row } = back.0;
-        all[back.1.index]
+        back.1
             .corner_wall_offsets
             .iter()
             // Convert the offsets to wall positions
@@ -273,7 +272,7 @@ where
                         col: col + dx,
                         row: row + dy,
                     },
-                    all[wall],
+                    wall,
                 )
             })
             // Find the first closed wall, or the back of the original wall if

@@ -24,7 +24,7 @@ pub struct Offset {
     pub dy: isize,
 
     /// The neighbour index.
-    pub wall: Index,
+    pub wall: &'static Wall,
 }
 
 /// An angle in a span.

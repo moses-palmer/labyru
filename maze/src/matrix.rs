@@ -1002,7 +1002,9 @@ mod test {
     ///
     /// # Arguments
     /// *  `pos` - The cell position for which to generate neighbours.
-    fn all_neighbors(pos: Pos) -> impl Iterator<Item = Pos> {
+    fn all_neighbors(
+        pos: Pos,
+    ) -> impl Iterator<Item = Pos> + DoubleEndedIterator {
         vec![
             Pos {
                 col: pos.col,

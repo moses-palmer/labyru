@@ -1,4 +1,3 @@
-use svg;
 use svg::node::element::path::{Command, Position};
 
 use crate::Maze;

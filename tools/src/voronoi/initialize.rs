@@ -1,4 +1,3 @@
-use maze;
 use maze::initialize;
 use maze::matrix;
 use maze::physical;

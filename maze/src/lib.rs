@@ -257,7 +257,7 @@ where
     pub fn corner_walls(
         &self,
         wall_pos: WallPos,
-    ) -> impl Iterator<Item = WallPos> {
+    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
         let (matrix::Pos { col, row }, wall) = wall_pos;
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
             move |&wall::Offset { dx, dy, wall }| {
@@ -279,7 +279,7 @@ where
     pub fn wall_positions<'a>(
         &'a self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = WallPos> + 'a {
+    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator + 'a {
         self.walls(pos).iter().map(move |&wall| (pos, wall))
     }
 
@@ -290,7 +290,8 @@ where
     pub fn doors<'a>(
         &'a self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = &'static wall::Wall> + 'a {
+    ) -> impl Iterator<Item = &'static wall::Wall> + DoubleEndedIterator + 'a
+    {
         self.walls(pos)
             .iter()
             .filter(move |&wall| self.is_open((pos, wall)))
@@ -306,7 +307,7 @@ where
     pub fn adjacent<'a>(
         &'a self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = matrix::Pos> + 'a {
+    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + 'a {
         self.walls(pos).iter().map(move |&wall| matrix::Pos {
             col: pos.col + wall.dir.0,
             row: pos.row + wall.dir.1,
@@ -323,7 +324,7 @@ where
     pub fn neighbors<'a>(
         &'a self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = matrix::Pos> + 'a {
+    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + 'a {
         self.doors(pos).map(move |wall| self.back((pos, wall)).0)
     }
 }

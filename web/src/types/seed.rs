@@ -1,4 +1,3 @@
-use rand;
 use serde::Deserialize;
 
 use maze::initialize;

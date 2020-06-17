@@ -1,5 +1,3 @@
-use std;
-
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -15,7 +13,7 @@ pub type Index = usize;
 pub type Mask = u32;
 
 /// An offset from a wall to its corner neighbours.
-#[derive(Clone, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Offset {
     /// The horisontal offset.
     pub dx: isize,
@@ -28,7 +26,7 @@ pub struct Offset {
 }
 
 /// An angle in a span.
-#[derive(Clone, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Angle {
     /// The angle.
     pub a: f32,

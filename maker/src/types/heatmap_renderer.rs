@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use svg;
 use svg::Node;
 
 use maze_tools::image::Color;

@@ -1,6 +1,5 @@
 use std::f32;
 
-use maze;
 use maze::matrix;
 use maze::physical;
 

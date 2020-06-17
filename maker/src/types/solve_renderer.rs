@@ -1,6 +1,5 @@
 use maze::render::svg::ToPath;
 
-use svg;
 use svg::Node;
 
 use crate::types::*;

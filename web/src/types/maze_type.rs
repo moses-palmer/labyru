@@ -1,4 +1,3 @@
-use maze;
 use serde::Deserialize;
 
 /// A maze type, convertible from a query string.

@@ -259,20 +259,17 @@ where
         wall_pos: WallPos,
     ) -> impl Iterator<Item = WallPos> {
         let (matrix::Pos { col, row }, wall) = wall_pos;
-        let all = self.all_walls();
-        std::iter::once(wall_pos).chain(
-            all[wall.index].corner_wall_offsets.iter().map(
-                move |&wall::Offset { dx, dy, wall }| {
-                    (
-                        matrix::Pos {
-                            col: col + dx,
-                            row: row + dy,
-                        },
-                        all[wall],
-                    )
-                },
-            ),
-        )
+        std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
+            move |&wall::Offset { dx, dy, wall }| {
+                (
+                    matrix::Pos {
+                        col: col + dx,
+                        row: row + dy,
+                    },
+                    wall,
+                )
+            },
+        ))
     }
 
     /// Iterates over all wall positions of a room.

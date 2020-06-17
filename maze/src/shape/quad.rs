@@ -4,7 +4,7 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Angle, Index, Offset};
+use crate::wall::{Angle, Offset};
 use crate::WallPos;
 
 use super::{COS_45, SIN_45};
@@ -20,9 +20,9 @@ define_shape! {
 
     UP(1) = {
         corner_wall_offsets: &[
-            Offset { dx: 0, dy: -1, wall: WallIndex::LEFT as Index },
-            Offset { dx: -1, dy: -1, wall: WallIndex::DOWN as Index },
-            Offset { dx: -1, dy: 0, wall: WallIndex::RIGHT as Index },
+            Offset { dx: 0, dy: -1, wall: &LEFT  },
+            Offset { dx: -1, dy: -1, wall: &DOWN  },
+            Offset { dx: -1, dy: 0, wall: &RIGHT  },
         ],
         dir: (0, -1),
         span: (
@@ -42,9 +42,9 @@ define_shape! {
     },
     LEFT(0) = {
         corner_wall_offsets: &[
-            Offset { dx: -1, dy: 0, wall: WallIndex::DOWN as Index },
-            Offset { dx: -1, dy: 1, wall: WallIndex::RIGHT as Index },
-            Offset { dx: 0, dy: 1, wall: WallIndex::UP as Index },
+            Offset { dx: -1, dy: 0, wall: &DOWN  },
+            Offset { dx: -1, dy: 1, wall: &RIGHT  },
+            Offset { dx: 0, dy: 1, wall: &UP  },
         ],
         dir: (-1, 0),
         span: (
@@ -64,9 +64,9 @@ define_shape! {
     },
     DOWN(3) = {
         corner_wall_offsets: &[
-            Offset { dx: 0, dy: 1, wall: WallIndex::RIGHT as Index },
-            Offset { dx: 1, dy: 1, wall: WallIndex::UP as Index },
-            Offset { dx: 1, dy: 0, wall: WallIndex::LEFT as Index },
+            Offset { dx: 0, dy: 1, wall: &RIGHT  },
+            Offset { dx: 1, dy: 1, wall: &UP  },
+            Offset { dx: 1, dy: 0, wall: &LEFT  },
         ],
         dir: (0, 1),
         span: (
@@ -86,9 +86,9 @@ define_shape! {
     },
     RIGHT(2) = {
         corner_wall_offsets: &[
-            Offset { dx: 1, dy: 0, wall: WallIndex::UP as Index },
-            Offset { dx: 1, dy: -1, wall: WallIndex::LEFT as Index },
-            Offset { dx: 0, dy: -1, wall: WallIndex::DOWN as Index },
+            Offset { dx: 1, dy: 0, wall: &UP  },
+            Offset { dx: 1, dy: -1, wall: &LEFT  },
+            Offset { dx: 0, dy: -1, wall: &DOWN  },
         ],
         dir: (1, 0),
         span: (

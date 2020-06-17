@@ -2,7 +2,6 @@
 //!
 //! A matrix is a two-dimensional array of data. A maze is a matrix of rooms.
 
-use std;
 use std::cmp::Ordering;
 use std::collections::hash_map;
 use std::collections::hash_set;

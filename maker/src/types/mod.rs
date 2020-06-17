@@ -1,14 +1,8 @@
-use std;
 use std::str;
-
-use image;
-use rayon;
-use svg;
 
 use rayon::prelude::*;
 use svg::Node;
 
-use maze;
 use maze::initialize;
 use maze::matrix;
 use maze_tools::image::Color;

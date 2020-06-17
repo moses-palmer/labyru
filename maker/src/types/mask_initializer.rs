@@ -1,8 +1,6 @@
 use std::ops;
 use std::str::FromStr;
 
-use image;
-
 use maze::physical;
 use maze_tools::cell::*;
 

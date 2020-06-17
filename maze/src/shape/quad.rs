@@ -1,5 +1,3 @@
-use std;
-
 use crate::matrix;
 use crate::physical;
 use crate::wall;

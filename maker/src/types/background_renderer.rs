@@ -1,8 +1,6 @@
 use std::ops;
 use std::str::FromStr;
 
-use image;
-use svg;
 use svg::Node;
 
 use maze::physical;

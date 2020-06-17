@@ -1,6 +1,5 @@
 use std::ops;
 
-use maze;
 use maze::matrix;
 use maze::physical;
 

@@ -9,9 +9,6 @@ use std::u64;
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "osrand")]
-use rand;
-
 use crate::Maze;
 
 use crate::matrix;

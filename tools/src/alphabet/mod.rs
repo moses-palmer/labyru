@@ -1,7 +1,5 @@
 use std::collections::hash_map::HashMap;
 
-use maze;
-
 use maze::{matrix, physical};
 
 #[macro_use]

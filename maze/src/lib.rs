@@ -233,16 +233,7 @@ where
     /// *  `wall_pos` - The wall position.
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
         let center = self.center(wall_pos.0);
-        (
-            physical::Pos {
-                x: center.x + wall_pos.1.span.0.dx,
-                y: center.y + wall_pos.1.span.0.dy,
-            },
-            physical::Pos {
-                x: center.x + wall_pos.1.span.1.dx,
-                y: center.y + wall_pos.1.span.1.dy,
-            },
-        )
+        (center + wall_pos.1.span.0, center + wall_pos.1.span.1)
     }
 
     /// Returns all walls that meet in the corner where a wall has its start

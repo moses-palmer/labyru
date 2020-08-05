@@ -1,4 +1,4 @@
-use std::collections::hash_set;
+use std::collections::BTreeSet;
 
 use crate::Maze;
 
@@ -41,7 +41,7 @@ where
         }
     }
 
-    // List all possible walls; ensure the list is sorted for reproducibility
+    // List all possible walls
     let walls = maze
         .positions()
         .filter(|&pos| candidates[pos])
@@ -59,11 +59,10 @@ where
                 back
             }
         })
-        .collect::<hash_set::HashSet<_>>();
-    let mut walls = walls.iter().collect::<Vec<_>>();
-    walls.sort();
+        .collect::<BTreeSet<_>>();
 
     // Randomize the wall array
+    let mut walls = walls.iter().collect::<Vec<_>>();
     let len = walls.len();
     for i in 0..len {
         walls.swap(i, rng.range(0, len));

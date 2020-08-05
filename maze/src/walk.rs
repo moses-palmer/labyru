@@ -1,4 +1,4 @@
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{BTreeMap, BinaryHeap, HashMap, HashSet};
 
 use crate::matrix;
 
@@ -74,7 +74,7 @@ where
 
         // The room from which we entered a room; when we reach the end, we use
         // this to backtrack to the start
-        let mut came_from = HashMap::new();
+        let mut came_from = BTreeMap::new();
 
         while let Some(current) = open_set.pop() {
             // Have we reached the target?
@@ -144,7 +144,7 @@ where
     start: matrix::Pos,
 
     /// The backing map.
-    map: HashMap<matrix::Pos, matrix::Pos>,
+    map: BTreeMap<matrix::Pos, matrix::Pos>,
 }
 
 impl<'a, T> Path<'a, T>
@@ -158,7 +158,7 @@ where
     pub fn new(
         maze: &'a Maze<T>,
         start: matrix::Pos,
-        map: HashMap<matrix::Pos, matrix::Pos>,
+        map: BTreeMap<matrix::Pos, matrix::Pos>,
     ) -> Self {
         Path { maze, start, map }
     }
@@ -344,7 +344,7 @@ impl OpenSet {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     use maze_test::maze_test;
 
@@ -353,7 +353,7 @@ mod tests {
 
     #[maze_test]
     fn walk_empty(maze: TestMaze) {
-        let map = HashMap::new();
+        let map = BTreeMap::new();
 
         assert_eq!(
             Path::new(&maze, matrix_pos(0, 0), map)
@@ -365,7 +365,7 @@ mod tests {
 
     #[maze_test]
     fn walk_from_unknown(maze: TestMaze) {
-        let mut map = HashMap::new();
+        let mut map = BTreeMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
 
         assert_eq!(
@@ -378,7 +378,7 @@ mod tests {
 
     #[maze_test]
     fn walk_path(maze: TestMaze) {
-        let mut map = HashMap::new();
+        let mut map = BTreeMap::new();
         map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
         map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
         map.insert(matrix_pos(2, 3), matrix_pos(2, 4));

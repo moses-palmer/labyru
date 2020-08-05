@@ -52,7 +52,7 @@ macro_rules! character {
 macro_rules! alphabet {
     ($($name:expr => [$($bits:ident)*],)* _ => [$($default:ident)*] ) => {
         {
-            let mut map = ::std::collections::hash_map::HashMap::new();
+            let mut map = ::std::collections::HashMap::new();
             $(map.insert(
                 $name,
                 crate::alphabet::Character(character!($($bits)*)),

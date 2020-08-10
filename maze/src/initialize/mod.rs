@@ -135,7 +135,7 @@ where
     }
 
     fn random(&mut self) -> f64 {
-        self.next_f64()
+        self.gen()
     }
 }
 
@@ -418,7 +418,8 @@ mod tests {
     #[maze_test]
     fn initialize(maze: TestMaze) {
         for method in INITIALIZERS {
-            let maze = maze.clone().initialize(*method, &mut rand::weak_rng());
+            let maze =
+                maze.clone().initialize(*method, &mut rand::thread_rng());
 
             let from = matrix_pos(0, 0);
             let to = matrix_pos(
@@ -453,7 +454,7 @@ mod tests {
             );
             let maze = maze.clone().initialize_filter(
                 *method,
-                &mut rand::weak_rng(),
+                &mut rand::thread_rng(),
                 |pos| pos != from,
             );
 
@@ -473,7 +474,7 @@ mod tests {
             );
             let maze = maze.clone().initialize_filter(
                 *method,
-                &mut rand::weak_rng(),
+                &mut rand::thread_rng(),
                 |_| false,
             );
 
@@ -489,7 +490,7 @@ mod tests {
                 let filter = |matrix::Pos { col, row }| col > row;
                 let maze = maze.clone().initialize_filter(
                     *method,
-                    &mut rand::weak_rng(),
+                    &mut rand::thread_rng(),
                     &filter,
                 );
 
@@ -511,7 +512,7 @@ mod tests {
                 };
                 let maze = maze.clone().initialize_filter(
                     *method,
-                    &mut rand::weak_rng(),
+                    &mut rand::thread_rng(),
                     &filter,
                 );
 

@@ -225,7 +225,7 @@ fn main() {
     let output = args.value_of("OUTPUT").unwrap();
 
     // Make sure the maze is initialised
-    let mut rng = rand::weak_rng();
+    let mut rng = rand::thread_rng();
     let maze = {
         let mut maze = mask_initializer.initialize(
             shape.create(width, height),

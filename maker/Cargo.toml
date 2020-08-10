@@ -9,6 +9,6 @@ maze = { path = "../maze" }
 maze-tools = { path = "../tools" }
 clap = "2.31"
 image = "0.18"
-rand = "0.4"
+rand = "*"
 rayon = "1.0"
 svg = "0.5"

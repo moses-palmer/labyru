@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 maze = { path = "../maze" }
 maze-tools = { path = "../tools" }
-clap = "2.31"
+clap = "2.33"
 image = "0.18"
 rand = "*"
 rayon = "1.3"

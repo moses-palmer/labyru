@@ -109,7 +109,7 @@ define_shape! {
 }
 
 /// The walls
-static ALL: &[&wall::Wall] =
+static WALLS: &[&wall::Wall] =
     &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
@@ -130,7 +130,7 @@ pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
 }
 
 pub fn walls(_pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-    &ALL
+    &WALLS
 }
 
 pub fn cell_to_physical(pos: matrix::Pos) -> physical::Pos {

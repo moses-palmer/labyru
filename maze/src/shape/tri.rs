@@ -176,10 +176,12 @@ define_shape! {
 }
 
 /// The walls for even rows
-static ALL0: &[&wall::Wall] = &[&walls::LEFT0, &walls::UP, &walls::RIGHT0];
+static WALLS_EVEN: &[&wall::Wall] =
+    &[&walls::LEFT0, &walls::UP, &walls::RIGHT0];
 
 /// The walls for odd rows
-static ALL1: &[&wall::Wall] = &[&walls::LEFT1, &walls::RIGHT1, &walls::DOWN];
+static WALLS_ODD: &[&wall::Wall] =
+    &[&walls::LEFT1, &walls::RIGHT1, &walls::DOWN];
 
 /// Returns whether a room is reversed.
 ///
@@ -210,9 +212,9 @@ pub fn opposite(_pos: WallPos) -> Option<&'static wall::Wall> {
 
 pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
     if is_reversed(pos) {
-        &ALL1
+        &WALLS_ODD
     } else {
-        &ALL0
+        &WALLS_EVEN
     }
 }
 

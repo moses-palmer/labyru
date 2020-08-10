@@ -296,12 +296,12 @@ impl<T> Maze<T>
 where
     T: Clone,
 {
-    /// Returns all walls for a shape.
+    /// All walls for a shape.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
         self.shape.all_walls()
     }
 
-    /// Returns the back of a wall.
+    /// The back of a wall.
     ///
     /// The back is the other side of the wall, located in a neighbouring room.
     ///
@@ -311,7 +311,7 @@ where
         self.shape.back(wall_pos)
     }
 
-    /// Returns the opposite of a wall.
+    /// The opposite of a wall.
     ///
     /// The opposite is the wall located on the opposite side of the room. For
     /// mazes with rooms with an odd number of walls, there is no opposite wall.
@@ -322,7 +322,7 @@ where
         self.shape.opposite(wall_pos)
     }
 
-    /// Returns all walls of a specific room.
+    /// All walls of a specific room.
     ///
     /// # Arguments
     /// *  `pos` - The room position.
@@ -330,7 +330,7 @@ where
         self.shape.walls(pos)
     }
 
-    /// Returns the physical centre of a matrix position.
+    /// The physical centre of a matrix position.
     ///
     /// # Arguments
     /// *  `pos` - The matrix position.
@@ -338,8 +338,7 @@ where
         self.shape.cell_to_physical(pos)
     }
 
-    /// Returns the matrix position whose centre is closest to a physical
-    /// position.
+    /// The matrix position whose centre is closest to a physical position.
     ///
     /// The position returned may not correspond to an actual room; it may lie
     /// outside of the maze.
@@ -350,8 +349,8 @@ where
         self.shape.physical_to_cell(pos)
     }
 
-    /// Returns the matrix position whose centre is closest to a physical
-    /// position along with the closest wall.
+    /// The matrix position whose centre is closest to a physical position
+    /// along with the closest wall.
     ///
     /// The position returned may not correspond to an actual room; it may lie
     /// outside of the maze.
@@ -422,8 +421,11 @@ where
     }
 }
 
-/// Yields all positions with a horisontal or vertical distance of `distance`
-/// from `pos`.
+/// Iterates over all positions with a horisontal or vertical distance of
+/// `distance` from `pos`.
+///
+/// Positions are visited clock-wise, starting with the row where the row values
+/// are the smallest.
 ///
 /// # Arguments
 /// *  `pos` - The centre position.
@@ -440,13 +442,15 @@ pub fn surround(
         .map(move |col| (col, pos.row - distance).into());
     let bottom = (pos.col - distance..=pos.col + distance)
         .filter(move |_| distance != 0)
-        .map(move |col| (col, pos.row + distance).into());
+        .map(move |col| (col, pos.row + distance).into())
+        .rev();
     let left = (pos.row - distance + 1..pos.row + distance)
-        .map(move |row| (pos.col - distance, row).into());
+        .map(move |row| (pos.col - distance, row).into())
+        .rev();
     let right = (pos.row - distance + 1..pos.row + distance)
         .map(move |row| (pos.col + distance, row).into());
 
-    top.chain(bottom).chain(left).chain(right)
+    top.chain(right).chain(bottom).chain(left)
 }
 
 pub mod hex;

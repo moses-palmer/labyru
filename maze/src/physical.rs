@@ -276,7 +276,7 @@ impl ViewBox {
         }
     }
 
-    /// Determines whether a point is inside this view box.
+    /// Whether a point is inside this view box.
     ///
     /// Points along the edge of the view box are also considered to be inside.
     ///

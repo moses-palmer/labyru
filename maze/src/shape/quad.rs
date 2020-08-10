@@ -8,7 +8,9 @@ use crate::WallPos;
 use super::{COS_45, SIN_45};
 
 /// A span step angle
-const D: f32 = std::f32::consts::PI / 4.0;
+///
+/// This is half the angle span used by a single wall.
+const D: f32 = 2.0 * std::f32::consts::PI / 8.0;
 
 /// The scale factor when converting maze coordinates to physical coordinates
 const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;
@@ -107,7 +109,7 @@ define_shape! {
 }
 
 /// The walls
-static ALL: &[&wall::Wall] =
+static WALLS: &[&wall::Wall] =
     &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
@@ -128,7 +130,7 @@ pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
 }
 
 pub fn walls(_pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-    &ALL
+    &WALLS
 }
 
 pub fn cell_to_physical(pos: matrix::Pos) -> physical::Pos {

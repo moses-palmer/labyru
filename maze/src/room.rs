@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::matrix;
 use crate::wall;
 
 /// A room is a part of a maze.
 ///
 /// It has walls, openings connecting it with other rooms, and asssociated data.
+///
+/// It does not know its location.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Room<T>
 where
@@ -38,7 +39,7 @@ impl<T> Room<T>
 where
     T: Clone,
 {
-    /// Returns whether a specified wall is open.
+    /// Whether a specified wall is open.
     ///
     /// # Example
     ///
@@ -124,5 +125,3 @@ where
         }
     }
 }
-
-pub type Rooms<T> = matrix::Matrix<Room<T>>;

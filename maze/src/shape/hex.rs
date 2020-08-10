@@ -10,7 +10,9 @@ use crate::WallPos;
 use super::{COS_30, SIN_30};
 
 /// A span step angle
-const D: f32 = PI / 6.0;
+///
+/// This is half the angle span used by a single wall.
+const D: f32 = 2.0 * PI / 12.0;
 
 /// The distance between the centre of a room and the centre of a room on the
 /// next row.
@@ -287,7 +289,7 @@ define_shape! {
 }
 
 /// The walls for even rows
-static ALL0: &[&wall::Wall] = &[
+static WALLS_EVEN: &[&wall::Wall] = &[
     &walls::LEFT0,
     &walls::UP_LEFT0,
     &walls::UP_RIGHT0,
@@ -297,7 +299,7 @@ static ALL0: &[&wall::Wall] = &[
 ];
 
 /// The walls for odd rows
-static ALL1: &[&wall::Wall] = &[
+static WALLS_ODD: &[&wall::Wall] = &[
     &walls::LEFT1,
     &walls::UP_LEFT1,
     &walls::UP_RIGHT1,
@@ -337,9 +339,9 @@ pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
 
 pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
     if pos.row & 1 == 1 {
-        &ALL1
+        &WALLS_ODD
     } else {
-        &ALL0
+        &WALLS_EVEN
     }
 }
 

@@ -295,7 +295,7 @@ where
     T: Clone,
 {
     // First find all non-connected areas by visiting all rooms and filling for
-    // each filtered, non-filled room and the incrementing the area index
+    // each filtered, non-filled room and then incrementing the area index
     let mut areas = matrix::Matrix::new(maze.width(), maze.height());
     let mut index = 0;
     for pos in maze.positions() {

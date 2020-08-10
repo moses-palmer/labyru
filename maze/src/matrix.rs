@@ -224,7 +224,7 @@ where
         })
     }
 
-    /// Determines whether a position is inside of the matrix.
+    /// Whether a position is inside of the matrix.
     ///
     /// # Example
     ///
@@ -314,9 +314,9 @@ where
         }
     }
 
-    /// Returns an iterator over all cell positions.
+    /// Iterates over all cell positions.
     ///
-    /// The positions are returned row by row, starting from `(0, 0)` and ending
+    /// The positions are visited row by row, starting with `(0, 0)` and ending
     /// with `(self.width - 1, self.height - 1)`.
     ///
     /// # Example
@@ -340,9 +340,9 @@ where
         PosIterator::new(self.width, self.height)
     }
 
-    /// Returns an iterator over all cell values.
+    /// Iterates over all cell values.
     ///
-    /// The values are returned row by row, starting from `(0, 0)` and ending
+    /// The values are visited row by row, starting with `(0, 0)` and ending
     /// with `(self.width - 1, self.height - 1)`.
     ///
     /// # Example
@@ -375,12 +375,52 @@ impl<T> Matrix<T>
 where
     T: Copy + Eq + PartialEq + PartialOrd + Ord,
 {
-    /// Finds all edges between areas with different values.
+    /// All edges between areas with different values.
     ///
     /// The return value is a mapping from source area value and destination
     /// area value to a set of matrix positions with connections.
     ///
     /// For a uniform matrix, this method will return an empty set.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::matrix::*;
+    /// # type Matrix = maze::matrix::Matrix<u32>;
+    ///
+    /// fn data(pos: Pos) -> u32 {
+    ///     pos.col as u32
+    /// }
+    ///
+    /// fn neighbors(pos: Pos) -> impl Iterator<Item = Pos> {
+    ///     vec![
+    ///         (pos.col - 1, pos.row).into(),
+    ///         (pos.col, pos.row - 1).into(),
+    ///         (pos.col, pos.row + 1).into(),
+    ///         (pos.col + 1, pos.row).into(),
+    ///     ].into_iter()
+    /// }
+    ///
+    /// let mut matrix = Matrix::new_with_data(3, 2, data);
+    /// assert_eq!(
+    ///     matrix.edges(neighbors).iter()
+    ///         .map(|(k, v)| (
+    ///             k.clone(),
+    ///             v.iter().cloned().collect::<Vec<_>>()),
+    ///         )
+    ///         .collect::<Vec<_>>(),
+    ///     vec![
+    ///         ((0, 1), vec![
+    ///             ((0isize, 0isize).into(), (1isize, 0isize).into()),
+    ///             ((0isize, 1isize).into(), (1isize, 1isize).into()),
+    ///         ]),
+    ///         ((1, 2), vec![
+    ///             ((1isize, 0isize).into(), (2isize, 0isize).into()),
+    ///             ((1isize, 1isize).into(), (2isize, 1isize).into()),
+    ///         ]),
+    ///     ],
+    /// );
+    /// ```
     ///
     /// # Arguments
     /// *  `neighbors` - A function returning neighbours to consider for each
@@ -672,8 +712,26 @@ where
 
 /// Partitions a number into its integral part and a fraction.
 ///
-/// The fraction indicates the distance through the integral to the next
-/// greater number.
+/// Adding the fraction to the integral part will yield the original.
+///
+/// # Examples
+///
+/// ```
+/// # use std::f32::EPSILON;
+/// # use maze::matrix::*;
+///
+/// let (int, fract) = partition(1.2);
+/// assert_eq!(int, 1);
+/// assert!(
+///     (fract - 0.2).abs() < EPSILON,
+/// );
+///
+/// let (int, fract) = partition(-1.2);
+/// assert_eq!(int, -2);
+/// assert!(
+///     (fract - 0.8).abs() < EPSILON,
+/// );
+/// ```
 ///
 /// # Arguments
 /// *  `x` - a number.

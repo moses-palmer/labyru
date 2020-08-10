@@ -10,7 +10,9 @@ use crate::WallPos;
 use super::{COS_30, SIN_30};
 
 /// A span step angle
-const D: f32 = PI / 6.0;
+///
+/// This is half the angle span used by a single wall.
+const D: f32 = 2.0 * PI / 12.0;
 
 /// The distance between the centre of a room and the centre of a room on the
 /// next row.

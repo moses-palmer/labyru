@@ -8,7 +8,9 @@ use crate::WallPos;
 use super::{COS_45, SIN_45};
 
 /// A span step angle
-const D: f32 = std::f32::consts::PI / 4.0;
+///
+/// This is half the angle span used by a single wall.
+const D: f32 = 2.0 * std::f32::consts::PI / 8.0;
 
 /// The scale factor when converting maze coordinates to physical coordinates
 const MULTIPLICATOR: f32 = 2.0 / std::f32::consts::SQRT_2;

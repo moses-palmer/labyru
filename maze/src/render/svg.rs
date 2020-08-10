@@ -255,11 +255,12 @@ where
 }
 
 /// Returns the physical positions of the two corners of a wall ordered by
-/// distance to another wall.
+/// distance to another point.
 ///
 /// # Arguments
 /// *  `from` - The wall position.
-/// *  `to` - The next wall position from which distances are calculated.
+/// *  `origin` - The point or origin. The first element of the returned tuple
+///    will be the corner closest to this point.
 fn corners<T>(
     maze: &Maze<T>,
     from: WallPos,

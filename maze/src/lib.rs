@@ -96,22 +96,22 @@ where
         }
     }
 
-    /// Returns the width of the maze.
+    /// The width of the maze.
     pub fn width(&self) -> usize {
         self.rooms.width
     }
 
-    /// Returns the height of the maze.
+    /// The height of the maze.
     pub fn height(&self) -> usize {
         self.rooms.height
     }
 
-    /// Returns the shape of the maze.
+    /// The shape of the maze.
     pub fn shape(&self) -> Shape {
         self.shape
     }
 
-    /// Retrieves tha data for a specific room.
+    /// The data for a specific room.
     ///
     /// # Arguments
     /// *  `pos``- The room position.
@@ -119,7 +119,7 @@ where
         self.rooms.get(pos).map(|room| &room.data)
     }
 
-    /// Retrieves tha mutable data for a specific room.
+    /// The mutable data for a specific room.
     ///
     /// # Arguments
     /// *  `pos``- The room position.
@@ -127,7 +127,7 @@ where
         self.rooms.get_mut(pos).map(|room| &mut room.data)
     }
 
-    /// Determines whether a position is inside of the maze.
+    /// Whether a position is inside of the maze.
     ///
     /// # Arguments
     /// *  `pos` - The romm position.
@@ -135,7 +135,7 @@ where
         self.rooms.is_inside(pos)
     }
 
-    /// Returns whether a specified wall is open.
+    /// Whether a wall is open.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
@@ -146,11 +146,12 @@ where
             .unwrap_or(false)
     }
 
-    /// Finds the wall connecting two rooms, and if it exists, returns it.
+    /// Finds the wall connecting two rooms.
+    ///
+    /// The returned wall position, if it exists, will be in the room at `pos1`.
     ///
     /// # Arguments
-    /// *  `pos1` - The first room position. The returned wall position will be
-    ///    in this room.
+    /// *  `pos1` - The first room position.
     /// *  `pos2` - The second room position.
     pub fn connecting_wall(
         &self,
@@ -166,7 +167,7 @@ where
             .map(|&wall| (pos1, wall))
     }
 
-    /// Returns whether two rooms are connected.
+    /// Whether two rooms are connected.
     ///
     /// Two rooms are connected if there is an open wall between them, or if
     /// they are the same room.
@@ -221,15 +222,15 @@ where
         self.set_open(wall_pos, false);
     }
 
-    /// Returns an iterator over all rooms positions.
+    /// Iterates over all room positions.
     ///
-    /// The positions are returned row by row, starting from `(0, 0)` and ending
+    /// The positions are visited row by row, starting from `(0, 0)` and ending
     /// with `(self.width() - 1, self.height - 1())`.
     pub fn positions(&self) -> impl Iterator<Item = matrix::Pos> {
         self.rooms.positions()
     }
 
-    /// Returns the physical positions of the two corners of a wall.
+    /// The physical positions of the two corners of a wall.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
@@ -238,12 +239,13 @@ where
         (center + wall_pos.1.span.0, center + wall_pos.1.span.1)
     }
 
-    /// Returns all walls that meet in the corner where a wall has its start
-    /// span.
+    /// All walls that meet in the corner where a wall has its start span.
     ///
-    /// The walls are listed in counter-clockwise order. Only one side of each
-    /// wall will be returned. Each consecutive wall will be in a room different
-    /// from the previous.
+    /// The walls are visited in counter-clockwise order. Only one side of each
+    /// wall will be visited. Each consecutive wall will be in a room different
+    /// from the previous one.
+    ///
+    /// This method will visit rooms outside of the maze for rooms on the edge.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
@@ -293,7 +295,7 @@ where
 
     /// Iterates over all adjacent rooms.
     ///
-    /// This method will list rooms outside of the maze for rooms on the edge.
+    /// This method will visit rooms outside of the maze for rooms on the edge.
     ///
     /// # Arguments
     /// *  `pos` - The room position.
@@ -309,8 +311,8 @@ where
 
     /// Iterates over all reachable neighbours of a room.
     ///
-    /// This method may list rooms outside of the maze if an opening outside
-    /// exists.
+    /// This method will visit rooms outside of the maze if an opening outside
+    /// from the room exists.
     ///
     /// # Arguments
     /// *  `pos` - The room position.

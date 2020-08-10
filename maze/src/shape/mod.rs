@@ -424,8 +424,8 @@ where
 /// Iterates over all positions with a horisontal or vertical distance of
 /// `distance` from `pos`.
 ///
-/// Positions are visited clock-wise, starting with the top row where the row
-/// values are the greatest.
+/// Positions are visited clock-wise, starting with the row where the row values
+/// are the smallest.
 ///
 /// # Arguments
 /// *  `pos` - The centre position.
@@ -442,13 +442,15 @@ pub fn surround(
         .map(move |col| (col, pos.row - distance).into());
     let bottom = (pos.col - distance..=pos.col + distance)
         .filter(move |_| distance != 0)
-        .map(move |col| (col, pos.row + distance).into());
+        .map(move |col| (col, pos.row + distance).into())
+        .rev();
     let left = (pos.row - distance + 1..pos.row + distance)
-        .map(move |row| (pos.col - distance, row).into());
+        .map(move |row| (pos.col - distance, row).into())
+        .rev();
     let right = (pos.row - distance + 1..pos.row + distance)
         .map(move |row| (pos.col + distance, row).into());
 
-    top.chain(bottom).chain(left).chain(right)
+    top.chain(right).chain(bottom).chain(left)
 }
 
 pub mod hex;

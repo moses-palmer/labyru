@@ -817,13 +817,11 @@ mod test {
 
     #[test]
     fn edges_simple() {
-        let mut matrix = Matrix::<u8>::new(3, 3);
-        for pos in matrix.positions() {
-            match pos.col % 3 {
-                0 | 1 => matrix[pos] = 1,
-                _ => matrix[pos] = 2,
-            }
-        }
+        let matrix =
+            Matrix::<u8>::new_with_data(3, 3, |pos| match pos.col % 3 {
+                0 | 1 => 1,
+                _ => 2,
+            });
 
         assert_eq!(
             [(
@@ -850,14 +848,12 @@ mod test {
 
     #[test]
     fn edges_many() {
-        let mut matrix = Matrix::<u8>::new(3, 3);
-        for pos in matrix.positions() {
-            match pos.col % 3 {
-                0 => matrix[pos] = 1,
-                1 => matrix[pos] = 2,
-                _ => matrix[pos] = 3,
-            }
-        }
+        let matrix =
+            Matrix::<u8>::new_with_data(3, 3, |pos| match pos.col % 3 {
+                0 => 1,
+                1 => 2,
+                _ => 3,
+            });
 
         assert_eq!(
             [
@@ -894,14 +890,13 @@ mod test {
 
     #[test]
     fn edges_nonuniform() {
-        let mut matrix = Matrix::<u8>::new(5, 5);
-        for pos in matrix.positions() {
+        let matrix = Matrix::<u8>::new_with_data(5, 5, |pos| {
             if (pos.col - 3).abs() < 2 && (pos.row - 3).abs() < 2 {
-                matrix[pos] = 0;
+                0
             } else {
-                matrix[pos] = 1;
+                1
             }
-        }
+        });
 
         assert_eq!(
             [(
@@ -962,14 +957,15 @@ mod test {
 
     #[test]
     fn eq() {
-        let mut matrix1 = Matrix::<bool>::new(2, 2);
-        matrix1[matrix_pos(1, 1)] = true;
-        let mut matrix2 = Matrix::<bool>::new(2, 2);
-        matrix2[matrix_pos(1, 1)] = true;
+        fn data(pos: Pos) -> bool {
+            pos == matrix_pos(1, 1)
+        }
+        let matrix1 = Matrix::new_with_data(2, 2, data);
+        let mut matrix2 = Matrix::new_with_data(2, 2, data);
 
         assert_eq!(matrix1, matrix2);
 
-        matrix2[matrix_pos(0, 0)] = true;
+        matrix2[matrix_pos(0, 0)] = !data(matrix_pos(0, 0));
         assert!(matrix1 != matrix2);
     }
 
@@ -986,10 +982,13 @@ mod test {
 
     #[test]
     fn fill_closed() {
-        let mut matrix = Matrix::new(10, 10);
-        for pos in matrix.positions() {
-            matrix[pos] = if pos.col == 0 && pos.row == 0 { 0 } else { 1 };
-        }
+        let mut matrix = Matrix::new_with_data(10, 10, |pos| {
+            if pos.col == 0 && pos.row == 0 {
+                0
+            } else {
+                1
+            }
+        });
         let count = 1;
         let filled = matrix
             .fill(Pos { col: 0, row: 0 }.into(), 1, |_| [].iter().cloned());
@@ -1015,11 +1014,13 @@ mod test {
 
     #[test]
     fn fill_semiopen() {
-        let mut matrix = Matrix::new(10, 10);
         let filter = |pos: Pos| pos.col >= pos.row;
-        for pos in matrix.positions() {
-            matrix[pos] = if filter(pos) { 0 } else { 1 };
-        }
+        let mut matrix =
+            Matrix::new_with_data(
+                10,
+                10,
+                |pos| if filter(pos) { 0 } else { 1 },
+            );
         let count = matrix.values().filter(|&&v| v == 0).count();
         let filled =
             matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
@@ -1032,11 +1033,13 @@ mod test {
 
     #[test]
     fn fill_separated() {
-        let mut matrix = Matrix::new(10, 10);
         let filter = |pos: Pos| pos.col < 2 || pos.col >= 8;
-        for pos in matrix.positions() {
-            matrix[pos] = if filter(pos) { 0 } else { 1 };
-        }
+        let mut matrix =
+            Matrix::new_with_data(
+                10,
+                10,
+                |pos| if filter(pos) { 0 } else { 1 },
+            );
         let count = matrix.height * 2;
         let filled =
             matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);

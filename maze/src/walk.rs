@@ -5,6 +5,12 @@ use crate::matrix;
 use crate::Maze;
 use crate::WallPos;
 
+/// The tuple `(current_wall, next_wall)`.
+///
+/// The second value can be used to determine whether the end has been reached;
+/// it will be `None` for the last wall.
+pub type FollowWallItem = (WallPos, Option<WallPos>);
+
 impl<T> Maze<T>
 where
     T: Clone,
@@ -124,7 +130,7 @@ where
     pub fn follow_wall<'a>(
         &'a self,
         wall_pos: WallPos,
-    ) -> impl Iterator<Item = (WallPos, Option<WallPos>)> + 'a {
+    ) -> impl Iterator<Item = FollowWallItem> + 'a {
         Follower::new(self, wall_pos)
     }
 }
@@ -269,7 +275,7 @@ impl<'a, T> Iterator for Follower<'a, T>
 where
     T: Clone,
 {
-    type Item = (WallPos, Option<WallPos>);
+    type Item = FollowWallItem;
 
     /// Iterates over all wall positions.
     ///

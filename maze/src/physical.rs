@@ -4,6 +4,8 @@
 //! attributes. These are collected in this module.
 use std::ops;
 
+use crate::wall::Angle;
+
 use serde::{Deserialize, Serialize};
 
 /// A physical position.
@@ -118,6 +120,33 @@ impl ops::Sub for Pos {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
+        }
+    }
+}
+
+impl ops::Add<Angle> for Pos {
+    type Output = Self;
+
+    /// Adds the delta values of an angle to this position.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    /// # use maze::wall::*;
+    ///
+    /// assert_eq!(
+    ///     Pos { x: 1.0, y: 2.0 } + Angle { a: 0.0, dx: 1.0, dy: 0.0 },
+    ///     Pos { x: 2.0, y: 2.0 },
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `other` - The other position to add.
+    fn add(self, other: Angle) -> Self {
+        Self {
+            x: self.x + other.dx,
+            y: self.y + other.dy,
         }
     }
 }

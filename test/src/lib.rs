@@ -1,6 +1,6 @@
 extern crate proc_macro;
 
-use std::collections::hash_set;
+use std::collections::HashSet;
 
 use proc_macro::{
     Delimiter, Group, Ident, Punct, Spacing, Span, TokenStream, TokenTree,
@@ -96,7 +96,7 @@ fn split(item: TokenStream) -> (Span, Ident, Group, Group) {
 /// # Panics
 /// This function panics if the token stream is not a comma separated list of
 /// identifiers, or if any identifier is not in `SHAPES`.
-fn shapes(attr: TokenStream) -> hash_set::HashSet<String> {
+fn shapes(attr: TokenStream) -> HashSet<String> {
     let shapes = attr
         .into_iter()
         .flat_map(|tree| match tree {
@@ -104,7 +104,7 @@ fn shapes(attr: TokenStream) -> hash_set::HashSet<String> {
             TokenTree::Punct(ref punct) if punct.as_char() == ',' => None,
             _ => panic!(format!("Unexpected token: {}", tree)),
         })
-        .collect::<hash_set::HashSet<_>>();
+        .collect::<HashSet<_>>();
     if shapes.is_empty() {
         SHAPES.iter().cloned().map(String::from).collect()
     } else {

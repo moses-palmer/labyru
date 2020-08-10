@@ -3,9 +3,8 @@
 //! A matrix is a two-dimensional array of data. A maze is a matrix of rooms.
 
 use std::cmp::Ordering;
-use std::collections::hash_map;
-use std::collections::hash_set;
-use std::hash;
+use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
@@ -374,14 +373,12 @@ where
 
 impl<T> Matrix<T>
 where
-    T: Copy + Eq + PartialEq + PartialOrd + hash::Hash,
+    T: Copy + Eq + PartialEq + PartialOrd + Ord,
 {
     /// Finds all edges between areas with different values.
     ///
     /// The return value is a mapping from source area value and destination
     /// area value to a set of matrix positions with connections.
-    ///
-    /// The keys will have the least area value as its first value.
     ///
     /// For a uniform matrix, this method will return an empty set.
     ///
@@ -391,31 +388,28 @@ where
     pub fn edges<F, I>(
         &self,
         neighbors: F,
-    ) -> hash_map::HashMap<(T, T), hash_set::HashSet<(Pos, Pos)>>
+    ) -> BTreeMap<(T, T), BTreeSet<(Pos, Pos)>>
     where
         F: Fn(Pos) -> I,
         I: Iterator<Item = Pos>,
     {
-        self.positions()
-            .fold(hash_map::HashMap::new(), |mut acc, p1| {
-                neighbors(p1)
-                    .filter(|&p2| self.is_inside(p2))
-                    .flat_map(|p2| {
-                        let k1 = self[p1];
-                        let k2 = self[p2];
-                        k1.partial_cmp(&k2).and_then(|val| match val {
-                            Ordering::Less => Some(((k1, k2), (p1, p2))),
-                            Ordering::Greater => Some(((k2, k1), (p2, p1))),
-                            _ => None,
-                        })
+        self.positions().fold(BTreeMap::new(), |mut acc, p1| {
+            neighbors(p1)
+                .filter(|&p2| self.is_inside(p2))
+                .flat_map(|p2| {
+                    let k1 = self[p1];
+                    let k2 = self[p2];
+                    k1.partial_cmp(&k2).and_then(|val| match val {
+                        Ordering::Less => Some(((k1, k2), (p1, p2))),
+                        Ordering::Greater => Some(((k2, k1), (p2, p1))),
+                        _ => None,
                     })
-                    .for_each(|(k, v)| {
-                        acc.entry(k)
-                            .or_insert_with(hash_set::HashSet::new)
-                            .insert(v);
-                    });
-                acc
-            })
+                })
+                .for_each(|(k, v)| {
+                    acc.entry(k).or_insert_with(BTreeSet::new).insert(v);
+                });
+            acc
+        })
     }
 }
 
@@ -760,7 +754,7 @@ mod test {
     #[test]
     fn edges_none() {
         let matrix = Matrix::<u8>::new(3, 3);
-        assert_eq!(hash_map::HashMap::new(), matrix.edges(all_neighbors));
+        assert_eq!(BTreeMap::new(), matrix.edges(all_neighbors));
     }
 
     #[test]
@@ -789,9 +783,9 @@ mod test {
                     .iter()
                     .cloned()
                     .map(|(p1, p2)| (p1.into(), p2.into()))
-                    .collect::<hash_set::HashSet<_>>(),
+                    .collect::<BTreeSet<_>>(),
             ))
-            .collect::<hash_map::HashMap<_, _>>(),
+            .collect::<BTreeMap<_, _>>(),
             matrix.edges(all_neighbors),
         );
     }
@@ -833,9 +827,9 @@ mod test {
                     .iter()
                     .cloned()
                     .map(|(p1, p2)| (p1.into(), p2.into()))
-                    .collect::<hash_set::HashSet<_>>(),
+                    .collect::<BTreeSet<_>>(),
             ))
-            .collect::<hash_map::HashMap<_, _>>(),
+            .collect::<BTreeMap<_, _>>(),
             matrix.edges(all_neighbors),
         );
     }
@@ -870,9 +864,9 @@ mod test {
                     .iter()
                     .cloned()
                     .map(|(p1, p2)| (p1.into(), p2.into()))
-                    .collect::<hash_set::HashSet<_>>(),
+                    .collect::<BTreeSet<_>>(),
             ))
-            .collect::<hash_map::HashMap<_, _>>(),
+            .collect::<BTreeMap<_, _>>(),
             matrix.edges(all_neighbors),
         );
     }

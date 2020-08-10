@@ -269,10 +269,8 @@ where
     T: Clone,
 {
     let (pos1, pos2) = maze.corners(from);
-    let d1 = (pos1.x - origin.x).powi(2) + (pos1.y - origin.y).powi(2);
-    let d2 = (pos2.x - origin.x).powi(2) + (pos2.y - origin.y).powi(2);
 
-    if d1 < d2 {
+    if (pos1 - origin).value() < (pos2 - origin).value() {
         (pos1, pos2)
     } else {
         (pos2, pos1)

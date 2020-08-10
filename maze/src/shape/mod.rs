@@ -455,7 +455,7 @@ pub mod tri;
 
 #[cfg(test)]
 mod tests {
-    use std::collections::hash_set;
+    use std::collections::HashSet;
 
     use maze_test::maze_test;
 
@@ -469,7 +469,7 @@ mod tests {
             [(0isize, 0isize).into()]
                 .iter()
                 .cloned()
-                .collect::<hash_set::HashSet<matrix::Pos>>(),
+                .collect::<HashSet<matrix::Pos>>(),
             surround((0isize, 0isize).into(), 0).collect(),
         );
     }
@@ -489,7 +489,7 @@ mod tests {
             ]
             .iter()
             .cloned()
-            .collect::<hash_set::HashSet<matrix::Pos>>(),
+            .collect::<HashSet<matrix::Pos>>(),
             surround((0isize, 0isize).into(), 1).collect(),
         );
     }
@@ -672,11 +672,11 @@ mod tests {
         assert_eq!(
             maze.positions()
                 .filter(|pos| pos.row == 0)
-                .collect::<hash_set::HashSet<_>>(),
+                .collect::<HashSet<_>>(),
             maze.rooms_touched_by(viewbox)
                 .into_iter()
                 .filter(|&pos| maze.is_inside(pos))
-                .collect::<hash_set::HashSet<_>>(),
+                .collect::<HashSet<_>>(),
         );
     }
 
@@ -707,11 +707,11 @@ mod tests {
         assert_eq!(
             maze.positions()
                 .filter(|pos| pos.row == 0 || pos.row == 1)
-                .collect::<hash_set::HashSet<_>>(),
+                .collect::<HashSet<_>>(),
             maze.rooms_touched_by(viewbox)
                 .into_iter()
                 .filter(|&pos| maze.is_inside(pos))
-                .collect::<hash_set::HashSet<_>>(),
+                .collect::<HashSet<_>>(),
         );
     }
 

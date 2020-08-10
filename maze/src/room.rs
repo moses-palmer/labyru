@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::matrix;
 use crate::wall;
 
 /// A room is a part of a maze.
@@ -124,5 +123,3 @@ where
         }
     }
 }
-
-pub type Rooms<T> = matrix::Matrix<Room<T>>;

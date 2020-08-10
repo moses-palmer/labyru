@@ -23,6 +23,9 @@ pub mod walk;
 /// A wall of a room.
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
+/// A matrix of rooms.
+pub type Rooms<T> = matrix::Matrix<room::Room<T>>;
+
 /// A maze contains rooms and has methods for managing paths and doors.
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Maze<T>
@@ -33,7 +36,7 @@ where
     shape: Shape,
 
     /// The actual rooms.
-    rooms: room::Rooms<T>,
+    rooms: Rooms<T>,
 }
 
 impl<T> Maze<T>
@@ -47,7 +50,7 @@ where
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     pub fn new(shape: Shape, width: usize, height: usize) -> Self {
-        let rooms = room::Rooms::new(width, height);
+        let rooms = Rooms::new(width, height);
         Self { shape, rooms }
     }
 }
@@ -71,8 +74,7 @@ where
     where
         F: FnMut(matrix::Pos) -> T,
     {
-        let rooms =
-            room::Rooms::new_with_data(width, height, |pos| data(pos).into());
+        let rooms = Rooms::new_with_data(width, height, |pos| data(pos).into());
         Self { shape, rooms }
     }
 

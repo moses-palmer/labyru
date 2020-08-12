@@ -8,7 +8,7 @@ edition = "2018"
 maze = { path = "../maze" }
 actix-web = { version = "1.0" }
 rand = "*"
-serde = { version = "*" }
+serde = "*"
 svg = "*"
 
 [dev-dependencies]

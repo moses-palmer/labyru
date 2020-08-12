@@ -9,8 +9,7 @@ maze = { path = "../maze" }
 actix-web = { version = "1.0" }
 rand = "*"
 serde = { version = "*" }
-svg = { version = "0.5" }
-
+svg = "*"
 
 [dev-dependencies]
 serde_urlencoded = { version = "*" }

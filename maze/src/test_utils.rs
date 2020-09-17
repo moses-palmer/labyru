@@ -51,7 +51,7 @@ impl<'a> Navigator<'a> {
     /// *  `maze` - The maze to modify.
     pub fn new(maze: &'a mut TestMaze) -> Navigator<'a> {
         Navigator {
-            maze: maze,
+            maze,
             pos: None,
             log: Vec::new(),
         }

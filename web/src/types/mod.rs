@@ -1,4 +1,5 @@
 use actix_web::{error, Error, HttpRequest, HttpResponse, Responder};
+use futures_util::future::{err, ok, Ready};
 use svg::Node;
 
 use maze::initialize;
@@ -24,16 +25,16 @@ pub struct Maze {
 
 impl Responder for Maze {
     type Error = Error;
-    type Future = Result<HttpResponse, Error>;
+    type Future = Ready<Result<HttpResponse, Error>>;
 
     fn respond_to(self, _req: &HttpRequest) -> Self::Future {
         let room_count = self.dimensions.width * self.dimensions.height;
         if room_count > MAX_ROOMS {
-            Err(error::ErrorInsufficientStorage(
+            err(error::ErrorInsufficientStorage(
                 "the requested maze is too large",
             ))
         } else {
-            Ok(self.into())
+            ok(self.into())
         }
     }
 }

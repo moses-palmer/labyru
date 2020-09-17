@@ -9,7 +9,7 @@ struct Query {
     solve: Option<bool>,
 }
 #[get("/{maze_type}/{dimensions}/image.svg")]
-fn maze_svg(
+async fn maze_svg(
     (path, query): (
         web::Path<(types::MazeType, types::Dimensions)>,
         web::Query<Query>,
@@ -25,10 +25,11 @@ fn maze_svg(
     }
 }
 
-fn main() {
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     HttpServer::new(|| App::new().service(maze_svg))
         .bind("0.0.0.0:8000")
         .unwrap()
         .run()
-        .unwrap();
+        .await
 }

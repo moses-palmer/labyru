@@ -3,10 +3,8 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
-#[macro_use]
 mod test_utils;
 
-#[macro_use]
 pub mod wall;
 
 #[macro_use]

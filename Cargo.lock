@@ -1050,7 +1050,7 @@ checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 
 [[package]]
 name = "maze"
-version = "2.2.0"
+version = "2.3.0"
 dependencies = [
  "maze-test",
  "rand",
@@ -1061,7 +1061,7 @@ dependencies = [
 
 [[package]]
 name = "maze-maker"
-version = "2.2.0"
+version = "2.3.0"
 dependencies = [
  "clap",
  "image",
@@ -1074,11 +1074,11 @@ dependencies = [
 
 [[package]]
 name = "maze-test"
-version = "2.2.0"
+version = "2.3.0"
 
 [[package]]
 name = "maze-tools"
-version = "2.2.0"
+version = "2.3.0"
 dependencies = [
  "lazy_static",
  "maze",
@@ -1086,7 +1086,7 @@ dependencies = [
 
 [[package]]
 name = "maze-web"
-version = "2.2.0"
+version = "2.3.0"
 dependencies = [
  "actix-web",
  "futures-util",

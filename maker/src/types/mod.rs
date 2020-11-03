@@ -117,6 +117,7 @@ where
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
     /// *  `filter` - An additional filter applied to all methods.
+    #[allow(clippy::needless_collect)] // TODO: Wait for Clippy #6066
     pub fn initialize<F>(self, maze: Maze, rng: &mut R, filter: F) -> Maze
     where
         F: Fn(matrix::Pos) -> bool,

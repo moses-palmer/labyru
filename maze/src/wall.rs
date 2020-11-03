@@ -44,7 +44,7 @@ pub struct Angle {
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.
-#[derive(Clone, PartialOrd)]
+#[derive(Clone)]
 pub struct Wall {
     /// The name of this wall.
     pub name: &'static str,
@@ -152,6 +152,12 @@ impl std::fmt::Debug for Wall {
 impl Ord for Wall {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
+    }
+}
+
+impl PartialOrd for Wall {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(&other))
     }
 }
 

@@ -1,3 +1,5 @@
+use std::iter;
+
 use maze::initialize;
 use maze::matrix;
 use maze::physical;
@@ -129,21 +131,34 @@ where
         let viewbox = maze.viewbox();
         super::matrix(
             maze,
-            (0..self.methods.len())
-                .map(|i| {
-                    (
-                        physical::Pos {
-                            x: viewbox.corner.x
-                                + rng.random() as f32 * viewbox.width,
-                            y: viewbox.corner.y
-                                + rng.random() as f32 * viewbox.height,
-                        },
-                        (rng.random() as f32) + 0.5,
-                        i,
-                    )
-                })
+            Self::random_points(viewbox, rng)
+                .take(self.methods.len())
                 .collect(),
         )
+    }
+
+    /// Generates an infinite enumeration of random points and weights.
+    ///
+    /// The value of the points yielded is their index.
+    ///
+    /// # Arguments
+    /// *  `viewbox` - The viewbox to which to constrain the points.
+    /// *  `rng``- A random number generator.
+    pub fn random_points<'a>(
+        viewbox: physical::ViewBox,
+        rng: &'a mut R,
+    ) -> impl Iterator<Item = super::Point<usize>> + 'a {
+        iter::repeat_with(move || {
+            (
+                physical::Pos {
+                    x: viewbox.corner.x + rng.random() as f32 * viewbox.width,
+                    y: viewbox.corner.y + rng.random() as f32 * viewbox.height,
+                },
+                (rng.random() as f32) + 0.5,
+            )
+        })
+        .enumerate()
+        .map(|(i, (p, w))| (p, w, i))
     }
 }
 

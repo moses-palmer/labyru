@@ -72,10 +72,15 @@ where
         }
     }
 
+    /// The initialisation methods.
+    pub fn methods(&self) -> &Vec<initialize::Method> {
+        &self.methods
+    }
+
     /// Initialises a maze by applying all methods defined for this collection.
     ///
-    /// This method generates a Voronoi diagram for all methods with random
-    /// centres and weights, and uses that and the `filter` argument to limit
+    /// This method generates a Voronoi diagram for all methods with centres and
+    /// weights from `points`, and uses that and the `filter` argument to limit
     /// each initialisation method.
     ///
     /// The matrix returned is the Voronoi diagram used, where values are
@@ -85,18 +90,22 @@ where
     /// *  `maze` - The maze to initialise.
     /// *  `rng` - A random number generator.
     /// *  `filter` - An additional filter applied to all methods.
-    pub fn initialize<F, T>(
+    /// *  `points` - The points and weights to generate a Voronoi diagram.
+    pub fn initialize<F, T, P>(
         self,
         maze: maze::Maze<T>,
         rng: &mut R,
         filter: F,
+        points: P,
     ) -> InitializedMaze<T>
     where
         F: Fn(matrix::Pos) -> bool,
         T: Clone,
+        P: Iterator<Item = super::Point<usize>>,
     {
         // Generate the areas
-        let areas = self.matrix(&maze, rng);
+        let areas =
+            super::matrix(&maze, points.take(self.methods.len()).collect());
 
         // Use a different initialisation method for each segment
         let mut maze = self.methods.into_iter().enumerate().fold(
@@ -112,29 +121,6 @@ where
         initialize::connect_all(&mut maze, rng, filter);
 
         InitializedMaze { maze, areas }
-    }
-
-    /// Generates a Voronoi diagram where values are indices into the methods
-    /// vector.
-    ///
-    /// # Arguments
-    /// *  `maze` - The source maze.
-    /// *  `rng``- A random number generator.
-    fn matrix<T>(
-        &self,
-        maze: &maze::Maze<T>,
-        rng: &mut R,
-    ) -> matrix::Matrix<usize>
-    where
-        T: Clone,
-    {
-        let viewbox = maze.viewbox();
-        super::matrix(
-            maze,
-            Self::random_points(viewbox, rng)
-                .take(self.methods.len())
-                .collect(),
-        )
     }
 
     /// Generates an infinite enumeration of random points and weights.

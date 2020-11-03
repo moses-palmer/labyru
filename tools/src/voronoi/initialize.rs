@@ -158,7 +158,6 @@ where
             )
         })
         .enumerate()
-        .map(|(i, (p, w))| (p, w, i))
     }
 }
 

@@ -9,7 +9,7 @@ pub mod initialize;
 ///
 /// The first item is the physical location of this point and the second its
 /// weight. The final item is the actual value.
-pub type Point<V> = (physical::Pos, f32, V);
+pub type Point<V> = (V, (physical::Pos, f32));
 
 pub fn matrix<V, T>(
     maze: &maze::Maze<T>,
@@ -29,7 +29,7 @@ where
         let center = maze.center(pos);
         if let Some(val) = points
             .iter()
-            .map(|(p, w, val)| ((*p - center).value() / w, val))
+            .map(|(val, (p, w))| ((*p - center).value() / w, val))
             // We assume that that the weights are not exotic enough to cause
             // this to fail
             .min_by(|v1, v2| v1.0.partial_cmp(&v2.0).unwrap())

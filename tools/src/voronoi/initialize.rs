@@ -77,7 +77,7 @@ where
     /// each initialisation method.
     ///
     /// The matrix returned is the Voronoi diagram used, where values are
-    /// indice in the `methods` vector.
+    /// indices in the `methods` vector.
     ///
     /// # Arguments
     /// *  `maze` - The maze to initialise.

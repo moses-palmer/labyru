@@ -121,7 +121,13 @@ where
     where
         F: Fn(matrix::Pos) -> bool,
     {
-        self.0.initialize(maze, rng, filter).into()
+        let points =
+            voronoi::initialize::Methods::random_points(maze.viewbox(), rng)
+                .take(self.0.methods().len())
+                .collect::<Vec<_>>();
+        self.0
+            .initialize(maze, rng, filter, points.into_iter())
+            .into()
     }
 }
 

@@ -1,5 +1,5 @@
-use serde::de::Error;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+#[cfg(feature = "serde")]
+use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::shape::Shape;
 
@@ -13,7 +13,8 @@ pub type Index = usize;
 pub type Mask = u32;
 
 /// An offset from a wall to its corner neighbours.
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Offset {
     /// The horisontal offset.
     pub dx: isize,
@@ -26,7 +27,8 @@ pub struct Offset {
 }
 
 /// An angle in a span.
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Angle {
     /// The angle.
     pub a: f32,
@@ -161,6 +163,7 @@ impl PartialOrd for Wall {
     }
 }
 
+#[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for &'static Wall {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -177,6 +180,7 @@ impl<'de> Deserialize<'de> for &'static Wall {
     }
 }
 
+#[cfg(feature = "serde")]
 impl Serialize for Wall {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

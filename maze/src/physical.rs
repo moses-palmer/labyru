@@ -4,12 +4,14 @@
 //! attributes. These are collected in this module.
 use std::ops;
 
-use crate::wall::Angle;
-
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use crate::wall::Angle;
+
 /// A physical position.
-#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Pos {
     /// The X coordinate.
     pub x: f32,

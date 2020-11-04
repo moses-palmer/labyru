@@ -1,5 +1,6 @@
 #![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
@@ -25,7 +26,8 @@ pub type WallPos = (matrix::Pos, &'static wall::Wall);
 pub type Rooms<T> = matrix::Matrix<room::Room<T>>;
 
 /// A maze contains rooms and has methods for managing paths and doors.
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Maze<T>
 where
     T: Clone,

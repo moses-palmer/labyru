@@ -14,5 +14,5 @@ where
     }
 }
 
-#[cfg(feature = "render-svg")]
+#[cfg(feature = "svg")]
 pub mod svg;

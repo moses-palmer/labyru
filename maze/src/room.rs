@@ -1,3 +1,4 @@
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use crate::wall;
@@ -7,7 +8,8 @@ use crate::wall;
 /// It has walls, openings connecting it with other rooms, and asssociated data.
 ///
 /// It does not know its location.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Room<T>
 where
     T: Clone,

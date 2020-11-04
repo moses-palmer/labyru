@@ -14,5 +14,4 @@ maze-test = { path = "../test" }
 serde_json = "*"
 
 [features]
-default = ["rand", "render-svg"]
-render-svg = ["svg"]
+default = ["rand", "svg"]

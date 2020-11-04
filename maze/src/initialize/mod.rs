@@ -121,7 +121,7 @@ pub trait Randomizer {
     fn random(&mut self) -> f64;
 }
 
-#[cfg(feature = "osrand")]
+#[cfg(feature = "rand")]
 impl<T> Randomizer for T
 where
     T: rand::Rng,

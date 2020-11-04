@@ -1,3 +1,4 @@
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use crate::matrix;
@@ -78,10 +79,12 @@ macro_rules! define_shape {
 }
 
 /// The different types of mazes implemented, identified by number of walls.
-#[derive(
-    Clone, Copy, Debug, Deserialize, Hash, PartialEq, PartialOrd, Serialize,
+#[derive(Clone, Copy, Debug, Hash, PartialEq, PartialOrd)]
+#[cfg_attr(
+    feature = "serde",
+    derive(Deserialize, Serialize),
+    serde(rename_all = "lowercase")
 )]
-#[serde(rename_all = "lowercase")]
 pub enum Shape {
     /// A maze with triangular rooms.
     Tri = 3,

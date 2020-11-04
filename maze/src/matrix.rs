@@ -6,24 +6,15 @@ use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 /// A matrix position.
 ///
 /// The coordinates of this type are signed, but valid matrix positions never
 /// have negative coordinates.
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize,
-)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Pos {
     /// The column index.
     ///
@@ -69,7 +60,8 @@ where
 /// Every cell has a value, which is addressed using a [`Pos`].
 ///
 /// [`Pos`]: struct.Pos.html
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Matrix<T>
 where
     T: Clone,

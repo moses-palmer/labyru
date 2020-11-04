@@ -7,6 +7,7 @@ use std::iter;
 use std::str;
 use std::u64;
 
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use crate::Maze;
@@ -19,7 +20,8 @@ mod depth_first;
 mod randomized_prim;
 
 /// The various supported initialisation method.
-#[derive(Copy, Clone, Debug, Deserialize, Hash, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Hash, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Method {
     /// Initialises a maze with no dead ends.
     ///
@@ -140,7 +142,8 @@ where
 }
 
 /// A linear feedback shift register.
-#[derive(Clone, Debug, Deserialize, Eq, Serialize, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LFSR(u64);
 
 impl LFSR {

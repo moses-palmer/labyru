@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 rand = { version = "0.7", optional = true }
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"], optional = true }
 svg = { version = "0.8", optional = true }
 maze-test = { path = "../test" }
 
@@ -14,4 +14,4 @@ maze-test = { path = "../test" }
 serde_json = "*"
 
 [features]
-default = ["rand", "svg"]
+default = ["rand", "serde", "svg"]

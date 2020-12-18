@@ -189,13 +189,10 @@ where
     pub fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
         if pos1 == pos2 {
             true
-        } else if let Some(wall) = self.walls(pos1).iter().find(|wall| {
-            (pos1.col + wall.dir.0 == pos2.col)
-                && (pos1.row + wall.dir.1 == pos2.row)
-        }) {
-            self.is_open((pos1, wall))
         } else {
-            false
+            self.connecting_wall(pos1, pos2)
+                .map(|wall_pos| self.is_open(wall_pos))
+                .unwrap_or(false)
         }
     }
 

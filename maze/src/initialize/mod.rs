@@ -15,12 +15,12 @@ use crate::Maze;
 use crate::matrix;
 
 mod braid;
+mod branching;
 mod clear;
-mod depth_first;
-mod randomized_prim;
+mod winding;
 
 /// The various supported initialisation method.
-#[derive(Copy, Clone, Debug, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Method {
     /// Initialises a maze with no dead ends.
@@ -57,8 +57,6 @@ pub enum Method {
     /// [Wikipedia]: https://en.wikipedia.org/wiki/Maze_generation_algorithm#Depth-first_search
     Winding,
 }
-
-impl Eq for Method {}
 
 impl Default for Method {
     /// The default initialisation method is [`Branching`](Method::Branchin).
@@ -249,11 +247,14 @@ where
         F: Fn(matrix::Pos) -> bool,
         R: Randomizer + Sized,
     {
-        match method {
-            Method::Braid => braid::initialize(self, rng, filter),
-            Method::Clear => clear::initialize(self, rng, filter),
-            Method::Branching => randomized_prim::initialize(self, rng, filter),
-            Method::Winding => depth_first::initialize(self, rng, filter),
+        match matrix::filter(self.width(), self.height(), filter) {
+            (count, filter) if count > 0 => match method {
+                Method::Braid => braid::initialize(self, rng, filter),
+                Method::Clear => clear::initialize(self, rng, filter),
+                Method::Branching => branching::initialize(self, rng, filter),
+                Method::Winding => winding::initialize(self, rng, filter),
+            },
+            _ => self,
         }
     }
 }

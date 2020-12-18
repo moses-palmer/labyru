@@ -23,7 +23,7 @@ pub mod walk;
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A matrix of rooms.
-pub type Rooms<T> = matrix::Matrix<room::Room<T>>;
+type Rooms<T> = matrix::Matrix<room::Room<T>>;
 
 /// A maze contains rooms and has methods for managing paths and doors.
 #[derive(Clone)]

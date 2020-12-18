@@ -20,6 +20,8 @@ const COS_45: f32 = 0.707_106_77f32;
 const SIN_45: f32 = 0.707_106_77f32;
 
 /// Dispatches a function call for the current maze to a shape defined module.
+///
+/// This is an internal library macro.
 macro_rules! dispatch {
     ($on:expr => $func:ident ( $($args:ident $(,)?)* ) ) => {
         match $on {
@@ -283,6 +285,26 @@ impl std::str::FromStr for Shape {
     ///
     /// The string must be one of the supported names, lower-cased.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::str::FromStr;
+    /// # use maze::Shape;
+    ///
+    /// assert_eq!(
+    ///     "hex".parse(),
+    ///     Ok(Shape::Hex),
+    /// );
+    /// assert_eq!(
+    ///     "quad".parse(),
+    ///     Ok(Shape::Quad),
+    /// );
+    /// assert_eq!(
+    ///     "tri".parse(),
+    ///     Ok(Shape::Tri),
+    /// );
+    /// ```
+    ///
     /// # Arguments
     /// *  `source` - The source string.
     fn from_str(source: &str) -> Result<Self, Self::Err> {
@@ -300,6 +322,10 @@ where
     T: Clone,
 {
     /// All walls for a shape.
+    ///
+    /// This method does not necessarily return an array where the length is
+    /// equal to the number of walls, since walls for all room layouts are
+    /// present.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
         self.shape.all_walls()
     }

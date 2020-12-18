@@ -533,9 +533,11 @@ where
     /// matrix1[Pos { col: 1, row: 0 }] = 1;
     /// matrix1[Pos { col: 0, row: 1 }] = 2;
     /// matrix1[Pos { col: 1, row: 1 }] = 3;
+    ///
     /// let mut matrix2 = Matrix::new(2, 2);
     /// matrix2[Pos { col: 0, row: 0 }] = 5;
     /// matrix2[Pos { col: 1, row: 1 }] = 5;
+    ///
     /// assert_eq!(
     ///     (matrix1 + matrix2).map(|v| v + 1)
     ///         .values()
@@ -736,7 +738,8 @@ pub fn partition(x: f32) -> (isize, f32) {
 /// Generates a matrix initialised with the value returned by a filter
 /// function.
 ///
-/// The return value contains the number of filtered rooms.
+/// The return value contains the number of `true` values returned by the
+/// filter.
 ///
 /// # Arguments
 /// *  `width` - The width of the matrix to generate.

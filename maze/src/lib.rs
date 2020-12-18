@@ -61,10 +61,13 @@ where
 {
     /// Creates an uninitialised maze.
     ///
+    /// This method allows creating a maze initialised with data.
+    ///
     /// # Arguments
     /// *  `shape` - The shape of the rooms.
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
+    /// *  `data` - A function providing room data.
     pub fn new_with_data<F>(
         shape: Shape,
         width: usize,
@@ -113,6 +116,8 @@ where
 
     /// The data for a specific room.
     ///
+    /// If the index is out of bounds, nothing is returned.
+    ///
     /// # Arguments
     /// *  `pos``- The room position.
     pub fn data(&self, pos: matrix::Pos) -> Option<&T> {
@@ -120,6 +125,8 @@ where
     }
 
     /// The mutable data for a specific room.
+    ///
+    /// If the position is out of bounds, nothing is returned.
     ///
     /// # Arguments
     /// *  `pos``- The room position.
@@ -136,6 +143,8 @@ where
     }
 
     /// Whether a wall is open.
+    ///
+    /// If the position is out of bounds, `false` is returned.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.

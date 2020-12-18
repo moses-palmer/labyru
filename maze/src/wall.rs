@@ -42,7 +42,7 @@ pub struct Angle {
 
 /// A wall.
 ///
-/// Walls have an index, which is used by [Room](../room/struct.Room.html) to
+/// Walls have an index, which is used by [`Room`](crate::room::Room) to
 /// generate bit masks, and a direction, which indicates the position of the
 /// room on the other side of a wall, relative to the room to which the wall
 /// belongs.

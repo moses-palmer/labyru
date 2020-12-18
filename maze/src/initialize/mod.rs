@@ -130,9 +130,9 @@ where
 {
     fn range(&mut self, a: usize, b: usize) -> usize {
         if a < b {
-            self.gen_range(a, b)
+            self.gen_range(a..b)
         } else {
-            self.gen_range(b, a)
+            self.gen_range(b..a)
         }
     }
 

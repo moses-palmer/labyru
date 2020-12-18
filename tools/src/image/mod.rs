@@ -59,7 +59,7 @@ impl str::FromStr for Color {
 
     /// Converts a string to a colour.
     ///
-    /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,
+    /// This method supports colours on the form `#RRGGBB` and `#RRGGBBAA`,
     /// where `RR`, `GG`, `BB` and `AA` are the red, green, blue and alpha
     /// components hex encoded.
     ///

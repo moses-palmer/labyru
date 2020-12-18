@@ -25,7 +25,7 @@ impl FromStr for BackgroundRenderer {
         Ok(Self {
             image: image::open(s)
                 .map_err(|_| format!("failed to open {}", s))?
-                .to_rgb(),
+                .to_rgb8(),
         })
     }
 }

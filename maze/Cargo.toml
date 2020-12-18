@@ -5,9 +5,9 @@ authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-rand = { version = "0.7", optional = true }
+rand = { version = "0.8", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
-svg = { version = "0.8", optional = true }
+svg = { version = "0.10", optional = true }
 maze-test = { path = "../test" }
 
 [dev-dependencies]

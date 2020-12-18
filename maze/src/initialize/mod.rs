@@ -61,9 +61,7 @@ pub enum Method {
 impl Eq for Method {}
 
 impl Default for Method {
-    /// The default initialisation method is [`Branching`].
-    ///
-    /// [`Branching`]: #variant.Branching
+    /// The default initialisation method is [`Branching`](Method::Branchin).
     fn default() -> Self {
         Method::Branching
     }

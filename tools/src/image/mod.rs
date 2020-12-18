@@ -19,12 +19,7 @@ pub struct Color {
 impl Color {
     /// Returns a fully transparent version of this colour.
     pub fn transparent(self) -> Self {
-        Self {
-            red: self.red,
-            green: self.blue,
-            blue: self.blue,
-            alpha: 0,
-        }
+        Self { alpha: 0, ..self }
     }
 
     /// Fades one colour to another.

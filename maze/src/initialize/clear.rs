@@ -4,28 +4,19 @@ use crate::matrix;
 
 /// Initialises a maze by clearing all inner walls.
 ///
-/// This method will ignore rooms for which `filter` returns `false`.
-///
 /// # Arguments
 /// *  `maze``- The maze to initialise.
 /// *  `_rng` - Not used.
-/// *  `filter` - A predicate filtering rooms to consider.
-pub(crate) fn initialize<F, R, T>(
+/// *  `candidates` - A filter for the rooms to modify.
+pub(crate) fn initialize<R, T>(
     mut maze: Maze<T>,
     _rng: &mut R,
-    filter: F,
+    candidates: matrix::Matrix<bool>,
 ) -> Maze<T>
 where
-    F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
     T: Clone,
 {
-    let (count, candidates) =
-        matrix::filter(maze.width(), maze.height(), filter);
-    if count == 0 {
-        return maze;
-    }
-
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
         for wall in maze.walls(pos) {
             let (pos, wall) = maze.back((pos, wall));

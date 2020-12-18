@@ -1,10 +1,9 @@
+use std::f32::consts::TAU;
+
 #[cfg(feature = "serde")]
 use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::shape::Shape;
-
-/// The maximum nomalised value of a radian.
-const RADIAN_BOUND: f32 = 2.0 * std::f32::consts::PI;
 
 /// A wall index.
 pub type Index = usize;
@@ -95,14 +94,14 @@ impl Wall {
     /// # Arguments
     /// *  `angle` - The angle to normalise.
     pub fn normalized_angle(angle: f32) -> f32 {
-        if angle < RADIAN_BOUND && angle >= 0.0 {
+        if angle < TAU && angle >= 0.0 {
             angle
         } else {
-            let t = angle % RADIAN_BOUND;
+            let t = angle % TAU;
             if t >= 0.0 {
                 t
             } else {
-                t + RADIAN_BOUND
+                t + TAU
             }
         }
     }
@@ -193,6 +192,7 @@ impl Serialize for Wall {
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
+    use std::f32::consts::PI;
 
     use maze_test::maze_test;
 
@@ -331,10 +331,7 @@ mod tests {
         for col in 0..=1 {
             failures.extend(
                 (0..=count)
-                    .map(|t| {
-                        2.0 * (RADIAN_BOUND * (t as f32 / count as f32)
-                            - std::f32::consts::PI)
-                    })
+                    .map(|t| 2.0 * (TAU * (t as f32 / count as f32) - PI))
                     .filter(|&a| {
                         maze.walls(matrix::Pos { col, row: 0 })
                             .iter()

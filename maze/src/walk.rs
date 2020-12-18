@@ -161,7 +161,7 @@ where
     ///
     /// It is possible to walk indefinitely if the mapping contains circular
     /// references.
-    pub fn new(
+    pub(self) fn new(
         maze: &'a Maze<T>,
         start: matrix::Pos,
         map: BTreeMap<matrix::Pos, matrix::Pos>,

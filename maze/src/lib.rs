@@ -6,9 +6,11 @@ use serde::{Deserialize, Serialize};
 #[cfg(test)]
 mod test_utils;
 
+#[macro_use]
+mod macros;
+
 pub mod wall;
 
-#[macro_use]
 pub mod shape;
 pub use self::shape::Shape;
 

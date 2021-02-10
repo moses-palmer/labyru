@@ -20,8 +20,7 @@ impl FromStr for BreakPostProcessor {
     ///
     /// The string can be on two forms:
     /// 1. `map_type`: If only a value that can be made into a
-    ///    [HeatMapType](struct.HeatMapType.html) is passed, the `count` will be
-    ///    `1`.
+    ///    [`HeatMapType`](HeatMapType) is passed, the `count` will be `1`.
     /// 2. `map_type,count`: If a count is passed, it will be used as `count`.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);

@@ -46,7 +46,7 @@ where
                 Ok(Self {
                     image: image::open(path)
                         .map_err(|_| format!("failed to open {}", s))?
-                        .to_rgb(),
+                        .to_rgb8(),
                     threshold,
                     _marker: ::std::marker::PhantomData,
                 })

@@ -9,28 +9,19 @@ use crate::matrix;
 /// This method will leave no dead ends in the final maze; all rooms will have
 /// at least two open walls.
 ///
-/// This method will ignore rooms for which `filter` returns `false`.
-///
 /// # Arguments
 /// *  `maze``- The maze to initialise.
-/// *  `rng` - Not used.
-/// *  `filter` - A predicate filtering rooms to consider.
-pub(crate) fn initialize<F, R, T>(
+/// *  `rng` - A random number generator.
+/// *  `candidates` - A filter for the rooms to modify.
+pub(crate) fn initialize<R, T>(
     mut maze: Maze<T>,
     rng: &mut R,
-    filter: F,
+    candidates: matrix::Matrix<bool>,
 ) -> Maze<T>
 where
-    F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
     T: Clone,
 {
-    let (count, candidates) =
-        matrix::filter(maze.width(), maze.height(), |pos| filter(pos));
-    if count == 0 {
-        return maze;
-    }
-
     // First remove all inner walls
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
         for wall in maze.walls(pos) {
@@ -76,7 +67,9 @@ where
         }
     }
 
-    super::connect_all(&mut maze, rng, filter);
+    super::connect_all(&mut maze, rng, |pos| {
+        *candidates.get(pos).unwrap_or(&false)
+    });
 
     maze
 }

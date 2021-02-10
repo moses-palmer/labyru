@@ -19,12 +19,7 @@ pub struct Color {
 impl Color {
     /// Returns a fully transparent version of this colour.
     pub fn transparent(self) -> Self {
-        Self {
-            red: self.red,
-            green: self.blue,
-            blue: self.blue,
-            alpha: 0,
-        }
+        Self { alpha: 0, ..self }
     }
 
     /// Fades one colour to another.
@@ -59,7 +54,7 @@ impl str::FromStr for Color {
 
     /// Converts a string to a colour.
     ///
-    /// This method supports colouts on the form `#RRGGBB` and `#RRGGBBAA`,
+    /// This method supports colours on the form `#RRGGBB` and `#RRGGBBAA`,
     /// where `RR`, `GG`, `BB` and `AA` are the red, green, blue and alpha
     /// components hex encoded.
     ///

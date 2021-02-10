@@ -1,13 +1,13 @@
 [package]
 name = "maze"
-version = "2.3.0"
+version = "3.0.0"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rand = { version = "0.7", optional = true }
+rand = { version = "0.8", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
-svg = { version = "0.8", optional = true }
+svg = { version = "0.9", optional = true }
 maze-test = { path = "../test" }
 
 [dev-dependencies]

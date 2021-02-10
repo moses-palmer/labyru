@@ -15,23 +15,16 @@ use crate::matrix;
 /// # Arguments
 /// *  `maze``- The maze to initialise.
 /// *  `rng` - A random number generator.
-/// *  `filter` - A predicate filtering rooms to consider.
-pub(crate) fn initialize<F, R, T>(
+/// *  `candidates` - A filter for the rooms to modify.
+pub(crate) fn initialize<R, T>(
     mut maze: Maze<T>,
     rng: &mut R,
-    filter: F,
+    mut candidates: matrix::Matrix<bool>,
 ) -> Maze<T>
 where
-    F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
     T: Clone,
 {
-    let (count, mut candidates) =
-        matrix::filter(maze.width(), maze.height(), filter);
-    if count == 0 {
-        return maze;
-    }
-
     // The backracking path is initially empty
     let mut path = Vec::new();
 

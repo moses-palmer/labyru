@@ -4,28 +4,19 @@ use crate::matrix;
 
 /// Initialises a maze using the _Randomised Prim_ algorithm.
 ///
-/// This method will ignore rooms for which `filter` returns `false`.
-///
 /// # Arguments
 /// *  `maze` - The maze to initialise.
 /// *  `rng` - A random number generator.
-/// *  `filter` - A predicate filtering rooms to consider.
-pub(crate) fn initialize<F, R, T>(
+/// *  `candidates` - A filter for the rooms to modify.
+pub(crate) fn initialize<R, T>(
     mut maze: Maze<T>,
     rng: &mut R,
-    filter: F,
+    mut candidates: matrix::Matrix<bool>,
 ) -> Maze<T>
 where
-    F: Fn(matrix::Pos) -> bool,
     R: super::Randomizer + Sized,
     T: Clone,
 {
-    let (count, mut candidates) =
-        matrix::filter(maze.width(), maze.height(), filter);
-    if count == 0 {
-        return maze;
-    }
-
     loop {
         // Start with all walls in a random room, except for those leading
         // out of the maze

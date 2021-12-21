@@ -12,14 +12,8 @@ const WIDTH: usize = 8;
 /// The height of a character bitmap.
 const HEIGHT: usize = 8;
 
-/// The value `1.0f32` in a convenient representation for the alphabet macro.
-const X: f32 = 1.0;
-
-/// The value `0.0f32` in a convenient representation for the alphabet macro.
-const O: f32 = 0.0;
-
 /// A character bitmap.
-pub struct Character(pub(self) [[f32; WIDTH]; HEIGHT]);
+pub struct Character(pub(self) [[bool; WIDTH]; HEIGHT]);
 
 impl Character {
     /// Retrieves an interpolated bit from the bitmap.
@@ -71,7 +65,11 @@ impl Character {
             && pos.col < WIDTH as isize
             && pos.row < HEIGHT as isize
         {
-            self.0[pos.row as usize][pos.col as usize]
+            if self.0[pos.row as usize][pos.col as usize] {
+                1.0
+            } else {
+                0.0
+            }
         } else {
             0.0
         }

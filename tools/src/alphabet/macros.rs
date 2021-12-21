@@ -14,10 +14,24 @@
 /// )
 /// ```
 macro_rules! character {
-    () => {};
+    (O) => {
+        false
+    };
+    (X) => {
+        true
+    };
     ($($a:ident $b:ident $c:ident $d:ident $e:ident $f:ident $g:ident $h:ident)*) => {
         [
-            $([$a, $b, $c, $d, $e, $f, $g, $h],)*
+            $([
+                character!($a),
+                character!($b),
+                character!($c),
+                character!($d),
+                character!($e),
+                character!($f),
+                character!($g),
+                character!($h),
+            ],)*
         ]
     };
 }

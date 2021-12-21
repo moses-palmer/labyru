@@ -25,8 +25,8 @@ impl FromStr for HeatMapRenderer {
     ///
     /// The string can be on three forms:
     /// 1. `map_type`: If only a value that can be made into a
-    ///    [HeatMapType](struct.HeatMapType.html) is passed, the `from` and `to`
-    ///    values will be `#000000FF` and `#FFFF0000`.
+    ///    [`HeatMapType`](HeatMapType) is passed, the `from` and `to` values
+    ///    will be `#000000FF` and `#FFFF0000`.
     /// 2. `map_type,colour`: If only one colour is passed, the `from` and `to`
     ///    values will be `#00000000` and the colour passed.
     /// 3. `map_type,from,to`: If two colours are passed, they are used as
@@ -34,7 +34,7 @@ impl FromStr for HeatMapRenderer {
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
         let map_type =
-            parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
+            parts.next().map(HeatMapType::from_str).unwrap()?;
 
         if let Some(part1) = parts.next() {
             if let Some(part2) = parts.next() {

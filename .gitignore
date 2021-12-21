@@ -1,5 +1,8 @@
 target
 
+# This is a library
+Cargo.lock
+
 # Vim swap files
 *.swo
 *.swp

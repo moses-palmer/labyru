@@ -6,9 +6,11 @@ use serde::{Deserialize, Serialize};
 #[cfg(test)]
 mod test_utils;
 
+#[macro_use]
+mod macros;
+
 pub mod wall;
 
-#[macro_use]
 pub mod shape;
 pub use self::shape::Shape;
 
@@ -23,7 +25,7 @@ pub mod walk;
 pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A matrix of rooms.
-pub type Rooms<T> = matrix::Matrix<room::Room<T>>;
+type Rooms<T> = matrix::Matrix<room::Room<T>>;
 
 /// A maze contains rooms and has methods for managing paths and doors.
 #[derive(Clone)]
@@ -61,10 +63,13 @@ where
 {
     /// Creates an uninitialised maze.
     ///
+    /// This method allows creating a maze initialised with data.
+    ///
     /// # Arguments
     /// *  `shape` - The shape of the rooms.
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
+    /// *  `data` - A function providing room data.
     pub fn new_with_data<F>(
         shape: Shape,
         width: usize,
@@ -113,6 +118,8 @@ where
 
     /// The data for a specific room.
     ///
+    /// If the index is out of bounds, nothing is returned.
+    ///
     /// # Arguments
     /// *  `pos``- The room position.
     pub fn data(&self, pos: matrix::Pos) -> Option<&T> {
@@ -120,6 +127,8 @@ where
     }
 
     /// The mutable data for a specific room.
+    ///
+    /// If the position is out of bounds, nothing is returned.
     ///
     /// # Arguments
     /// *  `pos``- The room position.
@@ -136,6 +145,8 @@ where
     }
 
     /// Whether a wall is open.
+    ///
+    /// If the position is out of bounds, `false` is returned.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
@@ -178,13 +189,10 @@ where
     pub fn connected(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> bool {
         if pos1 == pos2 {
             true
-        } else if let Some(wall) = self.walls(pos1).iter().find(|wall| {
-            (pos1.col + wall.dir.0 == pos2.col)
-                && (pos1.row + wall.dir.1 == pos2.row)
-        }) {
-            self.is_open((pos1, wall))
         } else {
-            false
+            self.connecting_wall(pos1, pos2)
+                .map(|wall_pos| self.is_open(wall_pos))
+                .unwrap_or(false)
         }
     }
 

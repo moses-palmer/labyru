@@ -2,7 +2,7 @@
 name = "maze"
 version = "3.0.0"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 rand = { version = "0.7", optional = true }

@@ -102,7 +102,7 @@ fn shapes(attr: TokenStream) -> HashSet<String> {
         .flat_map(|tree| match tree {
             TokenTree::Ident(ref shape) => Some(shape.to_string()),
             TokenTree::Punct(ref punct) if punct.as_char() == ',' => None,
-            _ => panic!(format!("Unexpected token: {}", tree)),
+            _ => panic!("Unexpected token: {}", tree),
         })
         .collect::<HashSet<_>>();
     if shapes.is_empty() {

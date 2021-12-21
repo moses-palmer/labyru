@@ -34,7 +34,7 @@ impl FromStr for HeatMapRenderer {
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
         let map_type =
-            parts.next().map(|p| HeatMapType::from_str(p)).unwrap()?;
+            parts.next().map(HeatMapType::from_str).unwrap()?;
 
         if let Some(part1) = parts.next() {
             if let Some(part2) = parts.next() {

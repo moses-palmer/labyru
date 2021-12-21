@@ -38,7 +38,7 @@ mod tests {
             Seed {
                 lfsr: initialize::LFSR::new(1234)
             },
-            serde_urlencoded::from_str::<Vec<(String, Seed)>>(&"seed=1234")
+            serde_urlencoded::from_str::<Vec<(String, Seed)>>("seed=1234")
                 .unwrap()[0]
                 .1,
         );

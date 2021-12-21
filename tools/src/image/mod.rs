@@ -75,11 +75,11 @@ impl str::FromStr for Color {
                 .skip(1)
                 // Hex decode and create list
                 .map(|c| {
-                    if c >= b'0' && c <= b'9' {
+                    if (b'0'..=b'9').contains(&c) {
                         Some(c - b'0')
-                    } else if c >= b'A' && c <= b'F' {
+                    } else if (b'A'..=b'F').contains(&c) {
                         Some(c - b'A' + 10)
-                    } else if c >= b'a' && c <= b'f' {
+                    } else if (b'a'..=b'f').contains(&c) {
                         Some(c - b'a' + 10)
                     } else {
                         None

@@ -30,8 +30,6 @@ impl initialize::Randomizer for Seed {
 
 #[cfg(test)]
 mod tests {
-    use serde_urlencoded;
-
     use super::*;
 
     #[test]

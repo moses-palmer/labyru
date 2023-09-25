@@ -1,4 +1,4 @@
-use actix_web::{get, web, App, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use serde::Deserialize;
 
 mod types;
@@ -17,12 +17,12 @@ async fn maze_svg(
 ) -> impl Responder {
     let (maze_type, dimensions) = path.into_inner();
     let Query { seed, solve } = query.into_inner();
-    types::Maze {
+    HttpResponse::from(types::Maze {
         maze_type,
         dimensions,
         seed: seed.unwrap_or_else(types::Seed::random),
         solve: solve.unwrap_or(false),
-    }
+    })
 }
 
 #[actix_web::main]

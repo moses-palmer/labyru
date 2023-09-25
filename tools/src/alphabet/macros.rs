@@ -1,7 +1,7 @@
 /// Defines a full character bitmap.
 ///
 /// The expected format is:
-/// ```
+/// ```ignore
 /// character!(
 ///     O X O X O X O X
 ///     X O X O X O X O
@@ -11,7 +11,7 @@
 ///     X O X O X O X O
 ///     O X O X O X O X
 ///     X O X O X O X O
-/// )
+/// );
 /// ```
 macro_rules! character {
     (O) => {
@@ -39,7 +39,7 @@ macro_rules! character {
 /// Defines the full mapping from character to bitmap.
 ///
 /// The expected format is:
-/// ```
+/// ```ignore
 /// let alphabet = alphabet! {
 ///    'A' => [
 ///        O X O X O X O X
@@ -61,7 +61,7 @@ macro_rules! character {
 ///        O X O X O X O X
 ///        X O X O X O X O
 ///    ]
-/// }
+/// };
 /// ```
 macro_rules! alphabet {
     ($($name:expr => [$($bits:ident)*],)* _ => [$($default:ident)*] ) => {

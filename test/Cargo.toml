@@ -1,8 +1,8 @@
 [package]
 name = "maze-test"
-version = "3.0.2"
-authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [lib]
 proc-macro = true

@@ -1,14 +1,15 @@
 [package]
 name = "maze-maker"
-version = "3.0.2"
-authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [dependencies]
 maze = { path = "../maze" }
 maze-tools = { path = "../tools" }
-clap = "2.33"
-image = "0.23"
-rand = "*"
-rayon = "1.3"
-svg = "0.13"
+
+clap = { workspace = true }
+image = { workspace = true }
+rand = { workspace = true }
+rayon = { workspace = true }
+svg = { workspace = true }

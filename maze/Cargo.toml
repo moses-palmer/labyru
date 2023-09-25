@@ -1,17 +1,18 @@
 [package]
 name = "maze"
-version = "3.0.2"
-authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [dependencies]
-rand = { version = "0.8", optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-svg = { version = "0.13", optional = true }
 maze-test = { path = "../test" }
 
+rand = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+svg = { workspace = true, optional = true }
+
 [dev-dependencies]
-serde_json = "*"
+serde_json = { workspace = true }
 
 [features]
 default = ["rand", "serde", "svg"]

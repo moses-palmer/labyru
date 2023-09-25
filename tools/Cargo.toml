@@ -1,9 +1,10 @@
 [package]
 name = "maze-tools"
-version = "3.0.2"
-authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [dependencies]
 maze = { path = "../maze" }
-lazy_static = "1.3"
+
+lazy_static = { workspace = true }

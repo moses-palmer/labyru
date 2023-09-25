@@ -1,16 +1,17 @@
 [package]
 name = "maze-web"
-version = "3.0.2"
-authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [dependencies]
 maze = { path = "../maze" }
-actix-web = "3"
-futures-util = "*"
-rand = "*"
-serde = "*"
-svg = "0.13"
+
+actix-web = { workspace = true }
+futures-util = { workspace = true }
+rand =  { workspace = true }
+serde =  { workspace = true }
+svg =  { workspace = true }
 
 [dev-dependencies]
-serde_urlencoded = { version = "*" }
+serde_urlencoded = { workspace = true }

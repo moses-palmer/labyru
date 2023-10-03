@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use serde::Deserialize;
 
 /// Dimensions of a maze.

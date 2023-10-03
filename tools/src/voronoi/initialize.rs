@@ -5,6 +5,7 @@ use maze::matrix;
 use maze::physical;
 
 /// A container struct for multiple initialisation methods.
+#[derive(Clone, Debug)]
 pub struct Methods<R>
 where
     R: initialize::Randomizer + Sized,

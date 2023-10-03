@@ -7,6 +7,7 @@ use maze_tools::image::Color;
 use crate::types::*;
 
 /// A full description of the heat map action.
+#[derive(Clone)]
 pub struct HeatMapRenderer {
     /// The heat map type.
     pub map_type: HeatMapType,
@@ -33,8 +34,7 @@ impl FromStr for HeatMapRenderer {
     ///    `from` and `to` values.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
-        let map_type =
-            parts.next().map(HeatMapType::from_str).unwrap()?;
+        let map_type = parts.next().map(HeatMapType::from_str).unwrap()?;
 
         if let Some(part1) = parts.next() {
             if let Some(part2) = parts.next() {

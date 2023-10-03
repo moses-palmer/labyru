@@ -1,7 +1,9 @@
 use std::convert::TryInto;
 use std::f32;
 
-use clap::{crate_authors, crate_version, App, Arg};
+use clap::{
+    crate_authors, crate_version, value_parser, Arg, ArgAction, Command,
+};
 use svg::Node;
 
 use maze::render::svg::ToPath;
@@ -57,137 +59,115 @@ fn maze_to_viewbox(
 
 #[allow(unused_mut)]
 fn main() {
-    let mut app = App::new("")
+    let mut args = Command::new("")
         .about("Generates mazes")
         .version(crate_version!())
         .author(crate_authors!(", "))
         .arg(
-            Arg::with_name("WALLS")
-                .long("--walls")
-                .takes_value(true)
+            Arg::new("WALLS")
+                .long("walls")
                 .default_value("4")
+                .value_parser(value_parser!(u32))
                 .help("The number of walls per room; 3, 4 or 6."),
         )
         .arg(
-            Arg::with_name("WIDTH")
-                .long("--width")
-                .takes_value(true)
-                .required_unless_all(&["BACKGROUND", "RATIO"])
+            Arg::new("WIDTH")
+                .long("width")
+                .required_unless_present_all(["BACKGROUND", "RATIO"])
+                .value_parser(value_parser!(usize))
                 .help("The width of the maze, in rooms."),
         )
         .arg(
-            Arg::with_name("HEIGHT")
-                .long("--height")
-                .takes_value(true)
-                .required_unless_all(&["BACKGROUND", "RATIO"])
+            Arg::new("HEIGHT")
+                .long("height")
+                .required_unless_present_all(["BACKGROUND", "RATIO"])
+                .value_parser(value_parser!(usize))
                 .help("The height of the maze, in rooms."),
         )
         .arg(
-            Arg::with_name("METHOD")
-                .long("--method")
-                .takes_value(true)
+            Arg::new("METHOD")
+                .long("method")
+                .value_parser(value_parser!(Methods<rand::rngs::OsRng>))
                 .help("The initialisation method to use."),
         )
         .arg(
-            Arg::with_name("SCALE")
-                .long("--scale")
-                .takes_value(true)
+            Arg::new("SCALE")
+                .long("scale")
                 .help("A relative size for the maze, applied to rooms."),
         )
         .arg(
-            Arg::with_name("MARGIN")
-                .long("--margin")
-                .takes_value(true)
+            Arg::new("MARGIN")
+                .long("margin")
                 .help("The margin around the maze."),
         )
         .arg(
-            Arg::with_name("SOLVE")
-                .long("--solve")
-                .takes_value(false)
+            Arg::new("SOLVE")
+                .long("solve")
+                .action(ArgAction::SetTrue)
                 .help("Whether to solve the maze."),
         )
         .arg(
-            Arg::with_name("BREAK")
-                .long("--break")
-                .takes_value(true)
+            Arg::new("BREAK")
+                .long("break")
+                .value_parser(value_parser!(BreakPostProcessor))
                 .help("Whether to break the maze."),
         )
         .arg(
-            Arg::with_name("HEATMAP")
-                .long("--heat-map")
-                .takes_value(true)
+            Arg::new("HEATMAP")
+                .long("heat-map")
+                .value_parser(value_parser!(HeatMapRenderer))
                 .help("Whether to create a heat map."),
         )
+        .arg(Arg::new("OUTPUT").help("The output file name."))
         .arg(
-            Arg::with_name("OUTPUT")
-                .required(true)
-                .help("The output file name."),
-        )
-        .arg(
-            Arg::with_name("BACKGROUND")
+            Arg::new("BACKGROUND")
                 .long("background")
-                .help("A background image to colour rooms.")
-                .takes_value(true),
+                .value_parser(value_parser!(BackgroundRenderer))
+                .help("A background image to colour rooms."),
         )
         .arg(
-            Arg::with_name("TEXT")
+            Arg::new("TEXT")
                 .long("text")
-                .help("A text to draw on the maze.")
-                .takes_value(true),
+                .value_parser(value_parser!(TextRenderer))
+                .help("A text to draw on the maze."),
         )
         .arg(
-            Arg::with_name("MASK")
+            Arg::new("MASK")
                 .long("mask")
-                .help("A background image to colour rooms.")
-                .takes_value(true),
+                .value_parser(value_parser!(MaskInitializer<rand::rngs::OsRng>))
+                .help("A background image to colour rooms."),
         )
         .arg(
-            Arg::with_name("RATIO")
+            Arg::new("RATIO")
                 .long("ratio")
                 .help("A ratio for pixels per room when using a background.")
-                .conflicts_with_all(&["WIDTH", "HEIGHT"])
-                .requires("BACKGROUND")
-                .takes_value(true),
-        );
-
-    let args = app.get_matches();
+                .conflicts_with_all(["WIDTH", "HEIGHT"])
+                .requires("BACKGROUND"),
+        )
+        .get_matches();
 
     // Parse general rendering options
-    let scale = args
-        .value_of("SCALE")
-        .map(|s| s.parse().expect("invalid scale"))
-        .unwrap_or(10.0);
-    let margin = args
-        .value_of("MARGIN")
-        .map(|s| s.parse().expect("invalid margin"))
-        .unwrap_or(10.0);
+    let scale = args.remove_one::<f32>("SCALE").unwrap_or(10.0);
+    let margin = args.remove_one::<f32>("MARGIN").unwrap_or(10.0);
 
     // Parse initialisers
-    let initializers: Methods<_> = args
-        .value_of("METHOD")
-        .map(str::parse)
-        .unwrap_or_else(|| Ok(Methods::default()))
-        .expect("invalid initialisation methods");
-    let mask_initializer: Option<MaskInitializer<_>> = args
-        .value_of("MASK")
-        .map(|s| s.parse().expect("invalid mask"));
+    let initializers: Methods<_> =
+        args.remove_one::<Methods<_>>("METHOD").unwrap_or_default();
+    let mask_initializer: Option<MaskInitializer<_>> =
+        args.remove_one::<MaskInitializer<_>>("MASK");
 
     // Parse post-processors
-    let break_post_processor: Option<BreakPostProcessor> = args
-        .value_of("BREAK")
-        .map(|s| s.parse().expect("invalid break"));
+    let break_post_processor: Option<BreakPostProcessor> =
+        args.remove_one::<BreakPostProcessor>("BREAK");
 
     // Parse renderers
-    let heatmap_renderer: Option<HeatMapRenderer> = args
-        .value_of("HEATMAP")
-        .map(|s| s.parse().expect("invalid heat map"));
-    let background_renderer: Option<BackgroundRenderer> = args
-        .value_of("BACKGROUND")
-        .map(|s| s.parse().expect("invalid background"));
-    let text_renderer: Option<TextRenderer> = args
-        .value_of("TEXT")
-        .map(|s| s.parse().expect("invalid text"));
-    let solve_renderer = if args.is_present("SOLVE") {
+    let heatmap_renderer: Option<HeatMapRenderer> =
+        args.remove_one::<HeatMapRenderer>("HEATMAP");
+    let background_renderer: Option<BackgroundRenderer> =
+        args.remove_one::<BackgroundRenderer>("BACKGROUND");
+    let text_renderer: Option<TextRenderer> =
+        args.remove_one::<TextRenderer>("TEXT");
+    let solve_renderer = if args.contains_id("SOLVE") {
         Some(SolveRenderer)
     } else {
         None
@@ -195,14 +175,12 @@ fn main() {
 
     // Parse maze information
     let shape: maze::Shape = args
-        .value_of("WALLS")
-        .map(|s| s.parse::<u32>().expect("invalid wall value"))
+        .remove_one::<u32>("WALLS")
         .unwrap()
         .try_into()
         .expect("unknown number of walls");
     let (width, height) = args
-        .value_of("RATIO")
-        .map(|s| s.parse::<f32>().expect("invalid ratio"))
+        .get_one::<f32>("RATIO")
         .and_then(|ratio| {
             background_renderer.as_ref().map(|background_renderer| {
                 shape.minimal_dimensions(
@@ -213,19 +191,15 @@ fn main() {
         })
         .unwrap_or_else(|| {
             (
-                args.value_of("WIDTH")
-                    .map(|s| s.parse().expect("invalid width"))
-                    .unwrap(),
-                args.value_of("HEIGHT")
-                    .map(|s| s.parse().expect("invalid height"))
-                    .unwrap(),
+                args.remove_one::<usize>("WIDTH").unwrap(),
+                args.remove_one::<usize>("HEIGHT").unwrap(),
             )
         });
 
-    let output = args.value_of("OUTPUT").unwrap();
+    let output = args.remove_one::<String>("OUTPUT").unwrap();
 
     // Make sure the maze is initialised
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rngs::OsRng;
     let maze = {
         let mut maze = mask_initializer.initialize(
             shape.create(width, height),
@@ -248,6 +222,6 @@ fn main() {
             &heatmap_renderer,
             &solve_renderer,
         ],
-        output,
+        &output,
     );
 }

@@ -11,6 +11,7 @@ use maze_tools::image::Color;
 use crate::types::*;
 
 /// A text.
+#[derive(Clone)]
 pub struct TextRenderer {
     /// The string to render.
     text: String,

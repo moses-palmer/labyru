@@ -220,6 +220,37 @@ impl TryFrom<u32> for Shape {
     }
 }
 
+impl std::fmt::Display for Shape {
+    /// The opposite of [std::str::FromStr].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use maze::shape::*;
+    ///
+    /// assert_eq!(
+    ///     Shape::Tri.to_string().parse::<Shape>(),
+    ///     Ok(Shape::Tri),
+    /// );
+    /// assert_eq!(
+    ///     Shape::Quad.to_string().parse::<Shape>(),
+    ///     Ok(Shape::Quad),
+    /// );
+    /// assert_eq!(
+    ///     Shape::Quad.to_string().parse::<Shape>(),
+    ///     Ok(Shape::Quad),
+    /// );
+    /// ```
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Shape::*;
+        match self {
+            Tri => write!(f, "tri"),
+            Quad => write!(f, "quad"),
+            Hex => write!(f, "hex"),
+        }
+    }
+}
+
 impl std::str::FromStr for Shape {
     type Err = String;
 

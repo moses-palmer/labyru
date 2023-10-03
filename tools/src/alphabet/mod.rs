@@ -94,12 +94,12 @@ impl Alphabet {
     /// *  `columns` - The number of columns. This determines the horisontal
     ///    size of the image. When reached, a line break will be added.
     /// *  `resolution` - The number of samples to generate horisontally.
-    pub fn render<'a, 'b>(
-        &'a self,
-        text: &'b str,
+    pub fn render(
+        &self,
+        text: &str,
         columns: usize,
         horizontal_resolution: usize,
-    ) -> AlphabetRenderer<'a> {
+    ) -> AlphabetRenderer<'_> {
         let rows = (text.len() as f32 / columns as f32).ceil() as usize;
         let text = text.chars().collect();
         let resolution = horizontal_resolution / columns;

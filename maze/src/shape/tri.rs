@@ -212,9 +212,9 @@ pub fn opposite(_pos: WallPos) -> Option<&'static wall::Wall> {
 
 pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
     if is_reversed(pos) {
-        &WALLS_ODD
+        WALLS_ODD
     } else {
-        &WALLS_EVEN
+        WALLS_EVEN
     }
 }
 

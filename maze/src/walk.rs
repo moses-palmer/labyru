@@ -127,10 +127,10 @@ where
     ///
     /// # Arguments
     /// *  `wall_pos` - The starting wall position.
-    pub fn follow_wall<'a>(
-        &'a self,
+    pub fn follow_wall(
+        &self,
         wall_pos: WallPos,
-    ) -> impl Iterator<Item = FollowWallItem> + 'a {
+    ) -> impl Iterator<Item = FollowWallItem> + '_ {
         Follower::new(self, wall_pos)
     }
 }
@@ -332,10 +332,7 @@ impl OpenSet {
 
     /// Pops the room with the highest priority.
     pub fn pop(&mut self) -> Option<matrix::Pos> {
-        match self.heap.pop() {
-            Some((_, pos)) => Some(pos),
-            None => None,
-        }
+        self.heap.pop().map(|(_, pos)| pos)
     }
 
     /// Checks whether a position is in the set.

@@ -279,10 +279,10 @@ where
     ///
     /// # Arguments
     /// *  `pos` - The room position.
-    pub fn wall_positions<'a>(
-        &'a self,
+    pub fn wall_positions(
+        &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator + 'a {
+    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator + '_ {
         self.walls(pos).iter().map(move |&wall| (pos, wall))
     }
 
@@ -290,10 +290,10 @@ where
     ///
     /// # Arguments
     /// *  `pos` - The room position.
-    pub fn doors<'a>(
-        &'a self,
+    pub fn doors(
+        &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = &'static wall::Wall> + DoubleEndedIterator + 'a
+    ) -> impl Iterator<Item = &'static wall::Wall> + DoubleEndedIterator + '_
     {
         self.walls(pos)
             .iter()
@@ -307,10 +307,10 @@ where
     ///
     /// # Arguments
     /// *  `pos` - The room position.
-    pub fn adjacent<'a>(
-        &'a self,
+    pub fn adjacent(
+        &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + 'a {
+    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + '_ {
         self.walls(pos).iter().map(move |&wall| matrix::Pos {
             col: pos.col + wall.dir.0,
             row: pos.row + wall.dir.1,
@@ -324,10 +324,10 @@ where
     ///
     /// # Arguments
     /// *  `pos` - The room position.
-    pub fn neighbors<'a>(
-        &'a self,
+    pub fn neighbors(
+        &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + 'a {
+    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + '_ {
         self.doors(pos).map(move |wall| self.back((pos, wall)).0)
     }
 }

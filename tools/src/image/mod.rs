@@ -70,7 +70,7 @@ impl str::FromStr for Color {
                 .skip(1)
                 // Hex decode and create list
                 .map(|c| {
-                    if (b'0'..=b'9').contains(&c) {
+                    if c.is_ascii_digit() {
                         Some(c - b'0')
                     } else if (b'A'..=b'F').contains(&c) {
                         Some(c - b'A' + 10)

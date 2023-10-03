@@ -339,9 +339,9 @@ pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
 
 pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
     if pos.row & 1 == 1 {
-        &WALLS_ODD
+        WALLS_ODD
     } else {
-        &WALLS_EVEN
+        WALLS_EVEN
     }
 }
 
@@ -394,7 +394,7 @@ pub fn physical_to_cell(pos: physical::Pos) -> matrix::Pos {
     }
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_if))]
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_else_if))]
 pub fn physical_to_wall_pos(pos: physical::Pos) -> WallPos {
     let matrix_pos = physical_to_cell(pos);
     let odd_row = matrix_pos.row & 1 == 1;

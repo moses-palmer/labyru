@@ -131,10 +131,10 @@ where
     /// # Arguments
     /// *  `viewbox` - The viewbox to which to constrain the points.
     /// *  `rng``- A random number generator.
-    pub fn random_points<'a>(
+    pub fn random_points(
         viewbox: physical::ViewBox,
-        rng: &'a mut R,
-    ) -> impl Iterator<Item = super::Point<usize>> + 'a {
+        rng: &mut R,
+    ) -> impl Iterator<Item = super::Point<usize>> + '_ {
         iter::repeat_with(move || {
             (
                 physical::Pos {

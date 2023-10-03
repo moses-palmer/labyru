@@ -28,7 +28,7 @@ impl FromStr for BreakPostProcessor {
         let map_type = parts.next().map(HeatMapType::from_str).unwrap()?;
 
         if let Some(part1) = parts.next() {
-            if let Ok(count) = usize::from_str_radix(part1, 10) {
+            if let Ok(count) = part1.parse() {
                 Ok(Self { map_type, count })
             } else {
                 Err(format!("invalid count: {}", part1))

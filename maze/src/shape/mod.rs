@@ -201,7 +201,7 @@ impl Shape {
     }
 }
 
-impl std::convert::TryFrom<u32> for Shape {
+impl TryFrom<u32> for Shape {
     type Error = u32;
 
     /// Attempts to convert a number to a shape.

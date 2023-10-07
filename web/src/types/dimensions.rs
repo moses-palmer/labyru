@@ -32,8 +32,6 @@ impl TryFrom<String> for Dimensions {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
-
     use super::*;
 
     #[test]

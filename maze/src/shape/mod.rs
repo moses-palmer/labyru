@@ -71,6 +71,11 @@ impl Shape {
         Maze::new_with_data(self, width, height, data)
     }
 
+    /// The number of walls per room for this shape.
+    pub fn wall_count(self) -> usize {
+        self as usize
+    }
+
     /// Calculates the minimal dimensions for a maze to let the distance
     /// between the leftmost and rightmost corners be `width` and the distance
     /// between the top and bottom be `height`.
@@ -80,11 +85,6 @@ impl Shape {
     /// *  `height` - The required physical height.
     pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
         dispatch!(self => minimal_dimensions(width, height))
-    }
-
-    /// The number of walls per room for this shape.
-    pub fn wall_count(self) -> usize {
-        self as usize
     }
 
     /// Returns all walls for a shape.

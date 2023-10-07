@@ -1,3 +1,5 @@
+use std::f32::consts::SQRT_2;
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -14,10 +16,10 @@ const COS_30: f32 = 0.866_025_4f32;
 const SIN_30: f32 = 1.0 / 2.0;
 
 /// cos(45°)
-const COS_45: f32 = 0.707_106_77f32;
+const COS_45: f32 = 0.5 * SQRT_2;
 
 /// sin(45°)
-const SIN_45: f32 = 0.707_106_77f32;
+const SIN_45: f32 = 0.5 * SQRT_2;
 
 /// The different types of mazes implemented, identified by number of walls.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, PartialOrd)]

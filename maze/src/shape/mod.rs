@@ -118,6 +118,7 @@ impl Shape {
     pub fn walls(self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
         dispatch!(self => walls(pos))
     }
+
     /// Converts a physical position to a matrix cell.
     ///
     /// # Arguments

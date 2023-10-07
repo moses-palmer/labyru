@@ -1,3 +1,5 @@
+use std::f32::consts::SQRT_2;
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -14,10 +16,10 @@ const COS_30: f32 = 0.866_025_4f32;
 const SIN_30: f32 = 1.0 / 2.0;
 
 /// cos(45°)
-const COS_45: f32 = 0.707_106_77f32;
+const COS_45: f32 = 0.5 * SQRT_2;
 
 /// sin(45°)
-const SIN_45: f32 = 0.707_106_77f32;
+const SIN_45: f32 = 0.5 * SQRT_2;
 
 /// The different types of mazes implemented, identified by number of walls.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, PartialOrd)]
@@ -69,6 +71,11 @@ impl Shape {
         Maze::new_with_data(self, width, height, data)
     }
 
+    /// The number of walls per room for this shape.
+    pub fn wall_count(self) -> usize {
+        self as usize
+    }
+
     /// Calculates the minimal dimensions for a maze to let the distance
     /// between the leftmost and rightmost corners be `width` and the distance
     /// between the top and bottom be `height`.
@@ -78,11 +85,6 @@ impl Shape {
     /// *  `height` - The required physical height.
     pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
         dispatch!(self => minimal_dimensions(width, height))
-    }
-
-    /// The number of walls per room for this shape.
-    pub fn wall_count(self) -> usize {
-        self as usize
     }
 
     /// Returns all walls for a shape.
@@ -118,6 +120,7 @@ impl Shape {
     pub fn walls(self, pos: matrix::Pos) -> &'static [&'static wall::Wall] {
         dispatch!(self => walls(pos))
     }
+
     /// Converts a physical position to a matrix cell.
     ///
     /// # Arguments
@@ -198,7 +201,7 @@ impl Shape {
     }
 }
 
-impl std::convert::TryFrom<u32> for Shape {
+impl TryFrom<u32> for Shape {
     type Error = u32;
 
     /// Attempts to convert a number to a shape.

@@ -5,6 +5,7 @@ use maze::initialize;
 use crate::types::*;
 
 /// A full description of the break action.
+#[derive(Clone)]
 pub struct BreakPostProcessor {
     /// The heat map type.
     pub map_type: HeatMapType,
@@ -24,11 +25,10 @@ impl FromStr for BreakPostProcessor {
     /// 2. `map_type,count`: If a count is passed, it will be used as `count`.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
-        let map_type =
-            parts.next().map(HeatMapType::from_str).unwrap()?;
+        let map_type = parts.next().map(HeatMapType::from_str).unwrap()?;
 
         if let Some(part1) = parts.next() {
-            if let Ok(count) = usize::from_str_radix(part1, 10) {
+            if let Ok(count) = part1.parse() {
                 Ok(Self { map_type, count })
             } else {
                 Err(format!("invalid count: {}", part1))
@@ -41,7 +41,7 @@ impl FromStr for BreakPostProcessor {
 
 impl<R> PostProcessor<R> for BreakPostProcessor
 where
-    R: initialize::Randomizer + Sized,
+    R: initialize::Randomizer + Sized + Send + Sync,
 {
     /// Applies the break action.
     ///

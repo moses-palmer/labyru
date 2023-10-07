@@ -10,6 +10,7 @@ use maze_tools::image::Color;
 use crate::types::*;
 
 /// A background image.
+#[derive(Clone)]
 pub struct BackgroundRenderer {
     /// The background image.
     pub image: image::RgbImage,

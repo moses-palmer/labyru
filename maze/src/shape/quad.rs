@@ -126,11 +126,11 @@ pub fn back_index(wall: usize) -> usize {
 
 pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
     let (_, wall) = wall_pos;
-    Some(&walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()])
+    Some(walls::ALL[(wall.index + walls::ALL.len() / 2) % walls::ALL.len()])
 }
 
 pub fn walls(_pos: matrix::Pos) -> &'static [&'static wall::Wall] {
-    &WALLS
+    WALLS
 }
 
 pub fn cell_to_physical(pos: matrix::Pos) -> physical::Pos {
@@ -147,7 +147,7 @@ pub fn physical_to_cell(pos: physical::Pos) -> matrix::Pos {
     }
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_if))]
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_else_if))]
 pub fn physical_to_wall_pos(pos: physical::Pos) -> WallPos {
     let matrix_pos = physical_to_cell(pos);
     let center = cell_to_physical(matrix_pos);

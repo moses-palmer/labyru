@@ -94,7 +94,7 @@ impl Wall {
     /// # Arguments
     /// *  `angle` - The angle to normalise.
     pub fn normalized_angle(angle: f32) -> f32 {
-        if angle < TAU && angle >= 0.0 {
+        if (0.0..TAU).contains(&angle) {
             angle
         } else {
             let t = angle % TAU;
@@ -158,7 +158,7 @@ impl Ord for Wall {
 
 impl PartialOrd for Wall {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(&other))
+        Some(self.cmp(other))
     }
 }
 

@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use serde::Deserialize;
 
 /// Dimensions of a maze.
@@ -34,8 +32,6 @@ impl TryFrom<String> for Dimensions {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
-
     use super::*;
 
     #[test]

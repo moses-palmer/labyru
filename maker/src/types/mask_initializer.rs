@@ -11,9 +11,10 @@ use super::*;
 const D: f32 = 1.0 / 255.0 / 3.0;
 
 /// A masking image.
+#[derive(Clone)]
 pub struct MaskInitializer<R>
 where
-    R: initialize::Randomizer + Sized,
+    R: initialize::Randomizer + Sized + Send + Sync,
 {
     /// The mask image.
     pub image: image::RgbImage,
@@ -26,7 +27,7 @@ where
 
 impl<R> FromStr for MaskInitializer<R>
 where
-    R: initialize::Randomizer + Sized,
+    R: initialize::Randomizer + Sized + Send + Sync,
 {
     type Err = String;
 
@@ -61,7 +62,7 @@ where
 
 impl<R> Initializer<R> for MaskInitializer<R>
 where
-    R: initialize::Randomizer + Sized,
+    R: initialize::Randomizer + Sized + Send + Sync,
 {
     /// Applies the initialise action.
     ///

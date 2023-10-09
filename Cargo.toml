@@ -5,6 +5,7 @@ edition = "2021"
 
 [workspace.dependencies]
 actix-web = "4.4"
+bit-set = "0.5"
 clap = { version = "4.4", features = [ "cargo" ] }
 futures-util = "0.3"
 image = "0.24"

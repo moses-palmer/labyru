@@ -65,6 +65,42 @@ impl Default for Method {
     }
 }
 
+impl std::fmt::Display for Method {
+    /// The opposite of [std::str::FromStr].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use maze::initialize::*;
+    ///
+    /// assert_eq!(
+    ///     Method::Braid.to_string().parse::<Method>(),
+    ///     Ok(Method::Braid),
+    /// );
+    /// assert_eq!(
+    ///     Method::Branching.to_string().parse::<Method>(),
+    ///     Ok(Method::Branching),
+    /// );
+    /// assert_eq!(
+    ///     Method::Clear.to_string().parse::<Method>(),
+    ///     Ok(Method::Clear),
+    /// );
+    /// assert_eq!(
+    ///     Method::Winding.to_string().parse::<Method>(),
+    ///     Ok(Method::Winding),
+    /// );
+    /// ```
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Method::*;
+        match self {
+            Braid => write!(f, "braid"),
+            Clear => write!(f, "clear"),
+            Branching => write!(f, "branching"),
+            Winding => write!(f, "winding"),
+        }
+    }
+}
+
 impl str::FromStr for Method {
     type Err = String;
 

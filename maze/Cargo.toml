@@ -13,6 +13,15 @@ svg = { workspace = true, optional = true }
 
 [dev-dependencies]
 serde_json = { workspace = true }
+criterion = "0.5"
+
+[[bench]]
+name = "initialize"
+harness = false
+
+[[bench]]
+name = "walk"
+harness = false
 
 [features]
 default = ["rand", "serde", "svg"]

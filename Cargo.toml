@@ -24,3 +24,6 @@ members = [
     "tools",
     "web",
 ]
+
+[profile.bench]
+debug = true

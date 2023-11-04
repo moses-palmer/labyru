@@ -1,7 +1,8 @@
-use std::collections::{BTreeMap, BinaryHeap, HashMap, HashSet};
+use std::collections::BinaryHeap;
 
 use crate::matrix;
 
+use crate::matrix::Matrix;
 use crate::Maze;
 use crate::WallPos;
 
@@ -60,57 +61,47 @@ where
         let h = |pos: matrix::Pos| {
             let dx = (pos.col - end.col).abs();
             let dy = (pos.row - end.row).abs();
-            dx * dx + dy * dy
+            (dx * dx + dy * dy) as u32
         };
-
-        // The room positions already evaluated
-        let mut closed_set = HashSet::new();
 
         // The room positions pending evaluation and their cost
         let mut open_set = OpenSet::new();
-        open_set.push(std::isize::MAX, start);
+        open_set.push(u32::MAX, start);
 
-        // The cost from start to a room along the best known path
-        let mut g_score = HashMap::new();
-        g_score.insert(start, 0isize);
-
-        // The estimated cost from start to end through a room
-        let mut f_score = HashMap::new();
-        f_score.insert(start, h(start));
-
-        // The room from which we entered a room; when we reach the end, we use
-        // this to backtrack to the start
-        let mut came_from = BTreeMap::new();
+        let mut rooms = Matrix::<Room>::new(self.width(), self.height());
+        rooms[start].g = 0;
+        rooms[start].f = h(start);
 
         while let Some(current) = open_set.pop() {
             // Have we reached the target?
             if current == end {
-                return Some(Path::new(self, current, came_from));
+                return Some(Path::new(self, start, end, rooms));
             }
 
-            closed_set.insert(current);
+            rooms[current].visited = true;
             for wall in self.doors(current) {
                 // Find the next room, and continue if we have already evaluated
                 // it to a better distance, or it is outside of the maze
                 let (next, _) = self.back((current, wall));
                 if !self.is_inside(next)
-                    || (closed_set.contains(&next)
-                        && g_score[&next] <= g_score[&current] + 1)
+                    || (rooms[next].visited
+                        && rooms[next].g <= rooms[current].g + 1)
                 {
                     continue;
                 }
 
                 // The cost to get to this room is one more that the room from
                 // which we came
-                let g = g_score[&current] + 1;
+                let g = rooms[current].g + 1;
                 let f = g + h(next);
 
-                if !open_set.contains(current) || g < g_score[&current] {
-                    came_from.insert(next, current);
-                    g_score.insert(next, g);
-                    f_score.insert(next, f);
+                let current_in_open_set = open_set.contains(current);
+                if !current_in_open_set || g < rooms[current].g {
+                    rooms[next].g = g;
+                    rooms[next].f = f;
+                    rooms[next].came_from = Some(current);
 
-                    if !open_set.contains(current) {
+                    if !current_in_open_set {
                         open_set.push(f, next);
                     }
                 }
@@ -146,27 +137,38 @@ where
     /// The maze being walked.
     pub(crate) maze: &'a Maze<T>,
 
-    /// The starting position.
-    start: matrix::Pos,
+    /// The backing room matrix.
+    rooms: matrix::Matrix<Room>,
 
-    /// The backing map.
-    map: BTreeMap<matrix::Pos, matrix::Pos>,
+    /// The start position.
+    a: matrix::Pos,
+
+    /// The end position.
+    b: matrix::Pos,
 }
 
 impl<'a, T> Path<'a, T>
 where
     T: Clone,
 {
-    /// Stores the path from a starting position and a supporting map.
+    /// Stores a path in a maze.
     ///
-    /// It is possible to walk indefinitely if the mapping contains circular
-    /// references.
+    /// # Arguments
+    /// *  `maze` - The maze being walked.
+    /// *  `start` - The start position.
+    /// *  `rooms` - The backing room matrix.
     pub(self) fn new(
         maze: &'a Maze<T>,
         start: matrix::Pos,
-        map: BTreeMap<matrix::Pos, matrix::Pos>,
+        end: matrix::Pos,
+        rooms: matrix::Matrix<Room>,
     ) -> Self {
-        Path { maze, start, map }
+        Path {
+            maze,
+            rooms,
+            a: end,
+            b: start,
+        }
     }
 }
 
@@ -175,51 +177,71 @@ where
     T: Clone,
 {
     type Item = matrix::Pos;
-    type IntoIter = Walker<'a, T>;
+    type IntoIter = <Vec<matrix::Pos> as IntoIterator>::IntoIter;
 
+    /// Backtraces a path by following the `came_from` fields.
+    ///
+    /// To generate
+    ///
+    /// # Arguments
+    /// *  `start` - The starting position.
+    /// *  `end` - The end position.
+    ///
+    /// # Panics
+    /// If the backing room matrix is incomplete.
     fn into_iter(self) -> Self::IntoIter {
-        Walker {
-            path: self,
-            current: self.start,
-            increment: false,
+        let (a, b) = (self.a, self.b);
+        let mut result = Vec::with_capacity(self.rooms[a].f as usize);
+        result.push(a);
+
+        let mut current = a;
+        while current != b {
+            if let Some(next) = self.rooms[current].came_from {
+                result.push(next);
+                if current == b {
+                    break;
+                } else {
+                    current = next;
+                }
+            } else {
+                panic!("attempted to backtrace an incomplete path!");
+            }
         }
+
+        result.into_iter()
     }
 }
 
-pub struct Walker<'a, T>
-where
-    T: Clone,
-{
-    /// The actual path to walk.
-    path: &'a Path<'a, T>,
+/// A rooms description for the walk algorithm.
+#[derive(Clone, Debug)]
+struct Room {
+    /// The F score.
+    ///
+    ///This is the cost from start to a room along the best known path
+    f: u32,
 
-    /// The current position.
-    current: matrix::Pos,
+    /// The G score.
+    ///
+    /// This is the estimated cost from start to end through a room.
+    g: u32,
 
-    /// Whether `next` should return the next element. This will be false only
-    /// for the first call to `next`.
-    increment: bool,
+    /// Whether the rooms has been visited.
+    visited: bool,
+
+    /// The room from which we came.
+    ///
+    /// When the algorithm has competed, this will be the room on the shortest
+    /// path.
+    came_from: Option<matrix::Pos>,
 }
 
-impl<'a, T> Iterator for Walker<'a, T>
-where
-    T: Clone,
-{
-    type Item = matrix::Pos;
-
-    /// Yields the next room position.
-    fn next(&mut self) -> Option<matrix::Pos> {
-        if self.increment {
-            match self.path.map.get(&self.current) {
-                Some(next) => {
-                    self.current = *next;
-                    Some(*next)
-                }
-                None => None,
-            }
-        } else {
-            self.increment = true;
-            Some(self.current)
+impl Default for Room {
+    fn default() -> Self {
+        Room {
+            f: u32::MAX,
+            g: u32::MAX,
+            visited: false,
+            came_from: None,
         }
     }
 }
@@ -301,7 +323,7 @@ where
 }
 
 /// A room position with a priority.
-type PriorityPos = (isize, matrix::Pos);
+type PriorityPos = (u32, matrix::Pos);
 
 /// A set of rooms and priorities.
 ///
@@ -326,7 +348,7 @@ impl OpenSet {
     /// # Arguments
     /// *  priority` - The priority of the position.
     /// *  pos` - The position.
-    pub fn push(&mut self, priority: isize, pos: matrix::Pos) {
+    pub fn push(&mut self, priority: u32, pos: matrix::Pos) {
         self.heap.push((priority, pos));
     }
 
@@ -347,32 +369,20 @@ impl OpenSet {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeMap;
-
     use maze_test::maze_test;
 
     use super::*;
     use crate::test_utils::*;
 
     #[maze_test]
-    fn walk_empty(maze: TestMaze) {
-        let map = BTreeMap::new();
+    fn walk_single(maze: TestMaze) {
+        let map = Matrix::<Room>::new_with_data(10, 10, |_| Room {
+            f: 0,
+            ..Default::default()
+        });
 
         assert_eq!(
-            Path::new(&maze, matrix_pos(0, 0), map)
-                .into_iter()
-                .collect::<Vec<matrix::Pos>>(),
-            vec![matrix_pos(0, 0)]
-        );
-    }
-
-    #[maze_test]
-    fn walk_from_unknown(maze: TestMaze) {
-        let mut map = BTreeMap::new();
-        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
-
-        assert_eq!(
-            Path::new(&maze, matrix_pos(0, 0), map)
+            Path::new(&maze, matrix_pos(0, 0), matrix_pos(0, 0), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![matrix_pos(0, 0)]
@@ -381,13 +391,16 @@ mod tests {
 
     #[maze_test]
     fn walk_path(maze: TestMaze) {
-        let mut map = BTreeMap::new();
-        map.insert(matrix_pos(1, 1), matrix_pos(2, 2));
-        map.insert(matrix_pos(2, 2), matrix_pos(2, 3));
-        map.insert(matrix_pos(2, 3), matrix_pos(2, 4));
+        let mut map = Matrix::<Room>::new_with_data(10, 10, |_| Room {
+            f: 0,
+            ..Default::default()
+        });
+        map[matrix_pos(1, 1)].came_from = Some(matrix_pos(2, 2));
+        map[matrix_pos(2, 2)].came_from = Some(matrix_pos(2, 3));
+        map[matrix_pos(2, 3)].came_from = Some(matrix_pos(2, 4));
 
         assert_eq!(
-            Path::new(&maze, matrix_pos(1, 1), map)
+            Path::new(&maze, matrix_pos(2, 4), matrix_pos(1, 1), map)
                 .into_iter()
                 .collect::<Vec<matrix::Pos>>(),
             vec![
@@ -409,12 +422,12 @@ mod tests {
         let from = matrix_pos(0, 0);
         let to = matrix_pos(0, 0);
         let expected = vec![matrix_pos(0, 0)];
-        assert!(
+        assert_eq!(
             maze.walk(from, to)
                 .unwrap()
                 .into_iter()
-                .collect::<Vec<matrix::Pos>>()
-                == expected
+                .collect::<Vec<matrix::Pos>>(),
+            expected,
         );
     }
 
@@ -425,12 +438,12 @@ mod tests {
         let from = log.first().unwrap();
         let to = log.last().unwrap();
         let expected = vec![*from, *to];
-        assert!(
+        assert_eq!(
             maze.walk(*from, *to)
                 .unwrap()
                 .into_iter()
-                .collect::<Vec<matrix::Pos>>()
-                == expected
+                .collect::<Vec<matrix::Pos>>(),
+            expected,
         );
     }
 

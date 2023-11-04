@@ -1,5 +1,7 @@
 use std::collections::BinaryHeap;
 
+use bit_set::BitSet;
+
 use crate::matrix;
 
 use crate::matrix::Matrix;
@@ -65,8 +67,8 @@ where
         };
 
         // The room positions pending evaluation and their cost
-        let mut open_set = OpenSet::new();
-        open_set.push(u32::MAX, start);
+        let mut open_set = OpenSet::new(self.width(), self.height());
+        open_set.push(std::u32::MAX, start);
 
         let mut rooms = Matrix::<Room>::new(self.width(), self.height());
         rooms[start].g = 0;
@@ -331,15 +333,27 @@ type PriorityPos = (u32, matrix::Pos);
 /// position with the highest priority and querying whether a position is in the
 /// set.
 struct OpenSet {
+    /// The width of the set.
+    width: usize,
+
+    /// The height of the set.
+    height: usize,
+
     /// The heap containing prioritised positions.
     heap: BinaryHeap<PriorityPos>,
+
+    /// The positions present in the heap.
+    present: BitSet,
 }
 
 impl OpenSet {
     /// Creates a new open set.
-    pub fn new() -> OpenSet {
+    pub fn new(width: usize, height: usize) -> OpenSet {
         OpenSet {
+            width,
+            height,
             heap: BinaryHeap::new(),
+            present: BitSet::with_capacity(width * height),
         }
     }
 
@@ -349,12 +363,22 @@ impl OpenSet {
     /// *  priority` - The priority of the position.
     /// *  pos` - The position.
     pub fn push(&mut self, priority: u32, pos: matrix::Pos) {
-        self.heap.push((priority, pos));
+        if let Some(index) = self.index(pos) {
+            self.heap.push((priority, pos));
+            self.present.insert(index);
+        }
     }
 
     /// Pops the room with the highest priority.
     pub fn pop(&mut self) -> Option<matrix::Pos> {
-        self.heap.pop().map(|(_, pos)| pos)
+        if let Some(pos) = self.heap.pop().map(|(_, pos)| pos) {
+            if let Some(index) = self.index(pos) {
+                self.present.remove(index);
+            }
+            Some(pos)
+        } else {
+            None
+        }
     }
 
     /// Checks whether a position is in the set.
@@ -362,8 +386,27 @@ impl OpenSet {
     /// # Arguments
     /// *  `pos` - The position.
     pub fn contains(&mut self, pos: matrix::Pos) -> bool {
-        // TODO: Allow constant lookup time
-        self.heap.iter().any(|&priority_pos| pos == priority_pos.1)
+        self.index(pos)
+            .map(|i| self.present.contains(i))
+            .unwrap_or(false)
+    }
+
+    /// Calculates the index of a position.
+    ///
+    /// If the position is outside of this set, nothing is returned.
+    ///
+    /// # Arguments
+    /// *  `pos` - The position.
+    fn index(&self, pos: matrix::Pos) -> Option<usize> {
+        if pos.col >= 0
+            && pos.row >= 0
+            && pos.col < self.width as isize
+            && pos.row < self.height as isize
+        {
+            Some(pos.col as usize + pos.row as usize * self.width)
+        } else {
+            None
+        }
     }
 }
 
@@ -470,14 +513,14 @@ mod tests {
 
     #[test]
     fn pop_empty() {
-        let mut os = OpenSet::new();
+        let mut os = OpenSet::new(10, 10);
 
         assert!(os.pop().is_none());
     }
 
     #[test]
     fn pop_nonempty() {
-        let mut os = OpenSet::new();
+        let mut os = OpenSet::new(10, 10);
 
         os.push(0, matrix_pos(0, 0));
         assert!(os.pop().is_some());
@@ -485,7 +528,7 @@ mod tests {
 
     #[test]
     fn pop_correct() {
-        let mut os = OpenSet::new();
+        let mut os = OpenSet::new(10, 10);
         let expected = (10, matrix_pos(1, 2));
 
         os.push(0, matrix_pos(3, 4));
@@ -496,7 +539,7 @@ mod tests {
 
     #[test]
     fn contains_same() {
-        let mut os = OpenSet::new();
+        let mut os = OpenSet::new(10, 10);
         let expected = (10, matrix_pos(1, 2));
 
         assert!(!os.contains(expected.1));

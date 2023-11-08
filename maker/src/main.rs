@@ -58,10 +58,6 @@ struct Arguments {
     #[arg(id = "MARGIN", long = "margin", default_value_t = 10.0)]
     margin: f32,
 
-    /// Whether to solve the maze.
-    #[arg(long = "solve")]
-    solve: bool,
-
     /// A mask image to determine which rooms are part of the mask and
     /// thenshold luminosity value between 0 and 1 on the form "path,0.5".
     #[arg(id = "INITIALIZE", long = "mask")]
@@ -87,6 +83,16 @@ struct Arguments {
     /// A text to draw on the maze.
     #[arg(id = "TEXT", long = "text")]
     render_text: Option<TextRenderer>,
+
+    /// Whether to solve the maze, and the solution colour. If not specified,
+    /// the colour defaults to "black".
+    #[arg(
+        id = "SOLVE",
+        long = "solve",
+        default_missing_value = "black",
+        conflicts_with_all(["INITIALIZE"]),
+    )]
+    render_solve: Option<SolveRenderer>,
 
     /// Whether to break the maze.
     #[arg(long = "break")]
@@ -191,11 +197,7 @@ fn main() {
             &args.render_background,
             &args.render_text,
             &args.render_heatmap,
-            &if args.solve {
-                Some(SolveRenderer)
-            } else {
-                None
-            },
+            &args.render_solve,
         ],
         &args.output,
     );

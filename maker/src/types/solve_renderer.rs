@@ -5,7 +5,22 @@ use svg::Node;
 use crate::types::*;
 
 /// The maze solution.
-pub struct SolveRenderer;
+#[derive(Clone)]
+pub struct SolveRenderer {
+    /// The colour of the solution marker.
+    color: String,
+}
+
+impl FromStr for SolveRenderer {
+    type Err = String;
+
+    /// Converts a string to a string to render.
+    ///
+    /// The string must be a path.
+    fn from_str(s: &str) -> Result<Self, String> {
+        Ok(Self { color: s.into() })
+    }
+}
 
 impl Renderer for SolveRenderer {
     /// Renders the maze solution.
@@ -17,7 +32,7 @@ impl Renderer for SolveRenderer {
         group.append(
             svg::node::element::Path::new()
                 .set("fill", "none")
-                .set("stroke", "black")
+                .set("stroke", self.color.as_str())
                 .set("stroke-linecap", "round")
                 .set("stroke-linejoin", "round")
                 .set("stroke-width", 0.4)

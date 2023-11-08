@@ -86,7 +86,7 @@ fn main() {
         .arg(
             Arg::new("METHOD")
                 .long("method")
-                .value_parser(value_parser!(Methods<rand::rngs::OsRng>))
+                .value_parser(value_parser!(Methods<types::Random>))
                 .help("The initialisation method to use."),
         )
         .arg(
@@ -133,7 +133,7 @@ fn main() {
         .arg(
             Arg::new("MASK")
                 .long("mask")
-                .value_parser(value_parser!(MaskInitializer<rand::rngs::OsRng>))
+                .value_parser(value_parser!(MaskInitializer<types::Random>))
                 .help("A background image to colour rooms."),
         )
         .arg(
@@ -142,6 +142,12 @@ fn main() {
                 .help("A ratio for pixels per room when using a background.")
                 .conflicts_with_all(["WIDTH", "HEIGHT"])
                 .requires("BACKGROUND"),
+        )
+        .arg(
+            Arg::new("SEED")
+                .long("seed")
+                .value_parser(value_parser!(u64))
+                .help("A seed for the random number generator."),
         )
         .get_matches();
 
@@ -197,8 +203,12 @@ fn main() {
 
     let output = args.remove_one::<String>("OUTPUT").unwrap();
 
+    let mut rng = args
+        .remove_one::<u64>("SEED")
+        .map(types::Random::from_seed)
+        .unwrap_or_else(types::Random::from_os);
+
     // Make sure the maze is initialised
-    let mut rng = rand::rngs::OsRng;
     let maze = {
         let mut maze = mask_initializer.initialize(
             shape.create(width, height),

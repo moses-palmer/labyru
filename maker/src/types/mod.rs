@@ -258,6 +258,49 @@ impl HeatMapType {
     }
 }
 
+/// A source of random values.
+#[derive(Clone)]
+pub enum Random {
+    /// A source of random values from the operating system.
+    OSRandom,
+
+    /// A source of random values from an LFSR.
+    LFSR(initialize::LFSR),
+}
+
+impl Random {
+    /// Creates a source of random values from the operating system.
+    pub fn from_os() -> Self {
+        Self::OSRandom
+    }
+
+    /// Creates a source of random values from an LFSR.
+    ///
+    /// # Arguments
+    /// *  `seed` The LFST seed.
+    pub fn from_seed(seed: u64) -> Self {
+        Self::LFSR(seed.into())
+    }
+}
+
+impl initialize::Randomizer for Random {
+    fn range(&mut self, a: usize, b: usize) -> usize {
+        use Random::*;
+        match self {
+            OSRandom => rand::rngs::OsRng.range(a, b),
+            LFSR(lfsr) => lfsr.range(a, b),
+        }
+    }
+
+    fn random(&mut self) -> f64 {
+        use Random::*;
+        match self {
+            OSRandom => rand::rngs::OsRng.random(),
+            LFSR(lfsr) => lfsr.random(),
+        }
+    }
+}
+
 /// Draws all rooms of a maze.
 ///
 /// # Arguments

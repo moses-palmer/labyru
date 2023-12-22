@@ -42,7 +42,17 @@ struct Arguments {
     )]
     height: Option<usize>,
 
-    /// The initialisation method to use.
+    /// The initialisation methods to use.
+    ///
+    /// This is a comma separated list of the following values:
+    ///
+    /// braid: A maze containing loops.
+    ///
+    /// branching: A maze the frequently branches.
+    ///
+    /// winding: A maze with long corridors.
+    ///
+    /// clear: A clear area.
     #[arg(id = "METHOD", long = "method", required(true))]
     methods: Methods<Random>,
 

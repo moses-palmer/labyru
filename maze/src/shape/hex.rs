@@ -654,6 +654,15 @@ mod tests {
         );
     }
 
+    #[maze_test(tri)]
+    fn follow_no_wall(mut maze: TestMaze) {
+        let log = Navigator::new(&mut maze).right(true).stop();
+
+        let start_pos = (*log.first().unwrap(), &walls::RIGHT1);
+        let expected = vec![];
+        assert_eq!(maze.follow_wall(start_pos).collect::<Vec<_>>(), expected);
+    }
+
     #[maze_test(hex)]
     fn follow_wall_single_room(maze: TestMaze) {
         assert_eq!(

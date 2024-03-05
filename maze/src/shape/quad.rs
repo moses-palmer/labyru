@@ -266,6 +266,15 @@ mod tests {
     }
 
     #[maze_test(quad)]
+    fn follow_no_wall(mut maze: TestMaze) {
+        let log = Navigator::new(&mut maze).down(true).stop();
+
+        let start_pos = (*log.first().unwrap(), &walls::DOWN);
+        let expected = vec![];
+        assert_eq!(maze.follow_wall(start_pos).collect::<Vec<_>>(), expected);
+    }
+
+    #[maze_test(quad)]
     fn follow_wall_single_room(maze: TestMaze) {
         assert_eq!(
             vec![

@@ -118,6 +118,9 @@ where
     /// This method will follow a wall without passing through any walls. When
     /// the starting wall is encountered, no more walls will be returned.
     ///
+    /// If the starting position is an open wall, the iterator will contain no
+    /// elements.
+    ///
     /// # Arguments
     /// *  `wall_pos` - The starting wall position.
     pub fn follow_wall(
@@ -275,7 +278,7 @@ where
             maze,
             start_pos,
             current: start_pos,
-            finished: false,
+            finished: maze.is_open(start_pos),
         }
     }
 

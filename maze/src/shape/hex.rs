@@ -545,7 +545,7 @@ mod tests {
     #[maze_test(hex)]
     fn corner_walls(maze: TestMaze) {
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 2), &walls::LEFT0))
+            maze.corner_walls_start((matrix_pos(1, 2), &walls::LEFT0))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 2), &walls::LEFT0),
@@ -554,7 +554,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 1), &walls::LEFT1))
+            maze.corner_walls_start((matrix_pos(1, 1), &walls::LEFT1))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 1), &walls::LEFT1),
@@ -563,7 +563,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 2), &walls::UP_LEFT0))
+            maze.corner_walls_start((matrix_pos(1, 2), &walls::UP_LEFT0))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 2), &walls::UP_LEFT0),
@@ -572,7 +572,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 1), &walls::UP_LEFT1))
+            maze.corner_walls_start((matrix_pos(1, 1), &walls::UP_LEFT1))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 1), &walls::UP_LEFT1),
@@ -581,7 +581,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 2), &walls::UP_RIGHT0))
+            maze.corner_walls_start((matrix_pos(1, 2), &walls::UP_RIGHT0))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 2), &walls::UP_RIGHT0),
@@ -590,7 +590,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 1), &walls::UP_RIGHT1))
+            maze.corner_walls_start((matrix_pos(1, 1), &walls::UP_RIGHT1))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 1), &walls::UP_RIGHT1),
@@ -599,7 +599,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 2), &walls::RIGHT0))
+            maze.corner_walls_start((matrix_pos(1, 2), &walls::RIGHT0))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 2), &walls::RIGHT0),
@@ -608,7 +608,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 1), &walls::RIGHT1))
+            maze.corner_walls_start((matrix_pos(1, 1), &walls::RIGHT1))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 1), &walls::RIGHT1),
@@ -617,7 +617,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 2), &walls::DOWN_RIGHT0))
+            maze.corner_walls_start((matrix_pos(1, 2), &walls::DOWN_RIGHT0))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 2), &walls::DOWN_RIGHT0),
@@ -626,7 +626,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 1), &walls::DOWN_RIGHT1))
+            maze.corner_walls_start((matrix_pos(1, 1), &walls::DOWN_RIGHT1))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 1), &walls::DOWN_RIGHT1),
@@ -635,7 +635,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 2), &walls::DOWN_LEFT0))
+            maze.corner_walls_start((matrix_pos(1, 2), &walls::DOWN_LEFT0))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 2), &walls::DOWN_LEFT0),
@@ -644,7 +644,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            maze.corner_walls((matrix_pos(1, 1), &walls::DOWN_LEFT1))
+            maze.corner_walls_start((matrix_pos(1, 1), &walls::DOWN_LEFT1))
                 .collect::<Vec<_>>(),
             vec![
                 (matrix_pos(1, 1), &walls::DOWN_LEFT1),

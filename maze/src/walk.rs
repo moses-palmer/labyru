@@ -295,7 +295,7 @@ where
     /// *  `wall_pos`- The wall position for which to retrieve a room.
     fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
         self.maze
-            .corner_walls((wall_pos.0, wall_pos.1.next))
+            .corner_walls_start((wall_pos.0, wall_pos.1.next))
             .find(|&next| !self.maze.is_open(next))
             .unwrap_or_else(|| self.maze.back(wall_pos))
     }

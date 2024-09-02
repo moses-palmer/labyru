@@ -94,7 +94,7 @@ impl ops::Add for Pos {
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
-    fn add(self, other: Self) -> Self {
+    fn add(self, other: Self) -> Self::Output {
         Self {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -121,11 +121,86 @@ impl ops::Sub for Pos {
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
-    fn sub(self, other: Self) -> Self {
+    fn sub(self, other: Self) -> Self::Output {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
         }
+    }
+}
+
+impl ops::Mul<f32> for Pos {
+    type Output = Self;
+
+    /// Multiplies the axis values of a position.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     Pos { x: 1.0, y: 2.5 } * 2.0,
+    ///     Pos { x: 2.0, y: 5.0 },
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `other` - The multiplication factor.
+    #[inline]
+    fn mul(self, other: f32) -> Self::Output {
+        Self {
+            x: other * self.x,
+            y: other * self.y,
+        }
+    }
+}
+
+impl ops::Mul<Pos> for f32 {
+    type Output = Pos;
+
+    /// Multiplies the axis values of a position.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     2.0 * Pos { x: 1.0, y: 2.5 },
+    ///     Pos { x: 2.0, y: 5.0 },
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `other` - The multiplication factor.
+    #[inline]
+    fn mul(self, other: Pos) -> Self::Output {
+        other * self
+    }
+}
+
+impl ops::Div<f32> for Pos {
+    type Output = Self;
+
+    /// Divides the axis values of a position.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use maze::physical::*;
+    ///
+    /// assert_eq!(
+    ///     Pos { x: 1.0, y: 3.0 } / 2.0,
+    ///     Pos { x: 0.5, y: 1.5 },
+    /// );
+    /// ```
+    ///
+    /// # Arguments
+    /// *  `other` - The divisor.
+    #[inline]
+    fn div(self, other: f32) -> Self::Output {
+        self * (1.0 / other)
     }
 }
 
@@ -151,7 +226,7 @@ impl ops::Add<Angle> for Pos {
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
-    fn add(self, other: Angle) -> Self {
+    fn add(self, other: Angle) -> Self::Output {
         Self {
             x: self.x + other.dx,
             y: self.y + other.dy,

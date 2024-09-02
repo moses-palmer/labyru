@@ -374,6 +374,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::iter::once;
+
     use maze_test::maze_test;
 
     use super::test_utils::*;
@@ -483,14 +485,35 @@ mod tests {
     }
 
     #[maze_test]
+    fn corner_wall_sequence(maze: TestMaze) {
+        for wall in maze.shape.all_walls() {
+            let mut followed = vec![*wall];
+            loop {
+                let current = followed.last().unwrap();
+                let next = current.corner_wall_offsets.first().unwrap().wall;
+                if next == *wall {
+                    break;
+                } else {
+                    followed.push(next);
+                }
+            }
+            assert_eq!(
+                followed,
+                once(*wall)
+                    .chain(wall.corner_wall_offsets.iter().map(|o| o.wall))
+                    .collect::<Vec<_>>()
+            );
+        }
+    }
+
+    #[maze_test]
     fn corner_walls(maze: TestMaze) {
         for pos in maze.positions() {
-            for wall in maze.walls(pos) {
-                let wall_pos = (pos, *wall);
+            for wall_pos in maze.wall_positions(pos) {
                 let (center, _) = maze.corners(wall_pos);
                 for corner_wall in maze.corner_walls(wall_pos) {
-                    let (start, end) = maze.corners(corner_wall);
-                    assert!(is_close(start, center) || is_close(end, center));
+                    let (corner, _) = maze.corners(corner_wall);
+                    assert!(is_close(corner, center));
                 }
             }
         }

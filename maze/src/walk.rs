@@ -118,6 +118,9 @@ where
     /// This method will follow a wall without passing through any walls. When
     /// the starting wall is encountered, no more walls will be returned.
     ///
+    /// The direction of walking along a wall is from the point where its span
+    /// starts to where it ends.
+    ///
     /// If the starting position is an open wall, the iterator will contain no
     /// elements.
     ///
@@ -512,6 +515,21 @@ mod tests {
                 .len()
                 <= log.len()
         );
+    }
+
+    #[maze_test]
+    fn follow_wall_order(maze: TestMaze) {
+        let start =
+            maze.wall_positions((0isize, 0isize).into()).next().unwrap();
+
+        for (a, b) in maze.follow_wall(start) {
+            if let Some(b) = b {
+                assert!(is_close(
+                    maze.center(a.0) + a.1.span.1,
+                    maze.center(b.0) + b.1.span.0,
+                ));
+            }
+        }
     }
 
     #[test]

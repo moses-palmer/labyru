@@ -247,6 +247,15 @@ where
         (center + wall_pos.1.span.0, center + wall_pos.1.span.1)
     }
 
+    /// See [`Self::corner_walls_start`].
+    #[deprecated]
+    pub fn corner_walls(
+        &self,
+        wall_pos: WallPos,
+    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
+        self.corner_walls_start(wall_pos)
+    }
+
     /// All walls that meet in the corner where a wall has its start span.
     ///
     /// The walls are visited in counter-clockwise order. Only one side of each
@@ -257,7 +266,7 @@ where
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
-    pub fn corner_walls(
+    pub fn corner_walls_start(
         &self,
         wall_pos: WallPos,
     ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
@@ -273,6 +282,37 @@ where
                 )
             },
         ))
+    }
+
+    /// All walls that meet in the corner where a wall has its end span.
+    ///
+    /// The walls are visited in clockwise order. Only one side of each wall
+    /// will be visited. Each consecutive wall will be in a room different from
+    /// the previous one.
+    ///
+    /// This method will visit rooms outside of the maze for rooms on the edge.
+    ///
+    /// # Arguments
+    /// *  `wall_pos` - The wall position.
+    pub fn corner_walls_end(
+        &self,
+        wall_pos: WallPos,
+    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
+        let shape = self.shape;
+        let (matrix::Pos { col, row }, wall) = shape.back(wall_pos);
+        std::iter::once(wall_pos).chain(
+            wall.corner_wall_offsets.iter().rev().map(
+                move |&wall::Offset { dx, dy, wall }| {
+                    shape.back((
+                        matrix::Pos {
+                            col: col + dx,
+                            row: row + dy,
+                        },
+                        wall,
+                    ))
+                },
+            ),
+        )
     }
 
     /// Iterates over all wall positions of a room.
@@ -507,12 +547,25 @@ mod tests {
     }
 
     #[maze_test]
-    fn corner_walls(maze: TestMaze) {
+    fn corner_walls_start(maze: TestMaze) {
         for pos in maze.positions() {
             for wall_pos in maze.wall_positions(pos) {
                 let (center, _) = maze.corners(wall_pos);
-                for corner_wall in maze.corner_walls(wall_pos) {
+                for corner_wall in maze.corner_walls_start(wall_pos) {
                     let (corner, _) = maze.corners(corner_wall);
+                    assert!(is_close(corner, center));
+                }
+            }
+        }
+    }
+
+    #[maze_test]
+    fn corner_walls_end(maze: TestMaze) {
+        for pos in maze.positions() {
+            for wall_pos in maze.wall_positions(pos) {
+                let (_, center) = maze.corners(wall_pos);
+                for corner_wall in maze.corner_walls_end(wall_pos) {
+                    let (_, corner) = maze.corners(corner_wall);
                     assert!(is_close(corner, center));
                 }
             }

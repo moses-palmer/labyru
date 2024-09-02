@@ -94,7 +94,7 @@ impl ops::Add for Pos {
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
-    fn add(self, other: Self) -> Self {
+    fn add(self, other: Self) -> Self::Output {
         Self {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -121,7 +121,7 @@ impl ops::Sub for Pos {
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
-    fn sub(self, other: Self) -> Self {
+    fn sub(self, other: Self) -> Self::Output {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -151,7 +151,7 @@ impl ops::Add<Angle> for Pos {
     ///
     /// # Arguments
     /// *  `other` - The other position to add.
-    fn add(self, other: Angle) -> Self {
+    fn add(self, other: Angle) -> Self::Output {
         Self {
             x: self.x + other.dx,
             y: self.y + other.dy,

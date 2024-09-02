@@ -118,7 +118,7 @@ define_shape! {
     UP_LEFT0(1) = {
         corner_wall_offsets: &[
             Offset { dx: 0, dy: -1, wall: &DOWN_LEFT1 },
-            Offset { dx: -1, dy: 0, wall: &UP_RIGHT0 },
+            Offset { dx: -1, dy: 0, wall: &RIGHT0 },
         ],
         dir: (0, -1),
         span: (
@@ -568,7 +568,7 @@ mod tests {
             vec![
                 (matrix_pos(1, 2), &walls::UP_LEFT0),
                 (matrix_pos(1, 1), &walls::DOWN_LEFT1),
-                (matrix_pos(0, 2), &walls::UP_RIGHT0),
+                (matrix_pos(0, 2), &walls::RIGHT0),
             ],
         );
         assert_eq!(

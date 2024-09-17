@@ -59,19 +59,23 @@ where
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
+        // Assume that the distance between the centres of adjacent rooms is
+        // consistent
+        let distance = (self.center((0isize, 0isize).into())
+            - self.center((0isize, 1isize).into()))
+        .value();
+
         // The heuristic for a room position
-        let h = |pos: matrix::Pos| {
-            let dx = (pos.col - end.col).abs();
-            let dy = (pos.row - end.row).abs();
-            (dx * dx + dy * dy) as u32
-        };
+        let target = self.center(end);
+        let h =
+            |pos: matrix::Pos| Priority((target - self.center(pos)).value());
 
         // The room positions pending evaluation and their cost
         let mut open_set = OpenSet::new(self.width(), self.height());
-        open_set.push(std::u32::MAX, start);
+        open_set.push(Priority(std::f32::MAX), start);
 
         let mut rooms = Matrix::<Room>::new(self.width(), self.height());
-        rooms[start].g = 0;
+        rooms[start].g = Priority(0.0);
         rooms[start].f = h(start);
 
         while let Some(current) = open_set.pop() {
@@ -87,18 +91,18 @@ where
                 let (next, _) = self.back((current, wall));
                 if !self.is_inside(next)
                     || (rooms[next].visited
-                        && rooms[next].g <= rooms[current].g + 1)
+                        && rooms[next].g > rooms[current].g + distance)
                 {
                     continue;
                 }
 
                 // The cost to get to this room is one more that the room from
                 // which we came
-                let g = rooms[current].g + 1;
+                let g = rooms[current].g + distance;
                 let f = g + h(next);
 
                 let current_in_open_set = open_set.contains(current);
-                if !current_in_open_set || g < rooms[current].g {
+                if !current_in_open_set || g >= rooms[current].g {
                     rooms[next].g = g;
                     rooms[next].f = f;
                     rooms[next].came_from = Some(current);
@@ -199,7 +203,7 @@ where
     /// If the backing room matrix is incomplete.
     fn into_iter(self) -> Self::IntoIter {
         let (a, b) = (self.a, self.b);
-        let mut result = Vec::with_capacity(self.rooms[a].f as usize);
+        let mut result = Vec::new();
         result.push(a);
 
         let mut current = a;
@@ -221,17 +225,17 @@ where
 }
 
 /// A rooms description for the walk algorithm.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 struct Room {
     /// The F score.
     ///
     ///This is the cost from start to a room along the best known path
-    f: u32,
+    f: Priority,
 
     /// The G score.
     ///
     /// This is the estimated cost from start to end through a room.
-    g: u32,
+    g: Priority,
 
     /// Whether the rooms has been visited.
     visited: bool,
@@ -246,8 +250,8 @@ struct Room {
 impl Default for Room {
     fn default() -> Self {
         Room {
-            f: u32::MAX,
-            g: u32::MAX,
+            f: Priority(f32::MAX),
+            g: Priority(f32::MAX),
             visited: false,
             came_from: None,
         }
@@ -330,8 +334,56 @@ where
     }
 }
 
+/// A priority in an open set.
+#[derive(Clone, Copy)]
+struct Priority(f32);
+
+impl ::std::cmp::PartialEq for Priority {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl ::std::cmp::Eq for Priority {}
+
+impl ::std::cmp::PartialOrd for Priority {
+    /// Compares priorities.
+    ///
+    /// Note that this operation is the inverse of comparing the wrapped `f32`
+    /// values.
+    ///
+    /// # Arguments
+    /// *  `other` - The other value.
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        other.0.partial_cmp(&self.0)
+        //self.0.partial_cmp(&other.0)
+    }
+}
+
+impl ::std::cmp::Ord for Priority {
+    fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
+        self.partial_cmp(&other).expect("comparable priorities")
+    }
+}
+
+impl ::std::ops::Add<f32> for Priority {
+    type Output = Self;
+
+    fn add(self, rhs: f32) -> Self::Output {
+        Self(self.0 + rhs)
+    }
+}
+
+impl ::std::ops::Add<Priority> for Priority {
+    type Output = Self;
+
+    fn add(self, rhs: Priority) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
 /// A room position with a priority.
-type PriorityPos = (u32, matrix::Pos);
+type PriorityPos = (Priority, matrix::Pos);
 
 /// A set of rooms and priorities.
 ///
@@ -368,7 +420,7 @@ impl OpenSet {
     /// # Arguments
     /// *  priority` - The priority of the position.
     /// *  pos` - The position.
-    pub fn push(&mut self, priority: u32, pos: matrix::Pos) {
+    pub fn push(&mut self, priority: Priority, pos: matrix::Pos) {
         if let Some(index) = self.index(pos) {
             self.heap.push((priority, pos));
             self.present.insert(index);
@@ -426,7 +478,7 @@ mod tests {
     #[maze_test]
     fn walk_single(maze: TestMaze) {
         let map = Matrix::<Room>::new_with_data(10, 10, |_| Room {
-            f: 0,
+            f: Priority(0.0),
             ..Default::default()
         });
 
@@ -441,7 +493,7 @@ mod tests {
     #[maze_test]
     fn walk_path(maze: TestMaze) {
         let mut map = Matrix::<Room>::new_with_data(10, 10, |_| Room {
-            f: 0,
+            f: Priority(0.0),
             ..Default::default()
         });
         map[matrix_pos(1, 1)].came_from = Some(matrix_pos(2, 2));
@@ -543,32 +595,36 @@ mod tests {
     fn pop_nonempty() {
         let mut os = OpenSet::new(10, 10);
 
-        os.push(0, matrix_pos(0, 0));
+        os.push(Priority(0.0), matrix_pos(0, 0));
         assert!(os.pop().is_some());
     }
 
     #[test]
     fn pop_correct() {
         let mut os = OpenSet::new(10, 10);
-        let expected = (10, matrix_pos(1, 2));
+        let expected = (Priority(0.0), matrix_pos(1, 2));
 
-        os.push(0, matrix_pos(3, 4));
         os.push(expected.0, expected.1);
-        os.push(5, matrix_pos(5, 6));
+        os.push(Priority(5.0), matrix_pos(5, 6));
+        os.push(Priority(10.0), matrix_pos(3, 4));
         assert_eq!(os.pop(), Some(expected.1));
     }
 
     #[test]
     fn contains_same() {
         let mut os = OpenSet::new(10, 10);
-        let expected = (10, matrix_pos(1, 2));
+        let expected = (Priority(10.0), matrix_pos(1, 2));
 
         assert!(!os.contains(expected.1));
-        os.push(0, matrix_pos(3, 4));
+        os.push(Priority(0.0), matrix_pos(3, 4));
         assert!(!os.contains(expected.1));
         os.push(expected.0, expected.1);
         assert!(os.contains(expected.1));
-        os.push(5, matrix_pos(5, 6));
+        os.push(Priority(5.0), matrix_pos(5, 6));
+        assert!(os.contains(expected.1));
+        os.pop();
+        assert!(os.contains(expected.1));
+        os.pop();
         assert!(os.contains(expected.1));
         os.pop();
         assert!(!os.contains(expected.1));

@@ -18,6 +18,7 @@ serde_urlencoded = "0.7"
 svg = "0.17"
 
 [workspace]
+resolver = "2"
 members = [
     "maze",
     "maker",

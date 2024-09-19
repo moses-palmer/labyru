@@ -5,7 +5,6 @@
 
 use std::iter;
 use std::str;
-use std::u64;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

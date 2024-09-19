@@ -72,7 +72,7 @@ where
 
         // The room positions pending evaluation and their cost
         let mut open_set = OpenSet::new(self.width(), self.height());
-        open_set.push(Priority(std::f32::MAX), start);
+        open_set.push(Priority(f32::MAX), start);
 
         let mut rooms = Matrix::<Room>::new(self.width(), self.height());
         rooms[start].g = Priority(0.0);

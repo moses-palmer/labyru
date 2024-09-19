@@ -5,7 +5,7 @@ edition = "2021"
 
 [workspace.dependencies]
 actix-web = "4.9"
-bit-set = "0.5"
+bit-set = "0.8"
 clap = { version = "4.5", features = [ "cargo", "derive" ] }
 futures-util = "0.3"
 image = "0.25"
@@ -18,6 +18,7 @@ serde_urlencoded = "0.7"
 svg = "0.17"
 
 [workspace]
+resolver = "2"
 members = [
     "maze",
     "maker",

@@ -637,9 +637,7 @@ mod tests {
                     pos,
                     maze.walls(pos)
                         .iter()
-                        .cloned()
-                        .filter(|wall| wall.in_span(a))
-                        .next()
+                        .cloned().find(|wall| wall.in_span(a))
                         .unwrap(),
                 );
                 for r in &[0.1, 0.3, 0.5] {

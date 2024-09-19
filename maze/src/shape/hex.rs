@@ -394,7 +394,7 @@ pub fn physical_to_cell(pos: physical::Pos) -> matrix::Pos {
     }
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(clippy::collapsible_else_if))]
+#[allow(clippy::collapsible_else_if)]
 pub fn physical_to_wall_pos(pos: physical::Pos) -> WallPos {
     let matrix_pos = physical_to_cell(pos);
     let odd_row = matrix_pos.row & 1 == 1;

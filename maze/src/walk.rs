@@ -362,7 +362,7 @@ impl ::std::cmp::PartialOrd for Priority {
 
 impl ::std::cmp::Ord for Priority {
     fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
-        self.partial_cmp(&other).expect("comparable priorities")
+        self.partial_cmp(other).expect("comparable priorities")
     }
 }
 

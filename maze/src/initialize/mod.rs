@@ -529,7 +529,7 @@ mod tests {
                 let maze = maze.clone().initialize_filter(
                     *method,
                     &mut rand::thread_rng(),
-                    &filter,
+                    filter,
                 );
 
                 for pos in maze.positions() {
@@ -551,7 +551,7 @@ mod tests {
                 let maze = maze.clone().initialize_filter(
                     *method,
                     &mut rand::thread_rng(),
-                    &filter,
+                    filter,
                 );
 
                 for pos in maze.positions() {

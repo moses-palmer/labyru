@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
+#![deny(clippy::all)]
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -252,7 +252,7 @@ where
     pub fn corner_walls(
         &self,
         wall_pos: WallPos,
-    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
+    ) -> impl DoubleEndedIterator<Item = WallPos> {
         self.corner_walls_start(wall_pos)
     }
 
@@ -269,7 +269,7 @@ where
     pub fn corner_walls_start(
         &self,
         wall_pos: WallPos,
-    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
+    ) -> impl DoubleEndedIterator<Item = WallPos> {
         let (matrix::Pos { col, row }, wall) = wall_pos;
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
             move |&wall::Offset { dx, dy, wall }| {
@@ -297,7 +297,7 @@ where
     pub fn corner_walls_end(
         &self,
         wall_pos: WallPos,
-    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator {
+    ) -> impl DoubleEndedIterator<Item = WallPos> {
         let shape = self.shape;
         let (matrix::Pos { col, row }, wall) = shape.back(wall_pos);
         std::iter::once(wall_pos).chain(
@@ -322,7 +322,7 @@ where
     pub fn wall_positions(
         &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = WallPos> + DoubleEndedIterator + '_ {
+    ) -> impl DoubleEndedIterator<Item = WallPos> + '_ {
         self.walls(pos).iter().map(move |&wall| (pos, wall))
     }
 
@@ -333,7 +333,7 @@ where
     pub fn doors(
         &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = &'static wall::Wall> + DoubleEndedIterator + '_
+    ) -> impl DoubleEndedIterator<Item = &'static wall::Wall> + '_
     {
         self.walls(pos)
             .iter()
@@ -350,7 +350,7 @@ where
     pub fn adjacent(
         &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + '_ {
+    ) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
         self.walls(pos).iter().map(move |&wall| matrix::Pos {
             col: pos.col + wall.dir.0,
             row: pos.row + wall.dir.1,
@@ -367,7 +367,7 @@ where
     pub fn neighbors(
         &self,
         pos: matrix::Pos,
-    ) -> impl Iterator<Item = matrix::Pos> + DoubleEndedIterator + '_ {
+    ) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
         self.doors(pos).map(move |wall| self.back((pos, wall)).0)
     }
 }
@@ -582,8 +582,7 @@ mod tests {
         let walls = maze
             .walls(pos)
             .iter()
-            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
-            .map(|&wall| wall)
+            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0)).copied()
             .collect::<Vec<_>>();
         walls.iter().for_each(|wall| maze.open((pos, wall)));
         assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
@@ -595,7 +594,7 @@ mod tests {
             for pos2 in maze.positions() {
                 assert!(
                     maze.connecting_wall(pos1, pos2).is_some()
-                        == maze.adjacent(pos1).find(|&p| pos2 == p).is_some()
+                        == maze.adjacent(pos1).any(|p| pos2 == p)
                 );
             }
         }

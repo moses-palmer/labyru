@@ -437,7 +437,7 @@ where
                     })
                 })
                 .for_each(|(k, v)| {
-                    acc.entry(k).or_insert_with(BTreeSet::new).insert(v);
+                    acc.entry(k).or_default().insert(v);
                 });
             acc
         })
@@ -828,7 +828,7 @@ mod test {
             )]
             .iter()
             .map(|(areas, positions)| (
-                areas.clone(),
+                *areas,
                 positions
                     .iter()
                     .cloned()
@@ -870,7 +870,7 @@ mod test {
             ]
             .iter()
             .map(|(areas, positions)| (
-                areas.clone(),
+                *areas,
                 positions
                     .iter()
                     .cloned()
@@ -906,7 +906,7 @@ mod test {
             ),]
             .iter()
             .map(|(areas, positions)| (
-                areas.clone(),
+                *areas,
                 positions
                     .iter()
                     .cloned()
@@ -985,7 +985,7 @@ mod test {
         });
         let count = 1;
         let filled = matrix
-            .fill(Pos { col: 0, row: 0 }.into(), 1, |_| [].iter().cloned());
+            .fill(Pos { col: 0, row: 0 }, 1, |_| [].iter().cloned());
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -998,7 +998,7 @@ mod test {
         let mut matrix = Matrix::new(10, 10);
         let count = matrix.width * matrix.height;
         let filled =
-            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+            matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -1017,7 +1017,7 @@ mod test {
             );
         let count = matrix.values().filter(|&&v| v == 0).count();
         let filled =
-            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+            matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -1036,7 +1036,7 @@ mod test {
             );
         let count = matrix.height * 2;
         let filled =
-            matrix.fill(Pos { col: 0, row: 0 }.into(), 1, all_neighbors);
+            matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -1053,7 +1053,7 @@ mod test {
     /// *  `pos` - The cell position for which to generate neighbours.
     fn all_neighbors(
         pos: Pos,
-    ) -> impl Iterator<Item = Pos> + DoubleEndedIterator {
+    ) -> impl DoubleEndedIterator<Item = Pos> {
         vec![
             Pos {
                 col: pos.col,

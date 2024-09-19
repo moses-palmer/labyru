@@ -154,8 +154,7 @@ impl Shape {
     /// *  `cols` - The number of columns in the matrix.
     /// *  `rows` - The number of rows in the matrix.
     pub fn viewbox(self, cols: usize, rows: usize) -> physical::ViewBox {
-        let mut window =
-            (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN);
+        let mut window = (f32::MAX, f32::MAX, f32::MIN, f32::MIN);
         for y in 0..rows {
             let lpos = matrix::Pos {
                 col: 0,
@@ -638,8 +637,7 @@ mod tests {
                     maze.walls(pos)
                         .iter()
                         .cloned()
-                        .filter(|wall| wall.in_span(a))
-                        .next()
+                        .find(|wall| wall.in_span(a))
                         .unwrap(),
                 );
                 for r in &[0.1, 0.3, 0.5] {

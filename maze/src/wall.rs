@@ -334,9 +334,7 @@ mod tests {
                     .map(|t| 2.0 * (TAU * (t as f32 / count as f32) - PI))
                     .filter(|&a| {
                         maze.walls(matrix::Pos { col, row: 0 })
-                            .iter()
-                            .filter(|wall| wall.in_span(a))
-                            .next()
+                            .iter().find(|wall| wall.in_span(a))
                             .is_none()
                     }),
             );

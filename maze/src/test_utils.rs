@@ -22,7 +22,7 @@ pub fn is_close(expected: physical::Pos, actual: physical::Pos) -> bool {
 /// *  `a` - One value.
 /// *  `b` - Another value.
 pub fn nearly_equal(a: f32, b: f32) -> bool {
-    return a == b || (a - b).abs() < std::f32::EPSILON * 4.0;
+    a == b || (a - b).abs() < std::f32::EPSILON * 4.0
 }
 
 /// A simple helper to create a matrix position.

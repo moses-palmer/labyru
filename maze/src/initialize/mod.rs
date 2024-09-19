@@ -5,7 +5,6 @@
 
 use std::iter;
 use std::str;
-use std::u64;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -529,7 +528,7 @@ mod tests {
                 let maze = maze.clone().initialize_filter(
                     *method,
                     &mut rand::thread_rng(),
-                    &filter,
+                    filter,
                 );
 
                 for pos in maze.positions() {
@@ -551,7 +550,7 @@ mod tests {
                 let maze = maze.clone().initialize_filter(
                     *method,
                     &mut rand::thread_rng(),
-                    &filter,
+                    filter,
                 );
 
                 for pos in maze.positions() {

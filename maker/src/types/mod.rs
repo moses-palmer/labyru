@@ -265,7 +265,7 @@ pub enum Random {
     OSRandom,
 
     /// A source of random values from an LFSR.
-    LFSR(initialize::LFSR),
+    Lfsr(initialize::LFSR),
 }
 
 impl Random {
@@ -279,7 +279,7 @@ impl Random {
     /// # Arguments
     /// *  `seed` The LFST seed.
     pub fn from_seed(seed: u64) -> Self {
-        Self::LFSR(seed.into())
+        Self::Lfsr(seed.into())
     }
 }
 
@@ -288,7 +288,7 @@ impl initialize::Randomizer for Random {
         use Random::*;
         match self {
             OSRandom => rand::rngs::OsRng.range(a, b),
-            LFSR(lfsr) => lfsr.range(a, b),
+            Lfsr(lfsr) => lfsr.range(a, b),
         }
     }
 
@@ -296,7 +296,7 @@ impl initialize::Randomizer for Random {
         use Random::*;
         match self {
             OSRandom => rand::rngs::OsRng.random(),
-            LFSR(lfsr) => lfsr.random(),
+            Lfsr(lfsr) => lfsr.random(),
         }
     }
 }

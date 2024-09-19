@@ -114,11 +114,11 @@ impl str::FromStr for Color {
     }
 }
 
-impl ToString for Color {
+impl ::std::fmt::Display for Color {
     /// Converts a colour to a string.
     ///
     /// This method ignores the alpha component.
-    fn to_string(&self) -> String {
-        format!("#{:02.X}{:02.X}{:02.X}", self.red, self.green, self.blue)
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "#{:02.X}{:02.X}{:02.X}", self.red, self.green, self.blue)
     }
 }

@@ -355,14 +355,13 @@ impl ::std::cmp::PartialOrd for Priority {
     /// # Arguments
     /// *  `other` - The other value.
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        other.0.partial_cmp(&self.0)
-        //self.0.partial_cmp(&other.0)
+        Some(self.cmp(other))
     }
 }
 
 impl ::std::cmp::Ord for Priority {
     fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
-        self.partial_cmp(other).expect("comparable priorities")
+        other.0.partial_cmp(&self.0).expect("comparable priorities")
     }
 }
 

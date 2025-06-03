@@ -158,14 +158,14 @@ where
 {
     fn range(&mut self, a: usize, b: usize) -> usize {
         if a < b {
-            self.gen_range(a..b)
+            self.random_range(a..b)
         } else {
-            self.gen_range(b..a)
+            self.random_range(b..a)
         }
     }
 
     fn random(&mut self) -> f64 {
-        self.r#gen()
+        self.random()
     }
 }
 
@@ -441,7 +441,7 @@ mod tests {
     #[maze_test]
     fn initialize(maze: TestMaze) {
         for method in INITIALIZERS {
-            let maze = maze.clone().initialize(*method, &mut rand::thread_rng());
+            let maze = maze.clone().initialize(*method, &mut rand::rng());
 
             let from = matrix_pos(0, 0);
             let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
@@ -470,7 +470,7 @@ mod tests {
             let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             let maze = maze
                 .clone()
-                .initialize_filter(*method, &mut rand::thread_rng(), |pos| pos != from);
+                .initialize_filter(*method, &mut rand::rng(), |pos| pos != from);
 
             assert!(maze.walk(from, to).is_none());
             assert!(maze.walk(other, to).is_some());
@@ -485,7 +485,7 @@ mod tests {
             let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             let maze = maze
                 .clone()
-                .initialize_filter(*method, &mut rand::thread_rng(), |_| false);
+                .initialize_filter(*method, &mut rand::rng(), |_| false);
 
             assert!(maze.walk(from, to).is_none());
             assert!(maze.walk(other, to).is_none());
@@ -499,7 +499,7 @@ mod tests {
                 let filter = |matrix::Pos { col, row }| col > row;
                 let maze = maze
                     .clone()
-                    .initialize_filter(*method, &mut rand::thread_rng(), filter);
+                    .initialize_filter(*method, &mut rand::rng(), filter);
 
                 for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);
@@ -519,7 +519,7 @@ mod tests {
                 };
                 let maze = maze
                     .clone()
-                    .initialize_filter(*method, &mut rand::thread_rng(), filter);
+                    .initialize_filter(*method, &mut rand::rng(), filter);
 
                 for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);

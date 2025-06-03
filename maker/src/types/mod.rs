@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use rand::Rng;
 use rayon::prelude::*;
 use svg::Node;
 
@@ -286,7 +287,7 @@ impl initialize::Randomizer for Random {
     fn range(&mut self, a: usize, b: usize) -> usize {
         use Random::*;
         match self {
-            OSRandom => rand::rngs::OsRng.range(a, b),
+            OSRandom => rand::rng().random_range(a..b),
             Lfsr(lfsr) => lfsr.range(a, b),
         }
     }
@@ -294,7 +295,7 @@ impl initialize::Randomizer for Random {
     fn random(&mut self) -> f64 {
         use Random::*;
         match self {
-            OSRandom => rand::rngs::OsRng.random(),
+            OSRandom => rand::rng().random(),
             Lfsr(lfsr) => lfsr.random(),
         }
     }

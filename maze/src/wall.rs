@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 
 #[cfg(feature = "serde")]
-use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
 use crate::shape::Shape;
 
@@ -96,11 +96,7 @@ impl Wall {
             angle
         } else {
             let t = angle % TAU;
-            if t >= 0.0 {
-                t
-            } else {
-                t + TAU
-            }
+            if t >= 0.0 { t } else { t + TAU }
         }
     }
 

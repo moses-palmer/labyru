@@ -1,5 +1,5 @@
-use crate::physical;
 use crate::Maze;
+use crate::physical;
 
 impl<T> Maze<T>
 where

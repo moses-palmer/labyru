@@ -1,5 +1,5 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use maze::initialize::{Method, LFSR};
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use maze::initialize::{LFSR, Method};
 use maze::{Maze, Shape};
 
 pub fn walk(c: &mut Criterion) {

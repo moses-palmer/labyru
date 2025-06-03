@@ -4,9 +4,9 @@ use bit_set::BitSet;
 
 use crate::matrix;
 
-use crate::matrix::Matrix;
 use crate::Maze;
 use crate::WallPos;
+use crate::matrix::Matrix;
 
 /// The tuple `(current_wall, next_wall)`.
 ///

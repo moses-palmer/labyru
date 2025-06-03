@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use clap::{arg, Parser};
+use clap::{Parser, arg};
 use svg::Node;
 
 use maze::render::svg::ToPath;

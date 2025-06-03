@@ -285,8 +285,8 @@ mod tests {
     use maze_test::maze_test;
 
     use super::*;
-    use crate::test_utils::*;
     use crate::WallPos;
+    use crate::test_utils::*;
 
     #[maze_test(tri)]
     fn back(maze: TestMaze) {

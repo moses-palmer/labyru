@@ -221,7 +221,7 @@ where
     ///
     /// The positions are visited row by row, starting from `(0, 0)` and ending with `(self.width()
     /// - 1, self.height - 1())`.
-    pub fn positions(&self) -> impl Iterator<Item = matrix::Pos> {
+    pub fn positions(&self) -> impl Iterator<Item = matrix::Pos> + use<T> {
         self.rooms.positions()
     }
 
@@ -252,7 +252,7 @@ where
     pub fn corner_walls_start(
         &self,
         wall_pos: WallPos,
-    ) -> impl DoubleEndedIterator<Item = WallPos> {
+    ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         let (matrix::Pos { col, row }, wall) = wall_pos;
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
             move |&wall::Offset { dx, dy, wall }| {
@@ -276,7 +276,10 @@ where
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
-    pub fn corner_walls_end(&self, wall_pos: WallPos) -> impl DoubleEndedIterator<Item = WallPos> {
+    pub fn corner_walls_end(
+        &self,
+        wall_pos: WallPos,
+    ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         let shape = self.shape;
         let (matrix::Pos { col, row }, wall) = shape.back(wall_pos);
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().rev().map(
@@ -299,7 +302,7 @@ where
     pub fn wall_positions(
         &self,
         pos: matrix::Pos,
-    ) -> impl DoubleEndedIterator<Item = WallPos> + '_ {
+    ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         self.walls(pos).iter().map(move |&wall| (pos, wall))
     }
 
@@ -323,7 +326,10 @@ where
     ///
     /// # Arguments
     /// *  `pos` - The room position.
-    pub fn adjacent(&self, pos: matrix::Pos) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
+    pub fn adjacent(
+        &self,
+        pos: matrix::Pos,
+    ) -> impl DoubleEndedIterator<Item = matrix::Pos> + use<T> {
         self.walls(pos).iter().map(move |&wall| matrix::Pos {
             col: pos.col + wall.dir.0,
             row: pos.row + wall.dir.1,
@@ -457,15 +463,16 @@ mod tests {
     fn connecting_wall_correct(maze: TestMaze) {
         for pos in maze.positions() {
             for &wall in maze.walls(pos) {
-                assert!(maze
-                    .connecting_wall(
+                assert!(
+                    maze.connecting_wall(
                         pos,
                         matrix::Pos {
                             col: pos.col - 3,
                             row: pos.row - 3
                         }
                     )
-                    .is_none());
+                    .is_none()
+                );
                 let wall_pos = (pos, wall);
                 let other = matrix::Pos {
                     col: pos.col + wall.dir.0,

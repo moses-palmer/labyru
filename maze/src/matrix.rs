@@ -320,7 +320,7 @@ where
     ///     ],
     /// );
     /// ```
-    pub fn positions(&self) -> impl Iterator<Item = Pos> {
+    pub fn positions(&self) -> impl Iterator<Item = Pos> + use<T> {
         PosIterator::new(self.width, self.height)
     }
 
@@ -954,11 +954,7 @@ mod test {
                 10,
                 10,
                 |pos| {
-                    if pos.col == 0 && pos.row == 0 {
-                        0
-                    } else {
-                        1
-                    }
+                    if pos.col == 0 && pos.row == 0 { 0 } else { 1 }
                 },
             );
         let count = 1;

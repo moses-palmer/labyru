@@ -4,8 +4,8 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Angle, Offset};
 use crate::WallPos;
+use crate::wall::{Angle, Offset};
 
 use super::{COS_30, SIN_30};
 
@@ -423,8 +423,8 @@ mod tests {
     use maze_test::maze_test;
 
     use super::walls;
-    use crate::test_utils::*;
     use crate::WallPos;
+    use crate::test_utils::*;
 
     #[maze_test(hex)]
     fn back(maze: TestMaze) {

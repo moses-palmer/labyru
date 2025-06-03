@@ -1,7 +1,7 @@
 [workspace.package]
 version = "3.1.1"
 authors = ["Moses Palmér <mosespalmer@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 [workspace.dependencies]
 actix-web = "4.9"

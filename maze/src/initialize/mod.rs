@@ -165,7 +165,7 @@ where
     }
 
     fn random(&mut self) -> f64 {
-        self.gen()
+        self.r#gen()
     }
 }
 

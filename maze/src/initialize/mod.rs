@@ -350,6 +350,7 @@ where
 }
 
 #[cfg(test)]
+#[cfg(feature = "rand")]
 mod tests {
     use maze_test::maze_test;
 
@@ -441,7 +442,7 @@ mod tests {
     #[maze_test]
     fn initialize(maze: TestMaze) {
         for method in INITIALIZERS {
-            let maze = maze.clone().initialize(*method, &mut rand::rng());
+            let maze = maze.clone().initialize(*method, &mut rng());
 
             let from = matrix_pos(0, 0);
             let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
@@ -470,7 +471,7 @@ mod tests {
             let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             let maze = maze
                 .clone()
-                .initialize_filter(*method, &mut rand::rng(), |pos| pos != from);
+                .initialize_filter(*method, &mut rng(), |pos| pos != from);
 
             assert!(maze.walk(from, to).is_none());
             assert!(maze.walk(other, to).is_some());
@@ -485,7 +486,7 @@ mod tests {
             let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             let maze = maze
                 .clone()
-                .initialize_filter(*method, &mut rand::rng(), |_| false);
+                .initialize_filter(*method, &mut rng(), |_| false);
 
             assert!(maze.walk(from, to).is_none());
             assert!(maze.walk(other, to).is_none());
@@ -497,9 +498,7 @@ mod tests {
         for method in INITIALIZERS {
             for _ in 0..1000 {
                 let filter = |matrix::Pos { col, row }| col > row;
-                let maze = maze
-                    .clone()
-                    .initialize_filter(*method, &mut rand::rng(), filter);
+                let maze = maze.clone().initialize_filter(*method, &mut rng(), filter);
 
                 for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);
@@ -517,14 +516,17 @@ mod tests {
                 let filter = |matrix::Pos { col, row }| {
                     col as usize != width / 2 && row as usize != height / 2
                 };
-                let maze = maze
-                    .clone()
-                    .initialize_filter(*method, &mut rand::rng(), filter);
+                let maze = maze.clone().initialize_filter(*method, &mut rng(), filter);
 
                 for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);
                 }
             }
         }
+    }
+
+    #[cfg(feature = "rand")]
+    fn rng() -> impl Randomizer {
+        rand::rng()
     }
 }

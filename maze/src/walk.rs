@@ -55,6 +55,11 @@ where
     /// *  `from` - The starting position.
     /// *  `to` - The desired goal.
     pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path<T>> {
+        // If either rooms is outside of the maze, there is no path between them
+        if !self.rooms.is_inside(from) || !self.rooms.is_inside(to) {
+            return None;
+        }
+
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
@@ -551,6 +556,20 @@ mod tests {
                 .len()
                 <= log.len()
         );
+    }
+
+    #[maze_test]
+    fn walk_outside(mut maze: TestMaze) {
+        let from = (0isize, 0isize).into();
+        maze.wall_positions(from)
+            .for_each(|wall_pos| maze.open(wall_pos));
+
+        for to in maze
+            .wall_positions(from)
+            .map(|wall_pos| maze.back(wall_pos).0)
+        {
+            assert_eq!(maze.walk(from, to).is_some(), maze.is_inside(to));
+        }
     }
 
     #[maze_test]

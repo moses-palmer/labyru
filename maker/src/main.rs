@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use clap::{arg, Parser};
+use clap::{Parser, arg};
 use svg::Node;
 
 use maze::render::svg::ToPath;
@@ -68,8 +68,8 @@ struct Arguments {
     #[arg(id = "MARGIN", long = "margin", default_value_t = 10.0)]
     margin: f32,
 
-    /// A mask image to determine which rooms are part of the mask and
-    /// thenshold luminosity value between 0 and 1 on the form "path,0.5".
+    /// A mask image to determine which rooms are part of the mask and thenshold luminosity value
+    /// between 0 and 1 on the form "path,0.5".
     #[arg(id = "INITIALIZE", long = "mask")]
     initialize_mask: Option<MaskInitializer<Random>>,
 
@@ -94,8 +94,8 @@ struct Arguments {
     #[arg(id = "TEXT", long = "text")]
     render_text: Option<TextRenderer>,
 
-    /// Whether to solve the maze, and the solution colour. If not specified,
-    /// the colour defaults to "black".
+    /// Whether to solve the maze, and the solution colour. If not specified, the colour defaults
+    /// to "black".
     #[arg(
         id = "SOLVE",
         long = "solve",
@@ -114,19 +114,13 @@ struct Arguments {
 }
 
 #[allow(unused_variables, clippy::too_many_arguments)]
-fn run<P>(
-    maze: Maze,
-    scale: f32,
-    margin: f32,
-    renderers: &[&dyn Renderer],
-    output: P,
-) where
+fn run<P>(maze: Maze, scale: f32, margin: f32, renderers: &[&dyn Renderer], output: P)
+where
     P: AsRef<Path>,
 {
-    let document = svg::Document::new()
-        .set("viewBox", maze_to_viewbox(&maze, scale, margin));
-    let mut container = svg::node::element::Group::new()
-        .set("transform", format!("scale({})", scale));
+    let document = svg::Document::new().set("viewBox", maze_to_viewbox(&maze, scale, margin));
+    let mut container =
+        svg::node::element::Group::new().set("transform", format!("scale({})", scale));
 
     for renderer in renderers {
         renderer.render(&maze, &mut container);
@@ -153,11 +147,7 @@ fn run<P>(
 /// *  `maze` - The maze for which to generate a view box.
 /// *  `scale` - A scale multiplier.
 /// *  `margin` - The margin to apply to all sides.
-fn maze_to_viewbox(
-    maze: &Maze,
-    scale: f32,
-    margin: f32,
-) -> (f32, f32, f32, f32) {
+fn maze_to_viewbox(maze: &Maze, scale: f32, margin: f32) -> (f32, f32, f32, f32) {
     (maze.viewbox() * scale).expand(margin).tuple()
 }
 
@@ -172,10 +162,8 @@ fn main() {
             println!("RENDER BACKGROUND RATIO {}", render_background_ratio);
             args.render_background.as_ref().map(|render_background| {
                 args.shape.minimal_dimensions(
-                    render_background.image.width() as f32
-                        / render_background_ratio,
-                    render_background.image.height() as f32
-                        / render_background_ratio,
+                    render_background.image.width() as f32 / render_background_ratio,
+                    render_background.image.height() as f32 / render_background_ratio,
                 )
             })
         })

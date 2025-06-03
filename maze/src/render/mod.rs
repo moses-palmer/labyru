@@ -1,5 +1,5 @@
-use crate::physical;
 use crate::Maze;
+use crate::physical;
 
 impl<T> Maze<T>
 where
@@ -7,8 +7,7 @@ where
 {
     /// Calculates the _view box_ for an object when rendered.
     ///
-    /// The returned value is the minimal rectangle that will contain this
-    /// maze.
+    /// The returned value is the minimal rectangle that will contain this maze.
     pub fn viewbox(&self) -> physical::ViewBox {
         self.shape().viewbox(self.width(), self.height())
     }

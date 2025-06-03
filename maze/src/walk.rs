@@ -4,14 +4,14 @@ use bit_set::BitSet;
 
 use crate::matrix;
 
-use crate::matrix::Matrix;
 use crate::Maze;
 use crate::WallPos;
+use crate::matrix::Matrix;
 
 /// The tuple `(current_wall, next_wall)`.
 ///
-/// The second value can be used to determine whether the end has been reached;
-/// it will be `None` for the last wall.
+/// The second value can be used to determine whether the end has been reached; it will be `None`
+/// for the last wall.
 pub type FollowWallItem = (WallPos, Option<WallPos>);
 
 impl<T> Maze<T>
@@ -20,9 +20,8 @@ where
 {
     /// Walks from `from` to `to` along the shortest path.
     ///
-    /// If the rooms are connected, the return value will iterate over the
-    /// minimal set of rooms required to pass through to get from start to
-    /// finish, including `from` and ` to`.
+    /// If the rooms are connected, the return value will iterate over the minimal set of rooms
+    /// required to pass through to get from start to finish, including `from` and ` to`.
     ///
     /// # Example
     ///
@@ -56,19 +55,21 @@ where
     /// *  `from` - The starting position.
     /// *  `to` - The desired goal.
     pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path<T>> {
+        // If either rooms is outside of the maze, there is no path between them
+        if !self.rooms.is_inside(from) || !self.rooms.is_inside(to) {
+            return None;
+        }
+
         // Reverse the positions to return the rooms in correct order
         let (start, end) = (to, from);
 
-        // Assume that the distance between the centres of adjacent rooms is
-        // consistent
-        let distance = (self.center((0isize, 0isize).into())
-            - self.center((0isize, 1isize).into()))
-        .value();
+        // Assume that the distance between the centres of adjacent rooms is consistent
+        let distance =
+            (self.center((0isize, 0isize).into()) - self.center((0isize, 1isize).into())).value();
 
         // The heuristic for a room position
         let target = self.center(end);
-        let h =
-            |pos: matrix::Pos| Priority((target - self.center(pos)).value());
+        let h = |pos: matrix::Pos| Priority((target - self.center(pos)).value());
 
         // The room positions pending evaluation and their cost
         let mut open_set = OpenSet::new(self.width(), self.height());
@@ -86,18 +87,16 @@ where
 
             rooms[current].visited = true;
             for wall in self.doors(current) {
-                // Find the next room, and continue if we have already evaluated
-                // it to a better distance, or it is outside of the maze
+                // Find the next room, and continue if we have already evaluated it to a better
+                // distance, or it is outside of the maze
                 let (next, _) = self.back((current, wall));
                 if !self.is_inside(next)
-                    || (rooms[next].visited
-                        && rooms[next].g > rooms[current].g + distance)
+                    || (rooms[next].visited && rooms[next].g > rooms[current].g + distance)
                 {
                     continue;
                 }
 
-                // The cost to get to this room is one more that the room from
-                // which we came
+                // The cost to get to this room is one more that the room from which we came
                 let g = rooms[current].g + distance;
                 let f = g + h(next);
 
@@ -119,29 +118,25 @@ where
 
     /// Follows a wall.
     ///
-    /// This method will follow a wall without passing through any walls. When
-    /// the starting wall is encountered, no more walls will be returned.
+    /// This method will follow a wall without passing through any walls. When the starting wall is
+    /// encountered, no more walls will be returned.
     ///
-    /// The direction of walking along a wall is from the point where its span
-    /// starts to where it ends.
+    /// The direction of walking along a wall is from the point where its span starts to where it
+    /// ends.
     ///
-    /// If the starting position is an open wall, the iterator will contain no
-    /// elements.
+    /// If the starting position is an open wall, the iterator will contain no elements.
     ///
     /// # Arguments
     /// *  `wall_pos` - The starting wall position.
-    pub fn follow_wall(
-        &self,
-        wall_pos: WallPos,
-    ) -> impl Iterator<Item = FollowWallItem> + '_ {
+    pub fn follow_wall(&self, wall_pos: WallPos) -> impl Iterator<Item = FollowWallItem> + '_ {
         Follower::new(self, wall_pos)
     }
 }
 
 /// A path through a maze.
 ///
-/// This struct describes the path through a maze by maintaining a mapping from
-/// a room position to the next room.
+/// This struct describes the path through a maze by maintaining a mapping from a room position to
+/// the next room.
 pub struct Path<'a, T>
 where
     T: Clone,
@@ -193,8 +188,6 @@ where
 
     /// Backtraces a path by following the `came_from` fields.
     ///
-    /// To generate
-    ///
     /// # Arguments
     /// *  `start` - The starting position.
     /// *  `end` - The end position.
@@ -242,8 +235,7 @@ struct Room {
 
     /// The room from which we came.
     ///
-    /// When the algorithm has competed, this will be the room on the shortest
-    /// path.
+    /// When the algorithm has competed, this will be the room on the shortest path.
     came_from: Option<matrix::Pos>,
 }
 
@@ -291,9 +283,9 @@ where
 
     /// Retrieves the next wall position.
     ///
-    /// The next wall position will be reachable from `wall_pos` without passing
-    /// through any walls, and it will share a corner. Repeatedly calling this
-    /// method will yield walls clockwise inside a cavity in the maze.
+    /// The next wall position will be reachable from `wall_pos` without passing through any walls,
+    /// and it will share a corner. Repeatedly calling this method will yield walls clockwise
+    /// inside a cavity in the maze.
     ///
     /// # Arguments
     /// *  `wall_pos`- The wall position for which to retrieve a room.
@@ -313,8 +305,8 @@ where
 
     /// Iterates over all wall positions.
     ///
-    /// Wall positions are returned in the pair _(from, to)_. The last iteration
-    /// before this iterator is exhausted will return _to_ as `None`.
+    /// Wall positions are returned in the pair _(from, to)_. The last iteration before this
+    /// iterator is exhausted will return _to_ as `None`.
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             None
@@ -349,8 +341,7 @@ impl ::std::cmp::Eq for Priority {}
 impl ::std::cmp::PartialOrd for Priority {
     /// Compares priorities.
     ///
-    /// Note that this operation is the inverse of comparing the wrapped `f32`
-    /// values.
+    /// Note that this operation is the inverse of comparing the wrapped `f32` values.
     ///
     /// # Arguments
     /// *  `other` - The other value.
@@ -386,9 +377,8 @@ type PriorityPos = (Priority, matrix::Pos);
 
 /// A set of rooms and priorities.
 ///
-/// This struct supports adding a position with a priority, retrieving the
-/// position with the highest priority and querying whether a position is in the
-/// set.
+/// This struct supports adding a position with a priority, retrieving the position with the
+/// highest priority and querying whether a position is in the set.
 struct OpenSet {
     /// The width of the set.
     width: usize,
@@ -569,9 +559,22 @@ mod tests {
     }
 
     #[maze_test]
+    fn walk_outside(mut maze: TestMaze) {
+        let from = (0isize, 0isize).into();
+        maze.wall_positions(from)
+            .for_each(|wall_pos| maze.open(wall_pos));
+
+        for to in maze
+            .wall_positions(from)
+            .map(|wall_pos| maze.back(wall_pos).0)
+        {
+            assert_eq!(maze.walk(from, to).is_some(), maze.is_inside(to));
+        }
+    }
+
+    #[maze_test]
     fn follow_wall_order(maze: TestMaze) {
-        let start =
-            maze.wall_positions((0isize, 0isize).into()).next().unwrap();
+        let start = maze.wall_positions((0isize, 0isize).into()).next().unwrap();
 
         for (a, b) in maze.follow_wall(start) {
             if let Some(b) = b {

@@ -6,8 +6,8 @@ use crate::matrix;
 
 /// Initialises a maze using the _Braid_ algorithm.
 ///
-/// This method will leave no dead ends in the final maze; all rooms will have
-/// at least two open walls.
+/// This method will leave no dead ends in the final maze; all rooms will have at least two open
+/// walls.
 ///
 /// # Arguments
 /// *  `maze``- The maze to initialise.
@@ -67,9 +67,7 @@ where
         }
     }
 
-    super::connect_all(&mut maze, rng, |pos| {
-        *candidates.get(pos).unwrap_or(&false)
-    });
+    super::connect_all(&mut maze, rng, |pos| *candidates.get(pos).unwrap_or(&false));
 
     maze
 }

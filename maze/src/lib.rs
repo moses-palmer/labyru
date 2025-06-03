@@ -70,12 +70,7 @@ where
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     /// *  `data` - A function providing room data.
-    pub fn new_with_data<F>(
-        shape: Shape,
-        width: usize,
-        height: usize,
-        mut data: F,
-    ) -> Self
+    pub fn new_with_data<F>(shape: Shape, width: usize, height: usize, mut data: F) -> Self
     where
         F: FnMut(matrix::Pos) -> T,
     {
@@ -83,8 +78,7 @@ where
         Self { shape, rooms }
     }
 
-    /// Maps each room, yielding a maze with the same layout but with
-    /// transformed data.
+    /// Maps each room, yielding a maze with the same layout but with transformed data.
     ///
     /// # Arguments
     /// *  `data` - A function providing data for the new maze.
@@ -95,9 +89,9 @@ where
     {
         Maze {
             shape: self.shape,
-            rooms: self.rooms.map_with_pos(|pos, value| {
-                value.with_data(data(pos, value.data.clone()))
-            }),
+            rooms: self
+                .rooms
+                .map_with_pos(|pos, value| value.with_data(data(pos, value.data.clone()))),
         }
     }
 
@@ -164,24 +158,17 @@ where
     /// # Arguments
     /// *  `pos1` - The first room position.
     /// *  `pos2` - The second room position.
-    pub fn connecting_wall(
-        &self,
-        pos1: matrix::Pos,
-        pos2: matrix::Pos,
-    ) -> Option<WallPos> {
+    pub fn connecting_wall(&self, pos1: matrix::Pos, pos2: matrix::Pos) -> Option<WallPos> {
         self.walls(pos1)
             .iter()
-            .find(|wall| {
-                (pos1.col + wall.dir.0 == pos2.col)
-                    && (pos1.row + wall.dir.1 == pos2.row)
-            })
+            .find(|wall| (pos1.col + wall.dir.0 == pos2.col) && (pos1.row + wall.dir.1 == pos2.row))
             .map(|&wall| (pos1, wall))
     }
 
     /// Whether two rooms are connected.
     ///
-    /// Two rooms are connected if there is an open wall between them, or if
-    /// they are the same room.
+    /// Two rooms are connected if there is an open wall between them, or if they are the same
+    /// room.
     ///
     /// # Arguments
     /// *  `pos1` - The first room.
@@ -232,9 +219,9 @@ where
 
     /// Iterates over all room positions.
     ///
-    /// The positions are visited row by row, starting from `(0, 0)` and ending
-    /// with `(self.width() - 1, self.height - 1())`.
-    pub fn positions(&self) -> impl Iterator<Item = matrix::Pos> {
+    /// The positions are visited row by row, starting from `(0, 0)` and ending with `(self.width()
+    /// - 1, self.height - 1())`.
+    pub fn positions(&self) -> impl Iterator<Item = matrix::Pos> + use<T> {
         self.rooms.positions()
     }
 
@@ -249,18 +236,14 @@ where
 
     /// See [`Self::corner_walls_start`].
     #[deprecated]
-    pub fn corner_walls(
-        &self,
-        wall_pos: WallPos,
-    ) -> impl DoubleEndedIterator<Item = WallPos> {
+    pub fn corner_walls(&self, wall_pos: WallPos) -> impl DoubleEndedIterator<Item = WallPos> {
         self.corner_walls_start(wall_pos)
     }
 
     /// All walls that meet in the corner where a wall has its start span.
     ///
-    /// The walls are visited in counter-clockwise order. Only one side of each
-    /// wall will be visited. Each consecutive wall will be in a room different
-    /// from the previous one.
+    /// The walls are visited in counter-clockwise order. Only one side of each wall will be
+    /// visited. Each consecutive wall will be in a room different from the previous one.
     ///
     /// This method will visit rooms outside of the maze for rooms on the edge.
     ///
@@ -269,7 +252,7 @@ where
     pub fn corner_walls_start(
         &self,
         wall_pos: WallPos,
-    ) -> impl DoubleEndedIterator<Item = WallPos> {
+    ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         let (matrix::Pos { col, row }, wall) = wall_pos;
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
             move |&wall::Offset { dx, dy, wall }| {
@@ -286,9 +269,8 @@ where
 
     /// All walls that meet in the corner where a wall has its end span.
     ///
-    /// The walls are visited in clockwise order. Only one side of each wall
-    /// will be visited. Each consecutive wall will be in a room different from
-    /// the previous one.
+    /// The walls are visited in clockwise order. Only one side of each wall will be visited. Each
+    /// consecutive wall will be in a room different from the previous one.
     ///
     /// This method will visit rooms outside of the maze for rooms on the edge.
     ///
@@ -297,22 +279,20 @@ where
     pub fn corner_walls_end(
         &self,
         wall_pos: WallPos,
-    ) -> impl DoubleEndedIterator<Item = WallPos> {
+    ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         let shape = self.shape;
         let (matrix::Pos { col, row }, wall) = shape.back(wall_pos);
-        std::iter::once(wall_pos).chain(
-            wall.corner_wall_offsets.iter().rev().map(
-                move |&wall::Offset { dx, dy, wall }| {
-                    shape.back((
-                        matrix::Pos {
-                            col: col + dx,
-                            row: row + dy,
-                        },
-                        wall,
-                    ))
-                },
-            ),
-        )
+        std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().rev().map(
+            move |&wall::Offset { dx, dy, wall }| {
+                shape.back((
+                    matrix::Pos {
+                        col: col + dx,
+                        row: row + dy,
+                    },
+                    wall,
+                ))
+            },
+        ))
     }
 
     /// Iterates over all wall positions of a room.
@@ -322,7 +302,7 @@ where
     pub fn wall_positions(
         &self,
         pos: matrix::Pos,
-    ) -> impl DoubleEndedIterator<Item = WallPos> + '_ {
+    ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         self.walls(pos).iter().map(move |&wall| (pos, wall))
     }
 
@@ -333,8 +313,7 @@ where
     pub fn doors(
         &self,
         pos: matrix::Pos,
-    ) -> impl DoubleEndedIterator<Item = &'static wall::Wall> + '_
-    {
+    ) -> impl DoubleEndedIterator<Item = &'static wall::Wall> + '_ {
         self.walls(pos)
             .iter()
             .filter(move |&wall| self.is_open((pos, wall)))
@@ -350,7 +329,7 @@ where
     pub fn adjacent(
         &self,
         pos: matrix::Pos,
-    ) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
+    ) -> impl DoubleEndedIterator<Item = matrix::Pos> + use<T> {
         self.walls(pos).iter().map(move |&wall| matrix::Pos {
             col: pos.col + wall.dir.0,
             row: pos.row + wall.dir.1,
@@ -359,15 +338,12 @@ where
 
     /// Iterates over all reachable neighbours of a room.
     ///
-    /// This method will visit rooms outside of the maze if an opening outside
-    /// from the room exists.
+    /// This method will visit rooms outside of the maze if an opening outside from the room
+    /// exists.
     ///
     /// # Arguments
     /// *  `pos` - The room position.
-    pub fn neighbors(
-        &self,
-        pos: matrix::Pos,
-    ) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
+    pub fn neighbors(&self, pos: matrix::Pos) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
         self.doors(pos).map(move |wall| self.back((pos, wall)).0)
     }
 }
@@ -386,14 +362,14 @@ where
 /// A matrix of scores for rooms.
 pub type HeatMap = matrix::Matrix<u32>;
 
-/// Generates a heat map where the value for each cell is the number of times it
-/// has been traversed when walking between the positions.
+/// Generates a heat map where the value for each cell is the number of times it has been traversed
+/// when walking between the positions.
 ///
 /// Any position pairs with no path between them will be ignored.
 ///
 /// # Arguments
 /// *  `positions` - The positions as the tuple `(from, to)`. These are used as
-///   positions between which to walk.
+///    positions between which to walk.
 pub fn heatmap<I, T>(maze: &crate::Maze<T>, positions: I) -> HeatMap
 where
     I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
@@ -438,10 +414,7 @@ mod tests {
             maze.height() as isize - 1,
         )));
         assert!(!maze.is_inside(matrix_pos(-1, -1)));
-        assert!(!maze.is_inside(matrix_pos(
-            maze.width() as isize,
-            maze.height() as isize
-        )));
+        assert!(!maze.is_inside(matrix_pos(maze.width() as isize, maze.height() as isize)));
     }
 
     #[maze_test]
@@ -490,15 +463,16 @@ mod tests {
     fn connecting_wall_correct(maze: TestMaze) {
         for pos in maze.positions() {
             for &wall in maze.walls(pos) {
-                assert!(maze
-                    .connecting_wall(
+                assert!(
+                    maze.connecting_wall(
                         pos,
                         matrix::Pos {
                             col: pos.col - 3,
                             row: pos.row - 3
                         }
                     )
-                    .is_none());
+                    .is_none()
+                );
                 let wall_pos = (pos, wall);
                 let other = matrix::Pos {
                     col: pos.col + wall.dir.0,
@@ -582,7 +556,8 @@ mod tests {
         let walls = maze
             .walls(pos)
             .iter()
-            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0)).copied()
+            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
+            .copied()
             .collect::<Vec<_>>();
         walls.iter().for_each(|wall| maze.open((pos, wall)));
         assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);

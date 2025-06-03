@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 
 /// A matrix position.
 ///
-/// The coordinates of this type are signed, but valid matrix positions never
-/// have negative coordinates.
+/// The coordinates of this type are signed, but valid matrix positions never have negative
+/// coordinates.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Pos {
@@ -100,8 +100,7 @@ where
 {
     /// Constructs an initialised matrix.
     ///
-    /// This constructor can be used when no default value exists for the data
-    /// type.
+    /// This constructor can be used when no default value exists for the data type.
     ///
     /// # Example
     ///
@@ -137,8 +136,8 @@ where
 
     /// Applies a mapping to this matrix.
     ///
-    /// The return value is a matrix with the same dimensions as this one, but
-    /// with every value mapped through the mapper.
+    /// The return value is a matrix with the same dimensions as this one, but with every value
+    /// mapped through the mapper.
     ///
     /// # Example
     ///
@@ -175,8 +174,8 @@ where
 
     /// Applies a mapping to this matrix.
     ///
-    /// The return value is a matrix with the same dimensions as this one, but
-    /// with every value mapped through the mapper.
+    /// The return value is a matrix with the same dimensions as this one, but with every value
+    /// mapped through the mapper.
     ///
     /// # Example
     ///
@@ -210,9 +209,7 @@ where
         F: FnMut(Pos, &T) -> S,
         S: Clone,
     {
-        Matrix::new_with_data(self.width, self.height, |pos| {
-            mapper(pos, &self[pos])
-        })
+        Matrix::new_with_data(self.width, self.height, |pos| mapper(pos, &self[pos]))
     }
 
     /// Whether a position is inside of the matrix.
@@ -275,8 +272,7 @@ where
         }
     }
 
-    /// Retrieves a mutable reference to the value at a specific position if it
-    /// exists.
+    /// Retrieves a mutable reference to the value at a specific position if it exists.
     ///
     /// # Example
     ///
@@ -296,10 +292,7 @@ where
     /// *  `pos` - The matrix position.
     pub fn get_mut(&mut self, pos: Pos) -> Option<&mut T> {
         if self.is_inside(pos) {
-            Some(
-                &mut self.data
-                    [(pos.col + pos.row * self.width as isize) as usize],
-            )
+            Some(&mut self.data[(pos.col + pos.row * self.width as isize) as usize])
         } else {
             None
         }
@@ -307,8 +300,8 @@ where
 
     /// Iterates over all cell positions.
     ///
-    /// The positions are visited row by row, starting with `(0, 0)` and ending
-    /// with `(self.width - 1, self.height - 1)`.
+    /// The positions are visited row by row, starting with `(0, 0)` and ending with `(self.width -
+    /// 1, self.height - 1)`.
     ///
     /// # Example
     ///
@@ -327,14 +320,14 @@ where
     ///     ],
     /// );
     /// ```
-    pub fn positions(&self) -> impl Iterator<Item = Pos> {
+    pub fn positions(&self) -> impl Iterator<Item = Pos> + use<T> {
         PosIterator::new(self.width, self.height)
     }
 
     /// Iterates over all cell values.
     ///
-    /// The values are visited row by row, starting with `(0, 0)` and ending
-    /// with `(self.width - 1, self.height - 1)`.
+    /// The values are visited row by row, starting with `(0, 0)` and ending with `(self.width - 1,
+    /// self.height - 1)`.
     ///
     /// # Example
     ///
@@ -368,8 +361,8 @@ where
 {
     /// All edges between areas with different values.
     ///
-    /// The return value is a mapping from source area value and destination
-    /// area value to a set of matrix positions with connections.
+    /// The return value is a mapping from source area value and destination area value to a set of
+    /// matrix positions with connections.
     ///
     /// For a uniform matrix, this method will return an empty set.
     ///
@@ -416,10 +409,7 @@ where
     /// # Arguments
     /// *  `neighbors` - A function returning neighbours to consider for each
     ///    cell.
-    pub fn edges<F, I>(
-        &self,
-        neighbors: F,
-    ) -> BTreeMap<(T, T), BTreeSet<(Pos, Pos)>>
+    pub fn edges<F, I>(&self, neighbors: F) -> BTreeMap<(T, T), BTreeSet<(Pos, Pos)>>
     where
         F: Fn(Pos) -> I,
         I: Iterator<Item = Pos>,
@@ -448,16 +438,13 @@ impl<T> Matrix<T>
 where
     T: Clone + Copy + PartialEq,
 {
-    /// Fills all rooms reachable from `pos` in `matrix` with the value
-    /// `value`.
+    /// Fills all rooms reachable from `pos` in `matrix` with the value `value`.
     ///
-    /// Filling will start at `pos`, and `neighbors` will be used to find the
-    /// next cells. Any cell with the value `value` is ignored; thus, if all
-    /// neighbours of `pos` already have the value `value`, filling will stop
-    /// immediately.
+    /// Filling will start at `pos`, and `neighbors` will be used to find the next cells. Any cell
+    /// with the value `value` is ignored; thus, if all neighbours of `pos` already have the value
+    /// `value`, filling will stop immediately.
     ///
-    /// If `pos` has the value `value`, however, filling may proceed with
-    /// neighbours.
+    /// If `pos` has the value `value`, however, filling may proceed with neighbours.
     ///
     /// The number of filled rooms is returned.
     ///
@@ -488,13 +475,8 @@ where
             let current = path[path.len() - 1];
             if let Some(next) = neighbors(current)
                 .flat_map(|pos| {
-                    self.get(pos).and_then(|&v| {
-                        if v != value {
-                            Some(pos)
-                        } else {
-                            None
-                        }
-                    })
+                    self.get(pos)
+                        .and_then(|&v| if v != value { Some(pos) } else { None })
                 })
                 .next()
             {
@@ -518,8 +500,7 @@ where
 
     /// Adds another matrix to this one.
     ///
-    /// If the matrices are of different dimensions, only the overlapping parts
-    /// will be added.
+    /// If the matrices are of different dimensions, only the overlapping parts will be added.
     ///
     /// # Examples
     ///
@@ -671,8 +652,8 @@ where
     /// *  `pos` - The matrix position.
     ///
     /// # Panics
-    /// Accessing a cell where [`is_inside`](Self::is_inside) returns `false`
-    /// will cause a panic. Use [`get`](Self::get) to avoid this.
+    /// Accessing a cell where [`is_inside`](Self::is_inside) returns `false` will cause a panic.
+    /// Use [`get`](Self::get) to avoid this.
     fn index(&self, pos: Pos) -> &Self::Output {
         if self.is_inside(pos) {
             &self.data[(pos.col + pos.row * self.width as isize) as usize]
@@ -692,8 +673,8 @@ where
     /// *  `pos` - The matrix position.
     ///
     /// # Panics
-    /// Accessing a cell where [`is_inside`](Self::is_inside) returns `false`
-    /// will cause a panic. Use [`get_mut`](Self::get_mut) to avoid this.
+    /// Accessing a cell where [`is_inside`](Self::is_inside) returns `false` will cause a panic.
+    /// Use [`get_mut`](Self::get_mut) to avoid this.
     fn index_mut(&mut self, pos: Pos) -> &mut T {
         if self.is_inside(pos) {
             &mut self.data[(pos.col + pos.row * self.width as isize) as usize]
@@ -734,21 +715,15 @@ pub fn partition(x: f32) -> (isize, f32) {
     (index, if x >= 0.0 { rel } else { rel + 1.0 })
 }
 
-/// Generates a matrix initialised with the value returned by a filter
-/// function.
+/// Generates a matrix initialised with the value returned by a filter function.
 ///
-/// The return value contains the number of `true` values returned by the
-/// filter.
+/// The return value contains the number of `true` values returned by the filter.
 ///
 /// # Arguments
 /// *  `width` - The width of the matrix to generate.
 /// *  `height` - The height of the matrix to generate.
 /// *  `filter` - A filter function.
-pub fn filter<F>(
-    width: usize,
-    height: usize,
-    filter: F,
-) -> (usize, Matrix<bool>)
+pub fn filter<F>(width: usize, height: usize, filter: F) -> (usize, Matrix<bool>)
 where
     F: Fn(Pos) -> bool,
 {
@@ -811,11 +786,10 @@ mod test {
 
     #[test]
     fn edges_simple() {
-        let matrix =
-            Matrix::<u8>::new_with_data(3, 3, |pos| match pos.col % 3 {
-                0 | 1 => 1,
-                _ => 2,
-            });
+        let matrix = Matrix::<u8>::new_with_data(3, 3, |pos| match pos.col % 3 {
+            0 | 1 => 1,
+            _ => 2,
+        });
 
         assert_eq!(
             [(
@@ -842,12 +816,11 @@ mod test {
 
     #[test]
     fn edges_many() {
-        let matrix =
-            Matrix::<u8>::new_with_data(3, 3, |pos| match pos.col % 3 {
-                0 => 1,
-                1 => 2,
-                _ => 3,
-            });
+        let matrix = Matrix::<u8>::new_with_data(3, 3, |pos| match pos.col % 3 {
+            0 => 1,
+            1 => 2,
+            _ => 3,
+        });
 
         assert_eq!(
             [
@@ -976,16 +949,16 @@ mod test {
 
     #[test]
     fn fill_closed() {
-        let mut matrix = Matrix::new_with_data(10, 10, |pos| {
-            if pos.col == 0 && pos.row == 0 {
-                0
-            } else {
-                1
-            }
-        });
+        let mut matrix =
+            Matrix::new_with_data(
+                10,
+                10,
+                |pos| {
+                    if pos.col == 0 && pos.row == 0 { 0 } else { 1 }
+                },
+            );
         let count = 1;
-        let filled = matrix
-            .fill(Pos { col: 0, row: 0 }, 1, |_| [].iter().cloned());
+        let filled = matrix.fill(Pos { col: 0, row: 0 }, 1, |_| [].iter().cloned());
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -997,8 +970,7 @@ mod test {
     fn fill_open() {
         let mut matrix = Matrix::new(10, 10);
         let count = matrix.width * matrix.height;
-        let filled =
-            matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
+        let filled = matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -1009,15 +981,9 @@ mod test {
     #[test]
     fn fill_semiopen() {
         let filter = |pos: Pos| pos.col >= pos.row;
-        let mut matrix =
-            Matrix::new_with_data(
-                10,
-                10,
-                |pos| if filter(pos) { 0 } else { 1 },
-            );
+        let mut matrix = Matrix::new_with_data(10, 10, |pos| if filter(pos) { 0 } else { 1 });
         let count = matrix.values().filter(|&&v| v == 0).count();
-        let filled =
-            matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
+        let filled = matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
@@ -1028,22 +994,13 @@ mod test {
     #[test]
     fn fill_separated() {
         let filter = |pos: Pos| pos.col < 2 || pos.col >= 8;
-        let mut matrix =
-            Matrix::new_with_data(
-                10,
-                10,
-                |pos| if filter(pos) { 0 } else { 1 },
-            );
+        let mut matrix = Matrix::new_with_data(10, 10, |pos| if filter(pos) { 0 } else { 1 });
         let count = matrix.height * 2;
-        let filled =
-            matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
+        let filled = matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
         for pos in matrix.positions() {
-            assert_eq!(
-                if filter(pos) && pos.col >= 2 { 0 } else { 1 },
-                matrix[pos],
-            );
+            assert_eq!(if filter(pos) && pos.col >= 2 { 0 } else { 1 }, matrix[pos],);
         }
     }
 
@@ -1051,9 +1008,7 @@ mod test {
     ///
     /// # Arguments
     /// *  `pos` - The cell position for which to generate neighbours.
-    fn all_neighbors(
-        pos: Pos,
-    ) -> impl DoubleEndedIterator<Item = Pos> {
+    fn all_neighbors(pos: Pos) -> impl DoubleEndedIterator<Item = Pos> {
         vec![
             Pos {
                 col: pos.col,

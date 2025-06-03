@@ -4,8 +4,8 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Angle, Offset};
 use crate::WallPos;
+use crate::wall::{Angle, Offset};
 
 use super::{COS_30, SIN_30};
 
@@ -14,12 +14,10 @@ use super::{COS_30, SIN_30};
 /// This is half the angle span used by a single wall.
 const D: f32 = 2.0 * PI / 12.0;
 
-/// The distance between the centre of a room and the centre of a room on the
-/// next row.
+/// The distance between the centre of a room and the centre of a room on the next row.
 const HORIZONTAL_MULTIPLICATOR: f32 = 2.0 * COS_30;
 
-/// The distance between the centre of a room and the centre of a room on the
-/// next column.
+/// The distance between the centre of a room and the centre of a room on the next column.
 const VERTICAL_MULTIPLICATOR: f32 = 2.0 - SIN_30;
 
 /// The height of the top corner.
@@ -309,13 +307,11 @@ static WALLS_ODD: &[&wall::Wall] = &[
 ];
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR)
-        .ceil() as usize;
+    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR).ceil() as usize;
 
     let hoffset = if height > 1 { 1.0 } else { 0.5 };
-    let width = ((width - hoffset).max(HORIZONTAL_MULTIPLICATOR)
-        / HORIZONTAL_MULTIPLICATOR)
-        .ceil() as usize;
+    let width = ((width - hoffset).max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).ceil()
+        as usize;
 
     (width, height)
 }
@@ -347,8 +343,7 @@ pub fn walls(pos: matrix::Pos) -> &'static [&'static wall::Wall] {
 
 pub fn cell_to_physical(pos: matrix::Pos) -> physical::Pos {
     physical::Pos {
-        x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 })
-            * HORIZONTAL_MULTIPLICATOR,
+        x: (pos.col as f32 + if pos.row & 1 == 1 { 0.5 } else { 1.0 }) * HORIZONTAL_MULTIPLICATOR,
         y: (pos.row as f32) * VERTICAL_MULTIPLICATOR + 1.0,
     }
 }
@@ -359,9 +354,8 @@ pub fn physical_to_cell(pos: physical::Pos) -> matrix::Pos {
     let odd_row = i & 1 == 1;
     let approx_row = i;
     let rel_y = f;
-    let (i, f) = matrix::partition(
-        pos.x / (HORIZONTAL_MULTIPLICATOR) - if odd_row { 0.0 } else { 0.5 },
-    );
+    let (i, f) =
+        matrix::partition(pos.x / (HORIZONTAL_MULTIPLICATOR) - if odd_row { 0.0 } else { 0.5 });
     let approx_col = i;
     let rel_x = f;
 
@@ -429,8 +423,8 @@ mod tests {
     use maze_test::maze_test;
 
     use super::walls;
-    use crate::test_utils::*;
     use crate::WallPos;
+    use crate::test_utils::*;
 
     #[maze_test(hex)]
     fn back(maze: TestMaze) {

@@ -2,8 +2,8 @@ use crate::matrix;
 use crate::physical;
 use crate::wall;
 
-use crate::wall::{Angle, Offset};
 use crate::WallPos;
+use crate::wall::{Angle, Offset};
 
 use super::{COS_45, SIN_45};
 
@@ -109,8 +109,7 @@ define_shape! {
 }
 
 /// The walls
-static WALLS: &[&wall::Wall] =
-    &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
+static WALLS: &[&wall::Wall] = &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
     let height = (height.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;
@@ -154,17 +153,9 @@ pub fn physical_to_wall_pos(pos: physical::Pos) -> WallPos {
     let (dx, dy) = (pos.x - center.x, pos.y - center.y);
 
     let wall = if dx > dy {
-        if dy > -dx {
-            &walls::RIGHT
-        } else {
-            &walls::UP
-        }
+        if dy > -dx { &walls::RIGHT } else { &walls::UP }
     } else {
-        if dy > -dx {
-            &walls::DOWN
-        } else {
-            &walls::LEFT
-        }
+        if dy > -dx { &walls::DOWN } else { &walls::LEFT }
     };
 
     (matrix_pos, wall)
@@ -175,8 +166,8 @@ mod tests {
     use maze_test::maze_test;
 
     use super::*;
-    use crate::test_utils::*;
     use crate::WallPos;
+    use crate::test_utils::*;
 
     #[maze_test(quad)]
     fn back(maze: TestMaze) {

@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 
 #[cfg(feature = "serde")]
-use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
 use crate::shape::Shape;
 
@@ -41,10 +41,9 @@ pub struct Angle {
 
 /// A wall.
 ///
-/// Walls have an index, which is used by [`Room`](crate::room::Room) to
-/// generate bit masks, and a direction, which indicates the position of the
-/// room on the other side of a wall, relative to the room to which the wall
-/// belongs.
+/// Walls have an index, which is used by [`Room`](crate::room::Room) to generate bit masks, and a
+/// direction, which indicates the position of the room on the other side of a wall, relative to
+/// the room to which the wall belongs.
 #[derive(Clone)]
 pub struct Wall {
     /// The name of this wall.
@@ -55,9 +54,9 @@ pub struct Wall {
 
     /// The ordinal of this wall.
     ///
-    /// The ordinals will be in the range _[0, n)_, where _n_ is the number of
-    /// walls for the shape. When listing the walls of a room, the sequence
-    /// number of a wall will be equal to this number.
+    /// The ordinals will be in the range _[0, n)_, where _n_ is the number of walls for the shape.
+    /// When listing the walls of a room, the sequence number of a wall will be equal to this
+    /// number.
     pub ordinal: usize,
 
     /// The index of this wall, used to generate the bit mask.
@@ -66,14 +65,13 @@ pub struct Wall {
     /// Offsets to other walls in the first corner of this wall.
     pub corner_wall_offsets: &'static [Offset],
 
-    /// The horizontal and vertical offset of the room on the other side of this
-    /// wall.
+    /// The horizontal and vertical offset of the room on the other side of this wall.
     pub dir: (isize, isize),
 
     /// The span, in radians, of the wall.
     ///
-    /// The first value is the start of the span, and the second value the end.
-    /// The second value will be smaller if the span wraps around _2𝜋_.
+    /// The first value is the start of the span, and the second value the end. The second value
+    /// will be smaller if the span wraps around _2𝜋_.
     pub span: (Angle, Angle),
 
     /// The previous wall, clock-wise.
@@ -98,11 +96,7 @@ impl Wall {
             angle
         } else {
             let t = angle % TAU;
-            if t >= 0.0 {
-                t
-            } else {
-                t + TAU
-            }
+            if t >= 0.0 { t } else { t + TAU }
         }
     }
 
@@ -125,9 +119,7 @@ impl Wall {
 
 impl PartialEq for Wall {
     fn eq(&self, other: &Self) -> bool {
-        self.shape == other.shape
-            && self.index == other.index
-            && self.dir == other.dir
+        self.shape == other.shape && self.index == other.index && self.dir == other.dir
     }
 }
 
@@ -316,8 +308,7 @@ mod tests {
     fn wall_serialization(maze: TestMaze) {
         for wall in maze.all_walls() {
             let serialized = serde_json::to_string(wall).unwrap();
-            let deserialized: &'static Wall =
-                serde_json::from_str(&serialized).unwrap();
+            let deserialized: &'static Wall = serde_json::from_str(&serialized).unwrap();
             assert_eq!(*wall, deserialized);
         }
     }
@@ -334,7 +325,8 @@ mod tests {
                     .map(|t| 2.0 * (TAU * (t as f32 / count as f32) - PI))
                     .filter(|&a| {
                         maze.walls(matrix::Pos { col, row: 0 })
-                            .iter().find(|wall| wall.in_span(a))
+                            .iter()
+                            .find(|wall| wall.in_span(a))
                             .is_none()
                     }),
             );

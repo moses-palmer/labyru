@@ -64,7 +64,7 @@ macro_rules! character {
 /// };
 /// ```
 macro_rules! alphabet {
-    ($($name:expr => [$($bits:ident)*],)* _ => [$($default:ident)*] ) => {
+    ($($name:expr_2021 => [$($bits:ident)*],)* _ => [$($default:ident)*] ) => {
         {
             let mut map = ::std::collections::HashMap::new();
             $(map.insert(

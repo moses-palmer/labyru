@@ -26,9 +26,9 @@ impl Color {
     ///
     /// # Arguments
     /// *  `other` - The other colour.
-    /// *  `w` - The weight of this colour. If this is `1.0` or greater, `self`
-    ///   colour is returned; if this is 0.0 or less, `other` is returned;
-    ///   otherwise a linear interpolation between the colours is returned.
+    /// *  `w` - The weight of this colour. If this is `1.0` or greater, `self` colour is returned;
+    ///    if this is 0.0 or less, `other` is returned; otherwise a linear interpolation between the
+    ///    colours is returned.
     pub fn fade(self, other: Self, w: f32) -> Color {
         if w >= 1.0 {
             self
@@ -38,12 +38,9 @@ impl Color {
             let n = 1.0 - w;
             Color {
                 red: (f32::from(self.red) * w + f32::from(other.red) * n) as u8,
-                green: (f32::from(self.green) * w + f32::from(other.green) * n)
-                    as u8,
-                blue: (f32::from(self.blue) * w + f32::from(other.blue) * n)
-                    as u8,
-                alpha: (f32::from(self.alpha) * w + f32::from(other.alpha) * n)
-                    as u8,
+                green: (f32::from(self.green) * w + f32::from(other.green) * n) as u8,
+                blue: (f32::from(self.blue) * w + f32::from(other.blue) * n) as u8,
+                alpha: (f32::from(self.alpha) * w + f32::from(other.alpha) * n) as u8,
             }
         }
     }
@@ -54,9 +51,8 @@ impl str::FromStr for Color {
 
     /// Converts a string to a colour.
     ///
-    /// This method supports colours on the form `#RRGGBB` and `#RRGGBBAA`,
-    /// where `RR`, `GG`, `BB` and `AA` are the red, green, blue and alpha
-    /// components hex encoded.
+    /// This method supports colours on the form `#RRGGBB` and `#RRGGBBAA`, where `RR`, `GG`, `BB`
+    /// and `AA` are the red, green, blue and alpha components hex encoded.
     ///
     /// # Arguments
     /// *  `s` - The string to convert.

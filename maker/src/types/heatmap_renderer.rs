@@ -25,13 +25,11 @@ impl FromStr for HeatMapRenderer {
     /// Converts a string to a heat map description.
     ///
     /// The string can be on three forms:
-    /// 1. `map_type`: If only a value that can be made into a
-    ///    [`HeatMapType`](HeatMapType) is passed, the `from` and `to` values
-    ///    will be `#000000FF` and `#FFFF0000`.
-    /// 2. `map_type,colour`: If only one colour is passed, the `from` and `to`
-    ///    values will be `#00000000` and the colour passed.
-    /// 3. `map_type,from,to`: If two colours are passed, they are used as
-    ///    `from` and `to` values.
+    /// 1. `map_type`: If only a value that can be made into a [`HeatMapType`](HeatMapType) is
+    ///    passed, the `from` and `to` values will be `#000000FF` and `#FFFF0000`.
+    /// 2. `map_type,colour`: If only one colour is passed, the `from` and `to` values will be
+    ///    `#00000000` and the colour passed.
+    /// 3. `map_type,from,to`: If two colours are passed, they are used as `from` and `to` values.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
         let map_type = parts.next().map(HeatMapType::from_str).unwrap()?;
@@ -73,8 +71,8 @@ impl FromStr for HeatMapRenderer {
 impl Renderer for HeatMapRenderer {
     /// Applies the heat map action.
     ///
-    /// This action will calculate a heat map, and use the heat of each room to
-    /// interpolate between the colours in `action`.
+    /// This action will calculate a heat map, and use the heat of each room to interpolate between
+    /// the colours in `action`.
     ///
     /// # Arguments
     /// *  `maze` - The maze.

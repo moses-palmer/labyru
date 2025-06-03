@@ -151,6 +151,21 @@ pub trait Randomizer {
     fn random(&mut self) -> f64;
 }
 
+#[cfg(feature = "fastrand")]
+impl Randomizer for fastrand::Rng {
+    fn range(&mut self, a: usize, b: usize) -> usize {
+        if a < b {
+            self.usize(a..b)
+        } else {
+            self.usize(b..a)
+        }
+    }
+
+    fn random(&mut self) -> f64 {
+        self.f64()
+    }
+}
+
 #[cfg(feature = "rand")]
 impl<T> Randomizer for T
 where
@@ -350,7 +365,7 @@ where
 }
 
 #[cfg(test)]
-#[cfg(feature = "rand")]
+#[cfg(any(feature = "fastrand", feature = "rand"))]
 mod tests {
     use maze_test::maze_test;
 
@@ -523,6 +538,11 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[cfg(feature = "fastrand")]
+    fn rng() -> impl Randomizer {
+        fastrand::Rng::new()
     }
 
     #[cfg(feature = "rand")]

@@ -58,12 +58,7 @@ impl Shape {
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     /// *  `data` - A function providing data for rooms.
-    pub fn create_with_data<F, T>(
-        self,
-        width: usize,
-        height: usize,
-        data: F,
-    ) -> Maze<T>
+    pub fn create_with_data<F, T>(self, width: usize, height: usize, data: F) -> Maze<T>
     where
         F: FnMut(matrix::Pos) -> T,
         T: Clone,
@@ -76,9 +71,8 @@ impl Shape {
         self as usize
     }
 
-    /// Calculates the minimal dimensions for a maze to let the distance
-    /// between the leftmost and rightmost corners be `width` and the distance
-    /// between the top and bottom be `height`.
+    /// Calculates the minimal dimensions for a maze to let the distance between the leftmost and
+    /// rightmost corners be `width` and the distance between the top and bottom be `height`.
     ///
     /// # Arguments
     /// *  `width` - The required physical width.
@@ -104,8 +98,8 @@ impl Shape {
 
     /// Returns the opposite of a wall.
     ///
-    /// The opposite is the wall located on the opposite side of the room. For
-    /// mazes with rooms with an odd number of walls, there is no opposite wall.
+    /// The opposite is the wall located on the opposite side of the room. For mazes with rooms
+    /// with an odd number of walls, there is no opposite wall.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
@@ -147,8 +141,8 @@ impl Shape {
 
     /// Calculates the _view box_ for a maze with this shape when rendered.
     ///
-    /// The returned value is the minimal rectangle that will contain a maze
-    /// with the specified matrix dimensions.
+    /// The returned value is the minimal rectangle that will contain a maze with the specified
+    /// matrix dimensions.
     ///
     /// # Arguments
     /// *  `cols` - The number of columns in the matrix.
@@ -176,9 +170,7 @@ impl Shape {
 
             window = left
                 .chain(right)
-                .map(|(center, wall)| {
-                    (center.x + wall.span.0.dx, center.y + wall.span.0.dy)
-                })
+                .map(|(center, wall)| (center.x + wall.span.0.dx, center.y + wall.span.0.dy))
                 .fold(window, |acc, v| {
                     (
                         acc.0.min(v.0),
@@ -295,9 +287,8 @@ where
 {
     /// All walls for a shape.
     ///
-    /// This method does not necessarily return an array where the length is
-    /// equal to the number of walls, since walls for all room layouts are
-    /// present.
+    /// This method does not necessarily return an array where the length is equal to the number of
+    /// walls, since walls for all room layouts are present.
     pub fn all_walls(&self) -> &'static [&'static wall::Wall] {
         self.shape.all_walls()
     }
@@ -314,8 +305,8 @@ where
 
     /// The opposite of a wall.
     ///
-    /// The opposite is the wall located on the opposite side of the room. For
-    /// mazes with rooms with an odd number of walls, there is no opposite wall.
+    /// The opposite is the wall located on the opposite side of the room. For mazes with rooms
+    /// with an odd number of walls, there is no opposite wall.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
@@ -341,8 +332,7 @@ where
 
     /// The matrix position whose centre is closest to a physical position.
     ///
-    /// The position returned may not correspond to an actual room; it may lie
-    /// outside of the maze.
+    /// The position returned may not correspond to an actual room; it may lie outside of the maze.
     ///
     /// # Arguments
     /// *  `pos` - The physical position.
@@ -350,11 +340,10 @@ where
         self.shape.physical_to_cell(pos)
     }
 
-    /// The matrix position whose centre is closest to a physical position
-    /// along with the closest wall.
+    /// The matrix position whose centre is closest to a physical position along with the closest
+    /// wall.
     ///
-    /// The position returned may not correspond to an actual room; it may lie
-    /// outside of the maze.
+    /// The position returned may not correspond to an actual room; it may lie outside of the maze.
     ///
     /// # Arguments
     /// *  `pos` - The physical position.
@@ -364,19 +353,16 @@ where
 
     /// Yields all rooms that are touched by the rectangle described.
     ///
-    /// This method does not perform an exhaustive check; rather, only the
-    /// centre and all corners of rooms are considered, and all rooms for which
-    /// any of these points are inside of the rectangle are yielded.
+    /// This method does not perform an exhaustive check; rather, only the centre and all corners
+    /// of rooms are considered, and all rooms for which any of these points are inside of the
+    /// rectangle are yielded.
     ///
-    /// Thus, a small rectangle inside a room not touching the centre nor any
-    /// corner will not match.
+    /// Thus, a small rectangle inside a room not touching the centre nor any corner will not
+    /// match.
     ///
     /// # Arguments
     /// *  `viewbox` - The rectangle.
-    pub fn rooms_touched_by(
-        &self,
-        viewbox: physical::ViewBox,
-    ) -> Vec<matrix::Pos> {
+    pub fn rooms_touched_by(&self, viewbox: physical::ViewBox) -> Vec<matrix::Pos> {
         let center = viewbox.center();
         let left = viewbox.corner.x;
         let top = viewbox.corner.y;
@@ -392,10 +378,7 @@ where
             // Add all rooms inside of the rectangle
             result.extend(surround(start, distance).filter(|&pos| {
                 let center = self.center(pos);
-                (center.x >= left
-                    && center.y >= top
-                    && center.x <= right
-                    && center.y <= bottom)
+                (center.x >= left && center.y >= top && center.x <= right && center.y <= bottom)
                     || self
                         .walls(pos)
                         .iter()
@@ -404,10 +387,7 @@ where
                             y: center.y + wall.span.0.dy,
                         })
                         .any(|pos| {
-                            pos.x >= left
-                                && pos.y >= top
-                                && pos.x <= right
-                                && pos.y <= bottom
+                            pos.x >= left && pos.y >= top && pos.x <= right && pos.y <= bottom
                         })
             }));
 
@@ -422,25 +402,20 @@ where
     }
 }
 
-/// Iterates over all positions with a horisontal or vertical distance of
-/// `distance` from `pos`.
+/// Iterates over all positions with a horisontal or vertical distance of `distance` from `pos`.
 ///
-/// Positions are visited clock-wise, starting with the row where the row values
-/// are the smallest.
+/// Positions are visited clock-wise, starting with the row where the row values are the smallest.
 ///
 /// # Arguments
 /// *  `pos` - The centre position.
 /// *  `distance` - The distance from the centre.
-pub fn surround(
-    pos: matrix::Pos,
-    distance: usize,
-) -> impl Iterator<Item = matrix::Pos> {
+pub fn surround(pos: matrix::Pos, distance: usize) -> impl Iterator<Item = matrix::Pos> {
     let distance = distance as isize;
 
     // Generate iterators over the edges; let bottom filter to avoid adding the
     // same row twice when distance == 0
-    let top = (pos.col - distance..=pos.col + distance)
-        .map(move |col| (col, pos.row - distance).into());
+    let top =
+        (pos.col - distance..=pos.col + distance).map(move |col| (col, pos.row - distance).into());
     let bottom = (pos.col - distance..=pos.col + distance)
         .filter(move |_| distance != 0)
         .map(move |col| (col, pos.row + distance).into())
@@ -502,11 +477,7 @@ mod tests {
     #[test]
     fn viewbox_centered_at() {
         assert_eq!(
-            physical::ViewBox::centered_at(
-                physical::Pos { x: 0.0, y: 0.0 },
-                2.0,
-                2.0
-            ),
+            physical::ViewBox::centered_at(physical::Pos { x: 0.0, y: 0.0 }, 2.0, 2.0),
             physical::ViewBox {
                 corner: physical::Pos { x: -1.0, y: -1.0 },
                 width: 2.0,
@@ -616,10 +587,7 @@ mod tests {
                 let x = center.x + d * wall.span.0.dx;
                 let y = center.y + d * wall.span.0.dy;
                 assert_eq!(maze.room_at(physical::Pos { x, y }), pos);
-                assert_eq!(
-                    maze.shape().physical_to_cell(physical::Pos { x, y }),
-                    pos,
-                );
+                assert_eq!(maze.shape().physical_to_cell(physical::Pos { x, y }), pos,);
             }
         }
     }
@@ -663,9 +631,7 @@ mod tests {
             .map(|pos| maze.center(pos))
             .fold(
                 (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN),
-                |(l, t, r, b), p| {
-                    (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
-                },
+                |(l, t, r, b), p| (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y)),
             );
         let viewbox = physical::ViewBox {
             corner: physical::Pos { x: left, y: top },
@@ -698,9 +664,7 @@ mod tests {
             })
             .fold(
                 (std::f32::MAX, std::f32::MAX, std::f32::MIN, std::f32::MIN),
-                |(l, t, r, b), p| {
-                    (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y))
-                },
+                |(l, t, r, b), p| (l.min(p.x), t.min(p.y), r.max(p.x), b.max(p.y)),
             );
         let viewbox = physical::ViewBox {
             corner: physical::Pos { x: left, y: top },

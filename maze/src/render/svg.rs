@@ -24,9 +24,7 @@ where
 
         // While a non-visited wall still exists, walk along it
         while let Some((next_pos, next_wall)) = visitor.next_wall() {
-            for (i, (from, to)) in
-                self.follow_wall((next_pos, next_wall)).enumerate()
-            {
+            for (i, (from, to)) in self.follow_wall((next_pos, next_wall)).enumerate() {
                 // Ensure the wall has not been visited before
                 if visitor.visited(from) {
                     break;
@@ -34,9 +32,8 @@ where
                     visitor.visit(from);
                 }
 
-                // For the first wall, we need to move to the corner furthest
-                // from the second wall, or just any corner if this is a
-                // one-wall line
+                // For the first wall, we need to move to the corner furthest from the second wall,
+                // or just any corner if this is a one-wall line
                 if i == 0 {
                     if let Some(next) = to {
                         let (_, pos) = corners(self, from, center(self, next));
@@ -47,10 +44,9 @@ where
                     }
                 }
 
-                // Draw a line from the previous point to the point of the
-                // current wall furthest away
-                let (_, pos) =
-                    corners(self, from, commands.last().unwrap().pos());
+                // Draw a line from the previous point to the point of the current wall furthest
+                // away
+                let (_, pos) = corners(self, from, commands.last().unwrap().pos());
                 commands.push(Operation::Line(pos));
 
                 // If the next room is outside of the maze, break
@@ -125,8 +121,8 @@ where
 
     /// Marks a wall and its back as visited.
     ///
-    /// If the wall is outside of the maze, it is ignored. The back is likewise
-    /// ignored if it is outside of the maze.
+    /// If the wall is outside of the maze, it is ignored. The back is likewise ignored if it is
+    /// outside of the maze.
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall to mark as visited.
@@ -179,8 +175,8 @@ where
     ///
     /// This function transforms the index to a room position.
     ///
-    /// If the room corresponding to the current index has never been visited,
-    /// the next room is checked until no rooms remain.
+    /// If the room corresponding to the current index has never been visited, the next room is
+    /// checked until no rooms remain.
     fn pos(&mut self) -> Option<matrix::Pos> {
         while self.index < self.maze.width() * self.maze.height() {
             let pos = matrix::Pos {
@@ -227,12 +223,8 @@ impl From<Operation> for Command {
     /// Converts a line drawing operation to an actual _SVG path command_.
     fn from(operation: Operation) -> Self {
         match operation {
-            Operation::Move(pos) => {
-                Command::Move(Position::Absolute, (pos.x, pos.y).into())
-            }
-            Operation::Line(pos) => {
-                Command::Line(Position::Absolute, (pos.x, pos.y).into())
-            }
+            Operation::Move(pos) => Command::Move(Position::Absolute, (pos.x, pos.y).into()),
+            Operation::Line(pos) => Command::Line(Position::Absolute, (pos.x, pos.y).into()),
         }
     }
 }
@@ -254,8 +246,8 @@ where
     }
 }
 
-/// Returns the physical positions of the two corners of a wall ordered by
-/// distance to another point.
+/// Returns the physical positions of the two corners of a wall ordered by distance to another
+/// point.
 ///
 /// # Arguments
 /// *  `from` - The wall position.

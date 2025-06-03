@@ -1,7 +1,7 @@
 //! # Initialisation methods
 //!
-//! This module contains implementations of initialisation methods. These are
-//! used to open walls in a fully closed maze to make it navigable.
+//! This module contains implementations of initialisation methods. These are used to open walls in
+//! a fully closed maze to make it navigable.
 
 use std::iter;
 use std::str;
@@ -26,9 +26,8 @@ pub enum Method {
     ///
     /// A dead end is a room with only one open wall.
     ///
-    /// This method starts with a fully cleared area, and adds walls until no
-    /// longer possible without creating dead ends. A maze initialised with
-    /// this method will contain loops.
+    /// This method starts with a fully cleared area, and adds walls until no longer possible
+    /// without creating dead ends. A maze initialised with this method will contain loops.
     Braid,
 
     /// Initialises a maze by opening all walls inside the area.
@@ -36,9 +35,9 @@ pub enum Method {
 
     /// Initialises a maze using a branching algorithm.
     ///
-    /// This method uses the _Randomised Prim_ algorithm to generate a maze,
-    /// which yields mazes with a branching characteristic. A maze initialised
-    /// with this method will not contain loops.
+    /// This method uses the _Randomised Prim_ algorithm to generate a maze, which yields mazes
+    /// with a branching characteristic. A maze initialised with this method will not contain
+    /// loops.
     ///
     /// See [Wikipedia] for a description of the algorithm.
     ///
@@ -47,9 +46,8 @@ pub enum Method {
 
     /// Initialises a maze using a winding algorithm.
     ///
-    /// This method uses a simple _Depth First_ algorithm to generate a maze,
-    /// which yields mazes with long winding corridors. A maze initialised with
-    /// this method will not contain loops.
+    /// This method uses a simple _Depth First_ algorithm to generate a maze, which yields mazes
+    /// with long winding corridors. A maze initialised with this method will not contain loops.
     ///
     /// See [Wikipedia] for a description of the algorithm.
     ///
@@ -105,8 +103,7 @@ impl str::FromStr for Method {
 
     /// Converts a string to an initialiser.
     ///
-    /// The source strings are the lower case names of the initialisation
-    /// methods.
+    /// The source strings are the lower case names of the initialisation methods.
     ///
     /// # Examples
     ///
@@ -142,8 +139,8 @@ impl str::FromStr for Method {
 }
 
 pub trait Randomizer {
-    /// Generates a random value in the range `[low, high)`, where `low` and
-    /// `high` are the low and high values of `a` and `b`.
+    /// Generates a random value in the range `[low, high)`, where `low` and `high` are the low and
+    /// high values of `a` and `b`.
     ///
     /// # Arguments
     /// *  `a` - A number.
@@ -238,14 +235,12 @@ where
 {
     /// Initialises a maze using the selected algorithm.
     ///
-    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
-    /// a description of the algorithms.
+    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for a description of
+    /// the algorithms.
     ///
-    /// The maze  should be fully closed; any already open walls will be
-    /// ignored and kept.
+    /// The maze  should be fully closed; any already open walls will be ignored and kept.
     ///
-    /// This method guarantees that the resulting maze is predictable if the
-    /// _RNG_ is predictable.
+    /// This method guarantees that the resulting maze is predictable if the _RNG_ is predictable.
     ///
     /// # Arguments
     /// *  `method` - The initialisation method to use.
@@ -259,25 +254,18 @@ where
 
     /// Initialises a maze using the selected algorithm.
     ///
-    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for
-    /// a description of the algorithms.
+    /// See [here](https://en.wikipedia.org/wiki/Maze_generation_algorithm) for a description of
+    /// the algorithms.
     ///
-    /// The maze  should be fully closed; any already open walls will be
-    /// ignored and kept.
+    /// The maze  should be fully closed; any already open walls will be ignored and kept.
     ///
-    /// This method guarantees that the resulting maze is predictable if the
-    /// _RNG_ is predictable.
+    /// This method guarantees that the resulting maze is predictable if the _RNG_ is predictable.
     ///
     /// # Arguments
     /// *  `method` - The initialisation method to use.
     /// *  `rng` - A random number generator.
     /// *  `filter` - A filter function used to ignore rooms.
-    pub fn initialize_filter<R, F>(
-        self,
-        method: Method,
-        rng: &mut R,
-        filter: F,
-    ) -> Self
+    pub fn initialize_filter<R, F>(self, method: Method, rng: &mut R, filter: F) -> Self
     where
         F: Fn(matrix::Pos) -> bool,
         R: Randomizer + Sized,
@@ -319,8 +307,8 @@ fn random_room(
 
 /// Ensures all rooms are connected
 ///
-/// This function will find all closed areas and ensure they have one exit to
-/// each neighbouring area.
+/// This function will find all closed areas and ensure they have one exit to each neighbouring
+/// area.
 ///
 /// # Arguments
 /// *  `maze` - The maze to modify.
@@ -331,8 +319,8 @@ where
     R: Randomizer + Sized,
     T: Clone,
 {
-    // First find all non-connected areas by visiting all rooms and filling for
-    // each filtered, non-filled room and then incrementing the area index
+    // First find all non-connected areas by visiting all rooms and filling for each filtered,
+    // non-filled room and then incrementing the area index
     let mut areas = matrix::Matrix::new(maze.width(), maze.height());
     let mut index = 0;
     for pos in maze.positions() {
@@ -369,8 +357,7 @@ mod tests {
     use crate::test_utils::*;
 
     /// The various initialisation methods tested.
-    const INITIALIZERS: &[Method] =
-        &[Method::Braid, Method::Branching, Method::Winding];
+    const INITIALIZERS: &[Method] = &[Method::Braid, Method::Branching, Method::Winding];
 
     /// Tests that range works as advertised.
     #[test]
@@ -440,8 +427,7 @@ mod tests {
         let buckets = height;
         let iterations = 100 * 100 * buckets;
         let hist = (0..iterations).fold(vec![0; buckets], |mut hist, _| {
-            hist[random_room(&mut rng, &filter_matrix).unwrap().row
-                as usize] += 1;
+            hist[random_room(&mut rng, &filter_matrix).unwrap().row as usize] += 1;
             hist
         });
 
@@ -455,14 +441,10 @@ mod tests {
     #[maze_test]
     fn initialize(maze: TestMaze) {
         for method in INITIALIZERS {
-            let maze =
-                maze.clone().initialize(*method, &mut rand::thread_rng());
+            let maze = maze.clone().initialize(*method, &mut rand::thread_rng());
 
             let from = matrix_pos(0, 0);
-            let to = matrix_pos(
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
+            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
             assert!(maze.walk(from, to).is_some());
         }
     }
@@ -485,15 +467,10 @@ mod tests {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
-            let to = matrix_pos(
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
-            let maze = maze.clone().initialize_filter(
-                *method,
-                &mut rand::thread_rng(),
-                |pos| pos != from,
-            );
+            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let maze = maze
+                .clone()
+                .initialize_filter(*method, &mut rand::thread_rng(), |pos| pos != from);
 
             assert!(maze.walk(from, to).is_none());
             assert!(maze.walk(other, to).is_some());
@@ -505,15 +482,10 @@ mod tests {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
-            let to = matrix_pos(
-                (maze.width() - 1) as isize,
-                (maze.height() - 1) as isize,
-            );
-            let maze = maze.clone().initialize_filter(
-                *method,
-                &mut rand::thread_rng(),
-                |_| false,
-            );
+            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let maze = maze
+                .clone()
+                .initialize_filter(*method, &mut rand::thread_rng(), |_| false);
 
             assert!(maze.walk(from, to).is_none());
             assert!(maze.walk(other, to).is_none());
@@ -525,11 +497,9 @@ mod tests {
         for method in INITIALIZERS {
             for _ in 0..1000 {
                 let filter = |matrix::Pos { col, row }| col > row;
-                let maze = maze.clone().initialize_filter(
-                    *method,
-                    &mut rand::thread_rng(),
-                    filter,
-                );
+                let maze = maze
+                    .clone()
+                    .initialize_filter(*method, &mut rand::thread_rng(), filter);
 
                 for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);
@@ -547,11 +517,9 @@ mod tests {
                 let filter = |matrix::Pos { col, row }| {
                     col as usize != width / 2 && row as usize != height / 2
                 };
-                let maze = maze.clone().initialize_filter(
-                    *method,
-                    &mut rand::thread_rng(),
-                    filter,
-                );
+                let maze = maze
+                    .clone()
+                    .initialize_filter(*method, &mut rand::thread_rng(), filter);
 
                 for pos in maze.positions() {
                     assert_eq!(filter(pos), maze[pos].visited);

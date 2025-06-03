@@ -20,19 +20,14 @@ impl Character {
     ///
     /// Positions outside of the bitmap are considered to be `0.0f32`.
     ///
-    /// The bit at `(0, 0)` will have the greatest impact at the physical
-    /// position `(0.5, 0.5)`.
+    /// The bit at `(0, 0)` will have the greatest impact at the physical position `(0.5, 0.5)`.
     ///
     /// # Arguments
     /// *  `pos` - The position.
     pub fn interpolated(&self, pos: physical::Pos) -> f32 {
-        // Since values are centered around (0.5, 0.5), we do not need to
-        // interpolate values outside of the range
-        if pos.x < 0.0
-            || pos.y < 0.0
-            || pos.x > WIDTH as f32
-            || pos.y > HEIGHT as f32
-        {
+        // Since values are centered around (0.5, 0.5), we do not need to interpolate values
+        // outside of the range
+        if pos.x < 0.0 || pos.y < 0.0 || pos.x > WIDTH as f32 || pos.y > HEIGHT as f32 {
             0.0
         } else {
             let (col, dx) = matrix::partition(pos.x - 0.5);
@@ -60,11 +55,7 @@ impl Character {
     /// # Arguments
     /// *  `pos` - The position to read.
     fn get(&self, pos: matrix::Pos) -> f32 {
-        if pos.col >= 0
-            && pos.row >= 0
-            && pos.col < WIDTH as isize
-            && pos.row < HEIGHT as isize
-        {
+        if pos.col >= 0 && pos.row >= 0 && pos.col < WIDTH as isize && pos.row < HEIGHT as isize {
             if self.0[pos.row as usize][pos.col as usize] {
                 1.0
             } else {
@@ -86,13 +77,12 @@ pub struct Alphabet {
 }
 
 impl Alphabet {
-    /// Generates an iterator over the pixels of a string rendered by this
-    /// alphabet.
+    /// Generates an iterator over the pixels of a string rendered by this alphabet.
     ///
     /// # Arguments
     /// *  `text` - The text to render.
-    /// *  `columns` - The number of columns. This determines the horisontal
-    ///    size of the image. When reached, a line break will be added.
+    /// *  `columns` - The number of columns. This determines the horisontal size of the image. When
+    ///    reached, a line break will be added.
     /// *  `resolution` - The number of samples to generate horisontally.
     pub fn render(
         &self,
@@ -140,8 +130,7 @@ pub struct AlphabetRenderer<'a> {
 impl<'a> AlphabetRenderer<'a> {
     /// Returns the current position.
     ///
-    /// The position is represented as the tuple
-    /// `(column * resolution, row * resolution)`.
+    /// The position is represented as the tuple `(column * resolution, row * resolution)`.
     fn position(&self) -> (usize, usize) {
         let x = self.current % (self.columns * self.resolution);
         let y = self.current / (self.columns * self.resolution);
@@ -168,10 +157,8 @@ impl<'a> Iterator for AlphabetRenderer<'a> {
             let y = iy as f32 / self.resolution as f32;
 
             // Calculate the relative position within the character cell
-            let rx = WIDTH as f32 * (ix - col * self.resolution) as f32
-                / self.resolution as f32;
-            let ry = HEIGHT as f32 * (iy - row * self.resolution) as f32
-                / self.resolution as f32;
+            let rx = WIDTH as f32 * (ix - col * self.resolution) as f32 / self.resolution as f32;
+            let ry = HEIGHT as f32 * (iy - row * self.resolution) as f32 / self.resolution as f32;
 
             Some((
                 physical::Pos { x, y },

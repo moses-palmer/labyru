@@ -23,8 +23,7 @@ where
     /// The initialised maze.
     pub maze: maze::Maze<T>,
 
-    /// A mapping from room position to the index of its initialiser in the
-    /// initialisation vector.
+    /// A mapping from room position to the index of its initialiser in the initialisation vector.
     pub areas: matrix::Matrix<usize>,
 }
 
@@ -32,8 +31,7 @@ impl<T> InitializedMaze<T>
 where
     T: Clone,
 {
-    /// Maps each room of the maze, yielding a maze with the same layout but
-    /// with transformed data.
+    /// Maps each room of the maze, yielding a maze with the same layout but with transformed data.
     ///
     /// This method allows for incorporating are information into the new maze.
     ///
@@ -80,12 +78,11 @@ where
 
     /// Initialises a maze by applying all methods defined for this collection.
     ///
-    /// This method generates a Voronoi diagram for all methods with centres and
-    /// weights from `points`, and uses that and the `filter` argument to limit
-    /// each initialisation method.
+    /// This method generates a Voronoi diagram for all methods with centres and weights from
+    /// `points`, and uses that and the `filter` argument to limit each initialisation method.
     ///
-    /// The matrix returned is the Voronoi diagram used, where values are
-    /// indices in the `methods` vector.
+    /// The matrix returned is the Voronoi diagram used, where values are indices in the `methods`
+    /// vector.
     ///
     /// # Arguments
     /// *  `maze` - The maze to initialise.
@@ -105,18 +102,16 @@ where
         P: Iterator<Item = super::Point<usize>>,
     {
         // Generate the areas
-        let areas =
-            super::matrix(&maze, points.take(self.methods.len()).collect());
+        let areas = super::matrix(&maze, points.take(self.methods.len()).collect());
 
         // Use a different initialisation method for each segment
-        let mut maze = self.methods.into_iter().enumerate().fold(
-            maze,
-            |maze, (i, method)| {
-                maze.initialize_filter(method, rng, |pos| {
-                    filter(pos) && areas[pos] == i
-                })
-            },
-        );
+        let mut maze = self
+            .methods
+            .into_iter()
+            .enumerate()
+            .fold(maze, |maze, (i, method)| {
+                maze.initialize_filter(method, rng, |pos| filter(pos) && areas[pos] == i)
+            });
 
         // Make sure all segments are connected
         initialize::connect_all(&mut maze, rng, filter);

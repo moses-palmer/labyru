@@ -13,12 +13,10 @@ use super::{COS_30, SIN_30};
 /// A span step angle
 const D: f32 = 2.0 * PI / 12.0;
 
-/// The distance between the centre of a room and the centre of a room on the
-/// next row.
+/// The distance between the centre of a room and the centre of a room on the next row.
 const HORIZONTAL_MULTIPLICATOR: f32 = COS_30;
 
-/// The distance between the centre of a room and the centre of a room on the
-/// next column.
+/// The distance between the centre of a room and the centre of a room on the next column.
 const VERTICAL_MULTIPLICATOR: f32 = 2.0 - 1.0f32 / 2.0f32;
 
 /// The vertical offset for the centre of rooms.
@@ -176,12 +174,10 @@ define_shape! {
 }
 
 /// The walls for even rows
-static WALLS_EVEN: &[&wall::Wall] =
-    &[&walls::LEFT0, &walls::UP, &walls::RIGHT0];
+static WALLS_EVEN: &[&wall::Wall] = &[&walls::LEFT0, &walls::UP, &walls::RIGHT0];
 
 /// The walls for odd rows
-static WALLS_ODD: &[&wall::Wall] =
-    &[&walls::LEFT1, &walls::RIGHT1, &walls::DOWN];
+static WALLS_ODD: &[&wall::Wall] = &[&walls::LEFT1, &walls::RIGHT1, &walls::DOWN];
 
 /// Returns whether a room is reversed.
 ///
@@ -192,11 +188,9 @@ fn is_reversed(pos: matrix::Pos) -> bool {
 }
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR)
-        .ceil() as usize;
+    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR).ceil() as usize;
 
-    let width = (width.max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR)
-        .floor() as usize;
+    let width = (width.max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).floor() as usize;
 
     (width, height)
 }

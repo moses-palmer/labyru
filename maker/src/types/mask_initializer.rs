@@ -6,8 +6,7 @@ use maze_tools::cell::*;
 
 use super::*;
 
-/// A constant used as multiplier for individual colour values to get an
-/// intensity
+/// A constant used as multiplier for individual colour values to get an intensity
 const D: f32 = 1.0 / 255.0 / 3.0;
 
 /// A masking image.
@@ -33,8 +32,8 @@ where
 
     /// Converts a string to an initialise mask description.
     ///
-    /// The string must be on the form `path,threshold`, where `path` is the
-    /// path to an image and `threshold` is a value between 0 and 1.
+    /// The string must be on the form `path,threshold`, where `path` is the path to an image and
+    /// `threshold` is a value between 0 and 1.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
         let path = parts
@@ -66,8 +65,8 @@ where
 {
     /// Applies the initialise action.
     ///
-    /// This action will use the intensity of pixels to determine whether
-    /// rooms should be part of the maze.
+    /// This action will use the intensity of pixels to determine whether rooms should be part of
+    /// the maze.
     ///
     /// # Arguments
     /// *  `maze` - The maze to initialise.

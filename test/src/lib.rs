@@ -2,20 +2,17 @@ extern crate proc_macro;
 
 use std::collections::HashSet;
 
-use proc_macro::{
-    Delimiter, Group, Ident, Punct, Spacing, Span, TokenStream, TokenTree,
-};
+use proc_macro::{Delimiter, Group, Ident, Punct, Spacing, Span, TokenStream, TokenTree};
 
 /// The different shapes of mazes for which to generate tests.
 const SHAPES: &[&str] = &["hex", "quad", "tri"];
 
 /// Marks a function as a test for a maze.
 ///
-/// Adding this attribute macro will ensure that the function is run as a test
-/// for all kinds of mazes.
+/// Adding this attribute macro will ensure that the function is run as a test for all kinds of
+/// mazes.
 ///
-/// The annotated function should take one argument, which is the maze
-/// instance.
+/// The annotated function should take one argument, which is the maze instance.
 #[proc_macro_attribute]
 pub fn maze_test(attr: TokenStream, item: TokenStream) -> TokenStream {
     // Extract the interesting parts of the original function
@@ -26,8 +23,7 @@ pub fn maze_test(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     // Generate the body of the new function
     let body = {
-        let mut body =
-            function(span, Ident::new("inner", span), args, inner_body);
+        let mut body = function(span, Ident::new("inner", span), args, inner_body);
 
         // Iterate through known shapes for consistent ordering
         for shape in SHAPES {
@@ -59,15 +55,13 @@ pub fn maze_test(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Splits a token stream into the components we use.
 ///
-/// This function expects a function definition. It does not validate the
-/// function arguments.
+/// This function expects a function definition. It does not validate the function arguments.
 ///
 /// # Arguments
 /// *  `item` - The token stream to split.
 ///
 /// # Panics
-/// This function will panic if the token stream does not contain the expected
-/// tokens.
+/// This function will panic if the token stream does not contain the expected tokens.
 fn split(item: TokenStream) -> (Span, Ident, Group, Group) {
     let mut items = item.into_iter();
 
@@ -90,12 +84,11 @@ fn split(item: TokenStream) -> (Span, Ident, Group, Group) {
 
 /// Generates a set of shapes.
 ///
-/// If the attribute is empty, a set containing all shapes will be returned
-/// instead.
+/// If the attribute is empty, a set containing all shapes will be returned instead.
 ///
 /// # Panics
-/// This function panics if the token stream is not a comma separated list of
-/// identifiers, or if any identifier is not in `SHAPES`.
+/// This function panics if the token stream is not a comma separated list of identifiers, or if
+/// any identifier is not in `SHAPES`.
 fn shapes(attr: TokenStream) -> HashSet<String> {
     let shapes = attr
         .into_iter()

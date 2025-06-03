@@ -20,8 +20,8 @@ impl FromStr for BreakPostProcessor {
     /// Converts a string to a break description.
     ///
     /// The string can be on two forms:
-    /// 1. `map_type`: If only a value that can be made into a
-    ///    [`HeatMapType`](HeatMapType) is passed, the `count` will be `1`.
+    /// 1. `map_type`: If only a value that can be made into a [`HeatMapType`](HeatMapType) is
+    ///    passed, the `count` will be `1`.
     /// 2. `map_type,count`: If a count is passed, it will be used as `count`.
     fn from_str(s: &str) -> Result<Self, String> {
         let mut parts = s.split(',').map(str::trim);
@@ -45,8 +45,8 @@ where
 {
     /// Applies the break action.
     ///
-    /// This action will repeatedly calculate a heat map, and then open walls in
-    /// rooms with higher probability in hot rooms.
+    /// This action will repeatedly calculate a heat map, and then open walls in rooms with higher
+    /// probability in hot rooms.
     ///
     /// # Arguments
     /// *  `maze` - The maze.

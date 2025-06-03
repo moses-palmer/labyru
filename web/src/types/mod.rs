@@ -26,8 +26,7 @@ impl From<Maze> for HttpResponse {
     fn from(mut source: Maze) -> Self {
         let room_count = source.dimensions.width * source.dimensions.height;
         if room_count > MAX_ROOMS {
-            HttpResponse::InsufficientStorage()
-                .body("the requested maze is too large")
+            HttpResponse::InsufficientStorage().body("the requested maze is too large")
         } else {
             let maze = source
                 .maze_type

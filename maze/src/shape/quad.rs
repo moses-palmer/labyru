@@ -109,8 +109,7 @@ define_shape! {
 }
 
 /// The walls
-static WALLS: &[&wall::Wall] =
-    &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
+static WALLS: &[&wall::Wall] = &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
 pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
     let height = (height.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;

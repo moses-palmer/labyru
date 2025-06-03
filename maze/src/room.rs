@@ -17,8 +17,9 @@ where
     /// A bit mask of open walls.
     walls: wall::Mask,
 
-    /// Whether this room has been visited. This is true if at least one wall
-    /// has at any time been opened.
+    /// Whether this room has been visited.
+    ///
+    /// This is true if at least one wall has at any time been opened.
     pub visited: bool,
 
     /// The data associated with this room.

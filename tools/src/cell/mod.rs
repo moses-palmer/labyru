@@ -34,7 +34,7 @@ where
     fn split_by(self, cells: &C, width: usize, height: usize) -> matrix::Matrix<T>;
 }
 
-impl<'a, C, I, T, U> Splitter<C, T, U> for &'a mut I
+impl<C, I, T, U> Splitter<C, T, U> for &mut I
 where
     C: Cells,
     I: Iterator<Item = (physical::Pos, U)>,

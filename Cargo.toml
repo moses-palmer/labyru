@@ -7,6 +7,7 @@ edition = "2024"
 actix-web = "4.11"
 bit-set = "0.8"
 clap = { version = "4.5", features = [ "cargo", "derive" ] }
+fastrand = "2.3"
 futures-util = "0.3"
 image = "0.25"
 lazy_static = "1.5"

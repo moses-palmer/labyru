@@ -159,7 +159,6 @@ fn main() {
     let (width, height) = args
         .render_background_ratio
         .and_then(|render_background_ratio| {
-            println!("RENDER BACKGROUND RATIO {}", render_background_ratio);
             args.render_background.as_ref().map(|render_background| {
                 args.shape.minimal_dimensions(
                     render_background.image.width() as f32 / render_background_ratio,

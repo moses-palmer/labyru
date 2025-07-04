@@ -151,7 +151,6 @@ fn maze_to_viewbox(maze: &Maze, scale: f32, margin: f32) -> (f32, f32, f32, f32)
     (maze.viewbox() * scale).expand(margin).tuple()
 }
 
-#[allow(unused_mut)]
 fn main() {
     let args = Arguments::parse();
 
@@ -175,7 +174,7 @@ fn main() {
 
     // Make sure the maze is initialised
     let maze = {
-        let mut maze = args.initialize_mask.initialize(
+        let maze = args.initialize_mask.initialize(
             args.shape.create(width, height),
             &mut rng,
             args.methods,

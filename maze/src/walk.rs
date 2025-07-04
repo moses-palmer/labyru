@@ -48,7 +48,6 @@ where
     /// {
     ///     println!("{:?} is room #{} on the path", pos, i);
     /// }
-    ///
     /// ```
     ///
     /// # Arguments

@@ -120,7 +120,7 @@ where
 {
     let document = svg::Document::new().set("viewBox", maze_to_viewbox(&maze, scale, margin));
     let mut container =
-        svg::node::element::Group::new().set("transform", format!("scale({})", scale));
+        svg::node::element::Group::new().set("transform", format!("scale({scale})"));
 
     for renderer in renderers {
         renderer.render(&maze, &mut container);

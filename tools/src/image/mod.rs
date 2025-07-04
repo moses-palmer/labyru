@@ -58,7 +58,7 @@ impl str::FromStr for Color {
     /// *  `s` - The string to convert.
     fn from_str(s: &str) -> Result<Color, String> {
         if !s.starts_with('#') || s.len() % 2 == 0 {
-            Err(format!("unknown colour value: {}", s))
+            Err(format!("unknown colour value: {s}"))
         } else {
             let data = s
                 .bytes()
@@ -104,7 +104,7 @@ impl str::FromStr for Color {
                     blue: data[3],
                     alpha: data[0],
                 }),
-                _ => Err(format!("invalid colour format: {}", s)),
+                _ => Err(format!("invalid colour format: {s}")),
             }
         }
     }

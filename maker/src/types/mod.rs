@@ -176,7 +176,7 @@ impl FromStr for HeatMapType {
             "vertical" => Ok(HeatMapType::Vertical),
             "horizontal" => Ok(HeatMapType::Horizontal),
             "full" => Ok(HeatMapType::Full),
-            _ => Err(format!("unknown heat map type: {}", s)),
+            _ => Err(format!("unknown heat map type: {s}")),
         }
     }
 }

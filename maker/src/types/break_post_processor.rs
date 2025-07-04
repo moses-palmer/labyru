@@ -31,7 +31,7 @@ impl FromStr for BreakPostProcessor {
             if let Ok(count) = part1.parse() {
                 Ok(Self { map_type, count })
             } else {
-                Err(format!("invalid count: {}", part1))
+                Err(format!("invalid count: {part1}"))
             }
         } else {
             Ok(Self { map_type, count: 1 })

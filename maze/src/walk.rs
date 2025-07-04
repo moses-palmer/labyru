@@ -48,7 +48,6 @@ where
     /// {
     ///     println!("{:?} is room #{} on the path", pos, i);
     /// }
-    ///
     /// ```
     ///
     /// # Arguments
@@ -69,7 +68,7 @@ where
 
         // The heuristic for a room position
         let target = self.center(end);
-        let h = |pos: matrix::Pos| Priority((target - self.center(pos)).value());
+        let h = |pos| Priority((target - self.center(pos)).value());
 
         // The room positions pending evaluation and their cost
         let mut open_set = OpenSet::new(self.width(), self.height());

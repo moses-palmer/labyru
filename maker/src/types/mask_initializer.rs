@@ -45,16 +45,16 @@ where
             if let Ok(threshold) = part1.parse() {
                 Ok(Self {
                     image: image::open(path)
-                        .map_err(|_| format!("failed to open {}", s))?
+                        .map_err(|_| format!("failed to open {s}"))?
                         .to_rgb8(),
                     threshold,
                     _marker: ::std::marker::PhantomData,
                 })
             } else {
-                Err(format!("invalid threshold: {}", part1))
+                Err(format!("invalid threshold: {part1}"))
             }
         } else {
-            Err(format!("invalid mask: {}", s))
+            Err(format!("invalid mask: {s}"))
         }
     }
 }

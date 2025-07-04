@@ -120,7 +120,7 @@ where
 {
     let document = svg::Document::new().set("viewBox", maze_to_viewbox(&maze, scale, margin));
     let mut container =
-        svg::node::element::Group::new().set("transform", format!("scale({})", scale));
+        svg::node::element::Group::new().set("transform", format!("scale({scale})"));
 
     for renderer in renderers {
         renderer.render(&maze, &mut container);
@@ -151,7 +151,6 @@ fn maze_to_viewbox(maze: &Maze, scale: f32, margin: f32) -> (f32, f32, f32, f32)
     (maze.viewbox() * scale).expand(margin).tuple()
 }
 
-#[allow(unused_mut)]
 fn main() {
     let args = Arguments::parse();
 
@@ -159,7 +158,6 @@ fn main() {
     let (width, height) = args
         .render_background_ratio
         .and_then(|render_background_ratio| {
-            println!("RENDER BACKGROUND RATIO {}", render_background_ratio);
             args.render_background.as_ref().map(|render_background| {
                 args.shape.minimal_dimensions(
                     render_background.image.width() as f32 / render_background_ratio,
@@ -176,7 +174,7 @@ fn main() {
 
     // Make sure the maze is initialised
     let maze = {
-        let mut maze = args.initialize_mask.initialize(
+        let maze = args.initialize_mask.initialize(
             args.shape.create(width, height),
             &mut rng,
             args.methods,

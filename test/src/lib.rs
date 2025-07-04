@@ -30,9 +30,8 @@ pub fn maze_test(attr: TokenStream, item: TokenStream) -> TokenStream {
             if shapes.iter().any(|s| s == shape) {
                 body.extend(
                     format!(
-                        "inner(\"{}\".parse::<crate::Shape>()
+                        "inner(\"{shape}\".parse::<crate::Shape>()
                         .unwrap().create(10, 5));",
-                        shape,
                     )
                     .parse::<TokenStream>()
                     .unwrap(),
@@ -95,7 +94,7 @@ fn shapes(attr: TokenStream) -> HashSet<String> {
         .flat_map(|tree| match tree {
             TokenTree::Ident(ref shape) => Some(shape.to_string()),
             TokenTree::Punct(ref punct) if punct.as_char() == ',' => None,
-            _ => panic!("Unexpected token: {}", tree),
+            _ => panic!("Unexpected token: {tree}"),
         })
         .collect::<HashSet<_>>();
     if shapes.is_empty() {
@@ -103,7 +102,7 @@ fn shapes(attr: TokenStream) -> HashSet<String> {
     } else {
         for shape in shapes.iter() {
             if !SHAPES.iter().any(|&s| s == shape) {
-                panic!("Unknown shape: {}", shape);
+                panic!("Unknown shape: {shape}");
             }
         }
         shapes

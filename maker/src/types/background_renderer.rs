@@ -25,7 +25,7 @@ impl FromStr for BackgroundRenderer {
     fn from_str(s: &str) -> Result<Self, String> {
         Ok(Self {
             image: image::open(s)
-                .map_err(|_| format!("failed to open {}", s))?
+                .map_err(|_| format!("failed to open {s}"))?
                 .to_rgb8(),
         })
     }

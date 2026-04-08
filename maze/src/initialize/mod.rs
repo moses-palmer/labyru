@@ -327,6 +327,7 @@ fn random_room(
 ///
 /// # Arguments
 /// *  `maze` - The maze to modify.
+/// *  `rng` - A random number generator.
 /// *  `filter` - A filter for rooms to consider.
 pub fn connect_all<F, R, T>(maze: &mut Maze<T>, rng: &mut R, filter: F)
 where

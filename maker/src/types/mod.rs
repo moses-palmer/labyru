@@ -317,8 +317,8 @@ where
             .walls(pos)
             .iter()
             .enumerate()
-            .map(|(i, wall)| {
-                let (coords, _) = maze.corners((pos, wall));
+            .map(|(i, &wall)| {
+                let (coords, _) = maze.corners((pos, wall).into());
                 if i == 0 {
                     svg::node::element::path::Command::Move(
                         svg::node::element::path::Position::Absolute,

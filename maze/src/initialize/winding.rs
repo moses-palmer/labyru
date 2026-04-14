@@ -37,9 +37,9 @@ where
         let neighbors = maze
             .walls(current)
             .iter()
-            .map(|wall| maze.back((current, wall)))
-            .filter(|&(pos, _)| *candidates.get(pos).unwrap_or(&false))
-            .map(|(pos, wall)| (pos, maze.back((pos, wall)).1))
+            .map(|&wall| maze.back((current, wall).into()))
+            .filter(|wall_pos| *candidates.get(wall_pos.pos).unwrap_or(&false))
+            .map(|wall_pos| (wall_pos.pos, maze.back(wall_pos).wall))
             .collect::<Vec<_>>();
 
         // If any exists, move to a random one and update the path, otherwise backtrack to  the
@@ -47,7 +47,7 @@ where
         // random room
         if !neighbors.is_empty() {
             let (next, wall) = neighbors[rng.range(0, neighbors.len())];
-            maze.open((current, wall));
+            maze.open((current, wall).into());
             path.push(current);
             current = next;
         } else if let Some(next) = path.pop().or_else(|| super::random_room(rng, &candidates)) {

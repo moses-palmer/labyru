@@ -23,8 +23,8 @@ where
         let mut visitor = Visitor::new(self);
 
         // While a non-visited wall still exists, walk along it
-        while let Some((next_pos, next_wall)) = visitor.next_wall() {
-            for (i, (from, to)) in self.follow_wall((next_pos, next_wall)).enumerate() {
+        while let Some(next_wall_pos) = visitor.next_wall() {
+            for (i, (from, to)) in self.follow_wall(next_wall_pos).enumerate() {
                 // Ensure the wall has not been visited before
                 if visitor.visited(from) {
                     break;
@@ -50,7 +50,10 @@ where
                 commands.push(Operation::Line(pos));
 
                 // If the next room is outside of the maze, break
-                if to.map(|(pos, _)| !self.is_inside(pos)).unwrap_or(false) {
+                if to
+                    .map(|wall_pos| !self.is_inside(wall_pos.pos))
+                    .unwrap_or(false)
+                {
                     break;
                 }
             }
@@ -126,13 +129,13 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall to mark as visited.
     fn visit(&mut self, wall_pos: WallPos) {
-        if let Some(mask) = self.walls.get_mut(wall_pos.0) {
-            *mask |= 1 << wall_pos.1.index;
+        if let Some(mask) = self.walls.get_mut(wall_pos.pos) {
+            *mask |= 1 << wall_pos.wall.index;
         }
 
         let back = self.maze.back(wall_pos);
-        if let Some(back_mask) = self.walls.get_mut(back.0) {
-            *back_mask |= 1 << back.1.index;
+        if let Some(back_mask) = self.walls.get_mut(back.pos) {
+            *back_mask |= 1 << back.wall.index;
         }
     }
 
@@ -141,8 +144,8 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position to check.
     fn visited(&self, wall_pos: WallPos) -> bool {
-        if let Some(mask) = self.walls.get(wall_pos.0) {
-            (mask & (1 << wall_pos.1.index)) != 0
+        if let Some(mask) = self.walls.get(wall_pos.pos) {
+            (mask & (1 << wall_pos.wall.index)) != 0
         } else {
             false
         }
@@ -156,9 +159,9 @@ where
                 .walls(pos)
                 .iter()
                 // Keep only closed walls that have not yet been drawn
-                .filter(|&w| !self.maze.is_open((pos, w)))
-                .filter(|&w| !self.visited((pos, *w)))
-                .map(|&w| (pos, w))
+                .filter(|&&w| !self.maze.is_open((pos, w).into()))
+                .filter(|&&w| !self.visited((pos, w).into()))
+                .map(|&w| (pos, w).into())
                 .next()
             {
                 return Some(next);

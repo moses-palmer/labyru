@@ -1,4 +1,5 @@
 use crate::Maze;
+use crate::WallPos;
 
 use crate::matrix;
 
@@ -18,10 +19,10 @@ where
     T: Clone,
 {
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
-        for wall in maze.walls(pos) {
-            let (pos, wall) = maze.back((pos, wall));
+        for &wall in maze.walls(pos) {
+            let WallPos { pos, wall } = maze.back((pos, wall).into());
             if *candidates.get(pos).unwrap_or(&false) {
-                maze.open((pos, wall));
+                maze.open((pos, wall).into());
             }
         }
     }

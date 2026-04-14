@@ -22,7 +22,21 @@ pub mod room;
 pub mod walk;
 
 /// A wall of a room.
-pub type WallPos = (matrix::Pos, &'static wall::Wall);
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct WallPos {
+    /// The room position.
+    pub pos: matrix::Pos,
+
+    /// The wall.
+    pub wall: &'static wall::Wall,
+}
+
+impl From<(matrix::Pos, &'static wall::Wall)> for WallPos {
+    fn from((pos, wall): (matrix::Pos, &'static wall::Wall)) -> Self {
+        WallPos { pos, wall }
+    }
+}
 
 /// A matrix of rooms.
 type Rooms<T> = matrix::Matrix<room::Room<T>>;
@@ -146,8 +160,8 @@ where
     /// *  `wall_pos` - The wall position.
     pub fn is_open(&self, wall_pos: WallPos) -> bool {
         self.rooms
-            .get(wall_pos.0)
-            .map(|room| room.is_open(wall_pos.1))
+            .get(wall_pos.pos)
+            .map(|room| room.is_open(wall_pos.wall))
             .unwrap_or(false)
     }
 
@@ -162,7 +176,7 @@ where
         self.walls(pos1)
             .iter()
             .find(|wall| (pos1.col + wall.dir.0 == pos2.col) && (pos1.row + wall.dir.1 == pos2.row))
-            .map(|&wall| (pos1, wall))
+            .map(|&wall| (pos1, wall).into())
     }
 
     /// Whether two rooms are connected.
@@ -190,14 +204,14 @@ where
     /// *  `value` - Whether to open the wall.
     pub fn set_open(&mut self, wall_pos: WallPos, value: bool) {
         // First modify the requested wall...
-        if let Some(room) = self.rooms.get_mut(wall_pos.0) {
-            room.set_open(wall_pos.1, value);
+        if let Some(room) = self.rooms.get_mut(wall_pos.pos) {
+            room.set_open(wall_pos.wall, value);
         }
 
         // ...and then sync the value on the back
         let other = self.back(wall_pos);
-        if let Some(other_room) = self.rooms.get_mut(other.0) {
-            other_room.set_open(other.1, value);
+        if let Some(other_room) = self.rooms.get_mut(other.pos) {
+            other_room.set_open(other.wall, value);
         }
     }
 
@@ -230,8 +244,8 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
-        let center = self.center(wall_pos.0);
-        (center + wall_pos.1.span.0, center + wall_pos.1.span.1)
+        let center = self.center(wall_pos.pos);
+        (center + wall_pos.wall.span.0, center + wall_pos.wall.span.1)
     }
 
     /// See [`Self::corner_walls_start`].
@@ -253,7 +267,10 @@ where
         &self,
         wall_pos: WallPos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
-        let (matrix::Pos { col, row }, wall) = wall_pos;
+        let WallPos {
+            pos: matrix::Pos { col, row },
+            wall,
+        } = wall_pos;
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
             move |&wall::Offset { dx, dy, wall }| {
                 (
@@ -263,6 +280,7 @@ where
                     },
                     wall,
                 )
+                    .into()
             },
         ))
     }
@@ -281,16 +299,22 @@ where
         wall_pos: WallPos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
         let shape = self.shape;
-        let (matrix::Pos { col, row }, wall) = shape.back(wall_pos);
+        let WallPos {
+            pos: matrix::Pos { col, row },
+            wall,
+        } = shape.back(wall_pos);
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().rev().map(
             move |&wall::Offset { dx, dy, wall }| {
-                shape.back((
-                    matrix::Pos {
-                        col: col + dx,
-                        row: row + dy,
-                    },
-                    wall,
-                ))
+                shape.back(
+                    (
+                        matrix::Pos {
+                            col: col + dx,
+                            row: row + dy,
+                        },
+                        wall,
+                    )
+                        .into(),
+                )
             },
         ))
     }
@@ -303,7 +327,7 @@ where
         &self,
         pos: matrix::Pos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
-        self.walls(pos).iter().map(move |&wall| (pos, wall))
+        self.walls(pos).iter().map(move |&wall| (pos, wall).into())
     }
 
     /// Iterates over all open walls of a room.
@@ -316,7 +340,7 @@ where
     ) -> impl DoubleEndedIterator<Item = &'static wall::Wall> + '_ {
         self.walls(pos)
             .iter()
-            .filter(move |&wall| self.is_open((pos, wall)))
+            .filter(move |&&wall| self.is_open((pos, wall).into()))
             .copied()
     }
 
@@ -344,7 +368,8 @@ where
     /// # Arguments
     /// *  `pos` - The room position.
     pub fn neighbors(&self, pos: matrix::Pos) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
-        self.doors(pos).map(move |wall| self.back((pos, wall)).0)
+        self.doors(pos)
+            .map(move |wall| self.back((pos, wall).into()).pos)
     }
 }
 
@@ -425,14 +450,14 @@ mod tests {
         assert!(
             maze.walls(pos)
                 .iter()
-                .filter(|wall| maze.is_open((pos, wall)))
+                .filter(|&&wall| maze.is_open((pos, wall).into()))
                 .count()
                 == 1
         );
         assert!(
             maze.walls(next)
                 .iter()
-                .filter(|wall| maze.is_open((next, wall)))
+                .filter(|&&wall| maze.is_open((next, wall).into()))
                 .count()
                 == 1
         );
@@ -446,14 +471,14 @@ mod tests {
         assert!(
             maze.walls(*pos)
                 .iter()
-                .filter(|wall| maze.is_open((*pos, wall)))
+                .filter(|&&wall| maze.is_open((*pos, wall).into()))
                 .count()
                 == 0
         );
         assert!(
             maze.walls(*next)
                 .iter()
-                .filter(|wall| maze.is_open((*next, wall)))
+                .filter(|&&wall| maze.is_open((*next, wall).into()))
                 .count()
                 == 0
         );
@@ -473,7 +498,7 @@ mod tests {
                     )
                     .is_none()
                 );
-                let wall_pos = (pos, wall);
+                let wall_pos = (pos, wall).into();
                 let other = matrix::Pos {
                     col: pos.col + wall.dir.0,
                     row: pos.row + wall.dir.1,
@@ -490,10 +515,10 @@ mod tests {
         }
 
         let pos1 = matrix_pos(1, 1);
-        for wall in maze.walls(pos1) {
+        for &wall in maze.walls(pos1) {
             let pos2 = matrix_pos(pos1.col + wall.dir.0, pos1.row + wall.dir.1);
             assert!(!maze.connected(pos1, pos2));
-            maze.open((pos1, wall));
+            maze.open((pos1, wall).into());
             assert!(maze.connected(pos1, pos2));
         }
     }
@@ -556,10 +581,10 @@ mod tests {
         let walls = maze
             .walls(pos)
             .iter()
-            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
+            .filter(|&&wall| maze.is_inside(maze.back((pos, wall).into()).pos))
             .copied()
             .collect::<Vec<_>>();
-        walls.iter().for_each(|wall| maze.open((pos, wall)));
+        walls.iter().for_each(|&wall| maze.open((pos, wall).into()));
         assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
     }
 
@@ -581,7 +606,7 @@ mod tests {
         assert_eq!(maze.neighbors(pos).collect::<Vec<_>>(), vec![]);
         maze.walls(pos)
             .iter()
-            .for_each(|wall| maze.open((pos, wall)));
+            .for_each(|&wall| maze.open((pos, wall).into()));
         assert_eq!(
             maze.neighbors(pos).collect::<Vec<_>>(),
             maze.walls(pos)

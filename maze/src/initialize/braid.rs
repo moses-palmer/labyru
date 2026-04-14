@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use crate::Maze;
+use crate::WallPos;
 
 use crate::matrix;
 
@@ -24,10 +25,10 @@ where
 {
     // First remove all inner walls
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
-        for wall in maze.walls(pos) {
-            let (pos, wall) = maze.back((pos, wall));
+        for &wall in maze.walls(pos) {
+            let WallPos { pos, wall } = maze.back((pos, wall).into());
             if *candidates.get(pos).unwrap_or(&false) {
-                maze.open((pos, wall));
+                maze.open((pos, wall).into());
             }
         }
     }
@@ -40,10 +41,10 @@ where
             maze.wall_positions(pos)
                 .map(|wall_pos| (wall_pos, maze.back(wall_pos)))
         })
-        .filter(|(_, back)| *candidates.get(back.0).unwrap_or(&false))
+        .filter(|(_, back)| *candidates.get(back.pos).unwrap_or(&false))
         .map(|(wall_pos, back)| {
-            let dx = wall_pos.0.col - back.0.col;
-            let dy = wall_pos.0.row - back.0.row;
+            let dx = wall_pos.pos.col - back.pos.col;
+            let dy = wall_pos.pos.row - back.pos.row;
             if dy < 0 || (dy == 0 && dx < 0) {
                 wall_pos
             } else {
@@ -62,7 +63,7 @@ where
     // Attempt to add every wall, but make sure no dead-ends appear
     for &wall_pos in walls {
         let back = maze.back(wall_pos);
-        if maze[wall_pos.0].open_walls() > 2 && maze[back.0].open_walls() > 2 {
+        if maze[wall_pos.pos].open_walls() > 2 && maze[back.pos].open_walls() > 2 {
             maze.close(wall_pos);
         }
     }

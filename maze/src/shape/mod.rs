@@ -600,14 +600,15 @@ mod tests {
             let center = maze.center(pos);
             for i in 0..steps {
                 let a = 2.0 * std::f32::consts::PI * (i as f32 / steps as f32);
-                let expected = (
+                let expected: WallPos = (
                     pos,
                     maze.walls(pos)
                         .iter()
                         .cloned()
                         .find(|wall| wall.in_span(a))
                         .unwrap(),
-                );
+                )
+                    .into();
                 for r in &[0.1, 0.3, 0.5] {
                     assert_eq!(
                         expected,

@@ -146,7 +146,7 @@ impl<'a> Navigator<'a> {
         let pos = self.pos.unwrap();
         self.log.push(pos);
 
-        let wall = self
+        let &wall = self
             .maze
             .walls(pos)
             .iter()
@@ -157,7 +157,7 @@ impl<'a> Navigator<'a> {
             })
             .next()
             .unwrap();
-        self.maze.set_open((pos, wall), open);
+        self.maze.set_open((pos, wall).into(), open);
         self.pos = Some(matrix_pos(pos.col + wall.dir.0, pos.row + wall.dir.1));
         self
     }

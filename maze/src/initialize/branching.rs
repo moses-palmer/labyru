@@ -24,9 +24,9 @@ where
             .map(|pos| {
                 maze.walls(pos)
                     .iter()
-                    .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
+                    .filter(|&&wall| maze.is_inside(maze.back((pos, wall).into()).pos))
                     // Create a wall position
-                    .map(|wall| (pos, *wall))
+                    .map(|&wall| (pos, wall).into())
                     .collect::<Vec<_>>()
             })
             .unwrap_or_default();
@@ -37,10 +37,10 @@ where
             let wall_pos = walls.remove(index);
 
             // Walk through the wall if we have not visited the room on the other side before
-            let (next_pos, _) = maze.back(wall_pos);
+            let next_pos = maze.back(wall_pos).pos;
             if candidates[next_pos] {
                 // Mark the rooms as visited and open the door
-                candidates[wall_pos.0] = false;
+                candidates[wall_pos.pos] = false;
                 candidates[next_pos] = false;
                 maze.open(wall_pos);
 
@@ -49,10 +49,10 @@ where
                 walls.extend(
                     maze.walls(next_pos)
                         .iter()
-                        .map(|w| maze.back((next_pos, w)))
-                        .filter(|&(pos, _)| *candidates.get(pos).unwrap_or(&false))
+                        .map(|&w| maze.back((next_pos, w).into()))
+                        .filter(|wall_pos| *candidates.get(wall_pos.pos).unwrap_or(&false))
                         .map(|wall_pos| maze.back(wall_pos))
-                        .filter(|&(pos, _)| candidates.is_inside(pos)),
+                        .filter(|wall_pos| candidates.is_inside(wall_pos.pos)),
                 );
             }
         }

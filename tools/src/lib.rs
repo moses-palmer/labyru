@@ -3,5 +3,6 @@ extern crate lazy_static;
 
 pub mod alphabet;
 pub mod cell;
+pub mod heatmap;
 pub mod image;
 pub mod voronoi;

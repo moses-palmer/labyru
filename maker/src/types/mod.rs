@@ -241,7 +241,7 @@ impl HeatMapType {
     /// *  `maze` - The maze for which to generate a heat map.
     /// *  `positions` - The positions for which to generate a heat map. These will be generated
     ///    from the heat map type.
-    fn create_heatmap<I>(&self, maze: &Maze, positions: I) -> maze::HeatMap
+    fn create_heatmap<I>(&self, maze: &Maze, positions: I) -> maze_tools::heatmap::HeatMap
     where
         I: Iterator<Item = (maze::matrix::Pos, maze::matrix::Pos)>,
     {
@@ -250,9 +250,9 @@ impl HeatMapType {
             .chunks(collected.len() / rayon::current_num_threads())
             .collect::<Vec<_>>()
             .par_iter()
-            .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
+            .map(|positions| maze_tools::heatmap::generate(maze, positions.iter().cloned()))
             .reduce(
-                || maze::HeatMap::new(maze.width(), maze.height()),
+                || maze_tools::heatmap::HeatMap::new(maze.width(), maze.height()),
                 std::ops::Add::add,
             )
     }

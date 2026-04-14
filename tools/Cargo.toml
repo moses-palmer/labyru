@@ -12,4 +12,10 @@ svg = { workspace = true, optional = true }
 
 
 [features]
-default = ["svg"]
+default = ["alphabet", "cell", "heatmap", "image", "svg", "voronoi"]
+alphabet = []
+cell = []
+heatmap = []
+image = []
+svg = ["dep:svg"]
+voronoi = []

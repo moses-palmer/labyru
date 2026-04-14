@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use clap::{Parser, arg};
+use clap::Parser;
 use svg::Node;
 
 use maze::render::svg::ToPath;
@@ -68,7 +68,7 @@ struct Arguments {
     #[arg(id = "MARGIN", long = "margin", default_value_t = 10.0)]
     margin: f32,
 
-    /// A mask image to determine which rooms are part of the mask and thenshold luminosity value
+    /// A mask image to determine which rooms are part of the mask and a threshold luminosity value
     /// between 0 and 1 on the form "path,0.5".
     #[arg(id = "INITIALIZE", long = "mask")]
     initialize_mask: Option<MaskInitializer<Random>>,

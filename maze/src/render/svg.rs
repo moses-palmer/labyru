@@ -56,12 +56,11 @@ where
             }
         }
 
-        svg::node::element::path::Data::from(
-            commands
-                .into_iter()
-                .map(Into::into)
-                .collect::<Vec<Command>>(),
-        )
+        commands
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<Command>>()
+            .into()
     }
 }
 

@@ -6,6 +6,8 @@
 
 ```bash
  ./maze-maker --help
+Generates mazes
+
 Usage: maze-maker [OPTIONS] --method <METHOD> <PATH>
 
 Arguments:
@@ -51,7 +53,8 @@ Options:
           [default: 10]
 
       --mask <INITIALIZE>
-          A mask image to determine which rooms are part of the mask and thenshold luminosity value between 0 and 1 on the form "path,0.5"
+          A mask image to determine which rooms are part of the mask and a threshold luminosity
+          value between 0 and 1 on the form "path,0.5"
 
       --heat-map <HEATMAP>
           Whether to create a heat map
@@ -66,7 +69,8 @@ Options:
           A text to draw on the maze
 
       --solve <SOLVE>
-          Whether to solve the maze, and the solution colour. If not specified, the colour defaults to "black"
+          Whether to solve the maze, and the solution colour. If not specified, the colour defaults
+          to "black"
 
       --break <POST_BREAK>
           Whether to break the maze

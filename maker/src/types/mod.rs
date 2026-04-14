@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use rand::Rng;
+use rand::RngExt;
 use rayon::prelude::*;
 use svg::Node;
 

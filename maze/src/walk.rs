@@ -2,11 +2,10 @@ use std::collections::BinaryHeap;
 
 use bit_set::BitSet;
 
-use crate::matrix;
-
-use crate::Maze;
-use crate::WallPos;
-use crate::matrix::Matrix;
+use crate::{
+    Maze, WallPos,
+    matrix::{self, Matrix},
+};
 
 /// The tuple `(current_wall, next_wall)`.
 ///
@@ -38,8 +37,8 @@ where
     ///     .walk(
     ///         matrix::Pos { col: 0, row: 0 },
     ///         matrix::Pos {
-    ///             col: maze.width() as isize - 1,
-    ///             row: maze.height() as isize - 1,
+    ///             col: maze.width() as i32 - 1,
+    ///             row: maze.height() as i32 - 1,
     ///         },
     ///     )
     ///     .unwrap()
@@ -63,8 +62,7 @@ where
         let (start, end) = (to, from);
 
         // Assume that the distance between the centres of adjacent rooms is consistent
-        let distance =
-            (self.center((0isize, 0isize).into()) - self.center((0isize, 1isize).into())).value();
+        let distance = (self.center((0, 0).into()) - self.center((0, 1).into())).value();
 
         // The heuristic for a room position
         let target = self.center(end);
@@ -88,7 +86,7 @@ where
             for wall in self.doors(current) {
                 // Find the next room, and continue if we have already evaluated it to a better
                 // distance, or it is outside of the maze
-                let (next, _) = self.back((current, wall));
+                let next = WallPos { pos: current, wall }.back().pos;
                 if !self.is_inside(next)
                     || (rooms[next].visited && rooms[next].g > rooms[current].g + distance)
                 {
@@ -141,7 +139,7 @@ where
     T: Clone,
 {
     /// The maze being walked.
-    pub(crate) maze: &'a Maze<T>,
+    maze: &'a Maze<T>,
 
     /// The backing room matrix.
     rooms: matrix::Matrix<Room>,
@@ -175,6 +173,11 @@ where
             a: end,
             b: start,
         }
+    }
+
+    /// The maze.
+    pub fn maze(&self) -> &Maze<T> {
+        self.maze
     }
 }
 
@@ -290,9 +293,9 @@ where
     /// *  `wall_pos`- The wall position for which to retrieve a room.
     fn next_wall_pos(&self, wall_pos: WallPos) -> WallPos {
         self.maze
-            .corner_walls_start((wall_pos.0, wall_pos.1.next))
+            .corner_walls_start((wall_pos.pos, wall_pos.wall.next).into())
             .find(|&next| !self.maze.is_open(next))
-            .unwrap_or_else(|| self.maze.back(wall_pos))
+            .unwrap_or_else(|| wall_pos.back())
     }
 }
 
@@ -380,10 +383,10 @@ type PriorityPos = (Priority, matrix::Pos);
 /// highest priority and querying whether a position is in the set.
 struct OpenSet {
     /// The width of the set.
-    width: usize,
+    width: u32,
 
     /// The height of the set.
-    height: usize,
+    height: u32,
 
     /// The heap containing prioritised positions.
     heap: BinaryHeap<PriorityPos>,
@@ -394,12 +397,12 @@ struct OpenSet {
 
 impl OpenSet {
     /// Creates a new open set.
-    pub fn new(width: usize, height: usize) -> OpenSet {
+    pub fn new(width: u32, height: u32) -> OpenSet {
         OpenSet {
             width,
             height,
             heap: BinaryHeap::new(),
-            present: BitSet::with_capacity(width * height),
+            present: BitSet::with_capacity((width * height) as usize),
         }
     }
 
@@ -446,10 +449,10 @@ impl OpenSet {
     fn index(&self, pos: matrix::Pos) -> Option<usize> {
         if pos.col >= 0
             && pos.row >= 0
-            && pos.col < self.width as isize
-            && pos.row < self.height as isize
+            && pos.col < self.width as i32
+            && pos.row < self.height as i32
         {
-            Some(pos.col as usize + pos.row as usize * self.width)
+            Some(pos.col as usize + pos.row as usize * self.width as usize)
         } else {
             None
         }
@@ -559,13 +562,13 @@ mod tests {
 
     #[maze_test]
     fn walk_outside(mut maze: TestMaze) {
-        let from = (0isize, 0isize).into();
+        let from = (0, 0).into();
         maze.wall_positions(from)
             .for_each(|wall_pos| maze.open(wall_pos));
 
         for to in maze
             .wall_positions(from)
-            .map(|wall_pos| maze.back(wall_pos).0)
+            .map(|wall_pos| wall_pos.back().pos)
         {
             assert_eq!(maze.walk(from, to).is_some(), maze.is_inside(to));
         }
@@ -573,13 +576,13 @@ mod tests {
 
     #[maze_test]
     fn follow_wall_order(maze: TestMaze) {
-        let start = maze.wall_positions((0isize, 0isize).into()).next().unwrap();
+        let start = maze.wall_positions((0, 0).into()).next().unwrap();
 
         for (a, b) in maze.follow_wall(start) {
             if let Some(b) = b {
                 assert!(is_close(
-                    maze.center(a.0) + a.1.span.1,
-                    maze.center(b.0) + b.1.span.0,
+                    maze.center(a.pos) + a.wall.span.1,
+                    maze.center(b.pos) + b.wall.span.0,
                 ));
             }
         }

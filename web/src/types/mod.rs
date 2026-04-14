@@ -1,8 +1,7 @@
 use actix_web::HttpResponse;
-use svg::Node;
-
 use maze::initialize;
-use maze::render::svg::ToPath;
+use maze_tools::svg::ToPath;
+use svg::Node;
 
 mod maze_type;
 pub use self::maze_type::*;
@@ -12,7 +11,7 @@ mod seed;
 pub use self::seed::*;
 
 /// The maximum nmber of rooms.
-const MAX_ROOMS: usize = 1000;
+const MAX_ROOMS: u32 = 1000;
 
 /// A responder providing an image of a maze.
 pub struct Maze {
@@ -46,8 +45,8 @@ impl From<Maze> for HttpResponse {
                         maze.walk(
                             maze::matrix::Pos { col: 0, row: 0 },
                             maze::matrix::Pos {
-                                col: maze.width() as isize - 1,
-                                row: maze.height() as isize - 1,
+                                col: maze.width() as i32 - 1,
+                                row: maze.height() as i32 - 1,
                             },
                         )
                         .unwrap()

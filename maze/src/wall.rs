@@ -3,7 +3,7 @@ use std::f32::consts::TAU;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
-use crate::shape::Shape;
+use crate::{matrix, shape::Shape};
 
 /// A wall index.
 pub type Index = usize;
@@ -16,10 +16,10 @@ pub type Mask = u32;
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Offset {
     /// The horisontal offset.
-    pub dx: isize,
+    pub dx: i32,
 
     /// The vertical offset.
-    pub dy: isize,
+    pub dy: i32,
 
     /// The neighbour index.
     pub wall: &'static Wall,
@@ -66,7 +66,7 @@ pub struct Wall {
     pub corner_wall_offsets: &'static [Offset],
 
     /// The horizontal and vertical offset of the room on the other side of this wall.
-    pub dir: (isize, isize),
+    pub dir: (i32, i32),
 
     /// The span, in radians, of the wall.
     ///
@@ -75,10 +75,13 @@ pub struct Wall {
     pub span: (Angle, Angle),
 
     /// The previous wall, clock-wise.
-    pub previous: &'static Wall,
+    pub previous: &'static Self,
 
     /// The next wall, clock-wise.
-    pub next: &'static Wall,
+    pub next: &'static Self,
+
+    /// The wall on the back of this one.
+    pub back: &'static Self,
 }
 
 impl Wall {
@@ -181,16 +184,46 @@ impl Serialize for Wall {
     }
 }
 
+/// A wall of a room.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct WallPos {
+    /// The room position.
+    pub pos: matrix::Pos,
+
+    /// The wall.
+    pub wall: &'static Wall,
+}
+
+impl WallPos {
+    /// The back of this wall.
+    ///
+    /// The back is the other side of the wall, located in a neighbouring room.
+    pub fn back(&self) -> Self {
+        let pos = matrix::Pos {
+            col: self.pos.col + self.wall.dir.0,
+            row: self.pos.row + self.wall.dir.1,
+        };
+        let wall = self.wall.back;
+        Self { pos, wall }
+    }
+}
+
+impl From<(matrix::Pos, &'static Wall)> for WallPos {
+    fn from((pos, wall): (matrix::Pos, &'static Wall)) -> Self {
+        Self { pos, wall }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-    use std::f32::consts::PI;
+    use super::*;
+
+    use std::{collections::HashSet, f32::consts::PI};
 
     use maze_test::maze_test;
 
-    use super::*;
-    use crate::*;
-    use test_utils::*;
+    use crate::{test_utils::*, *};
 
     #[maze_test]
     fn unique(maze: TestMaze) {
@@ -338,5 +371,12 @@ mod tests {
             "not all angles were in the span of a wall ({}% failed)",
             100.0 * (failures.len() as f32 / (2.0 * count as f32)),
         );
+    }
+
+    #[maze_test]
+    fn back(maze: TestMaze) {
+        for wall_pos in maze.positions().flat_map(|pos| maze.wall_positions(pos)) {
+            assert_eq!(wall_pos, wall_pos.back().back());
+        }
     }
 }

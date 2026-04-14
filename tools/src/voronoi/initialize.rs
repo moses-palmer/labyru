@@ -1,8 +1,6 @@
 use std::iter;
 
-use maze::initialize;
-use maze::matrix;
-use maze::physical;
+use maze::{initialize, matrix, physical};
 
 /// A container struct for multiple initialisation methods.
 #[derive(Clone, Debug)]

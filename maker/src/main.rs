@@ -3,10 +3,10 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 use svg::Node;
 
-use maze::render::svg::ToPath;
+use maze_tools::svg::ToPath;
 
 mod types;
-use self::types::*;
+use types::*;
 
 /// Generates mazes.
 #[derive(Parser)]
@@ -32,7 +32,7 @@ struct Arguments {
         long = "width",
         required_unless_present_all(["BACKGROUND", "RATIO"]),
     )]
-    width: Option<usize>,
+    width: Option<u32>,
 
     /// The height of the maze, in rooms.
     #[arg(
@@ -40,7 +40,7 @@ struct Arguments {
         long = "height",
         required_unless_present_all(["BACKGROUND", "RATIO"]),
     )]
-    height: Option<usize>,
+    height: Option<u32>,
 
     /// The initialisation methods to use.
     ///

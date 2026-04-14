@@ -1,6 +1,4 @@
-use crate::Maze;
-
-use crate::matrix;
+use crate::{Maze, WallPos, matrix};
 
 /// Initialises a maze using the _Randomised Prim_ algorithm.
 ///
@@ -24,9 +22,9 @@ where
             .map(|pos| {
                 maze.walls(pos)
                     .iter()
-                    .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
+                    .filter(|&&wall| maze.is_inside(WallPos { pos, wall }.back().pos))
                     // Create a wall position
-                    .map(|wall| (pos, *wall))
+                    .map(|&wall| (pos, wall).into())
                     .collect::<Vec<_>>()
             })
             .unwrap_or_default();
@@ -34,13 +32,13 @@ where
         while !walls.is_empty() {
             // Get a random wall
             let index = rng.range(0, walls.len());
-            let wall_pos = walls.remove(index);
+            let wall_pos: WallPos = walls.remove(index);
 
             // Walk through the wall if we have not visited the room on the other side before
-            let (next_pos, _) = maze.back(wall_pos);
+            let next_pos = wall_pos.back().pos;
             if candidates[next_pos] {
                 // Mark the rooms as visited and open the door
-                candidates[wall_pos.0] = false;
+                candidates[wall_pos.pos] = false;
                 candidates[next_pos] = false;
                 maze.open(wall_pos);
 
@@ -49,10 +47,12 @@ where
                 walls.extend(
                     maze.walls(next_pos)
                         .iter()
-                        .map(|w| maze.back((next_pos, w)))
-                        .filter(|&(pos, _)| *candidates.get(pos).unwrap_or(&false))
-                        .map(|wall_pos| maze.back(wall_pos))
-                        .filter(|&(pos, _)| candidates.is_inside(pos)),
+                        .map(|&wall| WallPos {
+                            pos: next_pos,
+                            wall,
+                        })
+                        .filter(|wall_pos| *candidates.get(wall_pos.back().pos).unwrap_or(&false))
+                        .filter(|wall_pos| candidates.is_inside(wall_pos.pos)),
                 );
             }
         }

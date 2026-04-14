@@ -1,7 +1,6 @@
 use std::f32;
 
-use maze::matrix;
-use maze::physical;
+use maze::{matrix, physical};
 
 pub mod initialize;
 

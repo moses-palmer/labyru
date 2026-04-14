@@ -55,7 +55,7 @@ impl Character {
     /// # Arguments
     /// *  `pos` - The position to read.
     fn get(&self, pos: matrix::Pos) -> f32 {
-        if pos.col >= 0 && pos.row >= 0 && pos.col < WIDTH as isize && pos.row < HEIGHT as isize {
+        if pos.col >= 0 && pos.row >= 0 && pos.col < WIDTH as i32 && pos.row < HEIGHT as i32 {
             if self.0[pos.row as usize][pos.col as usize] {
                 1.0
             } else {

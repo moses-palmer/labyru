@@ -4,25 +4,23 @@ use rand::Rng;
 use rayon::prelude::*;
 use svg::Node;
 
-use maze::initialize;
-use maze::matrix;
-use maze_tools::image::Color;
-use maze_tools::voronoi;
+use maze::{initialize, matrix};
+use maze_tools::{image::Color, voronoi};
 
 pub type Maze = maze::Maze<()>;
 
 pub mod background_renderer;
-pub use self::background_renderer::*;
+pub use background_renderer::*;
 pub mod break_post_processor;
-pub use self::break_post_processor::*;
+pub use break_post_processor::*;
 pub mod heatmap_renderer;
-pub use self::heatmap_renderer::*;
+pub use heatmap_renderer::*;
 pub mod mask_initializer;
-pub use self::mask_initializer::*;
+pub use mask_initializer::*;
 pub mod solve_renderer;
 pub use solve_renderer::*;
 pub mod text_renderer;
-pub use self::text_renderer::*;
+pub use text_renderer::*;
 
 /// A trait to initialise a maze.
 pub trait Initializer<R>
@@ -193,12 +191,12 @@ impl HeatMapType {
                 (0..maze.width()).map(|col| {
                     (
                         maze::matrix::Pos {
-                            col: col as isize,
+                            col: col as i32,
                             row: 0,
                         },
                         maze::matrix::Pos {
-                            col: col as isize,
-                            row: maze.height() as isize - 1,
+                            col: col as i32,
+                            row: maze.height() as i32 - 1,
                         },
                     )
                 }),
@@ -209,11 +207,11 @@ impl HeatMapType {
                     (
                         maze::matrix::Pos {
                             col: 0,
-                            row: row as isize,
+                            row: row as i32,
                         },
                         maze::matrix::Pos {
-                            col: maze.width() as isize - 1,
-                            row: row as isize,
+                            col: maze.width() as i32 - 1,
+                            row: row as i32,
                         },
                     )
                 }),
@@ -226,8 +224,8 @@ impl HeatMapType {
                         (
                             pos,
                             maze::matrix::Pos {
-                                col: maze.width() as isize - 1 - pos.col,
-                                row: maze.height() as isize - 1 - pos.row,
+                                col: maze.width() as i32 - 1 - pos.col,
+                                row: maze.height() as i32 - 1 - pos.row,
                             },
                         )
                     }),
@@ -241,7 +239,7 @@ impl HeatMapType {
     /// *  `maze` - The maze for which to generate a heat map.
     /// *  `positions` - The positions for which to generate a heat map. These will be generated
     ///    from the heat map type.
-    fn create_heatmap<I>(&self, maze: &Maze, positions: I) -> maze::HeatMap
+    fn create_heatmap<I>(&self, maze: &Maze, positions: I) -> maze_tools::heatmap::HeatMap
     where
         I: Iterator<Item = (maze::matrix::Pos, maze::matrix::Pos)>,
     {
@@ -250,9 +248,9 @@ impl HeatMapType {
             .chunks(collected.len() / rayon::current_num_threads())
             .collect::<Vec<_>>()
             .par_iter()
-            .map(|positions| maze::heatmap(maze, positions.iter().cloned()))
+            .map(|positions| maze_tools::heatmap::generate(maze, positions.iter().cloned()))
             .reduce(
-                || maze::HeatMap::new(maze.width(), maze.height()),
+                || maze_tools::heatmap::HeatMap::new(maze.width(), maze.height()),
                 std::ops::Add::add,
             )
     }
@@ -317,8 +315,8 @@ where
             .walls(pos)
             .iter()
             .enumerate()
-            .map(|(i, wall)| {
-                let (coords, _) = maze.corners((pos, wall));
+            .map(|(i, &wall)| {
+                let (coords, _) = maze.corners((pos, wall).into());
                 if i == 0 {
                     svg::node::element::path::Command::Move(
                         svg::node::element::path::Position::Absolute,

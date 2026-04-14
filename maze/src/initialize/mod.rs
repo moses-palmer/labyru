@@ -3,15 +3,12 @@
 //! This module contains implementations of initialisation methods. These are used to open walls in
 //! a fully closed maze to make it navigable.
 
-use std::iter;
-use std::str;
+use std::{iter, str};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::Maze;
-
-use crate::matrix;
+use crate::{Maze, matrix};
 
 mod braid;
 mod branching;
@@ -368,9 +365,10 @@ where
 #[cfg(test)]
 #[cfg(any(feature = "fastrand", feature = "rand"))]
 mod tests {
+    use super::*;
+
     use maze_test::maze_test;
 
-    use super::*;
     use crate::test_utils::*;
 
     /// The various initialisation methods tested.
@@ -461,7 +459,7 @@ mod tests {
             let maze = maze.clone().initialize(*method, &mut rng());
 
             let from = matrix_pos(0, 0);
-            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let to = matrix_pos((maze.width() - 1) as i32, (maze.height() - 1) as i32);
             assert!(maze.walk(from, to).is_some());
         }
     }
@@ -484,7 +482,7 @@ mod tests {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
-            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let to = matrix_pos((maze.width() - 1) as i32, (maze.height() - 1) as i32);
             let maze = maze
                 .clone()
                 .initialize_filter(*method, &mut rng(), |pos| pos != from);
@@ -499,7 +497,7 @@ mod tests {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
-            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let to = matrix_pos((maze.width() - 1) as i32, (maze.height() - 1) as i32);
             let maze = maze
                 .clone()
                 .initialize_filter(*method, &mut rng(), |_| false);

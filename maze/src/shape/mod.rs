@@ -3,11 +3,7 @@ use std::f32::consts::SQRT_2;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::matrix;
-use crate::physical;
-use crate::wall;
-
-use crate::{Maze, WallPos};
+use crate::{Maze, WallPos, matrix, physical, wall};
 
 /// cos(30°)
 const COS_30: f32 = 0.866_025_4f32;
@@ -45,7 +41,7 @@ impl Shape {
     /// # Arguments
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
-    pub fn create<T>(self, width: usize, height: usize) -> Maze<T>
+    pub fn create<T>(self, width: u32, height: u32) -> Maze<T>
     where
         T: Clone + Default,
     {
@@ -58,7 +54,7 @@ impl Shape {
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     /// *  `data` - A function providing data for rooms.
-    pub fn create_with_data<F, T>(self, width: usize, height: usize, data: F) -> Maze<T>
+    pub fn create_with_data<F, T>(self, width: u32, height: u32, data: F) -> Maze<T>
     where
         F: FnMut(matrix::Pos) -> T,
         T: Clone,
@@ -77,23 +73,13 @@ impl Shape {
     /// # Arguments
     /// *  `width` - The required physical width.
     /// *  `height` - The required physical height.
-    pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
+    pub fn minimal_dimensions(self, width: f32, height: f32) -> (u32, u32) {
         dispatch!(self => minimal_dimensions(width, height))
     }
 
     /// Returns all walls for a shape.
     pub fn all_walls(self) -> &'static [&'static wall::Wall] {
         dispatch!(self => all_walls())
-    }
-
-    /// Returns the back of a wall.
-    ///
-    /// The back is the other side of the wall, located in a neighbouring room.
-    ///
-    /// # Arguments
-    /// *  `wall_pos` - The wall position.
-    pub fn back(self, wall_pos: WallPos) -> WallPos {
-        dispatch!(self => back(wall_pos))
     }
 
     /// Returns the opposite of a wall.
@@ -147,12 +133,12 @@ impl Shape {
     /// # Arguments
     /// *  `cols` - The number of columns in the matrix.
     /// *  `rows` - The number of rows in the matrix.
-    pub fn viewbox(self, cols: usize, rows: usize) -> physical::ViewBox {
+    pub fn viewbox(self, cols: u32, rows: u32) -> physical::ViewBox {
         let mut window = (f32::MAX, f32::MAX, f32::MIN, f32::MIN);
         for y in 0..rows {
             let lpos = matrix::Pos {
                 col: 0,
-                row: y as isize,
+                row: y as i32,
             };
             let lcenter = self.cell_to_physical(lpos);
             let left = dispatch!(self => walls(lpos))
@@ -160,8 +146,8 @@ impl Shape {
                 .map(|wall| (lcenter, wall));
 
             let rpos = matrix::Pos {
-                col: cols as isize - 1,
-                row: y as isize,
+                col: cols as i32 - 1,
+                row: y as i32,
             };
             let rcenter = self.cell_to_physical(rpos);
             let right = dispatch!(self => walls(rpos))
@@ -299,8 +285,9 @@ where
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
+    #[deprecated = "use wall_pos.back() instead"]
     pub fn back(&self, wall_pos: WallPos) -> WallPos {
-        self.shape.back(wall_pos)
+        wall_pos.back()
     }
 
     /// The opposite of a wall.
@@ -410,7 +397,7 @@ where
 /// *  `pos` - The centre position.
 /// *  `distance` - The distance from the centre.
 pub fn surround(pos: matrix::Pos, distance: usize) -> impl Iterator<Item = matrix::Pos> {
-    let distance = distance as isize;
+    let distance = distance as i32;
 
     // Generate iterators over the edges; let bottom filter to avoid adding the
     // same row twice when distance == 0
@@ -435,22 +422,22 @@ pub mod tri;
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     use std::collections::HashSet;
 
     use maze_test::maze_test;
 
-    use super::*;
-    use crate::*;
-    use test_utils::*;
+    use crate::{test_utils::*, *};
 
     #[test]
     fn surround_single() {
         assert_eq!(
-            [(0isize, 0isize).into()]
+            [(0, 0).into()]
                 .iter()
                 .cloned()
                 .collect::<HashSet<matrix::Pos>>(),
-            surround((0isize, 0isize).into(), 0).collect(),
+            surround((0, 0).into(), 0).collect(),
         );
     }
 
@@ -458,19 +445,19 @@ mod tests {
     fn surround_multiple() {
         assert_eq!(
             [
-                (-1isize, -1isize).into(),
-                (0isize, -1isize).into(),
-                (1isize, -1isize).into(),
-                (-1isize, 0isize).into(),
-                (1isize, 0isize).into(),
-                (-1isize, 1isize).into(),
-                (0isize, 1isize).into(),
-                (1isize, 1isize).into(),
+                (-1, -1).into(),
+                (0, -1).into(),
+                (1, -1).into(),
+                (-1, 0).into(),
+                (1, 0).into(),
+                (-1, 1).into(),
+                (0, 1).into(),
+                (1, 1).into(),
             ]
             .iter()
             .cloned()
             .collect::<HashSet<matrix::Pos>>(),
-            surround((0isize, 0isize).into(), 1).collect(),
+            surround((0, 0).into(), 1).collect(),
         );
     }
 
@@ -600,14 +587,15 @@ mod tests {
             let center = maze.center(pos);
             for i in 0..steps {
                 let a = 2.0 * std::f32::consts::PI * (i as f32 / steps as f32);
-                let expected = (
+                let expected: WallPos = (
                     pos,
                     maze.walls(pos)
                         .iter()
                         .cloned()
                         .find(|wall| wall.in_span(a))
                         .unwrap(),
-                );
+                )
+                    .into();
                 for r in &[0.1, 0.3, 0.5] {
                     assert_eq!(
                         expected,

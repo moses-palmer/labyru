@@ -4,9 +4,7 @@ use std::str::FromStr;
 use svg::Node;
 
 use maze::physical;
-use maze_tools::alphabet;
-use maze_tools::cell::*;
-use maze_tools::image::Color;
+use maze_tools::{alphabet, cell::*, image::Color};
 
 use crate::types::*;
 
@@ -41,7 +39,7 @@ impl Renderer for TextRenderer {
         let columns = (self.text.len() as f32).sqrt().ceil() as usize;
         let rows = (self.text.len() as f32 / columns as f32).ceil() as usize;
         let data = alphabet::default::ALPHABET
-            .render(&self.text, columns, 16 * maze.width())
+            .render(&self.text, columns, 16 * maze.width() as usize)
             .map(|(pos, v)| {
                 (
                     physical::Pos {

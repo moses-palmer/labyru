@@ -1,6 +1,4 @@
-use crate::Maze;
-
-use crate::matrix;
+use crate::{Maze, WallPos, matrix};
 
 /// Initialises a maze by clearing all inner walls.
 ///
@@ -18,10 +16,10 @@ where
     T: Clone,
 {
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
-        for wall in maze.walls(pos) {
-            let (pos, wall) = maze.back((pos, wall));
-            if *candidates.get(pos).unwrap_or(&false) {
-                maze.open((pos, wall));
+        for &wall in maze.walls(pos) {
+            let wall_pos = WallPos { pos, wall }.back();
+            if *candidates.get(wall_pos.pos).unwrap_or(&false) {
+                maze.open(wall_pos);
             }
         }
     }

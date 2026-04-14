@@ -10,6 +10,7 @@ mod test_utils;
 mod macros;
 
 pub mod wall;
+pub use wall::WallPos;
 
 pub mod shape;
 pub use self::shape::Shape;
@@ -17,12 +18,8 @@ pub use self::shape::Shape;
 pub mod initialize;
 pub mod matrix;
 pub mod physical;
-pub mod render;
 pub mod room;
 pub mod walk;
-
-/// A wall of a room.
-pub type WallPos = (matrix::Pos, &'static wall::Wall);
 
 /// A matrix of rooms.
 type Rooms<T> = matrix::Matrix<room::Room<T>>;
@@ -51,7 +48,7 @@ where
     /// *  `shape` - The shape of the rooms.
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
-    pub fn new(shape: Shape, width: usize, height: usize) -> Self {
+    pub fn new(shape: Shape, width: u32, height: u32) -> Self {
         let rooms = Rooms::new(width, height);
         Self { shape, rooms }
     }
@@ -70,7 +67,7 @@ where
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     /// *  `data` - A function providing room data.
-    pub fn new_with_data<F>(shape: Shape, width: usize, height: usize, mut data: F) -> Self
+    pub fn new_with_data<F>(shape: Shape, width: u32, height: u32, mut data: F) -> Self
     where
         F: FnMut(matrix::Pos) -> T,
     {
@@ -96,12 +93,12 @@ where
     }
 
     /// The width of the maze.
-    pub fn width(&self) -> usize {
+    pub fn width(&self) -> u32 {
         self.rooms.width
     }
 
     /// The height of the maze.
-    pub fn height(&self) -> usize {
+    pub fn height(&self) -> u32 {
         self.rooms.height
     }
 
@@ -130,6 +127,16 @@ where
         self.rooms.get_mut(pos).map(|room| &mut room.data)
     }
 
+    /// The data for a specific room.
+    ///
+    /// If the index is out of bounds, nothing is returned.
+    ///
+    /// # Arguments
+    /// *  `pos``- The room position.
+    pub fn room(&self, pos: matrix::Pos) -> Option<&room::Room<T>> {
+        self.rooms.get(pos)
+    }
+
     /// Whether a position is inside of the maze.
     ///
     /// # Arguments
@@ -146,8 +153,8 @@ where
     /// *  `wall_pos` - The wall position.
     pub fn is_open(&self, wall_pos: WallPos) -> bool {
         self.rooms
-            .get(wall_pos.0)
-            .map(|room| room.is_open(wall_pos.1))
+            .get(wall_pos.pos)
+            .map(|room| room.is_open(wall_pos.wall))
             .unwrap_or(false)
     }
 
@@ -162,7 +169,7 @@ where
         self.walls(pos1)
             .iter()
             .find(|wall| (pos1.col + wall.dir.0 == pos2.col) && (pos1.row + wall.dir.1 == pos2.row))
-            .map(|&wall| (pos1, wall))
+            .map(|&wall| (pos1, wall).into())
     }
 
     /// Whether two rooms are connected.
@@ -190,14 +197,14 @@ where
     /// *  `value` - Whether to open the wall.
     pub fn set_open(&mut self, wall_pos: WallPos, value: bool) {
         // First modify the requested wall...
-        if let Some(room) = self.rooms.get_mut(wall_pos.0) {
-            room.set_open(wall_pos.1, value);
+        if let Some(room) = self.rooms.get_mut(wall_pos.pos) {
+            room.set_open(wall_pos.wall, value);
         }
 
         // ...and then sync the value on the back
-        let other = self.back(wall_pos);
-        if let Some(other_room) = self.rooms.get_mut(other.0) {
-            other_room.set_open(other.1, value);
+        let other = wall_pos.back();
+        if let Some(other_room) = self.rooms.get_mut(other.pos) {
+            other_room.set_open(other.wall, value);
         }
     }
 
@@ -230,8 +237,15 @@ where
     /// # Arguments
     /// *  `wall_pos` - The wall position.
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
-        let center = self.center(wall_pos.0);
-        (center + wall_pos.1.span.0, center + wall_pos.1.span.1)
+        let center = self.center(wall_pos.pos);
+        (center + wall_pos.wall.span.0, center + wall_pos.wall.span.1)
+    }
+
+    /// Calculates the _view box_ for an object when rendered.
+    ///
+    /// The returned value is the minimal rectangle that will contain this maze.
+    pub fn viewbox(&self) -> physical::ViewBox {
+        self.shape().viewbox(self.width(), self.height())
     }
 
     /// See [`Self::corner_walls_start`].
@@ -253,7 +267,10 @@ where
         &self,
         wall_pos: WallPos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
-        let (matrix::Pos { col, row }, wall) = wall_pos;
+        let WallPos {
+            pos: matrix::Pos { col, row },
+            wall,
+        } = wall_pos;
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().map(
             move |&wall::Offset { dx, dy, wall }| {
                 (
@@ -263,6 +280,7 @@ where
                     },
                     wall,
                 )
+                    .into()
             },
         ))
     }
@@ -280,17 +298,20 @@ where
         &self,
         wall_pos: WallPos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
-        let shape = self.shape;
-        let (matrix::Pos { col, row }, wall) = shape.back(wall_pos);
+        let WallPos {
+            pos: matrix::Pos { col, row },
+            wall,
+        } = wall_pos.back();
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().rev().map(
             move |&wall::Offset { dx, dy, wall }| {
-                shape.back((
-                    matrix::Pos {
+                WallPos {
+                    pos: matrix::Pos {
                         col: col + dx,
                         row: row + dy,
                     },
                     wall,
-                ))
+                }
+                .back()
             },
         ))
     }
@@ -303,7 +324,7 @@ where
         &self,
         pos: matrix::Pos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
-        self.walls(pos).iter().map(move |&wall| (pos, wall))
+        self.walls(pos).iter().map(move |&wall| (pos, wall).into())
     }
 
     /// Iterates over all open walls of a room.
@@ -316,7 +337,7 @@ where
     ) -> impl DoubleEndedIterator<Item = &'static wall::Wall> + '_ {
         self.walls(pos)
             .iter()
-            .filter(move |&wall| self.is_open((pos, wall)))
+            .filter(move |&&wall| self.is_open((pos, wall).into()))
             .copied()
     }
 
@@ -344,7 +365,8 @@ where
     /// # Arguments
     /// *  `pos` - The room position.
     pub fn neighbors(&self, pos: matrix::Pos) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
-        self.doors(pos).map(move |wall| self.back((pos, wall)).0)
+        self.doors(pos)
+            .map(move |wall| WallPos { pos, wall }.back().pos)
     }
 }
 
@@ -359,48 +381,20 @@ where
     }
 }
 
-/// A matrix of scores for rooms.
-pub type HeatMap = matrix::Matrix<u32>;
-
-/// Generates a heat map where the value for each cell is the number of times it has been traversed
-/// when walking between the positions.
-///
-/// Any position pairs with no path between them will be ignored.
-///
-/// # Arguments
-/// *  `positions` - The positions as the tuple `(from, to)`. These are used as
-///    positions between which to walk.
-pub fn heatmap<I, T>(maze: &crate::Maze<T>, positions: I) -> HeatMap
-where
-    I: Iterator<Item = (matrix::Pos, matrix::Pos)>,
-    T: Clone,
-{
-    let mut result = matrix::Matrix::new(maze.width(), maze.height());
-
-    for (from, to) in positions {
-        if let Some(path) = maze.walk(from, to) {
-            for pos in path.into_iter() {
-                result[pos] += 1;
-            }
-        }
-    }
-
-    result
-}
-
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     use std::iter::once;
 
     use maze_test::maze_test;
 
-    use super::test_utils::*;
-    use super::*;
+    use crate::test_utils::*;
 
     #[test]
     fn data() {
         let mut maze = Shape::Quad.create::<bool>(5, 5);
-        let pos = (0isize, 0isize).into();
+        let pos = (0, 0).into();
         assert_eq!(Some(&false), maze.data(pos));
         *maze.data_mut(pos).unwrap() = true;
         assert_eq!(Some(&true), maze.data(pos));
@@ -410,11 +404,11 @@ mod tests {
     fn is_inside_correct(maze: TestMaze) {
         assert!(maze.is_inside(matrix_pos(0, 0)));
         assert!(maze.is_inside(matrix_pos(
-            maze.width() as isize - 1,
-            maze.height() as isize - 1,
+            maze.width() as i32 - 1,
+            maze.height() as i32 - 1,
         )));
         assert!(!maze.is_inside(matrix_pos(-1, -1)));
-        assert!(!maze.is_inside(matrix_pos(maze.width() as isize, maze.height() as isize)));
+        assert!(!maze.is_inside(matrix_pos(maze.width() as i32, maze.height() as i32)));
     }
 
     #[maze_test]
@@ -425,14 +419,14 @@ mod tests {
         assert!(
             maze.walls(pos)
                 .iter()
-                .filter(|wall| maze.is_open((pos, wall)))
+                .filter(|&&wall| maze.is_open((pos, wall).into()))
                 .count()
                 == 1
         );
         assert!(
             maze.walls(next)
                 .iter()
-                .filter(|wall| maze.is_open((next, wall)))
+                .filter(|&&wall| maze.is_open((next, wall).into()))
                 .count()
                 == 1
         );
@@ -446,14 +440,14 @@ mod tests {
         assert!(
             maze.walls(*pos)
                 .iter()
-                .filter(|wall| maze.is_open((*pos, wall)))
+                .filter(|&&wall| maze.is_open((*pos, wall).into()))
                 .count()
                 == 0
         );
         assert!(
             maze.walls(*next)
                 .iter()
-                .filter(|wall| maze.is_open((*next, wall)))
+                .filter(|&&wall| maze.is_open((*next, wall).into()))
                 .count()
                 == 0
         );
@@ -473,7 +467,7 @@ mod tests {
                     )
                     .is_none()
                 );
-                let wall_pos = (pos, wall);
+                let wall_pos = (pos, wall).into();
                 let other = matrix::Pos {
                     col: pos.col + wall.dir.0,
                     row: pos.row + wall.dir.1,
@@ -490,10 +484,10 @@ mod tests {
         }
 
         let pos1 = matrix_pos(1, 1);
-        for wall in maze.walls(pos1) {
+        for &wall in maze.walls(pos1) {
             let pos2 = matrix_pos(pos1.col + wall.dir.0, pos1.row + wall.dir.1);
             assert!(!maze.connected(pos1, pos2));
-            maze.open((pos1, wall));
+            maze.open((pos1, wall).into());
             assert!(maze.connected(pos1, pos2));
         }
     }
@@ -556,10 +550,10 @@ mod tests {
         let walls = maze
             .walls(pos)
             .iter()
-            .filter(|wall| maze.is_inside(maze.back((pos, wall)).0))
+            .filter(|&&wall| maze.is_inside(WallPos { pos, wall }.back().pos))
             .copied()
             .collect::<Vec<_>>();
-        walls.iter().for_each(|wall| maze.open((pos, wall)));
+        walls.iter().for_each(|&wall| maze.open((pos, wall).into()));
         assert_eq!(maze.doors(pos).collect::<Vec<_>>(), walls);
     }
 
@@ -581,7 +575,7 @@ mod tests {
         assert_eq!(maze.neighbors(pos).collect::<Vec<_>>(), vec![]);
         maze.walls(pos)
             .iter()
-            .for_each(|wall| maze.open((pos, wall)));
+            .for_each(|&wall| maze.open((pos, wall).into()));
         assert_eq!(
             maze.neighbors(pos).collect::<Vec<_>>(),
             maze.walls(pos)

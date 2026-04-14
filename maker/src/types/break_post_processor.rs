@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use maze::initialize;
+use maze::{WallPos, initialize};
 
 use crate::types::*;
 
@@ -59,8 +59,8 @@ where
                     loop {
                         let walls = maze.walls(pos);
                         let wall = walls[rng.range(0, walls.len())];
-                        if maze.is_inside(maze.back((pos, wall)).0) {
-                            maze.open((pos, wall));
+                        if maze.is_inside(WallPos { pos, wall }.back().pos) {
+                            maze.open((pos, wall).into());
                             break;
                         }
                     }

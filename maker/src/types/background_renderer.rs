@@ -1,11 +1,9 @@
-use std::ops;
-use std::str::FromStr;
+use std::{ops, str::FromStr};
 
 use svg::Node;
 
 use maze::physical;
-use maze_tools::cell::*;
-use maze_tools::image::Color;
+use maze_tools::{cell::*, image::Color};
 
 use crate::types::*;
 

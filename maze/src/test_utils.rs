@@ -28,7 +28,7 @@ pub fn nearly_equal(a: f32, b: f32) -> bool {
 /// # Arguments
 /// *  `col` - The column.
 /// *  `row` - The row.
-pub fn matrix_pos(col: isize, row: isize) -> matrix::Pos {
+pub fn matrix_pos(col: i32, row: i32) -> matrix::Pos {
     matrix::Pos { col, row }
 }
 
@@ -146,7 +146,7 @@ impl<'a> Navigator<'a> {
         let pos = self.pos.unwrap();
         self.log.push(pos);
 
-        let wall = self
+        let &wall = self
             .maze
             .walls(pos)
             .iter()
@@ -157,7 +157,7 @@ impl<'a> Navigator<'a> {
             })
             .next()
             .unwrap();
-        self.maze.set_open((pos, wall), open);
+        self.maze.set_open((pos, wall).into(), open);
         self.pos = Some(matrix_pos(pos.col + wall.dir.0, pos.row + wall.dir.1));
         self
     }

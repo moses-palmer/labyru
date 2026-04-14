@@ -10,6 +10,7 @@ mod test_utils;
 mod macros;
 
 pub mod wall;
+pub use wall::WallPos;
 
 pub mod shape;
 pub use self::shape::Shape;
@@ -20,37 +21,6 @@ pub mod physical;
 pub mod render;
 pub mod room;
 pub mod walk;
-
-/// A wall of a room.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct WallPos {
-    /// The room position.
-    pub pos: matrix::Pos,
-
-    /// The wall.
-    pub wall: &'static wall::Wall,
-}
-
-impl WallPos {
-    /// The back of this wall.
-    ///
-    /// The back is the other side of the wall, located in a neighbouring room.
-    pub fn back(&self) -> Self {
-        let pos = matrix::Pos {
-            col: self.pos.col + self.wall.dir.0,
-            row: self.pos.row + self.wall.dir.1,
-        };
-        let wall = self.wall.back;
-        Self { pos, wall }
-    }
-}
-
-impl From<(matrix::Pos, &'static wall::Wall)> for WallPos {
-    fn from((pos, wall): (matrix::Pos, &'static wall::Wall)) -> Self {
-        WallPos { pos, wall }
-    }
-}
 
 /// A matrix of rooms.
 type Rooms<T> = matrix::Matrix<room::Room<T>>;

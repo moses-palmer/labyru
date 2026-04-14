@@ -3,6 +3,7 @@ use std::f32::consts::TAU;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
+use crate::matrix;
 use crate::shape::Shape;
 
 /// A wall index.
@@ -184,6 +185,37 @@ impl Serialize for Wall {
     }
 }
 
+/// A wall of a room.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct WallPos {
+    /// The room position.
+    pub pos: matrix::Pos,
+
+    /// The wall.
+    pub wall: &'static Wall,
+}
+
+impl WallPos {
+    /// The back of this wall.
+    ///
+    /// The back is the other side of the wall, located in a neighbouring room.
+    pub fn back(&self) -> Self {
+        let pos = matrix::Pos {
+            col: self.pos.col + self.wall.dir.0,
+            row: self.pos.row + self.wall.dir.1,
+        };
+        let wall = self.wall.back;
+        Self { pos, wall }
+    }
+}
+
+impl From<(matrix::Pos, &'static Wall)> for WallPos {
+    fn from((pos, wall): (matrix::Pos, &'static Wall)) -> Self {
+        Self { pos, wall }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
@@ -341,5 +373,12 @@ mod tests {
             "not all angles were in the span of a wall ({}% failed)",
             100.0 * (failures.len() as f32 / (2.0 * count as f32)),
         );
+    }
+
+    #[maze_test]
+    fn back(maze: TestMaze) {
+        for wall_pos in maze.positions().flat_map(|pos| maze.wall_positions(pos)) {
+            assert_eq!(wall_pos, wall_pos.back().back());
+        }
     }
 }

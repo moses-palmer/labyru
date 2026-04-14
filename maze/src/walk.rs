@@ -53,7 +53,7 @@ where
     /// # Arguments
     /// *  `from` - The starting position.
     /// *  `to` - The desired goal.
-    pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path<T>> {
+    pub fn walk(&self, from: matrix::Pos, to: matrix::Pos) -> Option<Path<'_, T>> {
         // If either rooms is outside of the maze, there is no path between them
         if !self.rooms.is_inside(from) || !self.rooms.is_inside(to) {
             return None;

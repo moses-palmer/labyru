@@ -1,12 +1,9 @@
 use std::f32::consts::PI;
 
-use crate::WallPos;
-
-use crate::matrix;
-use crate::physical;
-use crate::wall;
-
-use crate::wall::{Angle, Offset};
+use crate::{
+    WallPos, matrix, physical,
+    wall::{self, Angle, Offset},
+};
 
 use super::{COS_30, SIN_30};
 
@@ -284,11 +281,11 @@ pub fn physical_to_wall_pos(pos: physical::Pos) -> WallPos {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     use maze_test::maze_test;
 
-    use super::*;
-    use crate::WallPos;
-    use crate::test_utils::*;
+    use crate::{WallPos, test_utils::*};
 
     #[test]
     fn back() {

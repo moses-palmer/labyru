@@ -3,8 +3,7 @@ use std::f32::consts::TAU;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
-use crate::matrix;
-use crate::shape::Shape;
+use crate::{matrix, shape::Shape};
 
 /// A wall index.
 pub type Index = usize;
@@ -218,14 +217,13 @@ impl From<(matrix::Pos, &'static Wall)> for WallPos {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-    use std::f32::consts::PI;
+    use super::*;
+
+    use std::{collections::HashSet, f32::consts::PI};
 
     use maze_test::maze_test;
 
-    use super::*;
-    use crate::*;
-    use test_utils::*;
+    use crate::{test_utils::*, *};
 
     #[maze_test]
     fn unique(maze: TestMaze) {

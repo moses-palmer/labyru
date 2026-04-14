@@ -383,12 +383,13 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     use std::iter::once;
 
     use maze_test::maze_test;
 
-    use super::test_utils::*;
-    use super::*;
+    use crate::test_utils::*;
 
     #[test]
     fn data() {

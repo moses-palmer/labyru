@@ -1,5 +1,4 @@
-use std::ops;
-use std::str::FromStr;
+use std::{ops, str::FromStr};
 
 use maze::physical;
 use maze_tools::cell::*;

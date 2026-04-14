@@ -4,25 +4,23 @@ use rand::Rng;
 use rayon::prelude::*;
 use svg::Node;
 
-use maze::initialize;
-use maze::matrix;
-use maze_tools::image::Color;
-use maze_tools::voronoi;
+use maze::{initialize, matrix};
+use maze_tools::{image::Color, voronoi};
 
 pub type Maze = maze::Maze<()>;
 
 pub mod background_renderer;
-pub use self::background_renderer::*;
+pub use background_renderer::*;
 pub mod break_post_processor;
-pub use self::break_post_processor::*;
+pub use break_post_processor::*;
 pub mod heatmap_renderer;
-pub use self::heatmap_renderer::*;
+pub use heatmap_renderer::*;
 pub mod mask_initializer;
-pub use self::mask_initializer::*;
+pub use mask_initializer::*;
 pub mod solve_renderer;
 pub use solve_renderer::*;
 pub mod text_renderer;
-pub use self::text_renderer::*;
+pub use text_renderer::*;
 
 /// A trait to initialise a maze.
 pub trait Initializer<R>

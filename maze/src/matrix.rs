@@ -2,9 +2,10 @@
 //!
 //! A matrix is a two-dimensional array of data. A maze is a matrix of rooms.
 
-use std::cmp::Ordering;
-use std::collections::BTreeMap;
-use std::collections::BTreeSet;
+use std::{
+    cmp::Ordering,
+    collections::{BTreeMap, BTreeSet},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -738,6 +739,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
+
     use crate::test_utils::*;
 
     #[test]

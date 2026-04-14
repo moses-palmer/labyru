@@ -3,15 +3,12 @@
 //! This module contains implementations of initialisation methods. These are used to open walls in
 //! a fully closed maze to make it navigable.
 
-use std::iter;
-use std::str;
+use std::{iter, str};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::Maze;
-
-use crate::matrix;
+use crate::{Maze, matrix};
 
 mod braid;
 mod branching;
@@ -368,9 +365,10 @@ where
 #[cfg(test)]
 #[cfg(any(feature = "fastrand", feature = "rand"))]
 mod tests {
+    use super::*;
+
     use maze_test::maze_test;
 
-    use super::*;
     use crate::test_utils::*;
 
     /// The various initialisation methods tested.

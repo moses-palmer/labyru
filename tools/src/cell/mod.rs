@@ -1,7 +1,6 @@
 use std::ops;
 
-use maze::matrix;
-use maze::physical;
+use maze::{matrix, physical};
 
 /// Translates physical positions to cells.
 pub trait Cells {

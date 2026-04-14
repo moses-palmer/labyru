@@ -3,11 +3,7 @@ use std::f32::consts::SQRT_2;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::matrix;
-use crate::physical;
-use crate::wall;
-
-use crate::{Maze, WallPos};
+use crate::{Maze, WallPos, matrix, physical, wall};
 
 /// cos(30°)
 const COS_30: f32 = 0.866_025_4f32;
@@ -426,13 +422,13 @@ pub mod tri;
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     use std::collections::HashSet;
 
     use maze_test::maze_test;
 
-    use super::*;
-    use crate::*;
-    use test_utils::*;
+    use crate::{test_utils::*, *};
 
     #[test]
     fn surround_single() {

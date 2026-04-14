@@ -6,7 +6,7 @@ use svg::Node;
 use maze_tools::svg::ToPath;
 
 mod types;
-use self::types::*;
+use types::*;
 
 /// Generates mazes.
 #[derive(Parser)]

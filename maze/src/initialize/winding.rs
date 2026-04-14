@@ -1,7 +1,4 @@
-use crate::Maze;
-use crate::WallPos;
-
-use crate::matrix;
+use crate::{Maze, WallPos, matrix};
 
 /// Initialises a maze using the _Depth First_ algorithm.
 ///

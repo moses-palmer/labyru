@@ -1,7 +1,6 @@
 use std::str::FromStr;
 
-use maze::WallPos;
-use maze::initialize;
+use maze::{WallPos, initialize};
 
 use crate::types::*;
 

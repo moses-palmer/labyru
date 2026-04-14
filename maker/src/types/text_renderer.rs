@@ -4,9 +4,7 @@ use std::str::FromStr;
 use svg::Node;
 
 use maze::physical;
-use maze_tools::alphabet;
-use maze_tools::cell::*;
-use maze_tools::image::Color;
+use maze_tools::{alphabet, cell::*, image::Color};
 
 use crate::types::*;
 

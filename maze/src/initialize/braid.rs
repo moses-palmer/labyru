@@ -1,9 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::Maze;
-use crate::WallPos;
-
-use crate::matrix;
+use crate::{Maze, WallPos, matrix};
 
 /// Initialises a maze using the _Braid_ algorithm.
 ///

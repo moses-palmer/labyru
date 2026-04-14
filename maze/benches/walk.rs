@@ -1,6 +1,8 @@
 use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
-use maze::initialize::{LFSR, Method};
-use maze::{Maze, Shape};
+use maze::{
+    Maze, Shape,
+    initialize::{LFSR, Method},
+};
 
 pub fn walk(c: &mut Criterion) {
     for &method in [Method::Braid, Method::Branching, Method::Winding].iter() {

@@ -2,11 +2,10 @@ use std::collections::BinaryHeap;
 
 use bit_set::BitSet;
 
-use crate::matrix;
-
-use crate::Maze;
-use crate::WallPos;
-use crate::matrix::Matrix;
+use crate::{
+    Maze, WallPos,
+    matrix::{self, Matrix},
+};
 
 /// The tuple `(current_wall, next_wall)`.
 ///

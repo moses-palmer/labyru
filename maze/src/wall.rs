@@ -16,10 +16,10 @@ pub type Mask = u32;
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Offset {
     /// The horisontal offset.
-    pub dx: isize,
+    pub dx: i32,
 
     /// The vertical offset.
-    pub dy: isize,
+    pub dy: i32,
 
     /// The neighbour index.
     pub wall: &'static Wall,
@@ -66,7 +66,7 @@ pub struct Wall {
     pub corner_wall_offsets: &'static [Offset],
 
     /// The horizontal and vertical offset of the room on the other side of this wall.
-    pub dir: (isize, isize),
+    pub dir: (i32, i32),
 
     /// The span, in radians, of the wall.
     ///

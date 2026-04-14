@@ -19,17 +19,17 @@ pub struct Pos {
     /// The column index.
     ///
     /// Valid values are always zero or greater.
-    pub col: isize,
+    pub col: i32,
 
     /// The row index.
     ///
     /// Valid values are always zero or greater.
-    pub row: isize,
+    pub row: i32,
 }
 
 impl<T> From<(T, T)> for Pos
 where
-    T: Into<isize>,
+    T: Into<i32>,
 {
     /// Converts the tuple _(x, y)_ to `Pos { x, y }`.
     ///
@@ -66,10 +66,10 @@ where
     T: Clone,
 {
     /// The width of the matrix.
-    pub width: usize,
+    pub width: u32,
 
     /// The height of the matrix.
-    pub height: usize,
+    pub height: u32,
 
     data: Vec<T>,
 }
@@ -85,11 +85,11 @@ where
     /// # Arguments
     /// *  `width` - The width of the matrix.
     /// *  `height` - The height of the matrix.
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: u32, height: u32) -> Self {
         Self {
             width,
             height,
-            data: vec![T::default(); width * height],
+            data: vec![T::default(); (width * height) as usize],
         }
     }
 }
@@ -123,7 +123,7 @@ where
     /// );
     ///
     /// ```
-    pub fn new_with_data<F>(width: usize, height: usize, data: F) -> Self
+    pub fn new_with_data<F>(width: u32, height: u32, data: F) -> Self
     where
         F: FnMut(Pos) -> T,
     {
@@ -223,23 +223,20 @@ where
     /// let matrix = Matrix::new(5, 5);
     /// assert!(matrix.is_inside(Pos {col: 0, row: 0 }));
     /// assert!(!matrix.is_inside(Pos {
-    ///     col: matrix.width as isize,
-    ///     row: matrix.height as isize,
+    ///     col: matrix.width as i32,
+    ///     row: matrix.height as i32,
     /// }));
     /// # assert!(!matrix.is_inside(Pos { col: -1, row: -1 }));
     /// # assert!(matrix.is_inside(Pos {
-    /// #     col: matrix.width as isize - 1,
-    /// #     row: matrix.height as isize - 1,
+    /// #     col: matrix.width as i32 - 1,
+    /// #     row: matrix.height as i32 - 1,
     /// # }));
     /// ```
     ///
     /// # Arguments
     /// *  `pos` - The matrix position.
     pub fn is_inside(&self, pos: Pos) -> bool {
-        pos.col >= 0
-            && pos.row >= 0
-            && pos.col < self.width as isize
-            && pos.row < self.height as isize
+        pos.col >= 0 && pos.row >= 0 && pos.col < self.width as i32 && pos.row < self.height as i32
     }
 
     /// Retrieves a reference to the value at a specific position if it exists.
@@ -266,7 +263,7 @@ where
     /// *  `pos` - The matrix position.
     pub fn get(&self, pos: Pos) -> Option<&T> {
         if self.is_inside(pos) {
-            Some(&self.data[(pos.col + pos.row * self.width as isize) as usize])
+            Some(&self.data[(pos.col + pos.row * self.width as i32) as usize])
         } else {
             None
         }
@@ -292,7 +289,7 @@ where
     /// *  `pos` - The matrix position.
     pub fn get_mut(&mut self, pos: Pos) -> Option<&mut T> {
         if self.is_inside(pos) {
-            Some(&mut self.data[(pos.col + pos.row * self.width as isize) as usize])
+            Some(&mut self.data[(pos.col + pos.row * self.width as i32) as usize])
         } else {
             None
         }
@@ -395,12 +392,12 @@ where
     ///         .collect::<Vec<_>>(),
     ///     vec![
     ///         ((0, 1), vec![
-    ///             ((0isize, 0isize).into(), (1isize, 0isize).into()),
-    ///             ((0isize, 1isize).into(), (1isize, 1isize).into()),
+    ///             ((0, 0).into(), (1, 0).into()),
+    ///             ((0, 1).into(), (1, 1).into()),
     ///         ]),
     ///         ((1, 2), vec![
-    ///             ((1isize, 0isize).into(), (2isize, 0isize).into()),
-    ///             ((1isize, 1isize).into(), (2isize, 1isize).into()),
+    ///             ((1, 0).into(), (2, 0).into()),
+    ///             ((1, 1).into(), (2, 1).into()),
     ///         ]),
     ///     ],
     /// );
@@ -540,8 +537,8 @@ where
         for row in 0..height {
             for col in 0..width {
                 let pos = Pos {
-                    col: col as isize,
-                    row: row as isize,
+                    col: col as i32,
+                    row: row as i32,
                 };
                 self[pos] += other[pos]
             }
@@ -555,13 +552,13 @@ where
 #[derive(Clone)]
 pub struct PosIterator {
     /// The width of the matrix being iterated.
-    width: usize,
+    width: u32,
 
     /// The height of the matrix being iterated.
-    height: usize,
+    height: u32,
 
     /// The current position.
-    current: isize,
+    current: i32,
 }
 
 impl PosIterator {
@@ -570,7 +567,7 @@ impl PosIterator {
     /// # Arguments
     /// *  `width` - The width of the matrix.
     /// *  `height` - The height of the matrix.
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: u32, height: u32) -> Self {
         Self {
             width,
             height,
@@ -585,12 +582,12 @@ impl Iterator for PosIterator {
     /// Iterates over all cell positions in a matrix, row by row.
     fn next(&mut self) -> Option<Self::Item> {
         self.current += 1;
-        if self.current >= (self.width * self.height) as isize {
+        if self.current >= (self.width * self.height) as i32 {
             None
         } else {
             Some(Pos {
-                col: self.current % self.width as isize,
-                row: self.current / self.width as isize,
+                col: self.current % self.width as i32,
+                row: self.current / self.width as i32,
             })
         }
     }
@@ -656,7 +653,7 @@ where
     /// Use [`get`](Self::get) to avoid this.
     fn index(&self, pos: Pos) -> &Self::Output {
         if self.is_inside(pos) {
-            &self.data[(pos.col + pos.row * self.width as isize) as usize]
+            &self.data[(pos.col + pos.row * self.width as i32) as usize]
         } else {
             panic!()
         }
@@ -677,7 +674,7 @@ where
     /// Use [`get_mut`](Self::get_mut) to avoid this.
     fn index_mut(&mut self, pos: Pos) -> &mut T {
         if self.is_inside(pos) {
-            &mut self.data[(pos.col + pos.row * self.width as isize) as usize]
+            &mut self.data[(pos.col + pos.row * self.width as i32) as usize]
         } else {
             panic!()
         }
@@ -709,8 +706,8 @@ where
 ///
 /// # Arguments
 /// *  `x` - a number.
-pub fn partition(x: f32) -> (isize, f32) {
-    let index = x.floor() as isize;
+pub fn partition(x: f32) -> (i32, f32) {
+    let index = x.floor() as i32;
     let rel = x.fract();
     (index, if x >= 0.0 { rel } else { rel + 1.0 })
 }
@@ -723,7 +720,7 @@ pub fn partition(x: f32) -> (isize, f32) {
 /// *  `width` - The width of the matrix to generate.
 /// *  `height` - The height of the matrix to generate.
 /// *  `filter` - A filter function.
-pub fn filter<F>(width: usize, height: usize, filter: F) -> (usize, Matrix<bool>)
+pub fn filter<F>(width: u32, height: u32, filter: F) -> (usize, Matrix<bool>)
 where
     F: Fn(Pos) -> bool,
 {
@@ -746,7 +743,7 @@ mod test {
     #[test]
     fn pos_into() {
         let expected = Pos { col: 1, row: 2 };
-        let actual: Pos = (1isize, 2isize).into();
+        let actual: Pos = (1, 2).into();
         assert_eq!(expected, actual);
     }
 
@@ -794,11 +791,7 @@ mod test {
         assert_eq!(
             [(
                 (1, 2),
-                &[
-                    ((1isize, 0isize), (2isize, 0isize)),
-                    ((1isize, 1isize), (2isize, 1isize)),
-                    ((1isize, 2isize), (2isize, 2isize))
-                ]
+                &[((1, 0), (2, 0)), ((1, 1), (2, 1)), ((1, 2), (2, 2))]
             )]
             .iter()
             .map(|(areas, positions)| (
@@ -826,19 +819,11 @@ mod test {
             [
                 (
                     (1, 2),
-                    &[
-                        ((0isize, 0isize), (1isize, 0isize)),
-                        ((0isize, 1isize), (1isize, 1isize)),
-                        ((0isize, 2isize), (1isize, 2isize))
-                    ]
+                    &[((0, 0), (1, 0)), ((0, 1), (1, 1)), ((0, 2), (1, 2))]
                 ),
                 (
                     (2, 3),
-                    &[
-                        ((1isize, 0isize), (2isize, 0isize)),
-                        ((1isize, 1isize), (2isize, 1isize)),
-                        ((1isize, 2isize), (2isize, 2isize))
-                    ]
+                    &[((1, 0), (2, 0)), ((1, 1), (2, 1)), ((1, 2), (2, 2))]
                 )
             ]
             .iter()
@@ -869,12 +854,12 @@ mod test {
             [(
                 (0, 1),
                 &[
-                    ((2isize, 2isize), (1isize, 2isize)),
-                    ((2isize, 2isize), (2isize, 1isize)),
-                    ((2isize, 3isize), (1isize, 3isize)),
-                    ((2isize, 4isize), (1isize, 4isize)),
-                    ((3isize, 2isize), (3isize, 1isize)),
-                    ((4isize, 2isize), (4isize, 1isize)),
+                    ((2, 2), (1, 2)),
+                    ((2, 2), (2, 1)),
+                    ((2, 3), (1, 3)),
+                    ((2, 4), (1, 4)),
+                    ((3, 2), (3, 1)),
+                    ((4, 2), (4, 1)),
                 ]
             ),]
             .iter()
@@ -905,7 +890,7 @@ mod test {
         let width = 5;
         let height = 5;
         let (count, matrix) = filter(width, height, |_| true);
-        assert_eq!(width * height, count);
+        assert_eq!((width * height) as usize, count);
         assert!(matrix.values().all(|&v| v));
     }
 
@@ -969,7 +954,7 @@ mod test {
     #[test]
     fn fill_open() {
         let mut matrix = Matrix::new(10, 10);
-        let count = matrix.width * matrix.height;
+        let count = (matrix.width * matrix.height) as usize;
         let filled = matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 
@@ -995,7 +980,7 @@ mod test {
     fn fill_separated() {
         let filter = |pos: Pos| pos.col < 2 || pos.col >= 8;
         let mut matrix = Matrix::new_with_data(10, 10, |pos| if filter(pos) { 0 } else { 1 });
-        let count = matrix.height * 2;
+        let count = (matrix.height * 2) as usize;
         let filled = matrix.fill(Pos { col: 0, row: 0 }, 1, all_neighbors);
         assert_eq!(count, filled);
 

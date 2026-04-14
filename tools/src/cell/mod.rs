@@ -31,7 +31,7 @@ where
     /// *  `cells` - The cells used to translate physical coordinates to matrix coordinates.
     /// *  `width` - The expected width of the resulting matrix.
     /// *  `height` - The expected height of the resulting matrix.
-    fn split_by(self, cells: &C, width: usize, height: usize) -> matrix::Matrix<T>;
+    fn split_by(self, cells: &C, width: u32, height: u32) -> matrix::Matrix<T>;
 }
 
 impl<C, I, T, U> Splitter<C, T, U> for &mut I
@@ -41,7 +41,7 @@ where
     T: Copy,
     U: Copy + Default + ops::Add<U, Output = U> + ops::Div<usize, Output = T>,
 {
-    fn split_by(self, cells: &C, width: usize, height: usize) -> matrix::Matrix<T> {
+    fn split_by(self, cells: &C, width: u32, height: u32) -> matrix::Matrix<T> {
         self.fold(
             matrix::Matrix::<(usize, U)>::new(width, height),
             |mut acc, (physical_pos, value)| {

@@ -28,7 +28,7 @@ pub fn nearly_equal(a: f32, b: f32) -> bool {
 /// # Arguments
 /// *  `col` - The column.
 /// *  `row` - The row.
-pub fn matrix_pos(col: isize, row: isize) -> matrix::Pos {
+pub fn matrix_pos(col: i32, row: i32) -> matrix::Pos {
     matrix::Pos { col, row }
 }
 

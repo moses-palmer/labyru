@@ -45,7 +45,7 @@ impl Shape {
     /// # Arguments
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
-    pub fn create<T>(self, width: usize, height: usize) -> Maze<T>
+    pub fn create<T>(self, width: u32, height: u32) -> Maze<T>
     where
         T: Clone + Default,
     {
@@ -58,7 +58,7 @@ impl Shape {
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     /// *  `data` - A function providing data for rooms.
-    pub fn create_with_data<F, T>(self, width: usize, height: usize, data: F) -> Maze<T>
+    pub fn create_with_data<F, T>(self, width: u32, height: u32, data: F) -> Maze<T>
     where
         F: FnMut(matrix::Pos) -> T,
         T: Clone,
@@ -77,7 +77,7 @@ impl Shape {
     /// # Arguments
     /// *  `width` - The required physical width.
     /// *  `height` - The required physical height.
-    pub fn minimal_dimensions(self, width: f32, height: f32) -> (usize, usize) {
+    pub fn minimal_dimensions(self, width: f32, height: f32) -> (u32, u32) {
         dispatch!(self => minimal_dimensions(width, height))
     }
 
@@ -137,12 +137,12 @@ impl Shape {
     /// # Arguments
     /// *  `cols` - The number of columns in the matrix.
     /// *  `rows` - The number of rows in the matrix.
-    pub fn viewbox(self, cols: usize, rows: usize) -> physical::ViewBox {
+    pub fn viewbox(self, cols: u32, rows: u32) -> physical::ViewBox {
         let mut window = (f32::MAX, f32::MAX, f32::MIN, f32::MIN);
         for y in 0..rows {
             let lpos = matrix::Pos {
                 col: 0,
-                row: y as isize,
+                row: y as i32,
             };
             let lcenter = self.cell_to_physical(lpos);
             let left = dispatch!(self => walls(lpos))
@@ -150,8 +150,8 @@ impl Shape {
                 .map(|wall| (lcenter, wall));
 
             let rpos = matrix::Pos {
-                col: cols as isize - 1,
-                row: y as isize,
+                col: cols as i32 - 1,
+                row: y as i32,
             };
             let rcenter = self.cell_to_physical(rpos);
             let right = dispatch!(self => walls(rpos))
@@ -401,7 +401,7 @@ where
 /// *  `pos` - The centre position.
 /// *  `distance` - The distance from the centre.
 pub fn surround(pos: matrix::Pos, distance: usize) -> impl Iterator<Item = matrix::Pos> {
-    let distance = distance as isize;
+    let distance = distance as i32;
 
     // Generate iterators over the edges; let bottom filter to avoid adding the
     // same row twice when distance == 0
@@ -437,11 +437,11 @@ mod tests {
     #[test]
     fn surround_single() {
         assert_eq!(
-            [(0isize, 0isize).into()]
+            [(0, 0).into()]
                 .iter()
                 .cloned()
                 .collect::<HashSet<matrix::Pos>>(),
-            surround((0isize, 0isize).into(), 0).collect(),
+            surround((0, 0).into(), 0).collect(),
         );
     }
 
@@ -449,19 +449,19 @@ mod tests {
     fn surround_multiple() {
         assert_eq!(
             [
-                (-1isize, -1isize).into(),
-                (0isize, -1isize).into(),
-                (1isize, -1isize).into(),
-                (-1isize, 0isize).into(),
-                (1isize, 0isize).into(),
-                (-1isize, 1isize).into(),
-                (0isize, 1isize).into(),
-                (1isize, 1isize).into(),
+                (-1, -1).into(),
+                (0, -1).into(),
+                (1, -1).into(),
+                (-1, 0).into(),
+                (1, 0).into(),
+                (-1, 1).into(),
+                (0, 1).into(),
+                (1, 1).into(),
             ]
             .iter()
             .cloned()
             .collect::<HashSet<matrix::Pos>>(),
-            surround((0isize, 0isize).into(), 1).collect(),
+            surround((0, 0).into(), 1).collect(),
         );
     }
 

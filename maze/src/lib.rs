@@ -79,7 +79,7 @@ where
     /// *  `shape` - The shape of the rooms.
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
-    pub fn new(shape: Shape, width: usize, height: usize) -> Self {
+    pub fn new(shape: Shape, width: u32, height: u32) -> Self {
         let rooms = Rooms::new(width, height);
         Self { shape, rooms }
     }
@@ -98,7 +98,7 @@ where
     /// *  `width` - The width, in rooms, of the maze.
     /// *  `height` - The height, in rooms, of the maze.
     /// *  `data` - A function providing room data.
-    pub fn new_with_data<F>(shape: Shape, width: usize, height: usize, mut data: F) -> Self
+    pub fn new_with_data<F>(shape: Shape, width: u32, height: u32, mut data: F) -> Self
     where
         F: FnMut(matrix::Pos) -> T,
     {
@@ -124,12 +124,12 @@ where
     }
 
     /// The width of the maze.
-    pub fn width(&self) -> usize {
+    pub fn width(&self) -> u32 {
         self.rooms.width
     }
 
     /// The height of the maze.
-    pub fn height(&self) -> usize {
+    pub fn height(&self) -> u32 {
         self.rooms.height
     }
 
@@ -436,7 +436,7 @@ mod tests {
     #[test]
     fn data() {
         let mut maze = Shape::Quad.create::<bool>(5, 5);
-        let pos = (0isize, 0isize).into();
+        let pos = (0, 0).into();
         assert_eq!(Some(&false), maze.data(pos));
         *maze.data_mut(pos).unwrap() = true;
         assert_eq!(Some(&true), maze.data(pos));
@@ -446,11 +446,11 @@ mod tests {
     fn is_inside_correct(maze: TestMaze) {
         assert!(maze.is_inside(matrix_pos(0, 0)));
         assert!(maze.is_inside(matrix_pos(
-            maze.width() as isize - 1,
-            maze.height() as isize - 1,
+            maze.width() as i32 - 1,
+            maze.height() as i32 - 1,
         )));
         assert!(!maze.is_inside(matrix_pos(-1, -1)));
-        assert!(!maze.is_inside(matrix_pos(maze.width() as isize, maze.height() as isize)));
+        assert!(!maze.is_inside(matrix_pos(maze.width() as i32, maze.height() as i32)));
     }
 
     #[maze_test]

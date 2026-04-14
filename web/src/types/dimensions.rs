@@ -5,10 +5,10 @@ use serde::Deserialize;
 #[serde(try_from = "String")]
 pub struct Dimensions {
     /// The width.
-    pub width: usize,
+    pub width: u32,
 
     /// The height.
-    pub height: usize,
+    pub height: u32,
 }
 
 impl TryFrom<String> for Dimensions {
@@ -19,12 +19,12 @@ impl TryFrom<String> for Dimensions {
         let width = parts
             .next()
             .unwrap()
-            .parse::<usize>()
+            .parse::<u32>()
             .map_err(|_| String::from("invalid width"))?;
         let height = parts
             .next()
             .ok_or_else(|| String::from("no height specified"))?
-            .parse::<usize>()
+            .parse::<u32>()
             .map_err(|_| String::from("invalid height"))?;
         Ok(Self { width, height })
     }

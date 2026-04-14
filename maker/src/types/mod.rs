@@ -193,12 +193,12 @@ impl HeatMapType {
                 (0..maze.width()).map(|col| {
                     (
                         maze::matrix::Pos {
-                            col: col as isize,
+                            col: col as i32,
                             row: 0,
                         },
                         maze::matrix::Pos {
-                            col: col as isize,
-                            row: maze.height() as isize - 1,
+                            col: col as i32,
+                            row: maze.height() as i32 - 1,
                         },
                     )
                 }),
@@ -209,11 +209,11 @@ impl HeatMapType {
                     (
                         maze::matrix::Pos {
                             col: 0,
-                            row: row as isize,
+                            row: row as i32,
                         },
                         maze::matrix::Pos {
-                            col: maze.width() as isize - 1,
-                            row: row as isize,
+                            col: maze.width() as i32 - 1,
+                            row: row as i32,
                         },
                     )
                 }),
@@ -226,8 +226,8 @@ impl HeatMapType {
                         (
                             pos,
                             maze::matrix::Pos {
-                                col: maze.width() as isize - 1 - pos.col,
-                                row: maze.height() as isize - 1 - pos.row,
+                                col: maze.width() as i32 - 1 - pos.col,
+                                row: maze.height() as i32 - 1 - pos.row,
                             },
                         )
                     }),

@@ -193,10 +193,10 @@ fn is_reversed(pos: matrix::Pos) -> bool {
     (pos.col + pos.row) & 1 != 0
 }
 
-pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR).ceil() as usize;
+pub fn minimal_dimensions(width: f32, height: f32) -> (u32, u32) {
+    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR).ceil() as u32;
 
-    let width = (width.max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).floor() as usize;
+    let width = (width.max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).floor() as u32;
 
     (width, height)
 }

@@ -38,8 +38,8 @@ where
     ///     .walk(
     ///         matrix::Pos { col: 0, row: 0 },
     ///         matrix::Pos {
-    ///             col: maze.width() as isize - 1,
-    ///             row: maze.height() as isize - 1,
+    ///             col: maze.width() as i32 - 1,
+    ///             row: maze.height() as i32 - 1,
     ///         },
     ///     )
     ///     .unwrap()
@@ -63,8 +63,7 @@ where
         let (start, end) = (to, from);
 
         // Assume that the distance between the centres of adjacent rooms is consistent
-        let distance =
-            (self.center((0isize, 0isize).into()) - self.center((0isize, 1isize).into())).value();
+        let distance = (self.center((0, 0).into()) - self.center((0, 1).into())).value();
 
         // The heuristic for a room position
         let target = self.center(end);
@@ -380,10 +379,10 @@ type PriorityPos = (Priority, matrix::Pos);
 /// highest priority and querying whether a position is in the set.
 struct OpenSet {
     /// The width of the set.
-    width: usize,
+    width: u32,
 
     /// The height of the set.
-    height: usize,
+    height: u32,
 
     /// The heap containing prioritised positions.
     heap: BinaryHeap<PriorityPos>,
@@ -394,12 +393,12 @@ struct OpenSet {
 
 impl OpenSet {
     /// Creates a new open set.
-    pub fn new(width: usize, height: usize) -> OpenSet {
+    pub fn new(width: u32, height: u32) -> OpenSet {
         OpenSet {
             width,
             height,
             heap: BinaryHeap::new(),
-            present: BitSet::with_capacity(width * height),
+            present: BitSet::with_capacity((width * height) as usize),
         }
     }
 
@@ -446,10 +445,10 @@ impl OpenSet {
     fn index(&self, pos: matrix::Pos) -> Option<usize> {
         if pos.col >= 0
             && pos.row >= 0
-            && pos.col < self.width as isize
-            && pos.row < self.height as isize
+            && pos.col < self.width as i32
+            && pos.row < self.height as i32
         {
-            Some(pos.col as usize + pos.row as usize * self.width)
+            Some(pos.col as usize + pos.row as usize * self.width as usize)
         } else {
             None
         }
@@ -559,7 +558,7 @@ mod tests {
 
     #[maze_test]
     fn walk_outside(mut maze: TestMaze) {
-        let from = (0isize, 0isize).into();
+        let from = (0, 0).into();
         maze.wall_positions(from)
             .for_each(|wall_pos| maze.open(wall_pos));
 
@@ -573,7 +572,7 @@ mod tests {
 
     #[maze_test]
     fn follow_wall_order(maze: TestMaze) {
-        let start = maze.wall_positions((0isize, 0isize).into()).next().unwrap();
+        let start = maze.wall_positions((0, 0).into()).next().unwrap();
 
         for (a, b) in maze.follow_wall(start) {
             if let Some(b) = b {

@@ -180,10 +180,10 @@ where
     /// If the room corresponding to the current index has never been visited, the next room is
     /// checked until no rooms remain.
     fn pos(&mut self) -> Option<matrix::Pos> {
-        while self.index < self.maze.width() * self.maze.height() {
+        while self.index < (self.maze.width() * self.maze.height()) as usize {
             let pos = matrix::Pos {
-                col: (self.index % self.maze.width()) as isize,
-                row: (self.index / self.maze.width()) as isize,
+                col: (self.index % self.maze.width() as usize) as i32,
+                row: (self.index / self.maze.width() as usize) as i32,
             };
 
             if self

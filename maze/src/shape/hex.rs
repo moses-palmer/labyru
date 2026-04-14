@@ -318,12 +318,12 @@ static WALLS_ODD: &[&wall::Wall] = &[
     &walls::DOWN_LEFT1,
 ];
 
-pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR).ceil() as usize;
+pub fn minimal_dimensions(width: f32, height: f32) -> (u32, u32) {
+    let height = (height.max(VERTICAL_MULTIPLICATOR) / VERTICAL_MULTIPLICATOR).ceil() as u32;
 
     let hoffset = if height > 1 { 1.0 } else { 0.5 };
-    let width = ((width - hoffset).max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).ceil()
-        as usize;
+    let width =
+        ((width - hoffset).max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).ceil() as u32;
 
     (width, height)
 }

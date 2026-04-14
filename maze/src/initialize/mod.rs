@@ -461,7 +461,7 @@ mod tests {
             let maze = maze.clone().initialize(*method, &mut rng());
 
             let from = matrix_pos(0, 0);
-            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let to = matrix_pos((maze.width() - 1) as i32, (maze.height() - 1) as i32);
             assert!(maze.walk(from, to).is_some());
         }
     }
@@ -484,7 +484,7 @@ mod tests {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
-            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let to = matrix_pos((maze.width() - 1) as i32, (maze.height() - 1) as i32);
             let maze = maze
                 .clone()
                 .initialize_filter(*method, &mut rng(), |pos| pos != from);
@@ -499,7 +499,7 @@ mod tests {
         for method in INITIALIZERS {
             let from = matrix_pos(0, 0);
             let other = matrix_pos(1, 0);
-            let to = matrix_pos((maze.width() - 1) as isize, (maze.height() - 1) as isize);
+            let to = matrix_pos((maze.width() - 1) as i32, (maze.height() - 1) as i32);
             let maze = maze
                 .clone()
                 .initialize_filter(*method, &mut rng(), |_| false);

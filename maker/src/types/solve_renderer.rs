@@ -42,8 +42,8 @@ impl Renderer for SolveRenderer {
                     maze.walk(
                         maze::matrix::Pos { col: 0, row: 0 },
                         maze::matrix::Pos {
-                            col: maze.width() as isize - 1,
-                            row: maze.height() as isize - 1,
+                            col: maze.width() as i32 - 1,
+                            row: maze.height() as i32 - 1,
                         },
                     )
                     .unwrap()

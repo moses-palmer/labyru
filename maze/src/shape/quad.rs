@@ -115,10 +115,10 @@ define_shape! {
 /// The walls
 static WALLS: &[&wall::Wall] = &[&walls::LEFT, &walls::UP, &walls::RIGHT, &walls::DOWN];
 
-pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
-    let height = (height.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;
+pub fn minimal_dimensions(width: f32, height: f32) -> (u32, u32) {
+    let height = (height.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as u32;
 
-    let width = (width.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;
+    let width = (width.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as u32;
 
     (width, height)
 }
@@ -141,8 +141,8 @@ pub fn cell_to_physical(pos: matrix::Pos) -> physical::Pos {
 
 pub fn physical_to_cell(pos: physical::Pos) -> matrix::Pos {
     matrix::Pos {
-        col: (pos.x / MULTIPLICATOR).floor() as isize,
-        row: (pos.y / MULTIPLICATOR).floor() as isize,
+        col: (pos.x / MULTIPLICATOR).floor() as i32,
+        row: (pos.y / MULTIPLICATOR).floor() as i32,
     }
 }
 

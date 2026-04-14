@@ -33,7 +33,7 @@ where
 {
     /// Maps each room of the maze, yielding a maze with the same layout but with transformed data.
     ///
-    /// This method allows for incorporating are information into the new maze.
+    /// This method allows for incorporating area information into the new maze.
     ///
     /// # Arguments
     /// *  `data` - A function providing data for the new maze.

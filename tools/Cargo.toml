@@ -8,3 +8,8 @@ edition.workspace = true
 maze = { path = "../maze" }
 
 lazy_static = { workspace = true }
+svg = { workspace = true, optional = true }
+
+
+[features]
+default = ["svg"]

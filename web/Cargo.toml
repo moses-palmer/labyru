@@ -6,6 +6,7 @@ edition.workspace = true
 
 [dependencies]
 maze = { path = "../maze" }
+maze-tools = { path = "../tools" }
 
 actix-web = { workspace = true }
 futures-util = { workspace = true }

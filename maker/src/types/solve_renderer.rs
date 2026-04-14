@@ -1,4 +1,4 @@
-use maze::render::svg::ToPath;
+use maze_tools::svg::ToPath;
 
 use svg::Node;
 

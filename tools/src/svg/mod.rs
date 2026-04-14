@@ -1,13 +1,6 @@
 use svg::node::element::path::{Command, Position};
 
-use crate::Maze;
-use crate::WallPos;
-
-use crate::matrix;
-use crate::physical;
-use crate::wall;
-
-use crate::walk::*;
+use maze::{Maze, WallPos, matrix, physical, walk::*, wall};
 
 pub trait ToPath {
     /// Generates an _SVG path d_ attribute value.
@@ -74,7 +67,7 @@ where
     fn to_path_d(&self) -> svg::node::element::path::Data {
         svg::node::element::path::Data::from(
             self.into_iter()
-                .map(|pos| self.maze.center(pos))
+                .map(|pos| self.maze().center(pos))
                 .enumerate()
                 .map(|(i, pos)| {
                     if i == 0 {
@@ -188,8 +181,7 @@ where
 
             if self
                 .maze
-                .rooms
-                .get(pos)
+                .room(pos)
                 .map(|room| room.visited)
                 .unwrap_or(false)
             {

@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 use svg::Node;
 
-use maze::render::svg::ToPath;
+use maze_tools::svg::ToPath;
 
 mod types;
 use self::types::*;

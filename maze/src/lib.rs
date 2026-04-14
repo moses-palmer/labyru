@@ -18,7 +18,6 @@ pub use self::shape::Shape;
 pub mod initialize;
 pub mod matrix;
 pub mod physical;
-pub mod render;
 pub mod room;
 pub mod walk;
 
@@ -128,6 +127,16 @@ where
         self.rooms.get_mut(pos).map(|room| &mut room.data)
     }
 
+    /// The data for a specific room.
+    ///
+    /// If the index is out of bounds, nothing is returned.
+    ///
+    /// # Arguments
+    /// *  `pos``- The room position.
+    pub fn room(&self, pos: matrix::Pos) -> Option<&room::Room<T>> {
+        self.rooms.get(pos)
+    }
+
     /// Whether a position is inside of the maze.
     ///
     /// # Arguments
@@ -230,6 +239,13 @@ where
     pub fn corners(&self, wall_pos: WallPos) -> (physical::Pos, physical::Pos) {
         let center = self.center(wall_pos.pos);
         (center + wall_pos.wall.span.0, center + wall_pos.wall.span.1)
+    }
+
+    /// Calculates the _view box_ for an object when rendered.
+    ///
+    /// The returned value is the minimal rectangle that will contain this maze.
+    pub fn viewbox(&self) -> physical::ViewBox {
+        self.shape().viewbox(self.width(), self.height())
     }
 
     /// See [`Self::corner_walls_start`].

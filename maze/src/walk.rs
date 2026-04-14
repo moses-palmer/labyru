@@ -140,7 +140,7 @@ where
     T: Clone,
 {
     /// The maze being walked.
-    pub(crate) maze: &'a Maze<T>,
+    maze: &'a Maze<T>,
 
     /// The backing room matrix.
     rooms: matrix::Matrix<Room>,
@@ -174,6 +174,11 @@ where
             a: end,
             b: start,
         }
+    }
+
+    /// The maze.
+    pub fn maze(&self) -> &Maze<T> {
+        self.maze
     }
 }
 

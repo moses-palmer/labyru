@@ -1,8 +1,7 @@
 use actix_web::HttpResponse;
-use svg::Node;
-
 use maze::initialize;
-use maze::render::svg::ToPath;
+use maze_tools::svg::ToPath;
+use svg::Node;
 
 mod maze_type;
 pub use self::maze_type::*;

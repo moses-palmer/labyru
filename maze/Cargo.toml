@@ -11,7 +11,6 @@ bit-set = { workspace = true }
 fastrand = { workspace = true, optional = true }
 rand = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
-svg = { workspace = true, optional = true }
 
 [dev-dependencies]
 serde_json = { workspace = true }
@@ -26,4 +25,4 @@ name = "walk"
 harness = false
 
 [features]
-default = ["serde", "svg"]
+default = ["serde"]

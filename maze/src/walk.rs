@@ -88,7 +88,7 @@ where
             for wall in self.doors(current) {
                 // Find the next room, and continue if we have already evaluated it to a better
                 // distance, or it is outside of the maze
-                let next = self.back((current, wall).into()).pos;
+                let next = WallPos { pos: current, wall }.back().pos;
                 if !self.is_inside(next)
                     || (rooms[next].visited && rooms[next].g > rooms[current].g + distance)
                 {
@@ -292,7 +292,7 @@ where
         self.maze
             .corner_walls_start((wall_pos.pos, wall_pos.wall.next).into())
             .find(|&next| !self.maze.is_open(next))
-            .unwrap_or_else(|| self.maze.back(wall_pos))
+            .unwrap_or_else(|| wall_pos.back())
     }
 }
 
@@ -565,7 +565,7 @@ mod tests {
 
         for to in maze
             .wall_positions(from)
-            .map(|wall_pos| maze.back(wall_pos).pos)
+            .map(|wall_pos| wall_pos.back().pos)
         {
             assert_eq!(maze.walk(from, to).is_some(), maze.is_inside(to));
         }

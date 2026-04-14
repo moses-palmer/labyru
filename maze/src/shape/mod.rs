@@ -86,16 +86,6 @@ impl Shape {
         dispatch!(self => all_walls())
     }
 
-    /// Returns the back of a wall.
-    ///
-    /// The back is the other side of the wall, located in a neighbouring room.
-    ///
-    /// # Arguments
-    /// *  `wall_pos` - The wall position.
-    pub fn back(self, wall_pos: WallPos) -> WallPos {
-        dispatch!(self => back(wall_pos))
-    }
-
     /// Returns the opposite of a wall.
     ///
     /// The opposite is the wall located on the opposite side of the room. For mazes with rooms
@@ -299,8 +289,9 @@ where
     ///
     /// # Arguments
     /// *  `wall_pos` - The wall position.
+    #[deprecated = "use wall_pos.back() instead"]
     pub fn back(&self, wall_pos: WallPos) -> WallPos {
-        self.shape.back(wall_pos)
+        wall_pos.back()
     }
 
     /// The opposite of a wall.

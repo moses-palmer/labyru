@@ -26,9 +26,9 @@ where
     // First remove all inner walls
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
         for &wall in maze.walls(pos) {
-            let WallPos { pos, wall } = maze.back((pos, wall).into());
-            if *candidates.get(pos).unwrap_or(&false) {
-                maze.open((pos, wall).into());
+            let back = WallPos { pos, wall }.back();
+            if *candidates.get(back.pos).unwrap_or(&false) {
+                maze.open(back);
             }
         }
     }
@@ -39,7 +39,7 @@ where
         .filter(|&pos| candidates[pos])
         .flat_map(|pos| {
             maze.wall_positions(pos)
-                .map(|wall_pos| (wall_pos, maze.back(wall_pos)))
+                .map(|wall_pos| (wall_pos, wall_pos.back()))
         })
         .filter(|(_, back)| *candidates.get(back.pos).unwrap_or(&false))
         .map(|(wall_pos, back)| {
@@ -62,7 +62,7 @@ where
 
     // Attempt to add every wall, but make sure no dead-ends appear
     for &wall_pos in walls {
-        let back = maze.back(wall_pos);
+        let back = wall_pos.back();
         if maze[wall_pos.pos].open_walls() > 2 && maze[back.pos].open_walls() > 2 {
             maze.close(wall_pos);
         }

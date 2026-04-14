@@ -48,6 +48,7 @@ define_shape! {
         ),
         previous: &RIGHT0,
         next: &UP,
+        back: &RIGHT1,
     },
     RIGHT1(1) = {
         corner_wall_offsets: &[
@@ -72,6 +73,7 @@ define_shape! {
         ),
         previous: &LEFT1,
         next: &DOWN,
+        back: &LEFT0,
     },
 
     LEFT1(0) = {
@@ -97,6 +99,7 @@ define_shape! {
         ),
         previous: &DOWN,
         next: &RIGHT1,
+        back: &RIGHT0,
     },
     RIGHT0(2) = {
         corner_wall_offsets: &[
@@ -121,6 +124,7 @@ define_shape! {
         ),
         previous: &UP,
         next: &LEFT0,
+        back: &LEFT1,
     },
 
     UP(1) = {
@@ -146,6 +150,7 @@ define_shape! {
         ),
         previous: &LEFT0,
         next: &RIGHT0,
+        back: &DOWN,
     },
     DOWN(2) = {
         corner_wall_offsets: &[
@@ -170,6 +175,7 @@ define_shape! {
         ),
         previous: &RIGHT1,
         next: &LEFT1,
+        back: &UP,
     }
 }
 
@@ -193,10 +199,6 @@ pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
     let width = (width.max(HORIZONTAL_MULTIPLICATOR) / HORIZONTAL_MULTIPLICATOR).floor() as usize;
 
     (width, height)
-}
-
-pub fn back_index(wall: usize) -> usize {
-    wall ^ 0b0001
 }
 
 pub fn opposite(_wall_pos: WallPos) -> Option<&'static wall::Wall> {
@@ -288,30 +290,54 @@ mod tests {
     use crate::WallPos;
     use crate::test_utils::*;
 
-    #[maze_test(tri)]
-    fn back(maze: TestMaze) {
+    #[test]
+    fn back() {
         assert_eq!(
-            maze.back((matrix_pos(2, 0), &walls::LEFT0).into()),
+            WallPos {
+                pos: matrix_pos(2, 0),
+                wall: &walls::LEFT0
+            }
+            .back(),
             (matrix_pos(1, 0), &walls::RIGHT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(2, 0), &walls::RIGHT0).into()),
+            WallPos {
+                pos: matrix_pos(2, 0),
+                wall: &walls::RIGHT0
+            }
+            .back(),
             (matrix_pos(3, 0), &walls::LEFT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 0), &walls::LEFT1).into()),
+            WallPos {
+                pos: matrix_pos(1, 0),
+                wall: &walls::LEFT1
+            }
+            .back(),
             (matrix_pos(0, 0), &walls::RIGHT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::UP).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::UP
+            }
+            .back(),
             (matrix_pos(1, 0), &walls::DOWN).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 0), &walls::RIGHT1).into()),
+            WallPos {
+                pos: matrix_pos(1, 0),
+                wall: &walls::RIGHT1
+            }
+            .back(),
             (matrix_pos(2, 0), &walls::LEFT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 0), &walls::DOWN).into()),
+            WallPos {
+                pos: matrix_pos(1, 0),
+                wall: &walls::DOWN
+            }
+            .back(),
             (matrix_pos(1, 1), &walls::UP).into()
         );
     }

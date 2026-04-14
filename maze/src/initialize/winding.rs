@@ -1,4 +1,5 @@
 use crate::Maze;
+use crate::WallPos;
 
 use crate::matrix;
 
@@ -37,9 +38,9 @@ where
         let neighbors = maze
             .walls(current)
             .iter()
-            .map(|&wall| maze.back((current, wall).into()))
+            .map(|&wall| WallPos { pos: current, wall }.back())
             .filter(|wall_pos| *candidates.get(wall_pos.pos).unwrap_or(&false))
-            .map(|wall_pos| (wall_pos.pos, maze.back(wall_pos).wall))
+            .map(|wall_pos| (wall_pos.pos, wall_pos.back().wall))
             .collect::<Vec<_>>();
 
         // If any exists, move to a random one and update the path, otherwise backtrack to  the

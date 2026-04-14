@@ -32,6 +32,20 @@ pub struct WallPos {
     pub wall: &'static wall::Wall,
 }
 
+impl WallPos {
+    /// The back of this wall.
+    ///
+    /// The back is the other side of the wall, located in a neighbouring room.
+    pub fn back(&self) -> Self {
+        let pos = matrix::Pos {
+            col: self.pos.col + self.wall.dir.0,
+            row: self.pos.row + self.wall.dir.1,
+        };
+        let wall = self.wall.back;
+        Self { pos, wall }
+    }
+}
+
 impl From<(matrix::Pos, &'static wall::Wall)> for WallPos {
     fn from((pos, wall): (matrix::Pos, &'static wall::Wall)) -> Self {
         WallPos { pos, wall }
@@ -209,7 +223,7 @@ where
         }
 
         // ...and then sync the value on the back
-        let other = self.back(wall_pos);
+        let other = wall_pos.back();
         if let Some(other_room) = self.rooms.get_mut(other.pos) {
             other_room.set_open(other.wall, value);
         }
@@ -298,23 +312,20 @@ where
         &self,
         wall_pos: WallPos,
     ) -> impl DoubleEndedIterator<Item = WallPos> + use<T> {
-        let shape = self.shape;
         let WallPos {
             pos: matrix::Pos { col, row },
             wall,
-        } = shape.back(wall_pos);
+        } = wall_pos.back();
         std::iter::once(wall_pos).chain(wall.corner_wall_offsets.iter().rev().map(
             move |&wall::Offset { dx, dy, wall }| {
-                shape.back(
-                    (
-                        matrix::Pos {
-                            col: col + dx,
-                            row: row + dy,
-                        },
-                        wall,
-                    )
-                        .into(),
-                )
+                WallPos {
+                    pos: matrix::Pos {
+                        col: col + dx,
+                        row: row + dy,
+                    },
+                    wall,
+                }
+                .back()
             },
         ))
     }
@@ -369,7 +380,7 @@ where
     /// *  `pos` - The room position.
     pub fn neighbors(&self, pos: matrix::Pos) -> impl DoubleEndedIterator<Item = matrix::Pos> + '_ {
         self.doors(pos)
-            .map(move |wall| self.back((pos, wall).into()).pos)
+            .map(move |wall| WallPos { pos, wall }.back().pos)
     }
 }
 
@@ -581,7 +592,7 @@ mod tests {
         let walls = maze
             .walls(pos)
             .iter()
-            .filter(|&&wall| maze.is_inside(maze.back((pos, wall).into()).pos))
+            .filter(|&&wall| maze.is_inside(WallPos { pos, wall }.back().pos))
             .copied()
             .collect::<Vec<_>>();
         walls.iter().for_each(|&wall| maze.open((pos, wall).into()));

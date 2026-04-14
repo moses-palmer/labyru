@@ -20,9 +20,9 @@ where
 {
     for pos in maze.positions().filter(|&pos| candidates[pos]) {
         for &wall in maze.walls(pos) {
-            let WallPos { pos, wall } = maze.back((pos, wall).into());
-            if *candidates.get(pos).unwrap_or(&false) {
-                maze.open((pos, wall).into());
+            let wall_pos = WallPos { pos, wall }.back();
+            if *candidates.get(wall_pos.pos).unwrap_or(&false) {
+                maze.open(wall_pos);
             }
         }
     }

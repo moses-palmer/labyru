@@ -42,19 +42,5 @@ macro_rules! define_shape {
         pub fn all_walls() -> &'static [&'static wall::Wall] {
             &walls::ALL
         }
-
-        /// Returns the wall on the back of `wall_pos`.
-        ///
-        /// # Arguments
-        /// *  `wall_pos` - The wall for which to find the back.
-        pub fn back(wall_pos: WallPos) -> WallPos {
-            let WallPos { pos, wall } = wall_pos;
-            let other = matrix::Pos {
-                col: pos.col + wall.dir.0,
-                row: pos.row + wall.dir.1,
-            };
-
-            (other, walls::ALL[self::back_index(wall.index)]).into()
-        }
     }
 }

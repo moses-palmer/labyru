@@ -39,6 +39,7 @@ define_shape! {
         ),
         previous: &LEFT,
         next: &RIGHT,
+        back: &DOWN,
     },
     LEFT(0) = {
         corner_wall_offsets: &[
@@ -61,6 +62,7 @@ define_shape! {
         ),
         previous: &DOWN,
         next: &UP,
+        back: &RIGHT,
     },
     DOWN(3) = {
         corner_wall_offsets: &[
@@ -83,6 +85,7 @@ define_shape! {
         ),
         previous: &RIGHT,
         next: &LEFT,
+        back: &UP,
     },
     RIGHT(2) = {
         corner_wall_offsets: &[
@@ -105,6 +108,7 @@ define_shape! {
         ),
         previous: &UP,
         next: &DOWN,
+        back: &LEFT,
     }
 }
 
@@ -117,10 +121,6 @@ pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
     let width = (width.max(MULTIPLICATOR) / MULTIPLICATOR).ceil() as usize;
 
     (width, height)
-}
-
-pub fn back_index(wall: usize) -> usize {
-    wall ^ 0b0010
 }
 
 pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
@@ -169,22 +169,38 @@ mod tests {
     use crate::WallPos;
     use crate::test_utils::*;
 
-    #[maze_test(quad)]
-    fn back(maze: TestMaze) {
+    #[test]
+    fn back() {
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::LEFT).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::LEFT
+            }
+            .back(),
             (matrix_pos(0, 1), &walls::RIGHT).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::UP).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::UP
+            }
+            .back(),
             (matrix_pos(1, 0), &walls::DOWN).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::RIGHT).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::RIGHT
+            }
+            .back(),
             (matrix_pos(2, 1), &walls::LEFT).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::DOWN).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::DOWN
+            }
+            .back(),
             (matrix_pos(1, 2), &walls::UP).into()
         );
     }

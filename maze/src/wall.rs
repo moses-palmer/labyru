@@ -75,10 +75,13 @@ pub struct Wall {
     pub span: (Angle, Angle),
 
     /// The previous wall, clock-wise.
-    pub previous: &'static Wall,
+    pub previous: &'static Self,
 
     /// The next wall, clock-wise.
-    pub next: &'static Wall,
+    pub next: &'static Self,
+
+    /// The wall on the back of this one.
+    pub back: &'static Self,
 }
 
 impl Wall {

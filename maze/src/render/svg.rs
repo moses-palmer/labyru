@@ -133,7 +133,7 @@ where
             *mask |= 1 << wall_pos.wall.index;
         }
 
-        let back = self.maze.back(wall_pos);
+        let back = wall_pos.back();
         if let Some(back_mask) = self.walls.get_mut(back.pos) {
             *back_mask |= 1 << back.wall.index;
         }

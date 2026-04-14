@@ -47,6 +47,7 @@ define_shape! {
         ),
         previous: &DOWN_LEFT0,
         next: &UP_LEFT0,
+        back: &RIGHT0,
     },
     RIGHT0(3) = {
         corner_wall_offsets: &[
@@ -68,6 +69,7 @@ define_shape! {
         ),
         previous: &UP_RIGHT0,
         next: &DOWN_RIGHT0,
+        back: &LEFT0,
     },
 
     LEFT1(0) = {
@@ -90,6 +92,7 @@ define_shape! {
         ),
         previous: &DOWN_LEFT1,
         next: &UP_LEFT1,
+        back: &RIGHT1,
     },
     RIGHT1(3) = {
         corner_wall_offsets: &[
@@ -111,6 +114,7 @@ define_shape! {
         ),
         previous: &UP_RIGHT1,
         next: &DOWN_RIGHT1,
+        back: &LEFT1,
     },
 
     UP_LEFT0(1) = {
@@ -133,6 +137,7 @@ define_shape! {
         ),
         previous: &LEFT0,
         next: &UP_RIGHT0,
+        back: &DOWN_RIGHT1,
     },
     DOWN_RIGHT1(4) = {
         corner_wall_offsets: &[
@@ -154,6 +159,7 @@ define_shape! {
         ),
         previous: &RIGHT1,
         next: &DOWN_LEFT1,
+        back: &UP_LEFT0,
     },
 
     UP_LEFT1(1) = {
@@ -176,6 +182,7 @@ define_shape! {
         ),
         previous: &LEFT1,
         next: &UP_RIGHT1,
+        back: &DOWN_RIGHT0,
     },
     DOWN_RIGHT0(4) = {
         corner_wall_offsets: &[
@@ -197,6 +204,7 @@ define_shape! {
         ),
         previous: &RIGHT0,
         next: &DOWN_LEFT0,
+        back: &UP_LEFT1,
     },
 
     UP_RIGHT0(2) = {
@@ -219,6 +227,7 @@ define_shape! {
         ),
         previous: &UP_LEFT0,
         next: &RIGHT0,
+        back: &DOWN_LEFT1,
     },
     DOWN_LEFT1(5) = {
         corner_wall_offsets: &[
@@ -240,6 +249,7 @@ define_shape! {
         ),
         previous: &DOWN_RIGHT1,
         next: &LEFT1,
+        back: &UP_RIGHT0,
     },
 
     UP_RIGHT1(2) = {
@@ -262,6 +272,7 @@ define_shape! {
         ),
         previous: &UP_LEFT1,
         next: &RIGHT1,
+        back: &DOWN_LEFT0,
     },
     DOWN_LEFT0(5) = {
         corner_wall_offsets: &[
@@ -283,6 +294,7 @@ define_shape! {
         ),
         previous: &DOWN_RIGHT0,
         next: &LEFT0,
+        back: &UP_RIGHT1,
     }
 }
 
@@ -314,10 +326,6 @@ pub fn minimal_dimensions(width: f32, height: f32) -> (usize, usize) {
         as usize;
 
     (width, height)
-}
-
-pub fn back_index(wall: usize) -> usize {
-    wall ^ 0b0001
 }
 
 pub fn opposite(wall_pos: WallPos) -> Option<&'static wall::Wall> {
@@ -426,54 +434,102 @@ mod tests {
     use crate::WallPos;
     use crate::test_utils::*;
 
-    #[maze_test(hex)]
-    fn back(maze: TestMaze) {
+    #[test]
+    fn back() {
         assert_eq!(
-            maze.back((matrix_pos(1, 0), &walls::LEFT0).into()),
+            WallPos {
+                pos: matrix_pos(1, 0),
+                wall: &walls::LEFT0
+            }
+            .back(),
             (matrix_pos(0, 0), &walls::RIGHT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::LEFT1).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::LEFT1
+            }
+            .back(),
             (matrix_pos(0, 1), &walls::RIGHT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 2), &walls::UP_LEFT0).into()),
+            WallPos {
+                pos: matrix_pos(1, 2),
+                wall: &walls::UP_LEFT0
+            }
+            .back(),
             (matrix_pos(1, 1), &walls::DOWN_RIGHT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::UP_LEFT1).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::UP_LEFT1
+            }
+            .back(),
             (matrix_pos(0, 0), &walls::DOWN_RIGHT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(0, 2), &walls::UP_RIGHT0).into()),
+            WallPos {
+                pos: matrix_pos(0, 2),
+                wall: &walls::UP_RIGHT0
+            }
+            .back(),
             (matrix_pos(1, 1), &walls::DOWN_LEFT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(0, 1), &walls::UP_RIGHT1).into()),
+            WallPos {
+                pos: matrix_pos(0, 1),
+                wall: &walls::UP_RIGHT1
+            }
+            .back(),
             (matrix_pos(0, 0), &walls::DOWN_LEFT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(0, 0), &walls::RIGHT0).into()),
+            WallPos {
+                pos: matrix_pos(0, 0),
+                wall: &walls::RIGHT0
+            }
+            .back(),
             (matrix_pos(1, 0), &walls::LEFT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(0, 1), &walls::RIGHT1).into()),
+            WallPos {
+                pos: matrix_pos(0, 1),
+                wall: &walls::RIGHT1
+            }
+            .back(),
             (matrix_pos(1, 1), &walls::LEFT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(0, 0), &walls::DOWN_RIGHT0).into()),
+            WallPos {
+                pos: matrix_pos(0, 0),
+                wall: &walls::DOWN_RIGHT0
+            }
+            .back(),
             (matrix_pos(1, 1), &walls::UP_LEFT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(0, 1), &walls::DOWN_RIGHT1).into()),
+            WallPos {
+                pos: matrix_pos(0, 1),
+                wall: &walls::DOWN_RIGHT1
+            }
+            .back(),
             (matrix_pos(0, 2), &walls::UP_LEFT0).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 0), &walls::DOWN_LEFT0).into()),
+            WallPos {
+                pos: matrix_pos(1, 0),
+                wall: &walls::DOWN_LEFT0
+            }
+            .back(),
             (matrix_pos(1, 1), &walls::UP_RIGHT1).into()
         );
         assert_eq!(
-            maze.back((matrix_pos(1, 1), &walls::DOWN_LEFT1).into()),
+            WallPos {
+                pos: matrix_pos(1, 1),
+                wall: &walls::DOWN_LEFT1
+            }
+            .back(),
             (matrix_pos(0, 2), &walls::UP_RIGHT0).into()
         );
     }
